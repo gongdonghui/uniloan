@@ -1,0 +1,35 @@
+debug:
+  true
+
+server:
+  port: 10081
+  tomcat:
+    max-threads: 10
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+
+spring:
+  datasource:
+    dynamic:
+      hikari:
+        connection-timeout: 3000
+
+      primary: test
+      datasource:
+        test:
+          username: root
+          password: root
+          url: 'jdbc:mysql://localhost:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          driver-class-name: com.mysql.jdbc.Driver
+          hikari:
+            max-lifetime: 600000
+
+        buyt:
+          username: root
+          password: root
+          url: 'jdbc:mysql://localhost:3306/buyt_new?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          driver-class-name: com.mysql.jdbc.Driver
+
+
