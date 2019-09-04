@@ -1,0 +1,108 @@
+
+
+drop table tb_user_regist_info;
+create table if not exists `tb_user_regist_info` (
+  `id` int(10) primary key auto_increment comment '作为用户id使用',
+  `mobile` varchar(32) not null comment '登陆手机号',
+  `create_time` datetime not null comment '创建时间'
+) engine=innodb default charset=utf8;
+create index idx_mobile on tb_user_regist_info(mobile);
+create index idx_create_time on tb_user_regist_info(create_time);
+
+
+drop table tb_user_citizen_identity_card_info;
+create table if not exists `tb_user_citizen_identity_card_info` (
+  `id` int(10) primary key auto_increment,
+  `info_id` varchar(32) not null comment '资料标识id',
+  `user_id` int(10) not null comment '关联用户id',
+  `name` varchar(32) not null comment '姓名',
+  `cid_no` varchar(64) not null comment '身份证号',
+  `gender` tinyint not null default 0 comment '性别  0|男  1|女',
+  `pic_1` varchar(128) not null default '' comment '照片1',
+  `pic_2` varchar(128) not null default '' comment '照片2',
+  `pic_3` varchar(128) not null default '' comment '照片3',
+  `pic_4` varchar(128) not null default '' comment '照片4',
+  `create_time` datetime not null,
+  `expire_time` datetime not null default '2199-01-01 00:00:00' comment '有效期'
+) engine=innodb default charset=utf8;
+create index idx_info_id on tb_user_citizen_identity_card_info(info_id);
+create index idx_user_id on tb_user_citizen_identity_card_info(user_id);
+create index idx_create_time on tb_user_citizen_identity_card_info(create_time);
+
+drop table tb_user_basic_info;
+create table if not exists `tb_user_basic_info` (
+  `id` int(10) primary key auto_increment,
+  `info_id` varchar(32) not null comment '资料标识id',
+  `user_id` int(10) not null comment '关联用户id',
+  `education` tinyint not null comment '学历   0|小学 1|初中 2|高中 3|中间 4|学院 5|综合性大学 6|大学后',
+  `marriage` tinyint not null default 1 comment '婚姻状态    0|已婚 1|单身 2|离异 3|丧偶',
+  `children_count` tinyint not null default 0 comment '子女个数',
+  `residence_city` smallint not null default 0 comment '居住城市 0|河内  1|河外',
+  `residence_addr` varchar(256) not null comment '详细居住地址',
+  `residen_duration` tinyint not null default 0 comment '居住时长 0|3个月  1|6个月',
+  `purpose` tinyint not null default 0 comment '用途 0|旅游  1|买车',
+  `purpose_other` varchar(128) not null default '' comment '用途其他 如果需要用户填写',
+  `zalo_id` varchar(64) not null default '' comment 'zalo id',
+  `age` tinyint not null default 0 comment '年龄',
+  `create_time` datetime not null,
+  `expire_time` datetime not null default '2199-01-01 00:00:00' comment '有效期'
+) engine=innodb default charset=utf8;
+create index idx_info_id on tb_user_basic_info(info_id);
+create index idx_user_id on tb_user_basic_info(user_id);
+create index idx_create_time on tb_user_basic_info(create_time);
+
+
+drop table tb_user_emergency_contact;
+create table if not exists `tb_user_emergency_contact` (
+  `id` int(10) primary key auto_increment,
+  `info_id` varchar(32) not null comment '资料标识id',
+  `user_id` int(10) not null comment '关联用户id',
+  `relationship` tinyint not null comment '关系 0|父母 1|同事',
+  `name` varchar(64) not null comment '紧急联系人姓名',
+  `mobile` varchar(32) not null comment '紧急联系人电话',
+  `create_time` datetime not null,
+  `expire_time` datetime not null default '2199-01-01 00:00:00' comment '有效期'
+) engine=innodb default charset=utf8;
+create index idx_info_id on tb_user_emergency_contact(info_id);
+create index idx_user_id on tb_user_emergency_contact(user_id);
+create index idx_create_time on tb_user_emergency_contact(create_time);
+
+
+drop table tb_user_employment_info;
+create table if not exists `tb_user_employment_info` (
+  `id` int(10) primary key auto_increment,
+  `info_id` varchar(32) not null comment '资料标识id',
+  `user_id` int(10) not null comment '关联用户id',
+  `company` varchar(128) not null comment '任职公司名称',
+  `company_city` smallint not null comment '公司所在区域 0|河内 1|河外',
+  `company_addr` varchar(256) not null comment '公司详细地址',
+  `phone` varchar(32) not null comment '公司联系电话',
+  `job_occupation` tinyint not null comment '职业类型 0|工程师  1|服务行业',
+  `income` tinyint not null comment '收入状态 0|1~100  1|100~1000',
+  `work_pic` varchar(128) not null comment '工作照片',
+  `create_time` datetime not null,
+  `expire_time` datetime not null default '2199-01-01 00:00:00' comment '有效期'
+) engine=innodb default charset=utf8;
+create index idx_info_id on tb_user_employment_info(info_id);
+create index idx_user_id on tb_user_employment_info(user_id);
+create index idx_create_time on tb_user_employment_info(create_time);
+
+
+drop table tb_user_bank_account_info;
+create table if not exists `tb_user_bank_account_info` (
+  `id` int(10) primary key auto_increment,
+  `info_id` varchar(32) not null comment '资料标识id',
+  `user_id` int(10) not null comment '关联用户id',
+
+  `account_type` tinyint not null default 0 comment '账户类型  0|借记卡 1|信用卡',
+  `name` varchar(64) not null comment '持卡人姓名',
+  `bank` tinyint not null comment '银行名称 0|xx_bank  1|yy_bank',
+  `account_id` varchar(128) not null comment '银行账号',
+
+  `create_time` datetime not null,
+  `expire_time` datetime not null default '2199-01-01 00:00:00' comment '有效期'
+) engine=innodb default charset=utf8;
+create index idx_info_id on tb_user_bank_account_info(info_id);
+create index idx_user_id on tb_user_bank_account_info(user_id);
+create index idx_create_time on tb_user_bank_account_info(create_time);
+
