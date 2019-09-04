@@ -118,11 +118,16 @@ create table if not exists `tb_apply_info`(
   `app_env_id` int(10) not null default -1,
   `status` int(10) not null comment '状态 0|待初审  1|初审通过 2|初审失败 3|待复审  4|复审通过 5|复审失败',
   `apply_quota` varchar(16) not null comment '用户实际申请的额度',
+  `contract_amount` int(10) not null comment '合同金额',
+  `inhand_amount` int(10) not null comment '到手金额',
   `credit_class` varchar(8) not null default '' comment '用户的信用评级，没到这一步就为空',
   `deny_code` varchar(8) not null comment '拒贷码，根据阶段不一样，取值也不一样',
   `create_time` datetime not null comment '记录创建时间',
   `expire_time` datetime not null comment '该条申请失效时间',
   `apply_time` datetime comment '用户申请时间',
+  `loan_time` datetime comment '放款时间',
+  `audit_person` varchar(32) comment '初审人员',
+  `re_audit_person` varchar(32) comment '复审人员',
   `update_time` datetime not null comment '更新时间'
 ) engine=innodb default charset=utf8;
 create index idx_user_id on tb_apply_info(user_id);
@@ -142,5 +147,62 @@ create index idx_apply_id on tb_apply_material_info(apply_id);
 create index idx_info_id on tb_apply_material_info(info_id);
 create index idx_create_time on tb_apply_material_info(create_time);
 
+drop table tb_repay_plan;
+create table if not exists `tb_repay_plan` (
+  `id` int(10) primary key auto_increment comment '作为plan_id',
+  `user_id` int(10) not null,
+  `apply_id` int(10) not null,
+  `seq_no` int(10) not null comment '期数从1开始计数',
+  `repay_start_date` datetime not null comment '当前开始还款时间',
+  `repay_end_date` datetime not null comment '还款截止日期',
+  `repay_time` datetime comment '还款时间，未还为空',
+  `repay_status` tinyint not null comment '还款状态 0|待还  1|已还',
+  `is_overdue` tinyint not null comment '是否逾期 0|没有 1|逾期',
+  `need_principal` int(10) not null comment '应还本金',
+  `act_principal` int(10) not null comment '实还本金',
+  `need_interest` int(10) not null comment '应还利息',
+  `act_interest` int(10) not null comment '实还利息',
+  `need_penalty_interest` int(10) not null comment '应还罚息',
+  `act_penalty_interest` int(10) not null comment '实还罚息',
+  `need_management_fee` int(10) not null comment '应还管理费',
+  `act_management_fee` int(10) not null comment '实还管理费',
+  `need_late_payment_fee` int(10) not null comment '应还滞纳金',
+  `act_late_payment_fee` int(10) not null comment '实还滞纳金',
+  `need_breach_fee` int(10) not null comment '应还违约金',
+  `act_breach_fee` int(10) not null comment '实还违约金',
+  `need_other` int(10) not null comment '应还其他',
+  `act_other` int(10) not null comment '实还其他',
+  `need_total` int(10) not null comment '应还总额',
+  `act_total` int(10) not null comment '实还总额',
+  `create_time` datetime not null comment '记录创建时间',
+  `update_time` datetime not null comment '更新时间'
+) engine=innodb default charset=utf8;
+create index idx_user_id on tb_repay_plan(user_id);
+create index idx_apply_id on tb_repay_plan(apply_id);
 
-
+drop table tb_repay_stat;
+create table if not exists `tb_repay_stat` (
+  `apply_id` int(10) primary key comment 'apply_id 作为主键',
+  `need_principal` int(10) not null comment '应还本金',
+  `act_principal` int(10) not null comment '实还本金',
+  `need_interest` int(10) not null comment '应还利息',
+  `act_interest` int(10) not null comment '实还利息',
+  `need_penalty_interest` int(10) not null comment '应还罚息',
+  `act_penalty_interest` int(10) not null comment '实还罚息',
+  `need_management_fee` int(10) not null comment '应还管理费',
+  `act_management_fee` int(10) not null comment '实还管理费',
+  `need_late_payment_fee` int(10) not null comment '应还滞纳金',
+  `act_late_payment_fee` int(10) not null comment '实还滞纳金',
+  `need_breach_fee` int(10) not null comment '应还违约金',
+  `act_breach_fee` int(10) not null comment '实还违约金',
+  `need_other` int(10) not null comment '应还其他',
+  `act_other` int(10) not null comment '实还其他',
+  `need_total` int(10) not null comment '应还总额',
+  `act_total` int(10) not null comment '实还总额',
+  `current_seq` int(10) not null comment '当前期数',
+  `normal_repay_times` int(10) not null comment '正常还款期数',
+  `overdue_repay_times` int(10) not null comment '逾期还款期数',
+  `overdue_times` int(10) not null comment '逾期期数',
+  `create_time` datetime not null comment '记录创建时间',
+  `update_time` datetime not null comment '更新时间'
+) engine=innodb default charset=utf8;
