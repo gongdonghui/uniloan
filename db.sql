@@ -93,16 +93,54 @@ create table if not exists `tb_user_bank_account_info` (
   `id` int(10) primary key auto_increment,
   `info_id` varchar(32) not null comment '资料标识id',
   `user_id` int(10) not null comment '关联用户id',
-
   `account_type` tinyint not null default 0 comment '账户类型  0|借记卡 1|信用卡',
   `name` varchar(64) not null comment '持卡人姓名',
   `bank` tinyint not null comment '银行名称 0|xx_bank  1|yy_bank',
   `account_id` varchar(128) not null comment '银行账号',
-
   `create_time` datetime not null,
   `expire_time` datetime not null default '2199-01-01 00:00:00' comment '有效期'
 ) engine=innodb default charset=utf8;
 create index idx_info_id on tb_user_bank_account_info(info_id);
 create index idx_user_id on tb_user_bank_account_info(user_id);
 create index idx_create_time on tb_user_bank_account_info(create_time);
+
+
+
+drop table tb_apply_info;
+create table if not exists `tb_apply_info`(
+  `id` int(10) primary key auto_increment comment '作为apply_id使用',
+  `user_id` int(10) not null,
+  `product_id` int(10) not null,
+  `credit_type` tinyint not null default 0 comment '授信类型 0|普通  1|循环',
+  `rate` varchar(16) not null comment '费率，从产品关联得到',
+  `period` varchar(16) not null comment '期限，从产品关联到',
+  `quota` varchar(16) not null comment '额度，从产品关联到',
+  `app_env_id` int(10) not null default -1,
+  `status` int(10) not null comment '状态 0|待初审  1|初审通过 2|初审失败 3|待复审  4|复审通过 5|复审失败',
+  `apply_quota` varchar(16) not null comment '用户实际申请的额度',
+  `credit_class` varchar(8) not null default '' comment '用户的信用评级，没到这一步就为空',
+  `deny_code` varchar(8) not null comment '拒贷码，根据阶段不一样，取值也不一样',
+  `create_time` datetime not null comment '记录创建时间',
+  `expire_time` datetime not null comment '该条申请失效时间',
+  `apply_time` datetime comment '用户申请时间',
+  `update_time` datetime not null comment '更新时间'
+) engine=innodb default charset=utf8;
+create index idx_user_id on tb_apply_info(user_id);
+create index idx_status on tb_apply_info(status);
+create index idx_create_time on tb_apply_info(create_time);
+create index idx_apply_time on tb_apply_info(apply_time);
+
+drop table tb_apply_material_info;
+create table if not exists `tb_apply_material_info`(
+  `id` int(10) primary key auto_increment,
+  `apply_id` int(10) not null comment '用户申请id',
+  `info_id` varchar(32) not null comment '用户申请使用的材料id',
+  `info_type` tinyint not null comment '0|身份证信息  1|基本信息 2|紧急联系人 3|职业信息 4|银行卡信息',
+  `create_time` datetime not null
+) engine=innodb default charset=utf8;
+create index idx_apply_id on tb_apply_material_info(apply_id);
+create index idx_info_id on tb_apply_material_info(info_id);
+create index idx_create_time on tb_apply_material_info(create_time);
+
+
 
