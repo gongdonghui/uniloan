@@ -10,7 +10,25 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
 
+sms:
+  skyline:
+    uri: http://sms.skylinelabs.cc:20003/sendsmsV2
+    account: xxxx
+    password: yyyy
+
 spring:
+  messages:
+    basename: static/i18n/messages
+
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    jedis:
+      pool:
+        max-active: 8
+    timeout: 60000
+
   datasource:
     dynamic:
       hikari:

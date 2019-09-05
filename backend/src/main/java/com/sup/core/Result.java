@@ -1,5 +1,6 @@
 package com.sup.core;
 
+import com.sup.util.MessageUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,5 +27,13 @@ public class Result {
 
   public static Result of(Integer status, Object data, String message) {
     return new Result().setStatus(status).setData(data).setMessage(message);
+  }
+
+  public static Result succ(Object data) {
+    return new Result().setStatus(kSuccess).setData(data);
+  }
+
+  public static Result fail(String key) {
+    return new Result().setStatus(kError).setMessage(MessageUtils.get(key));
   }
 }
