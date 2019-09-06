@@ -40,12 +40,17 @@ public class AuthorityInterceptor extends HandlerInterceptorAdapter {
     Method method = handlerMethod.getMethod();
     LoginRequired methodAnnotation = method.getAnnotation(LoginRequired.class);
     if (methodAnnotation != null) {
-      String token = request.getParameter("token");
+      String token = request.getHeader("token");
+      if (StringUtils.isEmpty(token)) {
+        token = request.getParameter("token");
+      }
+
       if (StringUtils.isEmpty(token)) {
         logger.warn("invalid request, token is null");
         WriteResult(resp, Result.fail("no_token"));
         return false;
       }
+
       String login_info_str = rc.Get(token);
       if (StringUtils.isEmpty(login_info_str)) {
         WriteResult(resp, Result.fail("expire_token"));

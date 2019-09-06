@@ -1,5 +1,6 @@
-debug:
-  true
+debug: true
+
+upload_path: ./storage
 
 server:
   port: 10081

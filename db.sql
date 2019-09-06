@@ -16,7 +16,7 @@ create table if not exists `tb_user_citizen_identity_card_info` (
   `info_id` varchar(32) not null comment '资料标识id',
   `user_id` int(10) not null comment '关联用户id',
   `name` varchar(32) not null comment '姓名',
-  `cid_no` varchar(64) not null comment '身份证号',
+  `cic_no` varchar(64) not null comment '身份证号',
   `gender` tinyint not null default 0 comment '性别  0|男  1|女',
   `pic_1` varchar(128) not null default '' comment '照片1',
   `pic_2` varchar(128) not null default '' comment '照片2',
