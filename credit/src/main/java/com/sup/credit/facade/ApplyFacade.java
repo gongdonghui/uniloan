@@ -1,5 +1,9 @@
 package com.sup.credit.facade;
 
+import com.sup.credit.bean.ApplyInfoBean;
+import com.sup.credit.bean.UserIdCardInfoBean;
+import org.springframework.web.bind.annotation.*;
+
 /**
  * Project:uniloan
  * Class:  ApplyFacade
@@ -8,31 +12,28 @@ package com.sup.credit.facade;
  * Create: 2019-09-05
  */
 
+@RequestMapping(value = "/credit")
 public interface ApplyFacade {
-
-    //////////////////////////////
-    // 申请资料CRUD接口
-    //////////////////////////////
-
-    // add/update/get user id info
-
-    // add/update/get user basic info
-
-    // add/update/get user contact nfo
-
-    // add/update/get user employment info
-
-    // add/update/get user bank account info
-
-    // add/update/get apply material info
-
 
     //////////////////////////////
     // 进件CRUD接口
     //////////////////////////////
 
-    // add/update/get apply info
+    // update/get user credit class
 
+
+    // add/update/get apply info
+    @ResponseBody
+    @RequestMapping(value = "apply/add", produces = "application/json;charset=UTF-8")
+    Object addApplyInfo(String userId, String productId, String channelId, String appId);
+
+    @ResponseBody
+    @RequestMapping(value = "apply/update", produces = "application/json;charset=UTF-8")
+    Object updateApplyInfo(@RequestBody ApplyInfoBean bean);
+
+    @ResponseBody
+    @RequestMapping(value = "apply/get", produces = "application/json;charset=UTF-8")
+    Object getApplyInfo(String userId);
 
     //////////////////////////////
     // 进件指派接口
