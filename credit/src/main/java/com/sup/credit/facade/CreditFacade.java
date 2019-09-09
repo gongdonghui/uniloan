@@ -48,12 +48,15 @@ public interface CreditFacade {
     Object addApplyInfo(String userId, String productId, String channelId, String appId);
 
     @ResponseBody
-    @RequestMapping(value = "apply/update", produces = "application/json;charset=UTF-8")
-    Object updateApplyInfo(@RequestBody ApplyInfoBean bean);
+    @RequestMapping(value = "apply/list", produces = "application/json;charset=UTF-8")
+    Object getApplyInfoList(String userId);
 
     @ResponseBody
-    @RequestMapping(value = "apply/get", produces = "application/json;charset=UTF-8")
-    Object getApplyInfo(String userId);
+    @RequestMapping(value = "apply/current", produces = "application/json;charset=UTF-8")
+    Object getCurrentApplyInfo(String userId);
 
-    // TODO: 当前有效进件
+    @ResponseBody
+    @RequestMapping(value = "apply/detail", produces = "application/json;charset=UTF-8")
+    Object getApplyInfo(String applyId);
+
 }

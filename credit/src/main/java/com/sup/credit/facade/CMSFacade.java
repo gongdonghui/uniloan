@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public interface CMSFacade {
 
     ////////////////////////////////////////////////////////////
-    // 进件指派接口
+    // 进件接口
     ////////////////////////////////////////////////////////////
 
     // apply info auto assigned
@@ -39,6 +39,10 @@ public interface CMSFacade {
     @RequestMapping(value = "auditTask/cancelAssign", produces = "application/json;charset=UTF-8")
     Object cancelAuditAssign(String assignTo, String operator, String applyId);
 
+    // audit apply
+    @ResponseBody
+    @RequestMapping(value = "auditTask/exec", produces = "application/json;charset=UTF-8")
+    Object updateApplyInfo(String operator, @RequestBody ApplyInfoBean bean);
 
 
     ////////////////////////////////////////////////////////////
