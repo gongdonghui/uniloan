@@ -14,18 +14,5 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ApplyFacadeImpl implements ApplyFacade {
-    @Override
-    public Object addApplyInfo(String userId, String productId, String channelId, String appId) {
-        return null;
-    }
 
-    @Override
-    public Object updateApplyInfo(ApplyInfoBean bean) {
-        return null;
-    }
-
-    @Override
-    public Object getApplyInfo(String userId) {
-        return null;
-    }
 }

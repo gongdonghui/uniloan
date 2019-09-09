@@ -148,4 +148,7 @@ public interface CMSFacade {
     @RequestMapping(value = "log/get", produces = "application/json;charset=UTF-8")
     Object getLog(String date_from, String date_to);
 
+
+    // TODO: 产品配置
+
 }
