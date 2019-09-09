@@ -4,8 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.ImmutableList;
-import com.sup.bean.LoginInfoCtx;
-import com.sup.bean.TbUserRegistInfoBean;
+import com.sup.bean.*;
 import com.sup.core.LoginInfo;
 import com.sup.core.LoginRequired;
 import com.sup.core.Result;
@@ -16,10 +15,7 @@ import com.sup.util.ToolUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.Random;
@@ -79,6 +75,109 @@ public class UserController {
     LoginInfoCtx li = new LoginInfoCtx(regist_info.getId(), ToolUtils.NormTime(new Date()));
     rc.Set(token, li.toString(), 30l, TimeUnit.DAYS);
     return Result.succ(token);
+  }
+
+
+  //////////////////////////////
+  // 申请资料CRUD接口
+  //////////////////////////////
+
+  // add/update/get user IDCard info
+  @ResponseBody
+  @RequestMapping(value = "idCard/add", produces = "application/json;charset=UTF-8")
+  public Object addUserIdCardInfo(@RequestBody TbUserCitizenIdentityCardInfoBean bean) {
+    return null;
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "idCard/update", produces = "application/json;charset=UTF-8")
+  public Object updateUserIdCardInfo(@RequestBody TbUserCitizenIdentityCardInfoBean bean) {
+    return null;
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "idCard/get", produces = "application/json;charset=UTF-8")
+  public Object getUserIdCardInfo(@RequestParam(value = "userId") String userId) {
+    return null;
+  }
+
+  // add/update/get user basic info
+  @ResponseBody
+  @RequestMapping(value = "basic/add", produces = "application/json;charset=UTF-8")
+  public Object addUserBasicInfo(@RequestBody TbUserBasicInfoBean bean) {
+    return null;
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "basic/update", produces = "application/json;charset=UTF-8")
+  public Object updateUserBasicInfo(@RequestBody TbUserBasicInfoBean bean) {
+    return null;
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "basic/get", produces = "application/json;charset=UTF-8")
+  public Object getUserBasicInfo(@RequestParam(value = "userId") String userId) {
+    return null;
+  }
+
+
+  // add/update/get user contact info
+  @ResponseBody
+  @RequestMapping(value = "contact/add", produces = "application/json;charset=UTF-8")
+  public Object addUserContactInfo(@RequestBody TbUserEmergencyContactBean bean) {
+    return null;
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "contact/update", produces = "application/json;charset=UTF-8")
+  public Object updateUserContactInfo(@RequestBody TbUserEmergencyContactBean bean) {
+    return null;
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "contact/get", produces = "application/json;charset=UTF-8")
+  public Object getUserContactInfo(@RequestParam(value = "userId") String userId) {
+    return null;
+  }
+
+
+  // add/update/get user employment info
+  @ResponseBody
+  @RequestMapping(value = "employment/add", produces = "application/json;charset=UTF-8")
+  public Object addUserEmploymentInfo(@RequestBody TbUserEmploymentInfoBean bean) {
+    return null;
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "employment/update", produces = "application/json;charset=UTF-8")
+  public Object updateUserEmploymentInfo(@RequestBody TbUserEmploymentInfoBean bean) {
+    return null;
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "employment/get", produces = "application/json;charset=UTF-8")
+  public Object getUserEmploymentInfo(@RequestParam(value = "userId") String userId) {
+    return null;
+  }
+
+
+  // add/update/get user bank account info
+  @ResponseBody
+  @RequestMapping(value = "bank/add", produces = "application/json;charset=UTF-8")
+  public Object addUserBankInfo(@RequestBody TbUserBankAccountInfoBean bean) {
+    return null;
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "bank/update", produces = "application/json;charset=UTF-8")
+  public Object updateUserBankInfo(@RequestBody TbUserBankAccountInfoBean bean) {
+    return null;
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "bank/get", produces = "application/json;charset=UTF-8")
+  public Object getUserBankInfo(@RequestParam(value = "userId") String userId) {
+    return null;
   }
 
   @LoginRequired

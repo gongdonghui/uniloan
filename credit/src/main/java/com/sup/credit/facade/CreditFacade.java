@@ -23,40 +23,4 @@ public interface CreditFacade {
     @RequestMapping(value = "autoAudit", produces = "application/json;charset=UTF-8")
     Object autoAudit(String version, String applyId, @RequestBody RiskDecisionVariableBean bean);
 
-    //////////////////////////////
-    // 进件CRUD接口
-    //////////////////////////////
-
-    // update/get user credit class
-    @ResponseBody
-    @RequestMapping(value = "class/add", produces = "application/json;charset=UTF-8")
-    Object addCreditClass(@RequestBody CreditClassBean bean);
-
-    @ResponseBody
-    @RequestMapping(value = "class/update", produces = "application/json;charset=UTF-8")
-    Object updateCreditClass(@RequestBody CreditClassBean bean);
-
-//    // get user credit class
-//    @ResponseBody
-//    @RequestMapping(value = "class/get", produces = "application/json;charset=UTF-8")
-//    Object getCreditClass(String userId, String applyId);
-
-
-    // add/update/get apply info
-    @ResponseBody
-    @RequestMapping(value = "apply/add", produces = "application/json;charset=UTF-8")
-    Object addApplyInfo(String userId, String productId, String channelId, String appId);
-
-    @ResponseBody
-    @RequestMapping(value = "apply/list", produces = "application/json;charset=UTF-8")
-    Object getApplyInfoList(String userId);
-
-    @ResponseBody
-    @RequestMapping(value = "apply/current", produces = "application/json;charset=UTF-8")
-    Object getCurrentApplyInfo(String userId);
-
-    @ResponseBody
-    @RequestMapping(value = "apply/detail", produces = "application/json;charset=UTF-8")
-    Object getApplyInfo(String applyId);
-
 }

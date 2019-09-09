@@ -1,6 +1,5 @@
 package com.sup.credit.facade;
 
-import com.sup.credit.bean.RepayMaterialInfoBean;
 import com.sup.credit.bean.RepayPlanInfoBean;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,39 +33,4 @@ public interface LoanFacade {
     @ResponseBody
     @RequestMapping(value = "plan/update", produces = "application/json;charset=UTF-8")
     Object updateRepayPlan(@RequestBody RepayPlanInfoBean bean);
-
-    @ResponseBody
-    @RequestMapping(value = "plan/get", produces = "application/json;charset=UTF-8")
-    Object getRepayPlan(String userId, String applyId);
-
-
-
-    //////////////////////////////
-    // 还款接口
-    //////////////////////////////
-
-    // get repayment link
-    @ResponseBody
-    @RequestMapping(value = "getRepayLink", produces = "application/json;charset=UTF-8")
-    Object getRepayLink(String userId, String applyId);
-
-
-    // repayment complete callback
-    @ResponseBody
-    @RequestMapping(value = "repayCallBack", produces = "application/json;charset=UTF-8")
-    Object repayCallBack(String userId, String applyId);
-
-
-    // add/update/get manual repayment material info
-    @ResponseBody
-    @RequestMapping(value = "repayMaterial/add", produces = "application/json;charset=UTF-8")
-    Object addRepayMaterial(@RequestBody RepayMaterialInfoBean bean);
-
-    @ResponseBody
-    @RequestMapping(value = "repayMaterial/update", produces = "application/json;charset=UTF-8")
-    Object updateRepayMaterial(@RequestBody RepayMaterialInfoBean bean);
-
-    @ResponseBody
-    @RequestMapping(value = "repayMaterial/get", produces = "application/json;charset=UTF-8")
-    Object getRepayMaterial(Integer page, Integer pageSize);
 }
