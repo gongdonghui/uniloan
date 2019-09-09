@@ -24,7 +24,7 @@ public interface UserInfoFacade {
     // 申请资料CRUD接口
     //////////////////////////////
 
-    // add/update/get user id info
+    // add/update/get user IDCard info
     @ResponseBody
     @RequestMapping(value = "idCard/add", produces = "application/json;charset=UTF-8")
     Object addUserIdCardInfo(@RequestBody UserIdCardInfoBean bean);

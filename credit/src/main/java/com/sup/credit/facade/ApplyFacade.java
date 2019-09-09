@@ -2,7 +2,6 @@ package com.sup.credit.facade;
 
 import com.sup.credit.bean.ApplyInfoBean;
 import com.sup.credit.bean.CreditClassBean;
-import com.sup.credit.bean.UserIdCardInfoBean;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -46,25 +45,4 @@ public interface ApplyFacade {
     @ResponseBody
     @RequestMapping(value = "apply/get", produces = "application/json;charset=UTF-8")
     Object getApplyInfo(String userId);
-
-    //////////////////////////////
-    // 进件指派接口
-    //////////////////////////////
-
-    // apply info auto assigned
-    @ResponseBody
-    @RequestMapping(value = "apply/autoAssign", produces = "application/json;charset=UTF-8")
-    Object autoAssign(@RequestBody ApplyInfoBean bean);
-
-    // apply info manual assigned
-    @ResponseBody
-    @RequestMapping(value = "apply/assign", produces = "application/json;charset=UTF-8")
-    Object manualAssign(String assignTo, String operator, String applyId);
-
-    // apply info cancel assignment
-    @ResponseBody
-    @RequestMapping(value = "apply/cancelAssign", produces = "application/json;charset=UTF-8")
-    Object cancelAssign(String assignTo, String operator, String applyId);
-
-
 }

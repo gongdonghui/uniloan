@@ -41,7 +41,6 @@ public interface LoanFacade {
 
 
 
-
     //////////////////////////////
     // 还款接口
     //////////////////////////////
@@ -70,29 +69,4 @@ public interface LoanFacade {
     @ResponseBody
     @RequestMapping(value = "repayMaterial/get", produces = "application/json;charset=UTF-8")
     Object getRepayMaterial(Integer page, Integer pageSize);
-
-
-
-
-    //////////////////////////////
-    // 逾期管理接口
-    //////////////////////////////
-
-    // get overdue loan info
-    @ResponseBody
-    @RequestMapping(value = "overdue/get", produces = "application/json;charset=UTF-8")
-    Object getOverdueInfo(Integer page, Integer pageSize);
-
-    // overdue loan info manual assigned
-    @ResponseBody
-    @RequestMapping(value = "overdue/assign", produces = "application/json;charset=UTF-8")
-    Object manualAssign(String assignTo, String operator, String applyId);
-
-    // overdue loan info cancel assignment
-    @ResponseBody
-    @RequestMapping(value = "overdue/cancelAssign", produces = "application/json;charset=UTF-8")
-    Object cancelAssign(String assignTo, String operator, String applyId);
-
-
-
 }
