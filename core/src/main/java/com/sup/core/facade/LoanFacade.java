@@ -36,7 +36,7 @@ public interface LoanFacade {
 
     @ResponseBody
     @RequestMapping(value = "plan/get", produces = "application/json;charset=UTF-8")
-    Object getRepayPlan(String userId, String applyId);
+    Object getRepayPlan(String applyId);
 
 
     /**

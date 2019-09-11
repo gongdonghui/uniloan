@@ -1,5 +1,8 @@
 package com.sup.core.facade.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.additional.query.impl.QueryChainWrapper;
 import com.sup.core.Result;
 import com.sup.core.bean.RepayPlanInfoBean;
 import com.sup.core.facade.LoanFacade;
@@ -10,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Project:uniloan
@@ -66,7 +70,15 @@ public class LoanFacadeImpl implements LoanFacade {
     }
 
     @Override
-    public Object getRepayPlan(String userId, String applyId) {
+    public Object getRepayPlan(String applyId) {
+        if (applyId == null) {
+            return Result.fail("Invalid param!");
+        }
+        QueryWrapper<RepayPlanInfoBean> wrapper = new QueryWrapper<RepayPlanInfoBean>();
+        RepayPlanInfoBean bean = new RepayPlanInfoBean();
+        //List<RepayPlanInfoBean> plans = repayPlanInfoMapper.selectList(new QueryWrapper<RepayPlanInfoBean>().allEq({}));
+        // Wrappers.<RepayPlanInfoBean>lambdaQuery().allEq({"":userId, "":applyId});
+
         return null;
     }
 
