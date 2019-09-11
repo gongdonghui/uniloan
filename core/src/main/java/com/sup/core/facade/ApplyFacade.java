@@ -18,6 +18,6 @@ public interface ApplyFacade {
     // audit apply
     @ResponseBody
     @RequestMapping(value = "update", produces = "application/json;charset=UTF-8")
-    Object updateApplyInfo(String operator, @RequestBody ApplyInfoBean bean);
+    Object updateApplyInfo(@RequestBody ApplyInfoBean bean);
 
 }

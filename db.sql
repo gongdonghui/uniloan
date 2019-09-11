@@ -1,208 +1,466 @@
 
+-- Create syntax for TABLE 'tb_app_version'
+DROP TABLE tb_app_version;
+CREATE TABLE if NOT EXISTS `tb_app_version` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT COMMENT 'app id',
+  `APP_NAME` varchar(255) NOT NULL,
+  `VERSION` varchar(255) DEFAULT NULL,
+  `CHANNEL_ID` int(10) DEFAULT NULL COMMENT ' 渠道ID',
+  `URL` varchar(255) DEFAULT NULL COMMENT '下载链接',
+  `CREATE_USER` varchar(255) DEFAULT NULL,
+  `FORCE_UPDATE` int(10) DEFAULT '0' COMMENT '是否强制更新, 0:否，1:是',
+  `IS_LATEST` int(10) DEFAULT NULL COMMENT '是否是最新版本',
+  `PLATFORM` int(10) DEFAULT NULL COMMENT '发布平台，1:ios，2:android',
+  `COMMENT` varchar(255) DEFAULT NULL COMMENT '记录每个版本更新的情况',
+  `APP_STATUS` int(10) DEFAULT NULL COMMENT 'APP状态，0:下线，1:在线，2:审核',
+  `CREATE_TIME` datetime DEFAULT NULL,
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table tb_user_regist_info;
-create table if not exists `tb_user_regist_info` (
-  `id` int(10) primary key auto_increment comment '作为用户id使用',
-  `mobile` varchar(32) not null comment '登陆手机号',
-  `create_time` datetime not null comment '创建时间'
-) engine=innodb default charset=utf8;
-create index idx_mobile on tb_user_regist_info(mobile);
-create index idx_create_time on tb_user_regist_info(create_time);
+-- Create syntax for TABLE 'tb_apply_assignment'
+DROP TABLE tb_apply_assignment;
+CREATE TABLE if NOT EXISTS `tb_apply_assignment` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `operator_id` int(11) DEFAULT NULL COMMENT '操作者id',
+  `apply_id` int(10) NOT NULL COMMENT '进件申请id',
+  `distributor_id` int(10) NOT NULL COMMENT '指派人id',
+  `status` int(10) NOT NULL COMMENT '分配状态：0:未审，1:已审，2:回收',
+  `comment` varchar(256) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL COMMENT '记录创建时间',
+  `expire_time` datetime NOT NULL COMMENT '操作截止时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Create syntax for TABLE 'tb_apply_info'
+DROP TABLE tb_apply_info;
+CREATE TABLE if NOT EXISTS `tb_apply_info` (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '作为apply_id使用',
+  `user_id` int(10) NOT NULL,
+  `product_id` int(10) NOT NULL,
+  `channel_id` int(10) DEFAULT NULL COMMENT '进件渠道id',
+  `app_id` int(10) NOT NULL DEFAULT '-1',
+  `credit_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '授信类型 0|普通  1|循环',
+  `rate` float NOT NULL COMMENT '费率，从产品关联得到',
+  `period` int(16) NOT NULL COMMENT '期限，从产品关联到',
+  `quota` float NOT NULL COMMENT '额度，从产品关联到',
+  `status` int(10) NOT NULL COMMENT '进件最新状态：0:待审核, 1:自动审核通过, 2:初审通过, 3:复审通过, 4:终审通过, 5:自动审核拒绝, 6:初审拒绝, 7:复审拒绝, 8:终审拒绝, 9:取消或异常',
+  `operator_id` int(11) DEFAULT NULL COMMENT '最后操作者id',
+  `apply_quota` float NOT NULL COMMENT '用户实际申请的额度',
+  `grant_quota` float DEFAULT '0' COMMENT '授予额度',
+  `remain_quota` float DEFAULT '0' COMMENT '剩余可用额度',
+  `credit_class` varchar(8) DEFAULT NULL COMMENT '用户的信用评级，没到这一步就为空',
+  `deny_code` varchar(8) NOT NULL COMMENT '拒贷码，根据阶段不一样，取值也不一样',
+  `comment` varchar(256) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL COMMENT '记录创建时间',
+  `expire_time` datetime NOT NULL COMMENT '该条申请失效时间',
+  `apply_time` datetime DEFAULT NULL COMMENT '用户申请时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_create_time` (`create_time`),
+  KEY `idx_apply_time` (`apply_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table tb_user_citizen_identity_card_info;
-create table if not exists `tb_user_citizen_identity_card_info` (
-  `id` int(10) primary key auto_increment,
-  `info_id` varchar(32) not null comment '资料标识id',
-  `user_id` int(10) not null comment '关联用户id',
-  `name` varchar(32) not null comment '姓名',
-  `cic_no` varchar(64) not null comment '身份证号',
-  `gender` tinyint not null default 0 comment '性别  0|男  1|女',
-  `pic_1` varchar(128) not null default '' comment '照片1',
-  `pic_2` varchar(128) not null default '' comment '照片2',
-  `pic_3` varchar(128) not null default '' comment '照片3',
-  `pic_4` varchar(128) not null default '' comment '照片4',
-  `create_time` datetime not null,
-  `expire_time` datetime not null default '2199-01-01 00:00:00' comment '有效期'
-) engine=innodb default charset=utf8;
-create index idx_info_id on tb_user_citizen_identity_card_info(info_id);
-create index idx_user_id on tb_user_citizen_identity_card_info(user_id);
-create index idx_create_time on tb_user_citizen_identity_card_info(create_time);
+-- Create syntax for TABLE 'tb_apply_info_history'
+DROP TABLE tb_apply_info_history;
+CREATE TABLE if NOT EXISTS `tb_apply_info_history` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `apply_id` int(10) NOT NULL COMMENT '进件申请id',
+  `user_id` int(10) NOT NULL,
+  `product_id` int(10) NOT NULL,
+  `channel_id` int(10) DEFAULT NULL COMMENT '进件渠道id',
+  `app_id` int(10) NOT NULL DEFAULT '-1',
+  `status` int(10) NOT NULL COMMENT '进件状态：0:待审核, 1:自动审核通过, 2:初审通过, 3:复审通过, 4:终审通过, 5:自动审核拒绝, 6:初审拒绝, 7:复审拒绝, 8:终审拒绝, 9:取消或异常',
+  `operator_id` int(11) DEFAULT NULL COMMENT '操作者id',
+  `deny_code` varchar(8) NOT NULL COMMENT '拒贷码，根据阶段不一样，取值也不一样',
+  `comment` varchar(256) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL COMMENT '记录创建时间',
+  `expire_time` datetime NOT NULL COMMENT '该条申请失效时间',
+  `apply_time` datetime DEFAULT NULL COMMENT '用户申请时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_create_time` (`create_time`),
+  KEY `idx_apply_time` (`apply_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table tb_user_basic_info;
-create table if not exists `tb_user_basic_info` (
-  `id` int(10) primary key auto_increment,
-  `info_id` varchar(32) not null comment '资料标识id',
-  `user_id` int(10) not null comment '关联用户id',
-  `education` tinyint not null comment '学历   0|小学 1|初中 2|高中 3|中间 4|学院 5|综合性大学 6|大学后',
-  `marriage` tinyint not null default 1 comment '婚姻状态    0|已婚 1|单身 2|离异 3|丧偶',
-  `children_count` tinyint not null default 0 comment '子女个数',
-  `residence_city` smallint not null default 0 comment '居住城市 0|河内  1|河外',
-  `residence_addr` varchar(256) not null comment '详细居住地址',
-  `residen_duration` tinyint not null default 0 comment '居住时长 0|3个月  1|6个月',
-  `purpose` tinyint not null default 0 comment '用途 0|旅游  1|买车',
-  `purpose_other` varchar(128) not null default '' comment '用途其他 如果需要用户填写',
-  `zalo_id` varchar(64) not null default '' comment 'zalo id',
-  `age` tinyint not null default 0 comment '年龄',
-  `create_time` datetime not null,
-  `expire_time` datetime not null default '2199-01-01 00:00:00' comment '有效期'
-) engine=innodb default charset=utf8;
-create index idx_info_id on tb_user_basic_info(info_id);
-create index idx_user_id on tb_user_basic_info(user_id);
-create index idx_create_time on tb_user_basic_info(create_time);
+-- Create syntax for TABLE 'tb_apply_material_info'
+DROP TABLE tb_apply_material_info;
+CREATE TABLE if NOT EXISTS `tb_apply_material_info` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `apply_id` int(10) NOT NULL COMMENT '用户申请id',
+  `info_id` varchar(32) NOT NULL COMMENT '用户申请使用的材料id',
+  `info_type` tinyint(4) NOT NULL COMMENT '0|身份证信息  1|基本信息 2|紧急联系人 3|职业信息 4|银行卡信息',
+  `create_time` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_apply_id` (`apply_id`),
+  KEY `idx_info_id` (`info_id`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Create syntax for TABLE 'tb_channel_info'
+DROP TABLE tb_channel_info;
+CREATE TABLE if NOT EXISTS `tb_channel_info` (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '渠道id',
+  `type` varchar(32) NOT NULL DEFAULT '' COMMENT '渠道类型',
+  `name` varchar(32) NOT NULL DEFAULT '' COMMENT '渠道名称',
+  `status` varchar(32) NOT NULL DEFAULT '' COMMENT '渠道状态',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_type` (`type`),
+  KEY `idx_name` (`name`),
+  KEY `idx_status` (`status`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table tb_user_emergency_contact;
-create table if not exists `tb_user_emergency_contact` (
-  `id` int(10) primary key auto_increment,
-  `info_id` varchar(32) not null comment '资料标识id',
-  `user_id` int(10) not null comment '关联用户id',
-  `relationship` tinyint not null comment '关系 0|父母 1|同事',
-  `name` varchar(64) not null comment '紧急联系人姓名',
-  `mobile` varchar(32) not null comment '紧急联系人电话',
-  `create_time` datetime not null,
-  `expire_time` datetime not null default '2199-01-01 00:00:00' comment '有效期'
-) engine=innodb default charset=utf8;
-create index idx_info_id on tb_user_emergency_contact(info_id);
-create index idx_user_id on tb_user_emergency_contact(user_id);
-create index idx_create_time on tb_user_emergency_contact(create_time);
+-- Create syntax for TABLE 'tb_cms_assign_history'
+DROP TABLE tb_cms_assign_history;
+CREATE TABLE if NOT EXISTS `tb_cms_assign_history` (
+  `ID` int(11) NOT NULL COMMENT '主键',
+  `ORDER_ID` int(11) DEFAULT NULL COMMENT '订单号',
+  `ASSIGNMENT_NAME` varchar(255) DEFAULT NULL COMMENT '任务名称',
+  `RESULT` int(11) DEFAULT NULL COMMENT '执行结果',
+  `CUSTOMER_NAME` varchar(255) DEFAULT NULL COMMENT '客户名称',
+  `APPROVER` varchar(255) DEFAULT NULL COMMENT '审批人',
+  `CREATE_TIME` datetime DEFAULT NULL,
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Create syntax for TABLE 'tb_cms_customer_info'
+DROP TABLE tb_cms_customer_info;
+CREATE TABLE if NOT EXISTS `tb_cms_customer_info` (
+  `ID` int(11) NOT NULL COMMENT '主键',
+  `NAME` varchar(255) DEFAULT NULL COMMENT '姓名',
+  `ID_NUMBER` varchar(20) DEFAULT NULL COMMENT '身份证',
+  `PHONE_NUMBER` int(11) DEFAULT NULL COMMENT '手机号',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '注册时间',
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table tb_user_employment_info;
-create table if not exists `tb_user_employment_info` (
-  `id` int(10) primary key auto_increment,
-  `info_id` varchar(32) not null comment '资料标识id',
-  `user_id` int(10) not null comment '关联用户id',
-  `company` varchar(128) not null comment '任职公司名称',
-  `company_city` smallint not null comment '公司所在区域 0|河内 1|河外',
-  `company_addr` varchar(256) not null comment '公司详细地址',
-  `phone` varchar(32) not null comment '公司联系电话',
-  `job_occupation` tinyint not null comment '职业类型 0|工程师  1|服务行业',
-  `income` tinyint not null comment '收入状态 0|1~100  1|100~1000',
-  `work_pic` varchar(128) not null comment '工作照片',
-  `create_time` datetime not null,
-  `expire_time` datetime not null default '2199-01-01 00:00:00' comment '有效期'
-) engine=innodb default charset=utf8;
-create index idx_info_id on tb_user_employment_info(info_id);
-create index idx_user_id on tb_user_employment_info(user_id);
-create index idx_create_time on tb_user_employment_info(create_time);
+-- Create syntax for TABLE 'tb_cms_input_manage'
+DROP TABLE tb_cms_input_manage;
+CREATE TABLE if NOT EXISTS `tb_cms_input_manage` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `ORDER_ID` int(11) DEFAULT NULL COMMENT '订单号',
+  `STATUS` int(11) DEFAULT NULL COMMENT '进件状态',
+  `CUSTOMER_NAME` varchar(255) DEFAULT NULL COMMENT '客户姓名',
+  `PRODUCT_NAME` varchar(255) DEFAULT NULL COMMENT '产品名称',
+  `APPLICATIONS_AMOUNT` int(11) DEFAULT NULL COMMENT '申请金额',
+  `LOAN_TIME` datetime DEFAULT NULL COMMENT '借款期限',
+  `REPAYMENT_TYPE` int(11) DEFAULT NULL COMMENT '还款方式',
+  `BUSINESS_NAME` varchar(255) DEFAULT NULL COMMENT '商户名称',
+  `APP_NAME` varchar(255) DEFAULT NULL COMMENT 'app名称',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '进件日期',
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Create syntax for TABLE 'tb_cms_plan_manage'
+DROP TABLE tb_cms_plan_manage;
+CREATE TABLE if NOT EXISTS `tb_cms_plan_manage` (
+  `ID` int(11) NOT NULL COMMENT '主键',
+  `PLAN_NAME` varchar(255) DEFAULT NULL COMMENT '计划名称',
+  `SAMPLING_NUMBER` int(11) DEFAULT NULL COMMENT '抽检数量',
+  `COMPLETION_RATE` varchar(255) DEFAULT NULL COMMENT '完成率',
+  `ABNORMAL_RATE` varchar(255) DEFAULT NULL COMMENT '异常率',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
+  `END_TIME` datetime DEFAULT NULL COMMENT '结束时间',
+  `STATUS` int(11) DEFAULT NULL COMMENT '状态',
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table tb_user_bank_account_info;
-create table if not exists `tb_user_bank_account_info` (
-  `id` int(10) primary key auto_increment,
-  `info_id` varchar(32) not null comment '资料标识id',
-  `user_id` int(10) not null comment '关联用户id',
-  `account_type` tinyint not null default 0 comment '账户类型  0|借记卡 1|信用卡',
-  `name` varchar(64) not null comment '持卡人姓名',
-  `bank` tinyint not null comment '银行名称 0|xx_bank  1|yy_bank',
-  `account_id` varchar(128) not null comment '银行账号',
-  `create_time` datetime not null,
-  `expire_time` datetime not null default '2199-01-01 00:00:00' comment '有效期'
-) engine=innodb default charset=utf8;
-create index idx_info_id on tb_user_bank_account_info(info_id);
-create index idx_user_id on tb_user_bank_account_info(user_id);
-create index idx_create_time on tb_user_bank_account_info(create_time);
+-- Create syntax for TABLE 'tb_cms_sampling_history'
+DROP TABLE tb_cms_sampling_history;
+CREATE TABLE if NOT EXISTS `tb_cms_sampling_history` (
+  `ID` int(11) NOT NULL COMMENT '主键',
+  `TASK_ID` int(11) DEFAULT NULL COMMENT '任务ID',
+  `ORDER_ID` int(11) DEFAULT NULL COMMENT '订单号',
+  `CUSTOMER_NAME` varchar(255) DEFAULT NULL COMMENT '客户姓名',
+  `PHONE_NUMBER` int(11) DEFAULT NULL COMMENT '手机号',
+  `SOURCE` varchar(255) DEFAULT NULL COMMENT '资产方',
+  `PRODUCT_NAME` varchar(255) DEFAULT NULL COMMENT '产品',
+  `MONEY` int(11) DEFAULT NULL COMMENT '金额',
+  `LOAN_TIME` datetime DEFAULT NULL COMMENT '放款日期',
+  `PLAN_NAME` varchar(255) DEFAULT NULL COMMENT '计划名称',
+  `SAMPLING_OPINION` varchar(255) DEFAULT NULL COMMENT '抽检意见',
+  `SAMPLING_TIME` datetime DEFAULT NULL COMMENT '抽检时间',
+  `REMARKS` varchar(255) DEFAULT NULL COMMENT '备注',
+  `CREATE_TIME` datetime DEFAULT NULL,
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Create syntax for TABLE 'tb_cms_task_manage'
+DROP TABLE tb_cms_task_manage;
+CREATE TABLE if NOT EXISTS `tb_cms_task_manage` (
+  `ID` int(11) NOT NULL COMMENT '主键',
+  `TASK_ID` int(11) DEFAULT NULL COMMENT '任务编号',
+  `ORDER_ID` int(11) DEFAULT NULL COMMENT '订单编号',
+  `CUSTOMER_NAME` varchar(255) DEFAULT NULL COMMENT '客户姓名',
+  `PHONE_NUMBER` int(11) DEFAULT NULL COMMENT '手机号',
+  `SOURCE` varchar(255) DEFAULT NULL COMMENT '资产方',
+  `PRODUCT_NAME` varchar(255) DEFAULT NULL COMMENT '产品',
+  `MONEY` int(11) DEFAULT NULL COMMENT '金额',
+  `LOAN_TIME` datetime DEFAULT NULL COMMENT '放款日期',
+  `SAMPLING_TYPE` int(11) DEFAULT NULL COMMENT '抽检类型',
+  `PLAN_NAME` varchar(255) DEFAULT NULL COMMENT '计划名称',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '认领时间',
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Create syntax for TABLE 'tb_credit_class'
+DROP TABLE tb_credit_class;
+CREATE TABLE if NOT EXISTS `tb_credit_class` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) NOT NULL DEFAULT '' COMMENT '信用级别',
+  `rate` float unsigned NOT NULL COMMENT '费率',
+  `period` int(11) unsigned NOT NULL COMMENT '期限（天）',
+  `quota` float DEFAULT NULL COMMENT '额度',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_name` (`name`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table tb_apply_info;
-create table if not exists `tb_apply_info`(
-  `id` int(10) primary key auto_increment comment '作为apply_id使用',
-  `user_id` int(10) not null,
-  `product_id` int(10) not null,
-  `credit_type` tinyint not null default 0 comment '授信类型 0|普通  1|循环',
-  `rate` varchar(16) not null comment '费率，从产品关联得到',
-  `period` varchar(16) not null comment '期限，从产品关联到',
-  `quota` varchar(16) not null comment '额度，从产品关联到',
-  `app_env_id` int(10) not null default -1,
-  `status` int(10) not null comment '状态 0|待初审  1|初审通过 2|初审失败 3|待复审  4|复审通过 5|复审失败',
-  `apply_quota` varchar(16) not null comment '用户实际申请的额度',
-  `contract_amount` int(10) not null comment '合同金额',
-  `inhand_amount` int(10) not null comment '到手金额',
-  `credit_class` varchar(8) not null default '' comment '用户的信用评级，没到这一步就为空',
-  `deny_code` varchar(8) not null comment '拒贷码，根据阶段不一样，取值也不一样',
-  `create_time` datetime not null comment '记录创建时间',
-  `expire_time` datetime not null comment '该条申请失效时间',
-  `apply_time` datetime comment '用户申请时间',
-  `loan_time` datetime comment '放款时间',
-  `audit_person` varchar(32) comment '初审人员',
-  `re_audit_person` varchar(32) comment '复审人员',
-  `update_time` datetime not null comment '更新时间'
-) engine=innodb default charset=utf8;
-create index idx_user_id on tb_apply_info(user_id);
-create index idx_status on tb_apply_info(status);
-create index idx_create_time on tb_apply_info(create_time);
-create index idx_apply_time on tb_apply_info(apply_time);
+-- Create syntax for TABLE 'tb_product_info'
+DROP TABLE tb_product_info;
+CREATE TABLE if NOT EXISTS `tb_product_info` (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '产品id',
+  `name` varchar(32) NOT NULL COMMENT '产品名称',
+  `type` varchar(32) NOT NULL DEFAULT '' COMMENT '产品类别',
+  `status` varchar(32) NOT NULL DEFAULT '' COMMENT '产品状态',
+  `rate` float unsigned NOT NULL COMMENT '产品费率',
+  `period` int(11) unsigned NOT NULL COMMENT '产品期限（天）',
+  `quota` float DEFAULT NULL COMMENT '额度',
+  `material_needed` varchar(128) NOT NULL DEFAULT '' COMMENT '所需资料',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_type` (`type`),
+  KEY `idx_name` (`name`),
+  KEY `idx_status` (`status`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table tb_apply_material_info;
-create table if not exists `tb_apply_material_info`(
-  `id` int(10) primary key auto_increment,
-  `apply_id` int(10) not null comment '用户申请id',
-  `info_id` varchar(32) not null comment '用户申请使用的材料id',
-  `info_type` tinyint not null comment '0|身份证信息  1|基本信息 2|紧急联系人 3|职业信息 4|银行卡信息',
-  `create_time` datetime not null
-) engine=innodb default charset=utf8;
-create index idx_apply_id on tb_apply_material_info(apply_id);
-create index idx_info_id on tb_apply_material_info(info_id);
-create index idx_create_time on tb_apply_material_info(create_time);
+-- Create syntax for TABLE 'tb_repay_material_info'
+DROP TABLE tb_repay_material_info;
+CREATE TABLE if NOT EXISTS `tb_repay_material_info` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) NOT NULL COMMENT '关联用户id',
+  `apply_id` varchar(32) NOT NULL DEFAULT '' COMMENT '还款订单号',
+  `name` varchar(32) NOT NULL COMMENT '姓名',
+  `mobile` varchar(32) NOT NULL DEFAULT '' COMMENT '联系方式',
+  `att_1` varchar(128) NOT NULL DEFAULT '' COMMENT '还款凭证',
+  `att_2` varchar(128) DEFAULT NULL COMMENT '还款凭证2',
+  `status` int(11) NOT NULL DEFAULT '0' COMMENT '是否确认，0:待确认，1:确认，2:其他',
+  `create_time` datetime NOT NULL,
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table tb_repay_plan;
-create table if not exists `tb_repay_plan` (
-  `id` int(10) primary key auto_increment comment '作为plan_id',
-  `user_id` int(10) not null,
-  `apply_id` int(10) not null,
-  `seq_no` int(10) not null comment '期数从1开始计数',
-  `repay_start_date` datetime not null comment '当前开始还款时间',
-  `repay_end_date` datetime not null comment '还款截止日期',
-  `repay_time` datetime comment '还款时间，未还为空',
-  `repay_status` tinyint not null comment '还款状态 0|待还  1|已还',
-  `is_overdue` tinyint not null comment '是否逾期 0|没有 1|逾期',
-  `need_principal` int(10) not null comment '应还本金',
-  `act_principal` int(10) not null comment '实还本金',
-  `need_interest` int(10) not null comment '应还利息',
-  `act_interest` int(10) not null comment '实还利息',
-  `need_penalty_interest` int(10) not null comment '应还罚息',
-  `act_penalty_interest` int(10) not null comment '实还罚息',
-  `need_management_fee` int(10) not null comment '应还管理费',
-  `act_management_fee` int(10) not null comment '实还管理费',
-  `need_late_payment_fee` int(10) not null comment '应还滞纳金',
-  `act_late_payment_fee` int(10) not null comment '实还滞纳金',
-  `need_breach_fee` int(10) not null comment '应还违约金',
-  `act_breach_fee` int(10) not null comment '实还违约金',
-  `need_other` int(10) not null comment '应还其他',
-  `act_other` int(10) not null comment '实还其他',
-  `need_total` int(10) not null comment '应还总额',
-  `act_total` int(10) not null comment '实还总额',
-  `create_time` datetime not null comment '记录创建时间',
-  `update_time` datetime not null comment '更新时间'
-) engine=innodb default charset=utf8;
-create index idx_user_id on tb_repay_plan(user_id);
-create index idx_apply_id on tb_repay_plan(apply_id);
+-- Create syntax for TABLE 'tb_repay_plan'
+DROP TABLE tb_repay_plan;
+CREATE TABLE if NOT EXISTS `tb_repay_plan` (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '作为plan_id',
+  `user_id` int(10) NOT NULL,
+  `apply_id` int(10) NOT NULL,
+  `seq_no` int(10) NOT NULL COMMENT '期数从1开始计数',
+  `repay_start_date` datetime NOT NULL COMMENT '当前开始还款时间',
+  `repay_end_date` datetime NOT NULL COMMENT '还款截止日期',
+  `repay_time` datetime DEFAULT NULL COMMENT '还款时间，未还为空',
+  `repay_status` tinyint(4) NOT NULL COMMENT '还款状态 0|待还  1|已还',
+  `is_overdue` tinyint(4) NOT NULL COMMENT '是否逾期 0|没有 1|逾期',
+  `need_principal` bigint(20) NOT NULL COMMENT '应还本金',
+  `act_principal` bigint(20) NOT NULL COMMENT '实还本金',
+  `need_interest` bigint(20) NOT NULL COMMENT '应还利息',
+  `act_interest` bigint(20) NOT NULL COMMENT '实还利息',
+  `need_penalty_interest` bigint(20) NOT NULL COMMENT '应还罚息',
+  `act_penalty_interest` bigint(20) NOT NULL COMMENT '实还罚息',
+  `need_management_fee` bigint(20) NOT NULL COMMENT '应还管理费',
+  `act_management_fee` bigint(20) NOT NULL COMMENT '实还管理费',
+  `need_late_payment_fee` bigint(20) NOT NULL COMMENT '应还滞纳金',
+  `act_late_payment_fee` bigint(20) NOT NULL COMMENT '实还滞纳金',
+  `need_breach_fee` bigint(20) NOT NULL COMMENT '应还违约金',
+  `act_breach_fee` bigint(20) NOT NULL COMMENT '实还违约金',
+  `need_other` bigint(20) NOT NULL COMMENT '应还其他',
+  `act_other` bigint(20) NOT NULL COMMENT '实还其他',
+  `need_total` bigint(20) NOT NULL COMMENT '应还总额',
+  `act_total` bigint(20) NOT NULL COMMENT '实还总额',
+  `create_time` datetime NOT NULL COMMENT '记录创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_apply_id` (`apply_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table tb_repay_stat;
-create table if not exists `tb_repay_stat` (
-  `apply_id` int(10) primary key comment 'apply_id 作为主键',
-  `need_principal` int(10) not null comment '应还本金',
-  `act_principal` int(10) not null comment '实还本金',
-  `need_interest` int(10) not null comment '应还利息',
-  `act_interest` int(10) not null comment '实还利息',
-  `need_penalty_interest` int(10) not null comment '应还罚息',
-  `act_penalty_interest` int(10) not null comment '实还罚息',
-  `need_management_fee` int(10) not null comment '应还管理费',
-  `act_management_fee` int(10) not null comment '实还管理费',
-  `need_late_payment_fee` int(10) not null comment '应还滞纳金',
-  `act_late_payment_fee` int(10) not null comment '实还滞纳金',
-  `need_breach_fee` int(10) not null comment '应还违约金',
-  `act_breach_fee` int(10) not null comment '实还违约金',
-  `need_other` int(10) not null comment '应还其他',
-  `act_other` int(10) not null comment '实还其他',
-  `need_total` int(10) not null comment '应还总额',
-  `act_total` int(10) not null comment '实还总额',
-  `current_seq` int(10) not null comment '当前期数',
-  `normal_repay_times` int(10) not null comment '正常还款期数',
-  `overdue_repay_times` int(10) not null comment '逾期还款期数',
-  `overdue_times` int(10) not null comment '逾期期数',
-  `create_time` datetime not null comment '记录创建时间',
-  `update_time` datetime not null comment '更新时间'
-) engine=innodb default charset=utf8;
+-- Create syntax for TABLE 'tb_repay_stat'
+DROP TABLE tb_repay_stat;
+CREATE TABLE if NOT EXISTS `tb_repay_stat` (
+  `apply_id` int(10) NOT NULL COMMENT 'apply_id 作为主键',
+  `need_principal` bigint(20) NOT NULL COMMENT '应还本金',
+  `act_principal` bigint(20) NOT NULL COMMENT '实还本金',
+  `need_interest` bigint(20) NOT NULL COMMENT '应还利息',
+  `act_interest` bigint(20) NOT NULL COMMENT '实还利息',
+  `need_penalty_interest` bigint(20) NOT NULL COMMENT '应还罚息',
+  `act_penalty_interest` bigint(20) NOT NULL COMMENT '实还罚息',
+  `need_management_fee` bigint(20) NOT NULL COMMENT '应还管理费',
+  `act_management_fee` bigint(20) NOT NULL COMMENT '实还管理费',
+  `need_late_payment_fee` bigint(20) NOT NULL COMMENT '应还滞纳金',
+  `act_late_payment_fee` bigint(20) NOT NULL COMMENT '实还滞纳金',
+  `need_breach_fee` bigint(20) NOT NULL COMMENT '应还违约金',
+  `act_breach_fee` bigint(20) NOT NULL COMMENT '实还违约金',
+  `need_other` bigint(20) NOT NULL COMMENT '应还其他',
+  `act_other` bigint(20) NOT NULL COMMENT '实还其他',
+  `need_total` bigint(20) NOT NULL COMMENT '应还总额',
+  `act_total` bigint(20) NOT NULL COMMENT '实还总额',
+  `current_seq` bigint(20) NOT NULL COMMENT '当前期数',
+  `normal_repay_times` bigint(20) NOT NULL COMMENT '正常还款期数',
+  `overdue_repay_times` bigint(20) NOT NULL COMMENT '逾期还款期数',
+  `overdue_times` bigint(20) NOT NULL COMMENT '逾期期数',
+  `create_time` datetime NOT NULL COMMENT '记录创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`apply_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create syntax for TABLE 'tb_user_bank_account_info'
+DROP TABLE tb_user_bank_account_info;
+CREATE TABLE if NOT EXISTS `tb_user_bank_account_info` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `info_id` varchar(32) NOT NULL COMMENT '资料标识id',
+  `user_id` int(10) NOT NULL COMMENT '关联用户id',
+  `account_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '账户类型  0|借记卡 1|信用卡',
+  `name` varchar(64) NOT NULL COMMENT '持卡人姓名',
+  `bank` tinyint(4) NOT NULL COMMENT '银行名称 0|xx_bank  1|yy_bank',
+  `account_id` varchar(128) NOT NULL COMMENT '银行账号',
+  `create_time` datetime NOT NULL,
+  `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '有效期',
+  PRIMARY KEY (`id`),
+  KEY `idx_info_id` (`info_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create syntax for TABLE 'tb_user_basic_info'
+DROP TABLE tb_user_basic_info;
+CREATE TABLE if NOT EXISTS `tb_user_basic_info` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `info_id` varchar(32) NOT NULL COMMENT '资料标识id',
+  `user_id` int(10) NOT NULL COMMENT '关联用户id',
+  `education` tinyint(4) NOT NULL COMMENT '学历   0|小学 1|初中 2|高中 3|中间 4|学院 5|综合性大学 6|大学后',
+  `marriage` tinyint(4) NOT NULL DEFAULT '1' COMMENT '婚姻状态    0|已婚 1|单身 2|离异 3|丧偶',
+  `children_count` tinyint(4) NOT NULL DEFAULT '0' COMMENT '子女个数',
+  `residence_city` smallint(6) NOT NULL DEFAULT '0' COMMENT '居住城市 0|河内  1|河外',
+  `residence_addr` varchar(256) NOT NULL COMMENT '详细居住地址',
+  `residen_duration` tinyint(4) NOT NULL DEFAULT '0' COMMENT '居住时长 0|3个月  1|6个月',
+  `purpose` tinyint(4) NOT NULL DEFAULT '0' COMMENT '用途 0|旅游  1|买车',
+  `purpose_other` varchar(128) NOT NULL DEFAULT '' COMMENT '用途其他 如果需要用户填写',
+  `zalo_id` varchar(64) NOT NULL DEFAULT '' COMMENT 'zalo id',
+  `age` tinyint(4) NOT NULL DEFAULT '0' COMMENT '年龄',
+  `longitude` float DEFAULT NULL COMMENT '经度',
+  `latitude` float DEFAULT NULL COMMENT '纬度',
+  `create_time` datetime NOT NULL,
+  `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '有效期',
+  PRIMARY KEY (`id`),
+  KEY `idx_info_id` (`info_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create syntax for TABLE 'tb_user_citizen_identity_card_info'
+DROP TABLE tb_user_citizen_identity_card_info;
+CREATE TABLE if NOT EXISTS `tb_user_citizen_identity_card_info` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `info_id` varchar(32) NOT NULL COMMENT '资料标识id',
+  `user_id` int(10) NOT NULL COMMENT '关联用户id',
+  `name` varchar(32) NOT NULL COMMENT '姓名',
+  `cid_no` varchar(64) NOT NULL COMMENT '身份证号',
+  `gender` tinyint(4) NOT NULL DEFAULT '0' COMMENT '性别  0|男  1|女',
+  `pic_1` varchar(128) NOT NULL DEFAULT '' COMMENT '照片1',
+  `pic_2` varchar(128) NOT NULL DEFAULT '' COMMENT '照片2',
+  `pic_3` varchar(128) NOT NULL DEFAULT '' COMMENT '照片3',
+  `pic_4` varchar(128) NOT NULL DEFAULT '' COMMENT '照片4',
+  `create_time` datetime NOT NULL,
+  `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '有效期',
+  PRIMARY KEY (`id`),
+  KEY `idx_info_id` (`info_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create syntax for TABLE 'tb_user_emergency_contact'
+DROP TABLE tb_user_emergency_contact;
+CREATE TABLE if NOT EXISTS `tb_user_emergency_contact` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `info_id` varchar(32) NOT NULL COMMENT '资料标识id',
+  `user_id` int(10) NOT NULL COMMENT '关联用户id',
+  `relationship` tinyint(4) NOT NULL COMMENT '关系 0|父母 1|同事',
+  `name` varchar(64) NOT NULL COMMENT '紧急联系人姓名',
+  `mobile` varchar(32) NOT NULL COMMENT '紧急联系人电话',
+  `create_time` datetime NOT NULL,
+  `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '有效期',
+  PRIMARY KEY (`id`),
+  KEY `idx_info_id` (`info_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create syntax for TABLE 'tb_user_employment_info'
+DROP TABLE tb_user_employment_info;
+CREATE TABLE if NOT EXISTS `tb_user_employment_info` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `info_id` varchar(32) NOT NULL COMMENT '资料标识id',
+  `user_id` int(10) NOT NULL COMMENT '关联用户id',
+  `company` varchar(128) NOT NULL COMMENT '任职公司名称',
+  `company_city` smallint(6) NOT NULL COMMENT '公司所在区域 0|河内 1|河外',
+  `company_addr` varchar(256) NOT NULL COMMENT '公司详细地址',
+  `phone` varchar(32) NOT NULL COMMENT '公司联系电话',
+  `job_occupation` tinyint(4) NOT NULL COMMENT '职业类型 0|工程师  1|服务行业',
+  `income` tinyint(4) NOT NULL COMMENT '收入状态 0|1~100  1|100~1000',
+  `work_pic` varchar(128) NOT NULL COMMENT '工作照片',
+  `create_time` datetime NOT NULL,
+  `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '有效期',
+  PRIMARY KEY (`id`),
+  KEY `idx_info_id` (`info_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create syntax for TABLE 'tb_user_regist_info'
+DROP TABLE tb_user_regist_info;
+CREATE TABLE if NOT EXISTS `tb_user_regist_info` (
+  `id` int(12) NOT NULL AUTO_INCREMENT COMMENT '作为用户id使用',
+  `mobile` varchar(32) NOT NULL COMMENT '登陆手机号',
+  `type` int(11) NOT NULL DEFAULT '0' COMMENT '用户类型，0:借款用户',
+  `status` int(11) NOT NULL DEFAULT '1' COMMENT '用户状态，1:正常',
+  `channel_id` int(11) DEFAULT NULL COMMENT '注册渠道id',
+  `promotion_info` varchar(512) DEFAULT NULL COMMENT '推广信息',
+  `create_time` datetime NOT NULL COMMENT '注册时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_mobile` (`mobile`),
+  KEY `idx_create_time` (`create_time`),
+  KEY `idx_channel_id` (`channel_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create syntax for TABLE 'tb_user_sns_info'
+DROP TABLE tb_user_sns_info;
+CREATE TABLE if NOT EXISTS `tb_user_sns_info` (
+  `id` int(12) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(32) NOT NULL DEFAULT '' COMMENT '用户id',
+  `type` int(11) NOT NULL DEFAULT '0' COMMENT 'SNS类型，0:facebook，1:Line，2:Zalo，3:Skype，4:Ins，5:Viber',
+  `name` varchar(128) NOT NULL DEFAULT '1' COMMENT 'SNS登陆账号',
+  `password` varchar(32) NOT NULL DEFAULT '' COMMENT 'SNS登陆密码',
+  `create_time` datetime NOT NULL COMMENT '注册时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_create_time` (`create_time`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_type` (`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

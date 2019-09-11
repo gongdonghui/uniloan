@@ -127,6 +127,11 @@
             <artifactId>drools-templates</artifactId>
             <version>6.5.0.Final</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
+            <version>4.3.0</version>
+        </dependency>
 	</dependencies>
 
 	<build>
