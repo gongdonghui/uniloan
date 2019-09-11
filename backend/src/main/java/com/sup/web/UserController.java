@@ -39,6 +39,13 @@ public class UserController {
   TbUserRegistInfoMapper tb_user_regist_info_mapper;
 
   @ResponseBody
+  @RequestMapping(value = "test", produces = "application/json;charset=UTF-8")
+  public Object Test() throws Exception {
+    // check pre_mobile !!
+    return Result.succ(tb_user_regist_info_mapper.selectList(null));
+  }
+
+  @ResponseBody
   @RequestMapping(value = "issue_verify_code", produces = "application/json;charset=UTF-8")
   public Object IssueVerifyCode(@RequestParam(value="mobile") String mobile) throws Exception {
     // check pre_mobile !!
