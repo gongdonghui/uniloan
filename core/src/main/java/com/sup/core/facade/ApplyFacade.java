@@ -7,18 +7,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Project:uniloan
- * Class:  CreditFacade
+ * Class:  ApplyFacade
  * <p>
  * Author: guanfeng
- * Create: 2019-09-04
+ * Create: 2019-09-10
  */
 
-@RequestMapping(value = "/credit")
-public interface CreditFacade {
+public interface ApplyFacade {
 
-    // auto audit by rules
+    // audit apply
     @ResponseBody
-    @RequestMapping(value = "autoAudit", produces = "application/json;charset=UTF-8")
-    Object autoAudit(String version, String applyId);
+    @RequestMapping(value = "update", produces = "application/json;charset=UTF-8")
+    Object updateApplyInfo(String operator, @RequestBody ApplyInfoBean bean);
 
 }

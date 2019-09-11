@@ -11,8 +11,8 @@
     <modelVersion>4.0.0</modelVersion>
 	<artifactId>core</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>credit</name>
-	<description>credit service for risk management</description>
+	<name>core</name>
+	<description>core service for risk management</description>
 
 	<properties>
 		<java.version>1.8</java.version>

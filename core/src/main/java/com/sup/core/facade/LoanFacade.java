@@ -25,7 +25,7 @@ public interface LoanFacade {
     @RequestMapping(value = "autoExec", produces = "application/json;charset=UTF-8")
     Object autoLoan(String userId, String applyId);
 
-    // add/update/get loan info
+    // add/update/get loan plan
     @ResponseBody
     @RequestMapping(value = "plan/add", produces = "application/json;charset=UTF-8")
     Object addRepayPlan(String userId, String applyId);
@@ -33,4 +33,30 @@ public interface LoanFacade {
     @ResponseBody
     @RequestMapping(value = "plan/update", produces = "application/json;charset=UTF-8")
     Object updateRepayPlan(@RequestBody RepayPlanInfoBean bean);
+
+    @ResponseBody
+    @RequestMapping(value = "plan/get", produces = "application/json;charset=UTF-8")
+    Object getRepayPlan(String userId, String applyId);
+
+
+    /**
+     * 获取支付通道还款链接
+     * @param userId
+     * @param applyId
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "repay/getUrl", produces = "application/json;charset=UTF-8")
+    Object getRepayUrl(String userId, String applyId);
+
+    /**
+     * 支付通道还款回调接口
+     * @param userId
+     * @param applyId
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "repayCallBack", produces = "application/json;charset=UTF-8")
+    Object repayCallBack(String userId, String applyId);
+
 }

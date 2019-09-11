@@ -10,8 +10,8 @@ public interface CreditService {
     Object getCreditClass(String version, String userId, ApplyInfoBean bean);
 
 
-    RiskDecisionVariableBean getRiskDecisionVariable(String version, String applyId);
+    RiskDecisionVariableBean getRiskDecisionVariable(String version, String productId, String applyId);
 
-    RiskDecisionVariableBean getRiskDecisionVariable(String version, ApplyInfoBean bean);
+    RiskDecisionVariableBean getRiskDecisionVariable(String version, String productId, ApplyInfoBean bean);
 
 }
