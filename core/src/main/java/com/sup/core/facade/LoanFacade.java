@@ -40,14 +40,14 @@ public interface LoanFacade {
 
 
     /**
-     * 获取支付通道还款链接
+     * 获取支付通道还款所需信息，包括支付码和链接
      * @param userId
      * @param applyId
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "repay/getUrl", produces = "application/json;charset=UTF-8")
-    Object getRepayUrl(String userId, String applyId);
+    @RequestMapping(value = "repayInfo/get", produces = "application/json;charset=UTF-8")
+    Object getRepayInfo(String userId, String applyId);
 
     /**
      * 支付通道还款回调接口
