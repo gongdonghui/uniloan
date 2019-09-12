@@ -65,14 +65,41 @@ public class LoanFacadeImpl implements LoanFacade {
         ApplyMaterialInfoBean applyMaterialInfoBean = applyMaterialInfoMapper.selectOne(
                 materialWrapper.eq("applyId", applyId).eq("info_type", 4));
         if (applyMaterialInfoBean == null) {
-            log.error("No apply material found for applyId=" + applyId);
+            log.error("No apply material(bank info) found for applyId=" + applyId);
             return Result.fail("No apply material found!");
+        }
+        String infoId = applyMaterialInfoBean.getInfo_id();
+        QueryWrapper<UserBankInfoBean> bankWrapper = new QueryWrapper<>();
+        List<UserBankInfoBean> bankInfoBeans = userBankInfoMapper.selectList(
+                bankWrapper.eq("info_id", infoId).eq("user_id", userId));
+        if (bankInfoBeans == null) {
+            log.error("No bank info for user(" + userId + "), info_id=" + infoId);
+            return Result.fail("No bank info found!");
+        }
+
+        // 3. loan using funpay(need thread safe)
+        boolean loanSucc = false;
+        synchronized (this) {
+            for (UserBankInfoBean bankInfo: bankInfoBeans) {
+                // generate BankInfo for paycenter
+
+                // verifyBankInfo
+
+                // generate payinfo, and loan
+
+            }
+        }
+
+        // if loan succeeded, generate repay plan
+        if (loanSucc) {
+            if (!addRepayPlan(applyInfoBean)) {
+                log.error("Failed to generate repay plan for user(" + userId + "), applyId = " + applyId);
+                //
+            }
         }
 
 
-        // 3. loan using funpay(need thread safe)
-
-        return null;
+        return Result.succ();
     }
 
     @Override
@@ -133,5 +160,11 @@ public class LoanFacadeImpl implements LoanFacade {
     @Override
     public Object repayCallBack(String userId, String applyId) {
         return null;
+    }
+
+
+    protected boolean addRepayPlan(ApplyInfoBean applyInfoBean) {
+
+        return false;
     }
 }
