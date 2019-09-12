@@ -16,7 +16,7 @@ import java.util.Date;
  */
 
 @Data
-@TableName("apply_material_info")
+@TableName("tb_apply_material_info")
 public class ApplyMaterialInfoBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
