@@ -20,5 +20,6 @@ public class TbUserRegistInfoBean {
   @TableId(type = IdType.AUTO)
   private Integer id;
   private String mobile;
+  private String name;
   private Date create_time;
 }
