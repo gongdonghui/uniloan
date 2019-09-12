@@ -20,6 +20,7 @@
         <module>backend</module>
         <module>paycenter</module>
         <module>common</module>
+        <module>core</module>
     </modules>
 
     <profiles>

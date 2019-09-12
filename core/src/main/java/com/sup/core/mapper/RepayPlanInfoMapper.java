@@ -19,7 +19,8 @@ import java.util.List;
 
 public interface RepayPlanInfoMapper extends BaseMapper<RepayPlanInfoBean> {
 
-    @Select("<script> select * from ${tableName} <if test='ew != null'> ${ew.customSqlSegment} </if> </script>")
-    List<RepayPlanInfoBean> selectRepayPlan(@Param("tableName") String tn, @Param(Constants.WRAPPER) Wrapper<RepayPlanInfoBean> ew);
+    @Select("<script> select * from tb_repay_plan <if test='ew != null'> ${ew.customSqlSegment} </if> </script>")
+    List<RepayPlanInfoBean> getRepayPlan(@Param(Constants.WRAPPER) Wrapper<RepayPlanInfoBean> ew);
+
 
 }

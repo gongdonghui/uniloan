@@ -34,6 +34,11 @@ public interface LoanFacade {
     @RequestMapping(value = "plan/update", produces = "application/json;charset=UTF-8")
     Object updateRepayPlan(@RequestBody RepayPlanInfoBean bean);
 
+    /**
+     *
+     * @param applyId
+     * @return
+     */
     @ResponseBody
     @RequestMapping(value = "plan/get", produces = "application/json;charset=UTF-8")
     Object getRepayPlan(String applyId);
