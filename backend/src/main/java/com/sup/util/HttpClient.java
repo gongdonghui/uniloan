@@ -22,10 +22,10 @@ public class HttpClient {
   static AsyncHttpClient client;
 
   static {
-    builder.setConnectTimeout(30 * 1000);
-    builder.setReadTimeout(60 * 1000);
-    builder.setMaxConnections(6 * 1000);
-    builder.setMaxConnectionsPerHost(1 * 1000);
+    builder.setConnectTimeout(10*1000);
+    builder.setReadTimeout(30*1000);
+    builder.setMaxConnections(6*1000);
+    builder.setMaxConnectionsPerHost(1000);
     client = Dsl.asyncHttpClient(builder.build());
   }
 
@@ -119,5 +119,25 @@ public class HttpClient {
   public static <T>  void httpPostJsonAsync(String url, String post_body, AsyncCompletionHandler<T> handler) {
     BoundRequestBuilder builder = client.preparePost(url).addHeader("Content-Type", "application/json").setBody(post_body);
     builder.execute(handler);
+  }
+
+  public static <T> void HttpGetAsync(String url, Map<String, String> params, AsyncCompletionHandler<T> handler) {
+    BoundRequestBuilder builer = client.prepareGet(url).addHeader("Content-Type", "application/json");
+    if (params != null) {
+      params.forEach((k, v) -> {
+        builer.addQueryParam(k, v);
+      });
+    }
+    builer.execute(handler);
+  }
+
+  public static <T> void HttpPostAsync(String url, Map<String, String> params, AsyncCompletionHandler<T> handler) {
+    BoundRequestBuilder builer = client.preparePost(url).addHeader("Content-Type", "application/json");
+    if (params != null) {
+      params.forEach((k, v) -> {
+        builer.addQueryParam(k, v);
+      });
+    }
+    builer.execute(handler);
   }
 }

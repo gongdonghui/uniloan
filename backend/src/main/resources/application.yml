@@ -17,6 +17,9 @@ sms:
     account: xxxx
     password: yyyy
 
+paycenter:
+  uri: http://xxxxx/paycenter/repay
+
 spring:
   messages:
     basename: static/i18n/messages

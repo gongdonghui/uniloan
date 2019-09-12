@@ -41,6 +41,7 @@ public class UserController {
   public static Logger logger = Logger.getLogger(UserController.class);
   @Value("upload_path")
   private String upload_path;
+
   @Autowired
   RedisClient rc;
   @Autowired
@@ -302,15 +303,7 @@ public class UserController {
   public Object listApply(@LoginInfo LoginInfoCtx li) {
     JSONObject all_applys = new JSONObject();
     all_applys.put("pending_list", ImmutableList.of(new AppApplyInfo()));
-    all_applys.put("finish_list", ImmutableList.of(new AppApplyInfo()));
     return Result.succ(all_applys);
-  }
-
-  @LoginRequired
-  @ResponseBody
-  @RequestMapping(value = "apply/get_pay_info", produces = "application/json;charset=UTF-8")
-  public Object getPayInfo(@LoginInfo LoginInfoCtx li, @RequestParam("apply_id") Integer apply_id) {
-    return null;
   }
 
   @LoginRequired

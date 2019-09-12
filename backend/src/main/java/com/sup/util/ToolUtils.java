@@ -1,5 +1,7 @@
 package com.sup.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
@@ -11,6 +13,7 @@ import java.util.UUID;
  */
 public class ToolUtils {
   public static String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+  public static String COMPACT_DATE_FORMAT = "yyyyMMddHHmmss";
   public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   public static String getToken() {
@@ -38,5 +41,12 @@ public class ToolUtils {
     } catch (Exception e) {
       return "deadbeef";
     }
+  }
+
+  public static String GetTrace(Throwable t) {
+    StringWriter sw = new StringWriter();
+    PrintWriter pw = new PrintWriter(sw);
+    t.printStackTrace(pw);
+    return sw.toString();
   }
 }

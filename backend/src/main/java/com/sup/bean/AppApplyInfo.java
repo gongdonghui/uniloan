@@ -19,11 +19,12 @@ import java.util.Date;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class AppApplyInfo {
-  @TableId(type = IdType.AUTO)
-  private Integer id;
-  private String total_amount_to_be_repaid;
-  private String curr_amount_to_be_repaid;
-  private String period;
-  private Integer is_overdue;
-  private String latest_repay_date;
+  private Integer order_id;    // 订单号
+  private Integer period_id;   // 期数 Id
+  private String total_amount_to_be_repaid;  // 总计要还
+  private String curr_amount_to_be_repaid;  // 这期要换
+  private String period; // 当前期数
+  private Integer is_overdue; // 是否逾期
+  private String latest_repay_date; // 最近还款日
+  private String dest_account_no;  // 打款账号
 }
