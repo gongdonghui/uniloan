@@ -23,7 +23,7 @@ public class FunPayParamsUtil {
     public static String params4Post(Map<String, String> m, String secretKey) {
         String sign = sign(m, secretKey);
         m.put("sign", sign);
-        return new Gson().toJson(m);
+        return GsonUtil.toJson(m);
     }
 
     private static String sign(Map<String, String> m, String secretKey) {

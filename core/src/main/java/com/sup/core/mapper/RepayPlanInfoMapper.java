@@ -1,7 +1,13 @@
 package com.sup.core.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.sup.core.bean.RepayPlanInfoBean;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
  * Project:uniloan
@@ -12,5 +18,9 @@ import com.sup.core.bean.RepayPlanInfoBean;
  */
 
 public interface RepayPlanInfoMapper extends BaseMapper<RepayPlanInfoBean> {
+
+    @Select("<script> select * from tb_repay_plan <if test='ew != null'> ${ew.customSqlSegment} </if> </script>")
+    List<RepayPlanInfoBean> getRepayPlan(@Param(Constants.WRAPPER) Wrapper<RepayPlanInfoBean> ew);
+
 
 }

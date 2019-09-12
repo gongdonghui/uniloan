@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigInteger;
 import java.util.Date;
 
 /**
@@ -28,22 +29,22 @@ public class RepayPlanInfoBean {
     private Date repay_time;
     private Integer repay_status;
     private Integer is_overdue;
-    private Float need_principal;
-    private Float act_principal;
-    private Float need_interest;
-    private Float act_interest;
-    private Float need_penalty_interest;
-    private Float act_penalty_interest;
-    private Float need_management_fee;
-    private Float act_management_fee;
-    private Float need_late_payment_fee;
-    private Float act_late_payment_fee;
-    private Float need_breach_fee;
-    private Float act_breach_fee;
-    private Float need_other;
-    private Float act_other;
-    private Float need_total;
-    private Float act_total;
+    private BigInteger need_principal;
+    private BigInteger act_principal;
+    private BigInteger need_interest;
+    private BigInteger act_interest;
+    private BigInteger need_penalty_interest;
+    private BigInteger act_penalty_interest;
+    private BigInteger need_management_fee;
+    private BigInteger act_management_fee;
+    private BigInteger need_late_payment_fee;
+    private BigInteger act_late_payment_fee;
+    private BigInteger need_breach_fee;
+    private BigInteger act_breach_fee;
+    private BigInteger need_other;
+    private BigInteger act_other;
+    private BigInteger need_total;
+    private BigInteger act_total;
     private Date create_time;
     private Date update_time;
 }
