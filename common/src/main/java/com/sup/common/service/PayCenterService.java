@@ -4,6 +4,7 @@ import com.sup.common.bean.paycenter.BankInfo;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.BankInfoVO;
+import com.sup.common.bean.paycenter.vo.PayVO;
 import com.sup.common.bean.paycenter.vo.VerifyVO;
 import com.sup.common.util.Result;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -45,7 +46,7 @@ public interface PayCenterService {
      * @return
      */
     @PostMapping(value = "/pay")
-    Result pay(@Valid @RequestBody PayInfo payInfo);
+    Result<PayVO> pay(@Valid @RequestBody PayInfo payInfo);
 
     /**
      * 还款
@@ -55,5 +56,13 @@ public interface PayCenterService {
      */
     @PostMapping(value = "/repay")
     String repay(@Valid @RequestBody RepayInfo repayInfo);
+
+    /**
+     * 查询交易状态
+     *
+     * @return
+     */
+    @PostMapping(value = "/tradeStatus")
+    Result tradeStatus();
 
 }

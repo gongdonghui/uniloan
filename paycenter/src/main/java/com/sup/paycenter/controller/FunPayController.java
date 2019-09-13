@@ -8,10 +8,12 @@ import com.sup.common.bean.paycenter.BankInfo;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.BankInfoVO;
+import com.sup.common.bean.paycenter.vo.PayVO;
 import com.sup.common.bean.paycenter.vo.VerifyVO;
 import com.sup.common.util.Result;
 import com.sup.paycenter.bean.funpay.BankListBean;
 import com.sup.paycenter.bean.funpay.ReturnBean;
+import com.sup.paycenter.bean.funpay.TransferMoneyBean;
 import com.sup.paycenter.bean.funpay.VerifyBankInfoBean;
 import com.sup.paycenter.util.FunPayParamsUtil;
 import com.sup.paycenter.util.GsonUtil;
@@ -118,8 +120,14 @@ public class FunPayController {
         return Result.succ(v);
     }
 
+    //todo 放款流程设计
+    //  1.查询银行列表
+    //  2.银行卡信息鉴权
+    //  3.调用放款接口 得到交易id (放弃回调功能 这样可以不用mq 减少复杂度)
+    //  4.定时轮询查交易状态
+    //  5.根据查询到的结果进行相应的后续处理
     @PostMapping(value = "pay")
-    public Result pay(@Valid PayInfo payInfo) {
+    public Result<PayVO> pay(@Valid PayInfo payInfo) {
         Map m = Maps.newHashMap();
         m.put("merchantID", merchantId);
         m.put("businessID", businessId);
@@ -146,18 +154,29 @@ public class FunPayController {
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
+        ReturnBean<TransferMoneyBean> resultBean = GsonUtil.fromJson(result, new TypeToken<ReturnBean<TransferMoneyBean>>() {
+        }.getType());
+        if (resultBean.getCode() != FUNPAY_SUCCESS_FLAG) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        PayVO p = new PayVO();
+        p.setTradeNo(resultBean.getResult().getTradeNo());
+        return Result.succ(p);
+    }
 
-        //todo 放款流程设计
-        //  1.查询银行列表
-        //  2.银行卡信息鉴权
-        //  3.调用放款接口 得到交易id (放弃回调功能 这样可以不用mq 减少复杂度)
-        //  4.定时轮询查交易状态
-        //  5.根据查询到的结果进行相应的后续处理
+    //todo 还款流程设计
+    //  1.获取支付码
+    //  2.线下还款
+    //  3.还完了可以在手机上有个按钮 已还 点完了之后 来查询还款状态
+    //  4.也可以定时批量的查询还款状态
+    //  5.根据查询到的结果进行相应的后续处理
+    @PostMapping(value = "repay")
+    public Result repay(@Valid RepayInfo repayInfo) {
         return null;
     }
 
-    @PostMapping(value = "repay")
-    public String repay(@Valid RepayInfo repayInfo) {
+    @PostMapping(value = "tradeStatus")
+    public Result tradeStatus() {
         return null;
     }
 
