@@ -3,10 +3,13 @@ package com.sup.common.service;
 import com.sup.common.bean.paycenter.BankInfo;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.RepayInfo;
+import com.sup.common.bean.paycenter.vo.BankInfoVO;
+import com.sup.common.util.Result;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @Author: kouichi
@@ -23,7 +26,7 @@ public interface PayCenterService {
      * @return
      */
     @GetMapping(value = "/getBankList")
-    String getBankList(@RequestParam(value = "BankNo") String BankNo);
+    Result<List<BankInfoVO>> getBankList(@RequestParam(value = "BankNo") String BankNo);
 
     /**
      * 银行卡鉴权

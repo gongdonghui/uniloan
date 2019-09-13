@@ -10,29 +10,36 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @NoArgsConstructor
-public class Result {
-  public static Integer kSuccess = 0;
-  public static Integer kError = 1;
+public class Result<T> {
+    public static Integer kSuccess = 0;
+    public static Integer kError = 1;
 
-  private Integer status;
-  private String message;
-  private Object data;
+    private Integer status;
+    private String message;
+    private T data;
 
-  public static Result of(Integer status, Object data) {
-    return new Result().setStatus(status).setData(data).setMessage("");
-  }
+    public static Result of(Integer status, Object data) {
+        return new Result().setStatus(status).setData(data).setMessage("");
+    }
 
-  public static Result of(Integer status, Object data, String message) {
-    return new Result().setStatus(status).setData(data).setMessage(message);
-  }
+    public static Result of(Integer status, Object data, String message) {
+        return new Result().setStatus(status).setData(data).setMessage(message);
+    }
 
-  public static Result succ() { return new Result().setStatus(kSuccess).setData("succ"); }
+    public static Result succ() {
+        return new Result().setStatus(kSuccess).setMessage("succ");
+    }
 
-  public static Result succ(Object data) {
-    return new Result().setStatus(kSuccess).setData(data);
-  }
+    public static <T> Result succ(T data) {
+        return new Result().setStatus(kSuccess).setMessage("succ").setData(data);
+    }
 
-  public static Result fail(String key) {
-    return new Result().setStatus(kError).setMessage(MessageUtils.get(key));
-  }
+    public static Result fail(String key) {
+        return new Result().setStatus(kError).setMessage(MessageUtils.get(key));
+    }
+
+    public static Result fail(Integer status, String msg) {
+        return new Result().setStatus(status).setMessage(msg);
+    }
+
 }
