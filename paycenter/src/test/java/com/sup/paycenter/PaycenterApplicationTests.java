@@ -1,7 +1,9 @@
 package com.sup.paycenter;
 
+import com.sup.common.service.PayCenterService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -13,4 +15,12 @@ public class PaycenterApplicationTests {
 	public void contextLoads() {
 	}
 
+	@Autowired
+	private PayCenterService funPayFacade;
+
+	@Test
+	public void feignTest() {
+		System.out.println(funPayFacade.getBankList(""));
+	}
 }
+
