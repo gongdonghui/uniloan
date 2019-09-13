@@ -4,6 +4,7 @@ import com.sup.common.bean.paycenter.BankInfo;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.BankInfoVO;
+import com.sup.common.bean.paycenter.vo.VerifyVO;
 import com.sup.common.util.Result;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +23,11 @@ public interface PayCenterService {
     /**
      * 获取银行或者支行信息
      *
-     * @param BankNo 填了这参数会查询对应银行的支行信息
+     * @param bankNo 填了这参数会查询对应银行的支行信息
      * @return
      */
     @GetMapping(value = "/getBankList")
-    Result<List<BankInfoVO>> getBankList(@RequestParam(value = "BankNo") String BankNo);
+    Result<List<BankInfoVO>> getBankList(@RequestParam(value = "bankNo") String bankNo);
 
     /**
      * 银行卡鉴权
@@ -35,7 +36,7 @@ public interface PayCenterService {
      * @return
      */
     @PostMapping(value = "/verifyBankInfo")
-    String verifyBankInfo(@Valid @RequestBody BankInfo bankInfo);
+    Result<VerifyVO> verifyBankInfo(@Valid @RequestBody BankInfo bankInfo);
 
     /**
      * 放款
@@ -44,7 +45,7 @@ public interface PayCenterService {
      * @return
      */
     @PostMapping(value = "/pay")
-    String pay(@Valid @RequestBody PayInfo payInfo);
+    Result pay(@Valid @RequestBody PayInfo payInfo);
 
     /**
      * 还款

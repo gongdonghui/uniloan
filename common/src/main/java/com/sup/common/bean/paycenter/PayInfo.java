@@ -14,12 +14,15 @@ import javax.validation.constraints.NotNull;
 public class PayInfo {
     @NotBlank(message = "用户ID不能为空")
     private String userId;
-    @NotBlank(message = "订单号不能为空")
-    private String orderId;
+    @NotBlank(message = "进件id不能为空")
+    private String applyId;
     @Min(value = 0, message = "打款金额不能小于0")
     private Integer amount;
     @NotBlank(message = "附言不能为空")
-    private String remark="   ";
+    private String remark = "   ";
+    /**
+     * 打款日期可以空着 有默认值
+     */
     private String transferTime = "";
 
     @NotBlank(message = "银行编号不能为空")

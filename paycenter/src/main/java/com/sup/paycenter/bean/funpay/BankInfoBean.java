@@ -9,10 +9,10 @@ import lombok.Data;
 @Data
 public class BankInfoBean {
     private String bankName;
-    private int bankID;
-    private int version;
-    private int status;
+    private Integer bankID;
+    private Integer version;
+    private Integer status;
     private String abbreviation;
-    private int accountSupport;
-    private int cardSupport;
+    private Integer accountSupport;
+    private Integer cardSupport;
 }

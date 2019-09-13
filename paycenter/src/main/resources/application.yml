@@ -7,3 +7,13 @@ server:
 spring:
   application:
     name: service-paycenter
+paycenter:
+  secretkey: xxx
+  merchantId: xxx
+  businessId: xxx
+  version:  1.3
+  url:  xxx
+  method:
+    getBankList: xxx
+    verifyBankInfo: xxx
+    transferMoney: xxxx

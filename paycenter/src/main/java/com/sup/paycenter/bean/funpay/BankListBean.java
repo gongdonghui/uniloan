@@ -10,9 +10,9 @@ import java.util.List;
  */
 @Data
 public class BankListBean {
-    private int count;
-    private String merchantID;
-    private String businessID;
-    private String bankID;
+    private Integer count;
+    private Integer merchantID;
+    private Integer businessID;
+    private Integer bankID;
     private List<BankInfoBean> bankList;
 }
