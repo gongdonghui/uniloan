@@ -15,10 +15,8 @@ public class RepayInfo {
     private String userId;
     @Min(value = 0, message = "打款金额不能小于0")
     private Integer amount;
-    @NotBlank(message = "订单号不能为空")
-    private String orderId;
-    @NotBlank(message = "过期时间不能为空")
-    private String expireDate;
+    @NotBlank(message = "进件id不能为空")
+    private String applyId;
     @NotBlank(message = "姓名不能为空")
     private String name;
     @NotBlank(message = "手机不能为空")

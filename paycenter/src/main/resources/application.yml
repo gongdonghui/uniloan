@@ -11,9 +11,12 @@ paycenter:
   secretkey: xxx
   merchantId: xxx
   businessId: xxx
+  feeId: xxx
   version:  1.3
   url:  xxx
   method:
     getBankList: xxx
     verifyBankInfo: xxx
     transferMoney: xxxx
+    payCheck: xxxx
+    transferCheck: xxxx

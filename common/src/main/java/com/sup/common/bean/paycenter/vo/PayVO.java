@@ -8,5 +8,8 @@ import lombok.Data;
  */
 @Data
 public class PayVO {
+    /**
+     * 交易流水号
+     */
     private String tradeNo;
 }

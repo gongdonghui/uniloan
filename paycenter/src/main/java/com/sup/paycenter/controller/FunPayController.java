@@ -4,24 +4,20 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.reflect.TypeToken;
-import com.sup.common.bean.paycenter.BankInfo;
-import com.sup.common.bean.paycenter.PayInfo;
-import com.sup.common.bean.paycenter.RepayInfo;
-import com.sup.common.bean.paycenter.vo.BankInfoVO;
-import com.sup.common.bean.paycenter.vo.PayVO;
-import com.sup.common.bean.paycenter.vo.VerifyVO;
+import com.sup.common.bean.paycenter.*;
+import com.sup.common.bean.paycenter.vo.*;
 import com.sup.common.util.Result;
-import com.sup.paycenter.bean.funpay.BankListBean;
-import com.sup.paycenter.bean.funpay.ReturnBean;
-import com.sup.paycenter.bean.funpay.TransferMoneyBean;
-import com.sup.paycenter.bean.funpay.VerifyBankInfoBean;
+import com.sup.paycenter.bean.funpay.*;
+import com.sup.paycenter.util.DateUtil;
 import com.sup.paycenter.util.FunPayParamsUtil;
 import com.sup.paycenter.util.GsonUtil;
 import com.sup.paycenter.util.OkBang;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +37,8 @@ public class FunPayController {
     private String businessId;
     @Value("${paycenter.businessId}")
     private String version;
+    @Value("${paycenter.feeId}")
+    private String feeId;
 
     @Value("${paycenter.url}")
     private String funPayUrl;
@@ -50,6 +48,13 @@ public class FunPayController {
     private String method_verifyBankInfo;
     @Value("${paycenter.method.transferMoney}")
     private String method_transferMoney;
+    @Value("${paycenter.method.offlinePay}")
+    private String method_offlinePay;
+    @Value("${paycenter.method.transferCheck}")
+    private String method_transferCheck;
+    @Value("${paycenter.method.payCheck}")
+    private String method_payCheck;
+
 
     private static final int FUNPAY_SUCCESS_FLAG = 10000;
 
@@ -120,12 +125,6 @@ public class FunPayController {
         return Result.succ(v);
     }
 
-    //todo 放款流程设计
-    //  1.查询银行列表
-    //  2.银行卡信息鉴权
-    //  3.调用放款接口 得到交易id (放弃回调功能 这样可以不用mq 减少复杂度)
-    //  4.定时轮询查交易状态
-    //  5.根据查询到的结果进行相应的后续处理
     @PostMapping(value = "pay")
     public Result<PayVO> pay(@Valid PayInfo payInfo) {
         Map m = Maps.newHashMap();
@@ -164,20 +163,100 @@ public class FunPayController {
         return Result.succ(p);
     }
 
-    //todo 还款流程设计
-    //  1.获取支付码
-    //  2.线下还款
-    //  3.还完了可以在手机上有个按钮 已还 点完了之后 来查询还款状态
-    //  4.也可以定时批量的查询还款状态
-    //  5.根据查询到的结果进行相应的后续处理
     @PostMapping(value = "repay")
-    public Result repay(@Valid RepayInfo repayInfo) {
-        return null;
+    public Result<RepayVO> repay(@Valid RepayInfo repayInfo) {
+        Map m = Maps.newHashMap();
+        m.put("merchantID", merchantId);
+        m.put("businessID", businessId);
+        m.put("feeID", feeId);
+        m.put("timestamp", System.currentTimeMillis());
+        m.put("version", version);
+        m.put("clientID", repayInfo.getUserId());
+        //todo 单位转换
+        m.put("amount", repayInfo.getAmount());
+        //todo 不知道计费点名称哪里来
+        m.put("name", "xxx");
+        m.put("orderNo", repayInfo.getApplyId());
+        //还款码有效期为T+7
+        DateTime dt = new DateTime();
+        dt.plusDays(7);
+        m.put("expireDate", DateUtil.format(dt.toDate(), DateUtil.NO_SPLIT_FORMAT));
+        m.put("returnUrl", "xxx");
+        m.put("purchaseType", "2");
+        m.put("phoneNumber", repayInfo.getPhone());
+        m.put("userName", repayInfo.getName());
+        String param = FunPayParamsUtil.params4Get(m, secretKey);
+        String result = OkBang.get(funPayUrl + method_offlinePay + "?param=" + param);
+        if (Strings.isNullOrEmpty(result)) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        ReturnBean<OfflinePayBean> resultBean = GsonUtil.fromJson(result, new TypeToken<ReturnBean<OfflinePayBean>>() {
+        }.getType());
+        if (resultBean.getCode() != FUNPAY_SUCCESS_FLAG) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        RepayVO r = new RepayVO();
+        r.setCode(resultBean.getResult().getCode());
+        r.setShopLink(resultBean.getResult().getShopLink());
+        r.setTradeNo(resultBean.getResult().getTradeNo());
+        r.setExpireDate(DateUtil.formatDateTime(dt.toDate()));
+        return Result.succ(r);
     }
 
-    @PostMapping(value = "tradeStatus")
-    public Result tradeStatus() {
-        return null;
+    @PostMapping(value = "payStatus")
+    public Result<PayStatusVO> payStatus(@Valid @RequestBody PayStatusInfo payStatusInfo) {
+        Map m = Maps.newHashMap();
+        m.put("merchantID", merchantId);
+        m.put("businessID", businessId);
+        m.put("timestamp", System.currentTimeMillis());
+        m.put("version", version);
+        m.put("tradeNo", payStatusInfo.getTradeNo());
+        m.put("orderNo", payStatusInfo.getApplyId());
+        String param = FunPayParamsUtil.params4Get(m, secretKey);
+        String result = OkBang.get(funPayUrl + method_transferCheck + "?param=" + param);
+        if (Strings.isNullOrEmpty(result)) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        ReturnBean<TransferMoneyBean> resultBean = GsonUtil.fromJson(result, new TypeToken<ReturnBean<TransferMoneyBean>>() {
+        }.getType());
+        if (resultBean.getCode() != FUNPAY_SUCCESS_FLAG) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        PayStatusVO p = new PayStatusVO();
+        p.setStatus(resultBean.getResult().getStatus());
+        if (!Strings.isNullOrEmpty(resultBean.getResult().getSendTime())) {
+            Date dt = DateUtil.parse(resultBean.getResult().getSendTime(), DateUtil.NO_SPLIT_FORMAT);
+            p.setSendTime(DateUtil.formatDateTime(dt));
+        }
+        return Result.succ(p);
+    }
+
+    @PostMapping(value = "repayStatus")
+    public Result<RepayStatusVO> repayStatus(@Valid @RequestBody RepayStatusInfo repayStatusInfo) {
+        Map m = Maps.newHashMap();
+        m.put("merchantID", merchantId);
+        m.put("businessID", businessId);
+        m.put("timestamp", System.currentTimeMillis());
+        m.put("version", version);
+        m.put("tradeNo", repayStatusInfo.getTradeNo());
+        m.put("orderNo", repayStatusInfo.getApplyId());
+        String param = FunPayParamsUtil.params4Get(m, secretKey);
+        String result = OkBang.get(funPayUrl + method_payCheck + "?param=" + param);
+        if (Strings.isNullOrEmpty(result)) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        ReturnBean<OfflinePayBean> resultBean = GsonUtil.fromJson(result, new TypeToken<ReturnBean<OfflinePayBean>>() {
+        }.getType());
+        if (resultBean.getCode() != FUNPAY_SUCCESS_FLAG) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        RepayStatusVO r = new RepayStatusVO();
+        r.setStatus(resultBean.getResult().getStatus());
+        if (!Strings.isNullOrEmpty(resultBean.getResult().getPurchaseTime())) {
+            Date dt = DateUtil.parse(resultBean.getResult().getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT);
+            r.setPurchaseTime(DateUtil.formatDateTime(dt));
+        }
+        return Result.succ(r);
     }
 
 }
