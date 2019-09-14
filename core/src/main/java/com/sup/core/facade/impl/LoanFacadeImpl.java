@@ -1,10 +1,7 @@
 package com.sup.core.facade.impl;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.additional.query.impl.QueryChainWrapper;
-import com.sup.core.bean.ApplyInfoBean;
+import com.sup.common.bean.ApplyInfoBean;
 import com.sup.core.bean.ApplyMaterialInfoBean;
 import com.sup.core.bean.RepayPlanInfoBean;
 import com.sup.core.bean.UserBankInfoBean;
@@ -13,8 +10,8 @@ import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.ApplyMaterialInfoMapper;
 import com.sup.core.mapper.RepayPlanInfoMapper;
 import com.sup.core.mapper.UserBankInfoMapper;
-import com.sup.loan.ApplyStatusEnum;
-import com.sup.util.Result;
+import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.util.Result;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -70,9 +67,9 @@ public class LoanFacadeImpl implements LoanFacade {
         }
         String infoId = applyMaterialInfoBean.getInfo_id();
         QueryWrapper<UserBankInfoBean> bankWrapper = new QueryWrapper<>();
-        List<UserBankInfoBean> bankInfoBeans = userBankInfoMapper.selectList(
+        UserBankInfoBean bankInfoBean = userBankInfoMapper.selectOne(
                 bankWrapper.eq("info_id", infoId).eq("user_id", userId));
-        if (bankInfoBeans == null) {
+        if (bankInfoBean == null) {
             log.error("No bank info for user(" + userId + "), info_id=" + infoId);
             return Result.fail("No bank info found!");
         }
@@ -80,7 +77,8 @@ public class LoanFacadeImpl implements LoanFacade {
         // 3. loan using funpay(need thread safe)
         boolean loanSucc = false;
         synchronized (this) {
-            for (UserBankInfoBean bankInfo: bankInfoBeans) {
+            {
+                // TODO
                 // generate BankInfo for paycenter
 
                 // verifyBankInfo
@@ -104,6 +102,7 @@ public class LoanFacadeImpl implements LoanFacade {
 
     @Override
     public Object addRepayPlan(String userId, String applyId) {
+        // TODO
         // 1. get apply info and check apply status
 
         // 2. generate repay plan if not exist(need thread safe)

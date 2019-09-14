@@ -11,6 +11,7 @@ package com.sup.common.loan;
 public enum  ApplyStatusEnum {
     // 进件状态:  0:待审核, 1:自动审核通过, 2:初审通过, 3:复审通过, 4:终审通过,
     //           5:自动审核拒绝, 6:初审拒绝, 7:复审拒绝, 8:终审拒绝, 9:取消或异常
+    //           10:自动放款中，11:自动放款失败，12:已放款/还款中，13:已还清，14:逾期，15:核销
 
     APPLY_INIT(0x00000000, "进件初始化"),
     APPLY_AUTO_PASS(0x00000001, "自动审核通过"),
@@ -21,7 +22,8 @@ public enum  ApplyStatusEnum {
     APPLY_FIRST_DENY(0x00000006, "初审拒绝"),
     APPLY_SECOND_DENY(0x00000007, "复审拒绝"),
     APPLY_FINAL_DENY(0x00000008, "终审拒绝"),
-    APPLY_CANCEL(0x00000009, "取消");
+    APPLY_CANCEL(0x00000009, "取消"),
+    APPLY_AUTO_LOAN_FAILED(0x0000000a, "自动放款中");
 
     private int code;
     private String codeDesc;

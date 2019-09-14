@@ -1,4 +1,4 @@
-package com.sup.core.bean;
+package com.sup.common.bean;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -30,6 +30,7 @@ public class ApplyInfoBean {
     private Float   quota;
     private Integer status;     // 进件最新状态:  0:待审核, 1:自动审核通过, 2:初审通过, 3:复审通过, 4:终审通过,
                                 //              5:自动审核拒绝, 6:初审拒绝, 7:复审拒绝, 8:终审拒绝, 9:取消或异常
+                                //              10:自动放款失败，11:已放款/还款中，12:已还清，13:逾期，14:核销
 
     private Integer operator_id;
     private Float   apply_quota;

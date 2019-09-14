@@ -1,7 +1,7 @@
 package com.sup.core.facade.impl;
 
-import com.sup.core.Result;
-import com.sup.core.bean.ApplyInfoBean;
+import com.sup.common.util.Result;
+import com.sup.common.bean.ApplyInfoBean;
 import com.sup.core.facade.ApplyFacade;
 import com.sup.core.mapper.ApplyInfoMapper;
 import lombok.extern.log4j.Log4j;
@@ -24,6 +24,11 @@ public class ApplyFacadeImpl implements ApplyFacade {
 
     @Autowired
     private ApplyInfoMapper applyInfoMapper;
+
+    @Override
+    public Object addApplyInfo(ApplyInfoBean bean) {
+        return null;
+    }
 
     @Override
     public Object updateApplyInfo(ApplyInfoBean bean) {

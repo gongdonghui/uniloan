@@ -1,6 +1,6 @@
 package com.sup.core.service;
 
-import com.sup.core.bean.ApplyInfoBean;
+import com.sup.common.bean.ApplyInfoBean;
 import com.sup.core.bean.RiskDecisionVariableBean;
 
 public interface CreditService {

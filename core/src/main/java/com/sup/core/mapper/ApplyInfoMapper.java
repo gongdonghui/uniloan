@@ -3,7 +3,7 @@ package com.sup.core.mapper;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.sup.core.bean.ApplyInfoBean;
+import com.sup.common.bean.ApplyInfoBean;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 

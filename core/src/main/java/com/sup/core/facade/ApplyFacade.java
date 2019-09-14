@@ -1,6 +1,6 @@
 package com.sup.core.facade;
 
-import com.sup.core.bean.ApplyInfoBean;
+import com.sup.common.bean.ApplyInfoBean;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -13,7 +13,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Create: 2019-09-10
  */
 
+@RequestMapping(value = "/apply")
 public interface ApplyFacade {
+
+    // add apply
+    @ResponseBody
+    @RequestMapping(value = "add", produces = "application/json;charset=UTF-8")
+    Object addApplyInfo(@RequestBody ApplyInfoBean bean);
 
     // audit apply
     @ResponseBody
