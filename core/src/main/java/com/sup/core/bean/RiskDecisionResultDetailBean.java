@@ -8,18 +8,18 @@ import lombok.Data;
 
 import java.util.Date;
 
-
 @Data
-@TableName("tb_core_risk_decesion_result")
-public class RiskDecisionResultBean {
+@TableName("tb_core_risk_decesion_result_detail")
+public class RiskDecisionResultDetailBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
+    private int rule_id;
+    private int rule_status;
+    private int rule_hit_type;
+    private int decesion_id;
     private int user_id;
     private int product_id;
     private int apply_id;
-    private int ret;
-    private String refuse_code;
-    private Date apply_date;
-
+    private Date apply_time;
 
 }
