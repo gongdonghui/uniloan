@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.sup.backend.bean.AppApplyInfo;
 import com.sup.backend.bean.LoginInfoCtx;
-import com.sup.backend.bean.TbProductInfoBean;
+import com.sup.common.bean.TbProductInfoBean;
 import com.sup.common.bean.*;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;

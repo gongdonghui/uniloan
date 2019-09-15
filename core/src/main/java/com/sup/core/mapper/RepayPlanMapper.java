@@ -11,13 +11,13 @@ import java.util.List;
 
 /**
  * Project:uniloan
- * Class:  RepayPlanInfoMapper
+ * Class:  RepayPlanMapper
  * <p>
  * Author: guanfeng
  * Create: 2019-09-09
  */
 
-public interface RepayPlanInfoMapper extends BaseMapper<TbRepayPlanBean> {
+public interface RepayPlanMapper extends BaseMapper<TbRepayPlanBean> {
 
     @Select("<script> select * from tb_repay_plan <if test='ew != null'> ${ew.customSqlSegment} </if> </script>")
     List<TbRepayPlanBean> getRepayPlan(@Param(Constants.WRAPPER) Wrapper<TbRepayPlanBean> ew);

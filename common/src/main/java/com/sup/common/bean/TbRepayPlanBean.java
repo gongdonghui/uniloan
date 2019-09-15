@@ -45,6 +45,7 @@ public class TbRepayPlanBean {
     private BigInteger act_other;
     private BigInteger need_total;
     private BigInteger act_total;
+    private Integer operator_id;
     private Date create_time;
     private Date update_time;
 }
