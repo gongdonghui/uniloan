@@ -14,6 +14,7 @@ import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.Result;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -30,6 +31,10 @@ import java.util.List;
 @Log4j
 @RestController
 public class LoanFacadeImpl implements LoanFacade {
+
+    @Value("loan.auto-loan-retry-times")
+    private int AUTO_LOAN_RETRY_TIMES;
+
     @Autowired
     private ApplyInfoMapper     applyInfoMapper;
 
@@ -67,6 +72,8 @@ public class LoanFacadeImpl implements LoanFacade {
         }
         String infoId = applyMaterialInfoBean.getInfo_id();
         QueryWrapper<UserBankInfoBean> bankWrapper = new QueryWrapper<>();
+
+        // make sure there is only one bank card for current apply
         UserBankInfoBean bankInfoBean = userBankInfoMapper.selectOne(
                 bankWrapper.eq("info_id", infoId).eq("user_id", userId));
         if (bankInfoBean == null) {
@@ -77,8 +84,9 @@ public class LoanFacadeImpl implements LoanFacade {
         // 3. loan using funpay(need thread safe)
         boolean loanSucc = false;
         synchronized (this) {
-            {
+            for (int i = 0; i < AUTO_LOAN_RETRY_TIMES; i++) {
                 // TODO
+
                 // generate BankInfo for paycenter
 
                 // verifyBankInfo
@@ -146,6 +154,7 @@ public class LoanFacadeImpl implements LoanFacade {
      */
     @Override
     public Object getRepayInfo(String userId, String applyId) {
+        // TODO
         return null;
     }
 
@@ -158,12 +167,13 @@ public class LoanFacadeImpl implements LoanFacade {
      */
     @Override
     public Object repayCallBack(String userId, String applyId) {
+        // TODO
         return null;
     }
 
 
     protected boolean addRepayPlan(ApplyInfoBean applyInfoBean) {
-
+        // TODO
         return false;
     }
 }
