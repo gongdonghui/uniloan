@@ -1,14 +1,19 @@
 package com.sup.core.facade.impl;
 
+import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.Result;
 import com.sup.common.bean.ApplyInfoBean;
 import com.sup.core.facade.ApplyFacade;
 import com.sup.core.mapper.ApplyInfoMapper;
+import com.sup.core.service.ApplyService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Project:uniloan
@@ -23,24 +28,15 @@ import java.util.Date;
 public class ApplyFacadeImpl implements ApplyFacade {
 
     @Autowired
-    private ApplyInfoMapper applyInfoMapper;
+    private ApplyService applyService;
 
     @Override
     public Object addApplyInfo(ApplyInfoBean bean) {
-        return null;
+        return applyService.addApplyInfo(bean);
     }
 
     @Override
     public Object updateApplyInfo(ApplyInfoBean bean) {
-        log.info("updateApplyInfo: operator=" + bean.getOperator_id() +
-                        ", applyId=" + bean.getApp_id() +
-                        ", applyStatus=" + bean.getStatus());
-
-        bean.setUpdate_time(new Date());
-        if (applyInfoMapper.updateById(bean) > 0) {
-            return Result.succ("succ");
-        }
-        log.error("updateApplyInfo failed!");
-        return Result.fail("");
+        return applyService.updateApplyInfo(bean);
     }
 }

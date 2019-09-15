@@ -31,3 +31,9 @@ spring:
           password: Ict123465
           url: 'jdbc:mysql://47.92.200.47:3306/online_uniloan?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
           driver-class-name: com.mysql.jdbc.Driver
+
+apply:
+  expire-days: 7
+
+loan:
+  auto-loan-retry-times: 3
