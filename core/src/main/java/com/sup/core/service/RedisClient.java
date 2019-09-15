@@ -1,7 +1,5 @@
-package com.sup.backend.service;
+package com.sup.core.service;
 
-import com.sup.backend.bean.ActivityInfoBean;
-import com.sup.common.bean.RepayMaterialInfoBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -29,8 +27,6 @@ public class RedisClient {
   }
 
   public boolean Exist(String key) {
-    ActivityInfoBean a = new ActivityInfoBean();
-    RepayMaterialInfoBean b = new RepayMaterialInfoBean();
     return redisTemplate.hasKey(key);
 
   }

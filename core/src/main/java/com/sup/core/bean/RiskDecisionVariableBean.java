@@ -8,5 +8,9 @@ package com.sup.core.bean;
  * Create: 2019-09-08
  */
 
+import lombok.Data;
+
+@Data
 public class RiskDecisionVariableBean {
+
 }
