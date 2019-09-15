@@ -31,6 +31,7 @@ public class TbProductInfoBean {
   private Integer min_period;
   private Integer max_period;
   private Integer period_type;  // 0:天，1:月，2:年
+  private Integer value_date_type; // 起息日方式，0:到账后计息，1:终审通过后计息
   private Float   fee;
   private Integer fee_type;     // 服务费收取方式，0:先扣除服务费，1:先扣除服务费和利息，2:到期扣除服务费和利息
   private String material_needed;

@@ -28,6 +28,8 @@ public class TbApplyInfoBean {
     private Float   rate;
     private Integer period;
     private Float   quota;
+    private Float   fee;
+    private Integer fee_type;   // 参见LoanFeeTypeEnum
     private Integer status;     // 进件状态:  0:待审核, 1:自动审核通过, 2:初审通过, 3:复审通过, 4:终审通过,
                                 //           5:自动审核拒绝, 6:初审拒绝, 7:复审拒绝, 8:终审拒绝, 9:取消或异常
                                 //           10:自动放款中，11:自动放款失败，12:已放款/还款中，13:未还清，14:已还清，
@@ -40,8 +42,9 @@ public class TbApplyInfoBean {
     private String  credit_class;
     private String  deny_code;
     private String  comment;
-    private Date    create_time;
-    private Date    expire_time;
-    private Date    apply_time;
+    private Date    create_time;    // 申请时间
+    private Date    expire_time;    // 申请失效时间
+    private Date    pass_time;      // 终审通过时间
+    private Date    loan_time;      // 放款成功时间
     private Date    update_time;
 }

@@ -49,7 +49,7 @@ public class TbApplyInfoHistoryBean {
         this.operator_id = bean.getOperator_id();
         this.deny_code = bean.getDeny_code();
         this.comment = bean.getComment();
-        this.apply_time = bean.getApply_time();
+        this.apply_time = bean.getCreate_time();
         this.expire_time = bean.getExpire_time();
 
         this.create_time = new Date();
