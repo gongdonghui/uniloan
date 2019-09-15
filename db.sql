@@ -487,3 +487,24 @@ CREATE TABLE `tp_app_sdk_contract_info` (
   `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `tb_core_risk_rules` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `product_id` int(11) DEFAULT NULL,
+  `hit_type` int(11) DEFAULT NULL COMMENT '1表示必须通过的规则， 0 表示提示信审规则',
+  `value_type` int(11) DEFAULT NULL COMMENT '1表示名单命中， 0 表示数值比较',
+  `is_in` int(11) DEFAULT NULL COMMENT '1 表示必须在名单中，0 表示必须不在名单中才能通过规则',
+  `range_left` int(11) DEFAULT NULL COMMENT '数值范围的左侧的类型1表示大于，0表示大于等于',
+  `range_right` int(11) DEFAULT NULL COMMENT '数值范围的左侧的类型1表示小于，0表示小于等于',
+  `variable_name` int(11) DEFAULT NULL COMMENT '变量名字',
+  `credit_level` int(11) DEFAULT NULL COMMENT '信用等级',
+  `val_left` float DEFAULT NULL COMMENT '左值',
+  `val_right` float DEFAULT NULL COMMENT '右值',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `tb_core_credit_level_rules` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `reloan_times` int(11) DEFAULT NULL COMMENT '复贷次数',
+  `max_overdue_days` int(11) DEFAULT NULL COMMENT '历史最大逾期天数',
+  `level` int(11) DEFAULT NULL COMMENT '信用等级',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
