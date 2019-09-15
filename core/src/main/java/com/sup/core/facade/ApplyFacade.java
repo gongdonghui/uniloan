@@ -1,6 +1,6 @@
 package com.sup.core.facade;
 
-import com.sup.common.bean.ApplyInfoBean;
+import com.sup.common.bean.TbApplyInfoBean;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -19,11 +19,11 @@ public interface ApplyFacade {
     // add apply
     @ResponseBody
     @RequestMapping(value = "add", produces = "application/json;charset=UTF-8")
-    Object addApplyInfo(@RequestBody ApplyInfoBean bean);
+    Object addApplyInfo(@RequestBody TbApplyInfoBean bean);
 
     // audit apply
     @ResponseBody
     @RequestMapping(value = "update", produces = "application/json;charset=UTF-8")
-    Object updateApplyInfo(@RequestBody ApplyInfoBean bean);
+    Object updateApplyInfo(@RequestBody TbApplyInfoBean bean);
 
 }

@@ -1,11 +1,10 @@
 package com.sup.backend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.sup.backend.bean.TbProductInfoBean;
-import com.sup.common.bean.ApplyInfoBean;
+import com.sup.common.bean.TbApplyInfoBean;
 
 /**
  * Created by xidongzhou1 on 2019/8/30.
  */
-public interface ApplyInfoMapper extends BaseMapper<ApplyInfoBean> {
+public interface ApplyInfoMapper extends BaseMapper<TbApplyInfoBean> {
 }

@@ -1,9 +1,9 @@
 package com.sup.core.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.sup.common.bean.ApplyInfoBean;
+import com.sup.common.bean.TbApplyInfoBean;
+import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.core.bean.ApplyMaterialInfoBean;
-import com.sup.core.bean.RepayPlanInfoBean;
 import com.sup.core.bean.UserBankInfoBean;
 import com.sup.core.facade.LoanFacade;
 import com.sup.core.mapper.ApplyInfoMapper;
@@ -12,9 +12,11 @@ import com.sup.core.mapper.RepayPlanInfoMapper;
 import com.sup.core.mapper.UserBankInfoMapper;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.Result;
+import com.sup.core.service.ApplyService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -47,11 +49,14 @@ public class LoanFacadeImpl implements LoanFacade {
     @Autowired
     private ApplyMaterialInfoMapper applyMaterialInfoMapper;
 
+    @Autowired
+    private ApplyService applyService;
+
 
     @Override
     public Object autoLoan(String userId, String applyId) {
         // 1. get apply info and check apply status
-        ApplyInfoBean applyInfoBean = applyInfoMapper.selectById(applyId);
+        TbApplyInfoBean applyInfoBean = applyInfoMapper.selectById(applyId);
         if (applyInfoBean == null) {
             log.error("autoLoan: invalid applyId=" + applyId);
             return Result.fail("Invalid applyId!");
@@ -96,33 +101,44 @@ public class LoanFacadeImpl implements LoanFacade {
             }
         }
 
-        // if loan succeeded, generate repay plan
+        // if loan succeeded, update apply info status
         if (loanSucc) {
-            if (!addRepayPlan(applyInfoBean)) {
-                log.error("Failed to generate repay plan for user(" + userId + "), applyId = " + applyId);
-                //
-            }
+            applyInfoBean.setStatus(ApplyStatusEnum.APPLY_AUTO_LOANING.getCode());
+        } else {
+            applyInfoBean.setStatus(ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode());
+        }
+        applyInfoBean.setUpdate_time(new Date());
+        applyInfoBean.setOperator_id(0);    // system
+        return applyService.updateApplyInfo(applyInfoBean);
+    }
+
+    @Override
+    public Object addRepayPlan(String userId, String applyId) {
+        // get apply info and check apply status
+        TbApplyInfoBean bean = applyInfoMapper.selectById(applyId);
+        if (bean == null) {
+            log.error("addRepayPlan: invalid applyId=" + applyId);
+            return Result.fail("Invalid applyId!");
+        }
+        ApplyStatusEnum status = ApplyStatusEnum.getStatusByCode(bean.getStatus());
+        if (status != ApplyStatusEnum.APPLY_LOAN_SUCC) {
+            // repay plan must be added after loan
+            log.error("invalid status=(" + status.getCode() + ")" + status.getCodeDesc());
+            return Result.fail("Invalid status!");
         }
 
+        if (!addRepayPlan(bean)) {
+            log.error("Failed to generate repay plan for user(" + userId + "), applyId = " + applyId);
+            return Result.fail("Failed to add repay plan!");
+        }
 
         return Result.succ();
     }
 
     @Override
-    public Object addRepayPlan(String userId, String applyId) {
-        // TODO
-        // 1. get apply info and check apply status
-
-        // 2. generate repay plan if not exist(need thread safe)
-
-        // 3.
-        return null;
-    }
-
-    @Override
-    public Object updateRepayPlan(RepayPlanInfoBean bean) {
+    public Object updateRepayPlan(TbRepayPlanBean bean) {
         if (bean == null) {
-            return Result.fail("RepayPlanInfoBean is null!");
+            return Result.fail("TbRepayPlanBean is null!");
         }
         log.info("updateRepayPlan: userId = " + bean.getUser_id() +
                 ", applyId = " + bean.getApply_id());
@@ -139,8 +155,8 @@ public class LoanFacadeImpl implements LoanFacade {
         if (applyId == null) {
             return Result.fail("Invalid applyId!");
         }
-        QueryWrapper<RepayPlanInfoBean> wrapper = new QueryWrapper<RepayPlanInfoBean>();
-        List<RepayPlanInfoBean> plans = repayPlanInfoMapper.getRepayPlan(wrapper.eq("applyId", applyId));
+        QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<TbRepayPlanBean>();
+        List<TbRepayPlanBean> plans = repayPlanInfoMapper.getRepayPlan(wrapper.eq("applyId", applyId));
 
         return Result.succ(plans);
     }
@@ -172,7 +188,39 @@ public class LoanFacadeImpl implements LoanFacade {
     }
 
 
-    protected boolean addRepayPlan(ApplyInfoBean applyInfoBean) {
+    /**
+     * 定时检查放款是否成功
+     */
+    @Scheduled(cron = "0 */10 * * * ?")
+    public void checkLoanResult() {
+        // TODO
+
+        // 1. 获取所有放款中的进件
+
+        // 2. 检查放款状态
+
+        // 3. 对放款成功的进件：更新状态、添加还款计划
+
+    }
+
+    /**
+     * 每天查询逾期情况，并更新相应款项
+     */
+    @Scheduled(cron = "0 1 * * * ?")
+    public void checkOverdue() {
+        // TODO
+
+        // 1. 获取所有放款中的进件
+
+        // 2. 检查放款状态
+
+        // 3. 对放款成功的进件：更新状态、添加还款计划
+
+    }
+
+    protected boolean addRepayPlan(TbApplyInfoBean applyInfoBean) {
+        // generate repay plan if not exist(need thread safe)
+
         // TODO
         return false;
     }

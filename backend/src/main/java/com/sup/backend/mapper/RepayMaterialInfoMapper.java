@@ -1,7 +1,7 @@
 package com.sup.backend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.sup.common.bean.RepayMaterialInfoBean;
+import com.sup.common.bean.TbRepayMaterialInfoBean;
 
 /**
  * Project:uniloan
@@ -11,6 +11,6 @@ import com.sup.common.bean.RepayMaterialInfoBean;
  * Create: 2019-09-09
  */
 
-public interface RepayMaterialInfoMapper extends BaseMapper<RepayMaterialInfoBean> {
+public interface RepayMaterialInfoMapper extends BaseMapper<TbRepayMaterialInfoBean> {
 
 }

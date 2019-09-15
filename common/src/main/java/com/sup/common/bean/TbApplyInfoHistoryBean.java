@@ -9,7 +9,7 @@ import java.util.Date;
 
 /**
  * Project:uniloan
- * Class:  ApplyInfoHistoryBean
+ * Class:  TbApplyInfoHistoryBean
  * <p>
  * Author: guanfeng
  * Create: 2019-09-05
@@ -17,7 +17,7 @@ import java.util.Date;
 
 @Data
 @TableName("tb_apply_info_history")
-public class ApplyInfoHistoryBean {
+public class TbApplyInfoHistoryBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private Integer apply_id;
@@ -37,9 +37,9 @@ public class ApplyInfoHistoryBean {
     private Date    expire_time;
     private Date    apply_time;
 
-    public ApplyInfoHistoryBean() {}
+    public TbApplyInfoHistoryBean() {}
 
-    public ApplyInfoHistoryBean(ApplyInfoBean bean) {
+    public TbApplyInfoHistoryBean(TbApplyInfoBean bean) {
         this.app_id = bean.getId();
         this.user_id = bean.getUser_id();
         this.product_id = bean.getProduct_id();
