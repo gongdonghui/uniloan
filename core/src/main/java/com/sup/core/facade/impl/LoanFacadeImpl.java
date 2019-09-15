@@ -120,12 +120,6 @@ public class LoanFacadeImpl implements LoanFacade {
             log.error("addRepayPlan: invalid applyId=" + applyId);
             return Result.fail("Invalid applyId!");
         }
-        ApplyStatusEnum status = ApplyStatusEnum.getStatusByCode(bean.getStatus());
-        if (status != ApplyStatusEnum.APPLY_LOAN_SUCC) {
-            // repay plan must be added after loan
-            log.error("invalid status=(" + status.getCode() + ")" + status.getCodeDesc());
-            return Result.fail("Invalid status!");
-        }
 
         if (!addRepayPlan(bean)) {
             log.error("Failed to generate repay plan for user(" + userId + "), applyId = " + applyId);
@@ -219,9 +213,18 @@ public class LoanFacadeImpl implements LoanFacade {
     }
 
     protected boolean addRepayPlan(TbApplyInfoBean applyInfoBean) {
+
+        ApplyStatusEnum status = ApplyStatusEnum.getStatusByCode(applyInfoBean.getStatus());
+        if (status != ApplyStatusEnum.APPLY_LOAN_SUCC) {
+            // repay plan must be added after loan
+            log.error("addRepayPlan: invalid status=(" + status.getCode() + ")" + status.getCodeDesc());
+            return false;
+        }
         // generate repay plan if not exist(need thread safe)
 
         // TODO
         return false;
     }
+
+
 }

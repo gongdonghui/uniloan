@@ -3,6 +3,7 @@ package com.sup.core.service;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbApplyInfoHistoryBean;
 import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.util.DateUtil;
 import com.sup.common.util.Result;
 import com.sup.core.mapper.ApplyInfoHistoryMapper;
 import com.sup.core.mapper.ApplyInfoMapper;
@@ -39,13 +40,13 @@ public class ApplyService {
                 + ", appId=" + bean.getApp_id()
                 + ", channelId=" + bean.getChannel_id()
                 + ", productId=" + bean.getProduct_id());
-        Calendar c = new GregorianCalendar();
         Date now = new Date();
-        c.setTime(now);
-        c.add(Calendar.DATE, APPLY_EXPIRE_DAYS);
-        Date expireTime = c.getTime();
+        Date expireTime = DateUtil.getDate(now, APPLY_EXPIRE_DAYS);
+//        Calendar c = new GregorianCalendar();
+//        c.setTime(now);
+//        c.add(Calendar.DATE, APPLY_EXPIRE_DAYS);
+//        Date expireTime = c.getTime();
 
-        bean.setApply_time(now);
         bean.setCreate_time(now);
         bean.setUpdate_time(now);
         bean.setExpire_time(expireTime);
@@ -83,6 +84,13 @@ public class ApplyService {
 
         Date now = new Date();
         bean.setUpdate_time(now);
+        if (newState == ApplyStatusEnum.APPLY_INIT) {
+            bean.setCreate_time(now);
+        } else if (newState == ApplyStatusEnum.APPLY_FINAL_PASS) {
+            bean.setPass_time(now);
+        } else if (newState == ApplyStatusEnum.APPLY_LOAN_SUCC) {
+            bean.setLoan_time(now);
+        }
         if (applyInfoMapper.updateById(bean) <= 0) {
             return Result.fail("update ApplyInfo failed!");
         }
