@@ -24,7 +24,7 @@ public class DecisionEngine {
     private com.sup.core.service.RedisClient redisClient;
 
     @Autowired
-    private RepayPlanInfoMapper repayPlanInfoMapper;
+    private RepayPlanMapper repayPlanInfoMapper;
 
     @Autowired
     private ApplyInfoMapper applyInfoMapper;
@@ -90,7 +90,7 @@ public class DecisionEngine {
             }
         }
         OverdueInfoBean ret = new OverdueInfoBean();
-        ret.setTimes(tims);
+        ret.setTimes(times);
         ret.setMax_days(max_days);
         ret.setLatest_days(latest_days);
         return ret;
@@ -148,8 +148,8 @@ public class DecisionEngine {
         UserBankInfoBean userBankInfoBean = this.userBankInfoMapper.selectOne(new QueryWrapper<UserBankInfoBean>().eq("info_id", info_id).orderByDesc("create_time"));
         if (userBankInfoBean != null) {
 
-            int account_id = userBankInfoBean.getAccount_id();
-            if (account_id > 0) {
+            String account_id = userBankInfoBean.getAccount_id();
+            if (account_id != null && !account_id.isEmpty()) {
                 List<UserBankInfoBean> sameIds = this.userBankInfoMapper.selectList(new QueryWrapper<UserBankInfoBean>().eq("account_id", account_id));
                 HashSet<String> set = new HashSet<String>();
                 for (UserBankInfoBean ub : sameIds) {
@@ -170,8 +170,8 @@ public class DecisionEngine {
                 max_overdue_times = contractInfo.getOverdue_times() > max_overdue_times ? contractInfo.getOverdue_times() : max_overdue_times;
                 max_apply_times = contractInfo.getApply_times() > max_apply_times ? contractInfo.getApply_times() : max_apply_times;
             }
-            riskBean.put(RiskVariableConstants.NUM_OF_APPLY_TIMES_IN_EMMERGENCY_CONTRACT, max_apply_times);
-            riskBean.put(RiskVariableConstants.NUM_OF_OVERDUE_TIMES_IN_EMMERGENCY_CONTRACT, max_overdue_times);
+            riskBean.put(RiskVariableConstants.NUM_OF_APPLY_TIMES_IN_EMMERGENCY_CONTRACT, Double.valueOf(max_apply_times));
+            riskBean.put(RiskVariableConstants.NUM_OF_OVERDUE_TIMES_IN_EMMERGENCY_CONTRACT, Double.valueOf(max_overdue_times));
 
         }
         //TODO   get  contract  info
@@ -213,8 +213,8 @@ public class DecisionEngine {
 
             }
         }
-        result.setOption_rules(option_ret);
-        result.setForce_rules(force_ret);
+//        result.setOption_rules(option_ret);
+//        result.setForce_rules(force_ret);
         return result;
     }
 }
