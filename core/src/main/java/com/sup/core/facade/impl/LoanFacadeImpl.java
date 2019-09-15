@@ -8,7 +8,7 @@ import com.sup.core.bean.UserBankInfoBean;
 import com.sup.core.facade.LoanFacade;
 import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.ApplyMaterialInfoMapper;
-import com.sup.core.mapper.RepayPlanInfoMapper;
+import com.sup.core.mapper.RepayPlanMapper;
 import com.sup.core.mapper.UserBankInfoMapper;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.Result;
@@ -41,7 +41,7 @@ public class LoanFacadeImpl implements LoanFacade {
     private ApplyInfoMapper     applyInfoMapper;
 
     @Autowired
-    private RepayPlanInfoMapper repayPlanInfoMapper;
+    private RepayPlanMapper repayPlanMapper;
 
     @Autowired
     private UserBankInfoMapper userBankInfoMapper;
@@ -144,7 +144,7 @@ public class LoanFacadeImpl implements LoanFacade {
                 ", applyId = " + bean.getApply_id());
 
         bean.setUpdate_time(new Date());
-        if (repayPlanInfoMapper.updateById(bean) > 0) {
+        if (repayPlanMapper.updateById(bean) > 0) {
             return Result.succ();
         }
         return Result.fail("update failed!");
@@ -156,7 +156,7 @@ public class LoanFacadeImpl implements LoanFacade {
             return Result.fail("Invalid applyId!");
         }
         QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<TbRepayPlanBean>();
-        List<TbRepayPlanBean> plans = repayPlanInfoMapper.getRepayPlan(wrapper.eq("applyId", applyId));
+        List<TbRepayPlanBean> plans = repayPlanMapper.getRepayPlan(wrapper.eq("applyId", applyId));
 
         return Result.succ(plans);
     }
