@@ -508,3 +508,31 @@ CREATE TABLE `tb_core_credit_level_rules` (
   `level` int(11) DEFAULT NULL COMMENT '信用等级',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `tb_core_risk_decesion_result` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `apply_time` datetime DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `apply_id` int(11) DEFAULT NULL,
+  `product_id` int(11) DEFAULT NULL,
+  `ret` int(11) DEFAULT NULL COMMENT '1表示拒绝 0  表示通过',
+  `refuse_code` varchar(255) DEFAULT NULL COMMENT '拒贷码',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `tb_core_risk_decesion_result_detail` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `rule_id` int(11) DEFAULT NULL,
+  `rule_status` int(11) DEFAULT NULL,
+  `rule_hit_type` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `product_id` int(11) DEFAULT NULL,
+  `apply_id` int(11) DEFAULT NULL,
+  `apply_date` datetime DEFAULT NULL,
+  `decesion_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `tb_core_risk_variables` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL COMMENT '变量名称',
+  `value_type` int(11) DEFAULT NULL COMMENT '1表示名单   0表示数值',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
