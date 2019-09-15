@@ -17,6 +17,7 @@ import com.sup.backend.mapper.*;
 import com.sup.backend.service.RedisClient;
 import com.sup.backend.service.SkyLineSmsService;
 import com.sup.backend.util.ToolUtils;
+import com.sup.common.loan.ApplyStatusEnum;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -63,6 +65,10 @@ public class UserController {
   TbApplyMaterialInfoMapper tb_apply_info_material_mapper;
   @Autowired
   TbProductInfoMapper tb_product_info_mapper;
+  @Autowired
+  ApplyInfoMapper apply_info_mapper;
+  @Autowired
+  TbRepayPlanMapper tb_repay_plan_mapper;
 
   @ResponseBody
   @RequestMapping(value = "test", produces = "application/json;charset=UTF-8")
@@ -302,8 +308,32 @@ public class UserController {
   @ResponseBody
   @RequestMapping(value = "apply/list", produces = "application/json;charset=UTF-8")
   public Object listApply(@LoginInfo LoginInfoCtx li) {
+    QueryWrapper<ApplyInfoBean> query = new QueryWrapper<ApplyInfoBean>().eq("user_id", li.getUser_id());
+    List<ApplyInfoBean> beans = apply_info_mapper.selectList(query);
     JSONObject all_applys = new JSONObject();
-    all_applys.put("pending_list", ImmutableList.of(new AppApplyInfo()));
+    List<AppApplyInfo> ret_app_beans = new ArrayList<>();
+    for (ApplyInfoBean bean : beans) {
+      if (!bean.getStatus().equals(ApplyStatusEnum.APPLY_FINAL_PASS)) {
+        continue;
+      }
+      List<TbRepayPlanBean> plans = tb_repay_plan_mapper.selectList(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", bean.getApp_id()).orderByAsc("repay_start_date"));
+      for (TbRepayPlanBean plan : plans) {
+        if (plan.getRepay_status().equals(1)) {
+          continue;
+        }
+        if (plan.getRepay_start_date().getTime() <= System.currentTimeMillis()) {
+          AppApplyInfo ai = new AppApplyInfo();
+          ai.setCurr_amount_to_be_repaid(plan.getNeed_total().toString());
+          ai.setDest_account_no("xx");
+          ai.setIs_overdue(plan.getRepay_end_date().getTime() > System.currentTimeMillis() ? 1: 0);
+          ai.setOrder_id(bean.getApp_id());
+          ai.setPlan_id(plan.getId());
+          ai.setPeriod(plan.getSeq_no().toString());
+          ret_app_beans.add(ai);
+        }
+      }
+    }
+    all_applys.put("pending_list", ret_app_beans);
     return Result.succ(all_applys);
   }
 
