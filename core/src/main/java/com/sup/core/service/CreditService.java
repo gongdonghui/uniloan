@@ -1,17 +1,17 @@
 package com.sup.core.service;
 
-import com.sup.common.bean.ApplyInfoBean;
+import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.core.bean.RiskDecisionVariableBean;
 
 public interface CreditService {
 
     Object getCreditClass(String version, String userId, String applyId);
 
-    Object getCreditClass(String version, String userId, ApplyInfoBean bean);
+    Object getCreditClass(String version, String userId, TbApplyInfoBean bean);
 
 
     RiskDecisionVariableBean getRiskDecisionVariable(String version, String productId, String applyId);
 
-    RiskDecisionVariableBean getRiskDecisionVariable(String version, String productId, ApplyInfoBean bean);
+    RiskDecisionVariableBean getRiskDecisionVariable(String version, String productId, TbApplyInfoBean bean);
 
 }

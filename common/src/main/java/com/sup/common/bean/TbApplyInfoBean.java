@@ -9,7 +9,7 @@ import java.util.Date;
 
 /**
  * Project:uniloan
- * Class:  ApplyInfoBean
+ * Class:  TbApplyInfoBean
  * <p>
  * Author: guanfeng
  * Create: 2019-09-05
@@ -17,7 +17,7 @@ import java.util.Date;
 
 @Data
 @TableName("tb_apply_info")
-public class ApplyInfoBean {
+public class TbApplyInfoBean {
     @TableId(type = IdType.AUTO)
     private Integer id;         // apply_id
     private Integer user_id;

@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.google.common.collect.ImmutableList;
 import com.sup.backend.bean.AppApplyInfo;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.bean.TbProductInfoBean;
@@ -308,11 +307,11 @@ public class UserController {
   @ResponseBody
   @RequestMapping(value = "apply/list", produces = "application/json;charset=UTF-8")
   public Object listApply(@LoginInfo LoginInfoCtx li) {
-    QueryWrapper<ApplyInfoBean> query = new QueryWrapper<ApplyInfoBean>().eq("user_id", li.getUser_id());
-    List<ApplyInfoBean> beans = apply_info_mapper.selectList(query);
+    QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id());
+    List<TbApplyInfoBean> beans = apply_info_mapper.selectList(query);
     JSONObject all_applys = new JSONObject();
     List<AppApplyInfo> ret_app_beans = new ArrayList<>();
-    for (ApplyInfoBean bean : beans) {
+    for (TbApplyInfoBean bean : beans) {
       if (!bean.getStatus().equals(ApplyStatusEnum.APPLY_FINAL_PASS)) {
         continue;
       }

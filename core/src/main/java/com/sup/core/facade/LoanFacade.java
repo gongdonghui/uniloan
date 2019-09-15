@@ -1,6 +1,6 @@
 package com.sup.core.facade;
 
-import com.sup.core.bean.RepayPlanInfoBean;
+import com.sup.common.bean.TbRepayPlanBean;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -32,7 +32,7 @@ public interface LoanFacade {
 
     @ResponseBody
     @RequestMapping(value = "plan/update", produces = "application/json;charset=UTF-8")
-    Object updateRepayPlan(@RequestBody RepayPlanInfoBean bean);
+    Object updateRepayPlan(@RequestBody TbRepayPlanBean bean);
 
     /**
      *

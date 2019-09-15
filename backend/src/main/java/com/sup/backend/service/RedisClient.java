@@ -1,7 +1,5 @@
 package com.sup.backend.service;
 
-import com.sup.backend.bean.AppSubmitOrder;
-import com.sup.common.bean.RepayMaterialInfoBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;

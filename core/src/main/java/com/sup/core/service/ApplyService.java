@@ -1,8 +1,7 @@
 package com.sup.core.service;
 
-import com.sun.org.apache.regexp.internal.RE;
-import com.sup.common.bean.ApplyInfoBean;
-import com.sup.common.bean.ApplyInfoHistoryBean;
+import com.sup.common.bean.TbApplyInfoBean;
+import com.sup.common.bean.TbApplyInfoHistoryBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.Result;
 import com.sup.core.mapper.ApplyInfoHistoryMapper;
@@ -35,7 +34,7 @@ public class ApplyService {
     @Value("apply.expire-days")
     private int APPLY_EXPIRE_DAYS;
 
-    public Object addApplyInfo(ApplyInfoBean bean) {
+    public Object addApplyInfo(TbApplyInfoBean bean) {
         log.info("addApplyInfo: userId=" + bean.getUser_id()
                 + ", appId=" + bean.getApp_id()
                 + ", channelId=" + bean.getChannel_id()
@@ -58,7 +57,7 @@ public class ApplyService {
         }
         // apply id will be set after insert succeeded.
         log.info("insert into ApplyInfo succ, applyId=" + bean.getId());
-        ApplyInfoHistoryBean applyInfoHistoryBean = new ApplyInfoHistoryBean(bean);
+        TbApplyInfoHistoryBean applyInfoHistoryBean = new TbApplyInfoHistoryBean(bean);
         applyInfoHistoryBean.setCreate_time(now);
         if (applyInfoHistoryMapper.insert(applyInfoHistoryBean) <= 0) {
             return Result.fail("insert into ApplyInfoHistory failed!");
@@ -66,7 +65,7 @@ public class ApplyService {
         return Result.succ();
     }
 
-    public Object updateApplyInfo(ApplyInfoBean bean) {
+    public Object updateApplyInfo(TbApplyInfoBean bean) {
         ApplyStatusEnum newState = ApplyStatusEnum.getStatusByCode(bean.getStatus());
         if (newState == null) {
             log.error("updateApplyInfo: invalid status=" + bean.getStatus()
@@ -87,7 +86,7 @@ public class ApplyService {
         if (applyInfoMapper.updateById(bean) <= 0) {
             return Result.fail("update ApplyInfo failed!");
         }
-        ApplyInfoHistoryBean applyInfoHistoryBean = new ApplyInfoHistoryBean(bean);
+        TbApplyInfoHistoryBean applyInfoHistoryBean = new TbApplyInfoHistoryBean(bean);
         applyInfoHistoryBean.setCreate_time(now);
         if (applyInfoHistoryMapper.insert(applyInfoHistoryBean) <= 0) {
             return Result.fail("insert into ApplyInfoHistory failed!");
