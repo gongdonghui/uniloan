@@ -20,6 +20,9 @@ sms:
 paycenter:
   uri: http://xxxxx/paycenter/repay
 
+admin:
+  uri: http://zzzz
+
 spring:
   messages:
     basename: static/i18n/messages

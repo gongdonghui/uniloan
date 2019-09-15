@@ -439,6 +439,7 @@ DROP TABLE tb_user_regist_info;
 CREATE TABLE if NOT EXISTS `tb_user_regist_info` (
   `id` int(12) NOT NULL AUTO_INCREMENT COMMENT '作为用户id使用',
   `mobile` varchar(32) NOT NULL COMMENT '登陆手机号',
+  `name` varchar(64) COMMENT '用户姓名，在验证后补充',
   `type` int(11) NOT NULL DEFAULT '0' COMMENT '用户类型，0:借款用户',
   `status` int(11) NOT NULL DEFAULT '1' COMMENT '用户状态，1:正常',
   `channel_id` int(11) DEFAULT NULL COMMENT '注册渠道id',
