@@ -1,6 +1,7 @@
 package com.sup.core.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.core.bean.*;
@@ -37,6 +38,12 @@ public class DecisionEngine {
 
     @Autowired
     private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
+
+    @Autowired
+    private RiskDecisionResultMapper riskDecisionResultMapper;
+
+    @Autowired
+    private RiskDecisionResultDetailMapper riskDecisionResultDetailMapper;
 
 
     private boolean applySingleRule(RiskRulesBean rule, String mobile, Map<String, Double> riskBean) {
@@ -183,38 +190,56 @@ public class DecisionEngine {
 
     public RiskDecisionResultBean applyRules(String userId, String applyId, String productId, String info_id) {
 
-        List<RiskRulesBean> rulesBeanList = riskRulesMapper.loadRulesByProduct(Integer.parseInt(productId));
-        //TODO prepareRiskVariables();
+        List<RiskRulesBean> rulesBeanList = riskRulesMapper.selectList(new QueryWrapper<RiskRulesBean>().eq("product_id", Integer.parseInt(productId)));
+
         Map<String, Double> riskBean = prepareRiskVariables(userId, info_id);
         String mobile = "";
 
         RiskDecisionResultBean result = new RiskDecisionResultBean();
-        Map<String, Integer> force_ret = new HashMap<String, Integer>();
-        Map<String, Integer> option_ret = new HashMap<String, Integer>();
         result.setRet(0);
-
+        List<RiskDecisionResultDetailBean> detailBeanList = new ArrayList<>();
         for (RiskRulesBean rule : rulesBeanList) {
+            RiskDecisionResultDetailBean decisionResultBean = new RiskDecisionResultDetailBean();
+            decisionResultBean.setRule_id(rule.getId());
+            decisionResultBean.setApply_id(Integer.parseInt(applyId));
+            decisionResultBean.setUser_id(Integer.parseInt(userId));
+            decisionResultBean.setApply_date(new Date());
+            decisionResultBean.setRule_hit_type(rule.getHit_type());
 
             if (rule.getHit_type() == 1) {   //必须通过类
 
 
                 boolean ret = applySingleRule(rule, mobile, riskBean);
-                force_ret.put(rule.getVariable_name(), (ret ? 0 : 1));
+
+                decisionResultBean.setRule_status(ret ? 1 : 0);
                 if (!ret) {
                     int code = rule.getId();
                     result.setRefuse_code("r00" + Integer.toString(code));   // 拒贷码
-                    result.setRet(1);
+                    result.setRet(1);    //1 表示拒贷  0  表示通过
                 }
 
             } else if (rule.getHit_type() == 0) {  //提示类
 
                 boolean ret = applySingleRule(rule, mobile, riskBean);
-                option_ret.put(rule.getVariable_name(), (ret ? 0 : 1));
-
+                decisionResultBean.setRule_status(ret ? 1 : 0);
             }
+            detailBeanList.add(decisionResultBean);
+
         }
-//        result.setOption_rules(option_ret);
-//        result.setForce_rules(force_ret);
+        serializeDecesionResult(result, detailBeanList);
         return result;
+    }
+
+    private boolean serializeDecesionResult(RiskDecisionResultBean result, List<RiskDecisionResultDetailBean> detailBeans) {
+
+        this.riskDecisionResultMapper.insert(result);
+        int did = result.getId();
+        for (RiskDecisionResultDetailBean detail : detailBeans) {
+            detail.setDecesion_id(did);
+            this.riskDecisionResultDetailMapper.insert(detail);
+        }
+
+        return true;
+
     }
 }

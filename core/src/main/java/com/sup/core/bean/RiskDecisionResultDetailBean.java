@@ -13,13 +13,13 @@ import java.util.Date;
 public class RiskDecisionResultDetailBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private int rule_id;
-    private int rule_status;
-    private int rule_hit_type;
-    private int decesion_id;
-    private int user_id;
-    private int product_id;
-    private int apply_id;
-    private Date apply_time;
+    private Integer rule_id;
+    private Integer rule_status;
+    private Integer rule_hit_type;
+    private Integer decesion_id;
+    private Integer user_id;
+    private Integer product_id;
+    private Integer apply_id;
+    private Date apply_date;
 
 }
