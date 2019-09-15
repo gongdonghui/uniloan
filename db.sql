@@ -464,3 +464,26 @@ CREATE TABLE if NOT EXISTS `tb_user_sns_info` (
   KEY `idx_user_id` (`user_id`),
   KEY `idx_type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `tb_app_sdk_apply_info` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `apply_long` float DEFAULT NULL COMMENT 'gps经度',
+  `apply_lat` int(11) DEFAULT NULL COMMENT 'gps纬度',
+  `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
+  `mobile` varchar(255) DEFAULT NULL COMMENT '手机号',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `tp_app_sdk_contract_info` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
+  `mobile` varchar(255) DEFAULT NULL COMMENT '手机号',
+  `contract_name` varchar(255) DEFAULT NULL COMMENT '通讯录姓名',
+  `contract_info` varchar(255) DEFAULT NULL COMMENT '通讯录联系系信息',
+  `contract_memo` varchar(255) DEFAULT NULL COMMENT '通讯录备注',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
