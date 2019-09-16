@@ -567,3 +567,19 @@ CREATE TABLE `tb_core_risk_variables` (
   `value_type` int(11) DEFAULT NULL COMMENT '1表示名单   0表示数值',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_market_plan;
+CREATE TABLE `tb_market_plan` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `topic` varchar(128) NOT NULL COMMENT 'mq topic:  user_business_state',
+  `tag` varchar(128) NOT NULL COMMENT 'mq tag: new_regist, loan_succ, ...',
+  `market_way` varchar(32) NOT NULL COMMENT 'sms/push/facebook',
+  `market_ext` varchar(1024) NOT NULL COMMENT '{"msg": "hello"}',
+  `priority` int(11) DEFAULT 100 NOT NULL,
+  `status` int(4) DEFAULT 0 NOT NULL COMMENT '0: 无效  1： 有效',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_topic` (`topic`),
+  KEY `idx_tag` (`tag`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
