@@ -2,7 +2,7 @@ package com.sup.common.loan;
 
 /**
  * Project:uniloan
- * Class:  LoanFeeTypeEnum
+ * Class:  LoanValueDateTypeEnum
  * <p>
  * Author: guanfeng
  * Create: 2019-09-12
