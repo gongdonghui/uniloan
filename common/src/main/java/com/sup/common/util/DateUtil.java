@@ -1,7 +1,6 @@
 package com.sup.common.util;
 
 import com.google.common.base.Strings;
-import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -11,6 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+@Slf4j
 public class DateUtil {
 
     /**
