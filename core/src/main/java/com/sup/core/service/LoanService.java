@@ -3,11 +3,15 @@ package com.sup.core.service;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.common.loan.LoanFeeTypeEnum;
+import com.sup.common.loan.RepayPlanOverdueEnum;
+import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.util.DateUtil;
 import com.sup.core.mapper.ProductInfoMapper;
+import com.sup.core.mapper.RepayPlanMapper;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigInteger;
 import java.util.Date;
 
 /**
@@ -23,6 +27,10 @@ public class LoanService {
 
     @Autowired
     private ProductInfoMapper productInfoMapper;
+
+    @Autowired
+    private RepayPlanMapper repayPlanMapper;
+
 
     public TbRepayPlanBean genRepayPlan(TbApplyInfoBean bean) {
 
@@ -68,11 +76,15 @@ public class LoanService {
         repayPlanBean.setUser_id(bean.getUser_id());
         repayPlanBean.setApply_id(bean.getId());
         repayPlanBean.setSeq_no(1);
+        repayPlanBean.setRepay_start_date(repayStartTime);
+        repayPlanBean.setRepay_end_date(repayEndTime);
+        repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_NOT_PAID.getCode());
+        repayPlanBean.setIs_overdue(RepayPlanOverdueEnum.PLAN_NOT_OVER_DUE.getCode());
+        repayPlanBean.setNeed_principal(BigInteger.valueOf(principalToRepay));
+        repayPlanBean.setNeed_interest(BigInteger.valueOf(interestToRepay));
+        repayPlanBean.setNeed_management_fee(BigInteger.valueOf(feeToRepay));
+        repayPlanBean.setNeed_total(BigInteger.valueOf(totalToRepay));
 
-
-        // TODO
-
-
-        return null;
+        return repayPlanBean;
     }
 }

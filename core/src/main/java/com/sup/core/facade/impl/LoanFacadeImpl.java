@@ -2,8 +2,9 @@ package com.sup.core.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.TbApplyInfoBean;
+import com.sup.common.bean.TbApplyMaterialInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
-import com.sup.core.bean.ApplyMaterialInfoBean;
+import com.sup.common.loan.ApplyMaterialTypeEnum;
 import com.sup.core.bean.UserBankInfoBean;
 import com.sup.core.facade.LoanFacade;
 import com.sup.core.mapper.ApplyInfoMapper;
@@ -13,6 +14,7 @@ import com.sup.core.mapper.UserBankInfoMapper;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.Result;
 import com.sup.core.service.ApplyService;
+import com.sup.core.service.LoanService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,6 +54,9 @@ public class LoanFacadeImpl implements LoanFacade {
     @Autowired
     private ApplyService applyService;
 
+    @Autowired
+    private LoanService loanService;
+
 
     @Override
     public Object autoLoan(String userId, String applyId) {
@@ -68,9 +73,11 @@ public class LoanFacadeImpl implements LoanFacade {
         }
 
         // 2. get user bank info
-        QueryWrapper<ApplyMaterialInfoBean> materialWrapper = new QueryWrapper<ApplyMaterialInfoBean>();
-        ApplyMaterialInfoBean applyMaterialInfoBean = applyMaterialInfoMapper.selectOne(
-                materialWrapper.eq("applyId", applyId).eq("info_type", 4));
+        QueryWrapper<TbApplyMaterialInfoBean> materialWrapper = new QueryWrapper<>();
+        TbApplyMaterialInfoBean applyMaterialInfoBean = applyMaterialInfoMapper.selectOne(materialWrapper
+                .eq("applyId", applyId)
+                .eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_BANK.getCode()));
+
         if (applyMaterialInfoBean == null) {
             log.error("No apply material(bank info) found for applyId=" + applyId);
             return Result.fail("No apply material found!");
@@ -221,8 +228,23 @@ public class LoanFacadeImpl implements LoanFacade {
             return false;
         }
         // generate repay plan if not exist(need thread safe)
+        TbRepayPlanBean repayPlanBean = repayPlanMapper.getByApplyId(applyInfoBean.getId());
+        if (repayPlanBean != null) {
+            log.error("RepayPlan already exists for applyId=" + applyInfoBean.getId());
+            return false;
+        }
 
-        // TODO
+        synchronized (this) {
+            repayPlanBean = loanService.genRepayPlan(applyInfoBean);
+            if (repayPlanBean == null) {
+                log.error("Failed to generate repay plan for applyId=" + applyInfoBean.getId());
+                return false;
+            }
+
+            if (repayPlanMapper.insert(repayPlanBean) > 0) {
+                return true;
+            }
+        }
         return false;
     }
 

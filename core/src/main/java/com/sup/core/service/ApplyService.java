@@ -32,38 +32,25 @@ public class ApplyService {
     @Autowired
     private ApplyInfoHistoryMapper applyInfoHistoryMapper;
 
-    @Value("apply.expire-days")
-    private int APPLY_EXPIRE_DAYS;
-
-    public Object addApplyInfo(TbApplyInfoBean bean) {
+    public boolean addApplyInfo(TbApplyInfoBean bean) {
         log.info("addApplyInfo: userId=" + bean.getUser_id()
                 + ", appId=" + bean.getApp_id()
                 + ", channelId=" + bean.getChannel_id()
                 + ", productId=" + bean.getProduct_id());
-        Date now = new Date();
-        Date expireTime = DateUtil.getDate(now, APPLY_EXPIRE_DAYS);
-//        Calendar c = new GregorianCalendar();
-//        c.setTime(now);
-//        c.add(Calendar.DATE, APPLY_EXPIRE_DAYS);
-//        Date expireTime = c.getTime();
-
-        bean.setCreate_time(now);
-        bean.setUpdate_time(now);
-        bean.setExpire_time(expireTime);
-        bean.setStatus(ApplyStatusEnum.APPLY_INIT.getCode());
-
 
         if (applyInfoMapper.insert(bean) <= 0) {
-            return Result.fail("insert into ApplyInfo failed!");
+            log.error("insert into ApplyInfo failed!");
+            return false;
         }
         // apply id will be set after insert succeeded.
         log.info("insert into ApplyInfo succ, applyId=" + bean.getId());
         TbApplyInfoHistoryBean applyInfoHistoryBean = new TbApplyInfoHistoryBean(bean);
-        applyInfoHistoryBean.setCreate_time(now);
+        applyInfoHistoryBean.setCreate_time(bean.getCreate_time());
         if (applyInfoHistoryMapper.insert(applyInfoHistoryBean) <= 0) {
-            return Result.fail("insert into ApplyInfoHistory failed!");
+            log.error("insert into ApplyInfoHistory failed!");
+            return false;
         }
-        return Result.succ();
+        return true;
     }
 
     public Object updateApplyInfo(TbApplyInfoBean bean) {
