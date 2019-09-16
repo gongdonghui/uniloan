@@ -56,7 +56,6 @@ public class RepayController {
     final String phone = user.getMobile();
     final Integer amount = Integer.parseInt(apply.getCurr_amount_to_be_repaid());
     final String orderid = apply.getPlan_id().toString();
-    final String expireDate = (new SimpleDateFormat(ToolUtils.COMPACT_DATE_FORMAT)).format(Date.from(LocalDateTime.now().plusMinutes(30l).atZone(ZoneId.systemDefault()).toInstant()));
 
     RepayInfo ri = new RepayInfo();
     ri.setAmount(amount);
@@ -84,7 +83,6 @@ public class RepayController {
     });
     return ret;
   }
-
 
   // repayment complete callback
   @ResponseBody
