@@ -33,6 +33,10 @@ public class ApplyService {
     @Autowired
     private ApplyInfoHistoryMapper applyInfoHistoryMapper;
 
+    @Autowired
+    private LoanService loanService;
+
+
     public boolean addApplyInfo(TbApplyInfoBean bean) {
         log.info("addApplyInfo: userId=" + bean.getUser_id()
                 + ", appId=" + bean.getApp_id()
@@ -54,7 +58,7 @@ public class ApplyService {
         return true;
     }
 
-    public Object updateApplyInfo(TbApplyInfoBean bean) {
+    public Result updateApplyInfo(TbApplyInfoBean bean) {
         ApplyStatusEnum newState = ApplyStatusEnum.getStatusByCode(bean.getStatus());
         if (newState == null) {
             log.error("updateApplyInfo: invalid status=" + bean.getStatus()
@@ -79,6 +83,9 @@ public class ApplyService {
             bean.setPass_time(now);
         } else if (newState == ApplyStatusEnum.APPLY_LOAN_SUCC) {
             bean.setLoan_time(now);
+            if (!loanService.addRepayPlan(bean)) {
+                log.error("Failed to add repay plan for applyId = " + bean.getId());
+            }
         }
         if (applyInfoMapper.updateById(bean) <= 0) {
             return Result.fail("update ApplyInfo failed!");

@@ -2,7 +2,8 @@ package com.sup.common.loan;
 
 public enum RepayPlanStatusEnum {
   PLAN_NOT_PAID(0, "未还"),
-  PLAN_PAID(1, "已还");
+  PLAN_PAID_PART(1, "未还清"),
+  PLAN_PAID_ALL(1, "已还清");
 
   private int code;
   private String codeDesc;

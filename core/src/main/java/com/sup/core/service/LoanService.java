@@ -120,7 +120,7 @@ public class LoanService {
         return repayPlanBean;
     }
 
-    public Object updateRepayPlan(TbRepayPlanBean bean) {
+    public Result updateRepayPlan(TbRepayPlanBean bean) {
         if (bean == null) {
             return Result.fail("TbRepayPlanBean is null!");
         }
@@ -134,7 +134,7 @@ public class LoanService {
         return Result.fail("update failed!");
     }
 
-    public Object getRepayPlan(String applyId) {
+    public Result getRepayPlan(String applyId) {
         if (applyId == null) {
             return Result.fail("Invalid applyId!");
         }

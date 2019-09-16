@@ -18,6 +18,10 @@ public class Result<T> {
     private String message;
     private T data;
 
+    public  boolean isSucc() {
+        return status.equals(kSuccess);
+    }
+
     public static Result of(Integer status, Object data) {
         return new Result().setStatus(status).setData(data).setMessage("");
     }
