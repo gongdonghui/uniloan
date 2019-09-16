@@ -115,8 +115,6 @@ public class DecisionEngine {
             ret.setOverdue_times(overdueInfoBean.getTimes());
             ret.setApply_times(apply_times);
             return ret;
-
-
         }
         return null;
 
