@@ -12,6 +12,7 @@ import com.sup.core.facade.ApplyFacade;
 import com.sup.core.mapper.ApplyMaterialInfoMapper;
 import com.sup.core.mapper.ProductInfoMapper;
 import com.sup.core.service.ApplyService;
+import com.sup.core.service.LoanService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,8 +45,7 @@ public class ApplyFacadeImpl implements ApplyFacade {
     private int APPLY_EXPIRE_DAYS;
 
     @Override
-    public Object addApplyInfo(ApplyInfoParam applyInfoParam) {
-        QueryWrapper<TbProductInfoBean> wrapper = new QueryWrapper<>();
+    public Result addApplyInfo(ApplyInfoParam applyInfoParam) {
         TbProductInfoBean product = productInfoMapper.selectById(applyInfoParam.getProduct_id());
         if (product == null) {
             log.error("invalid product id = " + applyInfoParam.getProduct_id());
@@ -100,7 +100,7 @@ public class ApplyFacadeImpl implements ApplyFacade {
     }
 
     @Override
-    public Object updateApplyInfo(TbApplyInfoBean bean) {
+    public Result updateApplyInfo(TbApplyInfoBean bean) {
         return applyService.updateApplyInfo(bean);
     }
 }
