@@ -8,6 +8,7 @@ import com.sup.common.bean.TbUserBankAccountInfoBean;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.vo.PayVO;
 import com.sup.common.loan.ApplyMaterialTypeEnum;
+import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.service.PayCenterService;
 import com.sup.core.facade.LoanFacade;
 import com.sup.core.mapper.ApplyInfoMapper;
@@ -50,6 +51,9 @@ public class LoanFacadeImpl implements LoanFacade {
 
     @Autowired
     private ApplyMaterialInfoMapper applyMaterialInfoMapper;
+
+    @Autowired
+    private RepayPlanMapper repayPlanMapper;
 
     @Autowired
     private ApplyService applyService;
@@ -110,6 +114,21 @@ public class LoanFacadeImpl implements LoanFacade {
     @Override
     public Result getRepayInfo(String userId, String applyId, Integer amount) {
         // 检查是否已有还款信息
+        QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
+        TbRepayPlanBean repayPlanBean = repayPlanMapper.selectOne(
+                wrapper.eq("applyId", Integer.valueOf(applyId)).orderByDesc("create_time"));
+        if (repayPlanBean == null) {
+            log.error("Invalid applyId = " + applyId);
+            return Result.fail("Invalid applyId!");
+        }
+        if (repayPlanBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
+            return Result.fail("Nothing to repay.");
+        }
+        Date now = new Date();
+        Date repayExpireTime = repayPlanBean.getExpire_time();
+        // TODO
+        // if (repayExpireTime != null && )
+
 
 
         // 重新获取还款信息
@@ -197,7 +216,7 @@ public class LoanFacadeImpl implements LoanFacade {
         String applyId = String.valueOf(applyInfoBean.getId());
 
         ApplyStatusEnum status = ApplyStatusEnum.getStatusByCode(applyInfoBean.getStatus());
-        if (status != ApplyStatusEnum.APPLY_FINAL_PASS) {
+        if (status == null || status != ApplyStatusEnum.APPLY_FINAL_PASS) {
             log.error("autoLoan: invalid apply status=" + status.getCode() + ", " + status.getCodeDesc());
             return Result.fail("Invalid status!");
         }
