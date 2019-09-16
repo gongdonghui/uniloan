@@ -1,6 +1,8 @@
 package com.sup.core.facade;
 
 import com.sup.common.bean.TbRepayPlanBean;
+import com.sup.common.bean.paycenter.RepayInfo;
+import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.util.Result;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,14 +49,12 @@ public interface LoanFacade {
 
     /**
      * 获取支付通道还款所需信息，包括支付码和链接
-     * @param userId    用户id
-     * @param applyId   进件id
-     * @param amount    还款金额
+     * @param repayInfo    还款参数
      * @return  还款所需信息，包括交易码、便利店地址、流水号、交易码过期时间
      */
     @ResponseBody
     @RequestMapping(value = "repayInfo/get", produces = "application/json;charset=UTF-8")
-    Result getRepayInfo(String userId, String applyId, Integer amount);
+    Result getRepayInfo(@RequestBody RepayInfo repayInfo);
 
     /**
      * 支付通道放款回调接口

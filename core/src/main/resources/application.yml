@@ -37,3 +37,7 @@ apply:
 
 loan:
   auto-loan-retry-times: 3
+
+query:
+  page-num: 100
+

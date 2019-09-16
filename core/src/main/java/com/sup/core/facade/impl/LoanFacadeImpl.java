@@ -1,15 +1,21 @@
 package com.sup.core.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbApplyMaterialInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.common.bean.TbUserBankAccountInfoBean;
 import com.sup.common.bean.paycenter.PayInfo;
+import com.sup.common.bean.paycenter.PayStatusInfo;
+import com.sup.common.bean.paycenter.RepayInfo;
+import com.sup.common.bean.paycenter.RepayStatusInfo;
 import com.sup.common.bean.paycenter.vo.PayVO;
+import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.ApplyMaterialTypeEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.service.PayCenterService;
+import com.sup.common.util.DateUtil;
 import com.sup.core.facade.LoanFacade;
 import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.ApplyMaterialInfoMapper;
@@ -23,6 +29,7 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -42,6 +49,9 @@ public class LoanFacadeImpl implements LoanFacade {
 
     @Value("loan.auto-loan-retry-times")
     private int AUTO_LOAN_RETRY_TIMES;
+
+    @Value("query.page-num")
+    private int QUERY_PAGE_NUM;
 
     @Autowired
     private ApplyInfoMapper     applyInfoMapper;
@@ -106,19 +116,17 @@ public class LoanFacadeImpl implements LoanFacade {
     /**
      * 获取支付通道还款所需信息，包括支付码和链接
      *
-     * @param userId  用户id
-     * @param applyId 进件id
-     * @param amount  还款金额
+     * @param repayInfo    还款参数
      * @return 还款所需信息，包括交易码、便利店地址、流水号、交易码过期时间
      */
     @Override
-    public Result getRepayInfo(String userId, String applyId, Integer amount) {
+    public Result getRepayInfo(@RequestBody RepayInfo repayInfo) {
         // 检查是否已有还款信息
         QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
         TbRepayPlanBean repayPlanBean = repayPlanMapper.selectOne(
-                wrapper.eq("applyId", Integer.valueOf(applyId)).orderByDesc("create_time"));
+                wrapper.eq("applyId", Integer.valueOf(repayInfo.getApplyId())).orderByDesc("create_time"));
         if (repayPlanBean == null) {
-            log.error("Invalid applyId = " + applyId);
+            log.error("Invalid applyId = " + repayInfo.getApplyId());
             return Result.fail("Invalid applyId!");
         }
         if (repayPlanBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
@@ -126,14 +134,38 @@ public class LoanFacadeImpl implements LoanFacade {
         }
         Date now = new Date();
         Date repayExpireTime = repayPlanBean.getExpire_time();
-        // TODO
-        // if (repayExpireTime != null && )
+        String repayCode = repayPlanBean.getRepay_code();
+        String repayLoc = repayPlanBean.getRepay_location();
+        String tradeNo = repayPlanBean.getTrade_number();
+        if (repayCode != null && repayLoc != null && tradeNo != null && repayExpireTime != null
+                && DateUtil.compareDate(now, repayExpireTime) > 0) {
+            RepayVO r = new RepayVO();
+            r.setCode(repayCode);
+            r.setShopLink(repayLoc);
+            r.setExpireDate(DateUtil.formatDateTime(repayExpireTime));
+            r.setTradeNo(tradeNo);
+            return Result.succ(r);
+        }
+        Result<RepayVO> result = funpayService.repay(repayInfo);
+        if (!result.isSucc()) {
+            log.error("Failed to get repay info for applyId = " + repayInfo.getApplyId());
+            return Result.fail("Failed to get repay info!");
+        }
+        RepayVO r = result.getData();
+        repayPlanBean.setRepay_code(r.getCode());
+        repayPlanBean.setRepay_location(r.getShopLink());
+        repayPlanBean.setTrade_number(r.getTradeNo());
+        repayPlanBean.setExpire_time(DateUtil.parseDateTime(r.getExpireDate()));
+        // TODO: how about update_time & repay_time??
+        if (repayPlanMapper.updateById(repayPlanBean) <= 0) {
+            log.error("Failed to update repayPlanInfo. code=" + r.getCode() +
+                    ", link=" + r.getShopLink() +
+                    ", tradeNo=" + r.getTradeNo() +
+                    ", expireTime=" + r.getExpireDate()
+            );
+        }
 
-
-
-        // 重新获取还款信息
-
-        return null;
+        return Result.succ(r);
     }
 
     /**
@@ -147,6 +179,9 @@ public class LoanFacadeImpl implements LoanFacade {
     @Override
     public Result payCallBack(String userId, String applyId, String tradeNo) {
         // TODO
+        // update ApplyInfo status
+
+        // update RepayPlanInfo
         return null;
     }
 
@@ -167,31 +202,53 @@ public class LoanFacadeImpl implements LoanFacade {
     /**
      * 定时检查进件状态，终审通过则尝试自动放款
      */
-    @Scheduled(cron = "0 */10 * * * ?")
+    @Scheduled(cron = "0 */30 * * * ?")
     public void checkApplyStatus() {
-        // TODO
+        // 获取所有终审通过的进件
+        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<TbApplyInfoBean>()
+                .eq("status", Integer.valueOf(ApplyStatusEnum.APPLY_FINAL_PASS.getCode()));
+        // TODO: 应当分页处理
+        List<TbApplyInfoBean> applyInfos = applyInfoMapper.selectList(wrapper);
+        if (applyInfos == null || applyInfos.size() == 0) {
+            log.info("No APPLY_FINAL_PASS apply info.");
+            return;
+        }
 
-        // 1. 获取所有终审通过的进件
-
-        // 2.
-
-        // 3. 对放款成功的进件：更新状态、添加还款计划
-
+        for (TbApplyInfoBean bean : applyInfos) {
+            Result r = autoLoan(bean);
+            if (!r.isSucc()) {
+                log.error("Failed to auto loan for applyId = " + bean.getId());
+            }
+        }
     }
 
     /**
      * 定时检查放款是否成功
      */
-    @Scheduled(cron = "0 */10 * * * ?")
+    @Scheduled(cron = "0 */30 * * * ?")
     public void checkLoanResult() {
-        // TODO
-
         // 1. 获取所有放款中的进件
+        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<TbApplyInfoBean>()
+                .eq("status", Integer.valueOf(ApplyStatusEnum.APPLY_AUTO_LOANING.getCode()));
+        // TODO: 应当分页处理
+        List<TbApplyInfoBean> applyInfos = applyInfoMapper.selectList(wrapper);
+        if (applyInfos == null || applyInfos.size() == 0) {
+            log.info("No APPLY_AUTO_LOANING apply info.");
+            return;
+        }
 
         // 2. 检查放款状态
-
-        // 3. 对放款成功的进件：更新状态、添加还款计划
-
+        PayStatusInfo psi = new PayStatusInfo();
+        for (TbApplyInfoBean bean : applyInfos) {
+            if (bean.getTrade_number() == null) {
+                log.error("No trade number for applyId = " + bean.getId());
+                continue;
+            }
+            psi.setApplyId(String.valueOf(bean.getId()));
+            psi.setTradeNo(bean.getTrade_number());
+            Result result = funpayService.payStatus(psi);
+            // TODO: 检查返回值，更新进件金额、状态
+        }
     }
 
     /**
@@ -207,6 +264,14 @@ public class LoanFacadeImpl implements LoanFacade {
 
         // 3. 对放款成功的进件：更新状态、添加还款计划
 
+    }
+
+    /**
+     * 每天更新还款统计表
+     */
+    @Scheduled(cron = "30 0 * * * ?")
+    public void statRepayInfo() {
+        // TODO
     }
 
 
