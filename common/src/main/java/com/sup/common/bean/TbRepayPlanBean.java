@@ -46,6 +46,7 @@ public class TbRepayPlanBean {
     private BigInteger need_total = BigInteger.ZERO;
     private BigInteger act_total = BigInteger.ZERO;
     private Integer operator_id = 0;
+    private String  trade_number;   // 自动还款流水号
     private Date create_time;
     private Date update_time;
 }

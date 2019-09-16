@@ -1,11 +1,14 @@
 package com.sup.core.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
+import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.LoanFeeTypeEnum;
 import com.sup.common.loan.RepayPlanOverdueEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.util.DateUtil;
+import com.sup.common.util.Result;
 import com.sup.core.mapper.ProductInfoMapper;
 import com.sup.core.mapper.RepayPlanMapper;
 import lombok.extern.log4j.Log4j;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Project:uniloan
@@ -31,6 +35,34 @@ public class LoanService {
     @Autowired
     private RepayPlanMapper repayPlanMapper;
 
+    public boolean addRepayPlan(TbApplyInfoBean applyInfoBean) {
+
+        ApplyStatusEnum status = ApplyStatusEnum.getStatusByCode(applyInfoBean.getStatus());
+        if (status != ApplyStatusEnum.APPLY_LOAN_SUCC) {
+            // repay plan must be added after loan
+            log.error("addRepayPlan: invalid status=(" + status.getCode() + ")" + status.getCodeDesc());
+            return false;
+        }
+        // generate repay plan if not exist(need thread safe)
+        TbRepayPlanBean repayPlanBean = repayPlanMapper.getByApplyId(applyInfoBean.getId());
+        if (repayPlanBean != null) {
+            log.error("RepayPlan already exists for applyId = " + applyInfoBean.getId());
+            return false;
+        }
+
+        synchronized (this) {
+            repayPlanBean = genRepayPlan(applyInfoBean);
+            if (repayPlanBean == null) {
+                log.error("Failed to generate repay plan for applyId = " + applyInfoBean.getId());
+                return false;
+            }
+
+            if (repayPlanMapper.insert(repayPlanBean) > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public TbRepayPlanBean genRepayPlan(TbApplyInfoBean bean) {
 
@@ -86,5 +118,29 @@ public class LoanService {
         repayPlanBean.setNeed_total(BigInteger.valueOf(totalToRepay));
 
         return repayPlanBean;
+    }
+
+    public Object updateRepayPlan(TbRepayPlanBean bean) {
+        if (bean == null) {
+            return Result.fail("TbRepayPlanBean is null!");
+        }
+        log.info("updateRepayPlan: userId = " + bean.getUser_id() +
+                ", applyId = " + bean.getApply_id());
+
+        bean.setUpdate_time(new Date());
+        if (repayPlanMapper.updateById(bean) > 0) {
+            return Result.succ();
+        }
+        return Result.fail("update failed!");
+    }
+
+    public Object getRepayPlan(String applyId) {
+        if (applyId == null) {
+            return Result.fail("Invalid applyId!");
+        }
+        QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<TbRepayPlanBean>();
+        List<TbRepayPlanBean> plans = repayPlanMapper.getRepayPlan(wrapper.eq("applyId", applyId));
+
+        return Result.succ(plans);
     }
 }

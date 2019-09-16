@@ -55,13 +55,26 @@ public interface LoanFacade {
     Object getRepayInfo(String userId, String applyId);
 
     /**
+     * 支付通道放款回调接口
+     * @param userId
+     * @param applyId
+     * @param tradeNo
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "payCallBack", produces = "application/json;charset=UTF-8")
+    Object payCallBack(String userId, String applyId, String tradeNo);
+
+
+    /**
      * 支付通道还款回调接口
      * @param userId
      * @param applyId
+     * @param tradeNo
      * @return
      */
     @ResponseBody
     @RequestMapping(value = "repayCallBack", produces = "application/json;charset=UTF-8")
-    Object repayCallBack(String userId, String applyId);
+    Object repayCallBack(String userId, String applyId, String tradeNo);
 
 }

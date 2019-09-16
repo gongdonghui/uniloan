@@ -43,6 +43,7 @@ public class TbApplyInfoBean {
     private String  credit_class;
     private String  deny_code;
     private String  comment;
+    private String  trade_number;   // 自动放款流水号
     private Date    create_time;    // 申请时间
     private Date    expire_time;    // 申请失效时间
     private Date    pass_time;      // 终审通过时间

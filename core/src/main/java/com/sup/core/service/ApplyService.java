@@ -3,6 +3,7 @@ package com.sup.core.service;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbApplyInfoHistoryBean;
 import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.loan.LoanFeeTypeEnum;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.Result;
 import com.sup.core.mapper.ApplyInfoHistoryMapper;
@@ -74,6 +75,7 @@ public class ApplyService {
         if (newState == ApplyStatusEnum.APPLY_INIT) {
             bean.setCreate_time(now);
         } else if (newState == ApplyStatusEnum.APPLY_FINAL_PASS) {
+            bean.setInhand_quota(getInhandQuota(bean));
             bean.setPass_time(now);
         } else if (newState == ApplyStatusEnum.APPLY_LOAN_SUCC) {
             bean.setLoan_time(now);
@@ -87,5 +89,32 @@ public class ApplyService {
             return Result.fail("insert into ApplyInfoHistory failed!");
         }
         return Result.succ();
+    }
+
+    protected int getInhandQuota(TbApplyInfoBean bean) {
+        LoanFeeTypeEnum feeType = LoanFeeTypeEnum.getStatusByCode(bean.getFee_type());
+        if (feeType == null) {
+            log.error("Invalid feeType = " + bean.getFee_type() + ", applyId = " + bean.getId());
+            return 0;
+        }
+        int loanAmount = bean.getGrant_quota();
+        int feeTotal = (int)(loanAmount * bean.getFee());    // service fee
+        int interestTotal = (int)(loanAmount * bean.getRate() * bean.getPeriod());
+
+        int quotaInhand = 0;
+        switch (feeType) {
+            case LOAN_PRE_FEE:
+                quotaInhand = loanAmount - feeTotal;
+                break;
+            case LOAN_PRE_FEE_PRE_INTEREST:
+                quotaInhand = loanAmount - feeTotal - interestTotal;
+                break;
+            case LOAN_POST_FEE_POST_INTEREST:
+                quotaInhand = loanAmount;
+                break;
+            default:
+                break;
+        }
+        return quotaInhand;
     }
 }
