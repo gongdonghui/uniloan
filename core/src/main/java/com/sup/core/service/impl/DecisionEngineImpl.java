@@ -78,7 +78,7 @@ public class DecisionEngineImpl implements DecesionEngine {
                 }
                 return ret && ret_right;
             } else {
-                  return  false;   //不存在变量时，规则不通过
+                return false;   //不存在变量时，规则不通过
             }
         }
     }
@@ -132,10 +132,21 @@ public class DecisionEngineImpl implements DecesionEngine {
     }
 
 
-    private Map<String, Double> prepareRiskVariables(String userId, String info_id,String user_mobile) {
+    private Map<String, Double> prepareRiskVariables(String userId, String info_id, String user_mobile) {
 
 
         Map<String, Double> riskBean = new HashMap<>();
+        riskBean.put(RiskVariableConstants.AGE, Double.valueOf(0));
+        riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(0));
+        riskBean.put(RiskVariableConstants.MAX_OVERDUE_DAYS, Double.valueOf(0));
+        riskBean.put(RiskVariableConstants.OVERDUE_TIMES, Double.valueOf(0));
+        riskBean.put(RiskVariableConstants.LATEST_OVERDUE_DAYS, Double.valueOf(0));
+        riskBean.put(RiskVariableConstants.NUM_OF_IDS_FOR_PIN, Double.valueOf(0));
+        riskBean.put(RiskVariableConstants.NUM_OF_APPLY_TIMES_IN_EMMERGENCY_CONTRACT, Double.valueOf(0));
+        riskBean.put(RiskVariableConstants.NUM_OF_OVERDUE_TIMES_IN_EMMERGENCY_CONTRACT, Double.valueOf(0));
+        riskBean.put(RiskVariableConstants.NUM_OF_APPLY_IN_CONTRACT, Double.valueOf(0));
+        riskBean.put(RiskVariableConstants.NUM_OF_OVDUE_IN_CONTRACT, Double.valueOf(0));
+        riskBean.put(RiskVariableConstants.NUM_OF_CONTRACT, Double.valueOf(0));
 
         //TODO  need to set  default value
 
@@ -143,25 +154,26 @@ public class DecisionEngineImpl implements DecesionEngine {
         if (userBasicInfoBean != null) {
 
             riskBean.put(RiskVariableConstants.AGE, Double.valueOf(userBasicInfoBean.getAge()));
-        }   //age
-
+        }//age
 
         QueryWrapper<TbApplyInfoBean> materialWrapper = new QueryWrapper<TbApplyInfoBean>();
         TbApplyInfoBean applyInfoBean = applyInfoMapper.selectOne(
-                materialWrapper.eq("user_id", userId).eq("deny_code", ""));
+                materialWrapper.eq("user_id", userId).eq("deny_code", ""));    // deny  date
         if (applyInfoBean != null) {
 
             Date deny_date = applyInfoBean.getUpdate_time();
             int last_dey_days = DateUtil.daysbetween(deny_date, new Date());
             riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(last_dey_days));
-        }   // deny  date
+        }
+
         OverdueInfoBean overdueInfoBean = getMaxOverdueDays(userId);
-        if (overdueInfoBean != null) {
+        if (overdueInfoBean != null) { //overdue  days
 
             riskBean.put(RiskVariableConstants.MAX_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getMax_days()));
             riskBean.put(RiskVariableConstants.OVERDUE_TIMES, Double.valueOf(overdueInfoBean.getTimes()));
             riskBean.put(RiskVariableConstants.LATEST_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getLatest_days()));
-        }    //overdue  days
+        }
+
 
         TbUserBankAccountInfoBean userBankInfoBean = this.userBankInfoMapper.selectOne(new QueryWrapper<TbUserBankAccountInfoBean>().eq("info_id", info_id).orderByDesc("create_time"));
         if (userBankInfoBean != null) {
@@ -184,9 +196,13 @@ public class DecisionEngineImpl implements DecesionEngine {
             int max_apply_times = 0;
             for (UserEmergencyContactInfoBean bean : emeList) {
                 String mobile = bean.getMobile();
-                ContractInfo contractInfo = this.getContractInfo(mobile);
-                max_overdue_times = contractInfo.getOverdue_times() > max_overdue_times ? contractInfo.getOverdue_times() : max_overdue_times;
-                max_apply_times = contractInfo.getApply_times() > max_apply_times ? contractInfo.getApply_times() : max_apply_times;
+                if (!mobile.isEmpty()) {
+                    ContractInfo contractInfo = this.getContractInfo(mobile);
+                    if (contractInfo != null) {
+                        max_overdue_times = contractInfo.getOverdue_times() > max_overdue_times ? contractInfo.getOverdue_times() : max_overdue_times;
+                        max_apply_times = contractInfo.getApply_times() > max_apply_times ? contractInfo.getApply_times() : max_apply_times;
+                    }
+                }
             }
             riskBean.put(RiskVariableConstants.NUM_OF_APPLY_TIMES_IN_EMMERGENCY_CONTRACT, Double.valueOf(max_apply_times));
             riskBean.put(RiskVariableConstants.NUM_OF_OVERDUE_TIMES_IN_EMMERGENCY_CONTRACT, Double.valueOf(max_overdue_times));
@@ -200,9 +216,13 @@ public class DecisionEngineImpl implements DecesionEngine {
             int max_apply_times = 0;
             for (TbAppSdkContractInfoBean appSdkContractInfoBean : contractInfoBeans) {
                 String mobile = appSdkContractInfoBean.getContract_info();
-                ContractInfo contractInfo = this.getContractInfo(mobile);
-                max_overdue_times = contractInfo.getOverdue_times() > max_overdue_times ? contractInfo.getOverdue_times() : max_overdue_times;
-                max_apply_times = contractInfo.getApply_times() > max_apply_times ? contractInfo.getApply_times() : max_apply_times;
+                if (!mobile.isEmpty()) {
+                    ContractInfo contractInfo = this.getContractInfo(mobile);
+                    if (contractInfo != null) {
+                        max_overdue_times = contractInfo.getOverdue_times() > max_overdue_times ? contractInfo.getOverdue_times() : max_overdue_times;
+                        max_apply_times = contractInfo.getApply_times() > max_apply_times ? contractInfo.getApply_times() : max_apply_times;
+                    }
+                }
 
             }
             riskBean.put(RiskVariableConstants.NUM_OF_APPLY_IN_CONTRACT, Double.valueOf(max_apply_times));
@@ -224,7 +244,7 @@ public class DecisionEngineImpl implements DecesionEngine {
         if (user_mobile.isEmpty()) return null;
         //user  register mobie  is empty
 
-        Map<String, Double> riskBean = prepareRiskVariables(userId, info_id,user_mobile);
+        Map<String, Double> riskBean = prepareRiskVariables(userId, info_id, user_mobile);
 
         RiskDecisionResultBean result = new RiskDecisionResultBean();
         result.setRet(0);
