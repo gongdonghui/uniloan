@@ -22,9 +22,5 @@ public class ApplyInfoParam {
     private Integer app_id;
     private Integer apply_quota;
     private Integer period;
-    private String  idCardInfoId;       // 身份证infoId
-    private String  basicInfoId;        // 基本信息infoId
-    private String  contactInfoId;      // 联系人infoId
-    private String  employmentInfoId;   // 职业信息infoId
-    private String  bankInfoId;         // 银行卡infoId
+    private Map<Integer, String> infoIdMap; // info id type参见ApplyMaterialTypeEnum
 }
