@@ -27,7 +27,7 @@ public class TbApplyInfoBean {
     private Integer credit_type;
     private Float   rate;
     private Integer period;
-    private Float   quota;
+    private Integer quota;
     private Float   fee;
     private Integer fee_type;   // 参见LoanFeeTypeEnum
     private Integer status;     // 进件状态:  0:待审核, 1:自动审核通过, 2:初审通过, 3:复审通过, 4:终审通过,
@@ -36,12 +36,14 @@ public class TbApplyInfoBean {
                                 //           15:逾期，16:核销
 
     private Integer operator_id;
-    private Float   apply_quota;
-    private Float   grant_quota;
-    private Float   remain_quota;
+    private Integer apply_quota;
+    private Integer grant_quota;
+    private Integer remain_quota;
+    private Integer inhand_quota;
     private String  credit_class;
     private String  deny_code;
     private String  comment;
+    private String  trade_number;   // 自动放款流水号
     private Date    create_time;    // 申请时间
     private Date    expire_time;    // 申请失效时间
     private Date    pass_time;      // 终审通过时间

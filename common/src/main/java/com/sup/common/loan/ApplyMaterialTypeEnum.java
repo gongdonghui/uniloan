@@ -1,24 +1,18 @@
 package com.sup.common.loan;
 
-/**
- * Project:uniloan
- * Class:  LoanValueDateTypeEnum
- * <p>
- * Author: guanfeng
- * Create: 2019-09-12
- */
+public enum ApplyMaterialTypeEnum {
+    // 申请资料类型：0|身份证信息  1|基本信息 2|紧急联系人 3|职业信息 4|银行卡信息
 
-public enum LoanFeeTypeEnum {
-    // 服务费收取方式，0:先扣除服务费，1:先扣除服务费和利息，2:到期扣除服务费和利息
-
-    LOAN_PRE_FEE(0, "先扣除服务费"),
-    LOAN_PRE_FEE_PRE_INTEREST(1, "先扣除服务费和利息"),
-    LOAN_POST_FEE_POST_INTEREST(2, "到期扣除服务费和利息");
+    APPLY_MATERIAL_IDC(0, "身份证信息"),
+    APPLY_MATERIAL_BASIC(1, "基本信息"),
+    APPLY_MATERIAL_CONTACT(2, "紧急联系人"),
+    APPLY_MATERIAL_EMPLOYMENT(3, "职业信息"),
+    APPLY_MATERIAL_BANK(4, "银行卡信息");
 
     private int code;
     private String codeDesc;
 
-    LoanFeeTypeEnum(int code, String desc) {
+    ApplyMaterialTypeEnum(int code, String desc) {
         this.code = code;
         this.codeDesc = desc;
     }

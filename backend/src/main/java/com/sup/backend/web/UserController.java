@@ -11,12 +11,12 @@ import com.sup.common.bean.TbProductInfoBean;
 import com.sup.common.bean.*;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
-import com.sup.backend.core.Result;
 import com.sup.backend.mapper.*;
 import com.sup.backend.service.RedisClient;
 import com.sup.backend.service.SkyLineSmsService;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.util.Result;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,7 +182,7 @@ public class UserController {
     } else {
       tb_user_basic_info_mapper.updateById(bean);
     }
-    return Result.succ("succ");
+    return Result.succ(bean.getInfo_id());
   }
 
   @LoginRequired

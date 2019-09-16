@@ -22,5 +22,6 @@ public interface RepayPlanMapper extends BaseMapper<TbRepayPlanBean> {
     @Select("<script> select * from tb_repay_plan <if test='ew != null'> ${ew.customSqlSegment} </if> </script>")
     List<TbRepayPlanBean> getRepayPlan(@Param(Constants.WRAPPER) Wrapper<TbRepayPlanBean> ew);
 
-
+    @Select("select * from tb_repay_plan where applyId = ${applyId}")
+    TbRepayPlanBean getByApplyId(@Param("applyId") Integer applyId);
 }

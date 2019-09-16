@@ -45,17 +45,19 @@ CREATE TABLE if NOT EXISTS `tb_apply_info` (
   `credit_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '授信类型 0|普通  1|循环',
   `rate` float NOT NULL COMMENT '费率，从产品关联得到',
   `period` int(10) NOT NULL COMMENT '期限，从产品关联到',
-  `quota` float NOT NULL COMMENT '额度，从产品关联到',
+  `quota` int(10) NOT NULL COMMENT '额度，从产品关联到',
   `fee` float NOT NULL COMMENT '服务费比例，从产品关联到',
   `fee_type` int(16) NOT NULL COMMENT '服务费收取方式，从产品关联到',
   `status` int(10) NOT NULL COMMENT '进件最新状态, 0:待审核, 1:自动审核通过, 2:初审通过, 3:复审通过, 4:终审通过, 5:自动审核拒绝, 6:初审拒绝, 7:复审拒绝, 8:终审拒绝, 9:取消或异常, 10:自动放款中，11:自动放款失败，12:已放款/还款中，13:未还清，14:已还清， 15:逾期，16:核销',
   `operator_id` int(11) DEFAULT NULL COMMENT '最后操作者id',
-  `apply_quota` float NOT NULL COMMENT '用户实际申请的额度',
-  `grant_quota` float DEFAULT '0' COMMENT '授予额度',
-  `remain_quota` float DEFAULT '0' COMMENT '剩余可用额度',
+  `apply_quota` int(10) NOT NULL COMMENT '用户实际申请的额度',
+  `grant_quota` int(10) DEFAULT '0' COMMENT '授予额度',
+  `remain_quota` int(10) DEFAULT '0' COMMENT '剩余可用额度',
+  `inhand_quota` int(10) DEFAULT '0' COMMENT '到手金额',
   `credit_class` varchar(8) DEFAULT NULL COMMENT '用户的信用评级，没到这一步就为空',
   `deny_code` varchar(8) NOT NULL COMMENT '拒贷码，根据阶段不一样，取值也不一样',
   `comment` varchar(256) DEFAULT NULL COMMENT '备注',
+  `trade_number` varchar(256) DEFAULT NULL COMMENT '自动放款流水号',
   `create_time` datetime NOT NULL COMMENT '申请时间',
   `expire_time` datetime NOT NULL COMMENT '申请失效时间',
   `pass_time` datetime DEFAULT NULL COMMENT '终审通过时间',
@@ -235,7 +237,7 @@ CREATE TABLE if NOT EXISTS `tb_credit_class` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'tb_product_info'
-DROP TABLE tb_product_info;
+DROP TABLE IF EXISTS tb_product_info;
 CREATE TABLE if NOT EXISTS `tb_product_info` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '产品id',
   `name` varchar(32) NOT NULL COMMENT '产品名称',
@@ -250,10 +252,12 @@ CREATE TABLE if NOT EXISTS `tb_product_info` (
   `value_date_type` int(11) NOT NULL DEFAULT 0 COMMENT '起息日方式，0:到账后计息，1:终审通过后计息',
   `fee` float unsigned NOT NULL COMMENT '产品服务费',
   `fee_type` int(11) unsigned NOT NULL COMMENT '服务费收取方式，0:先扣除服务费，1:先扣除服务费和利息，2:到期扣除服务费和利息',
+  `overdueRate` float unsigned NOT NULL COMMENT '逾期日费费',
+  `gracePeriod` int(11) DEFAULT 0 COMMENT '宽限期',
+  `order` int(11) DEFAULT 0 COMMENT '排列顺序',
   `material_needed` varchar(128) NOT NULL DEFAULT '' COMMENT '所需资料',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`),
-  KEY `idx_type` (`type`),
   KEY `idx_name` (`name`),
   KEY `idx_status` (`status`),
   KEY `idx_create_time` (`create_time`)
@@ -306,6 +310,10 @@ CREATE TABLE if NOT EXISTS `tb_repay_plan` (
   `need_total` bigint(20) NOT NULL COMMENT '应还总额',
   `act_total` bigint(20) NOT NULL COMMENT '实还总额',
   `operator_id` int(11) DEFAULT 0 COMMENT '操作者id',
+  `repay_code` varchar(256) DEFAULT NULL COMMENT '还款交易码',
+  `repay_location` varchar(256) DEFAULT NULL COMMENT '还款便利店地址',
+  `trade_number` varchar(256) DEFAULT NULL COMMENT '自动还款流水号',
+  `expire_time` datetime NOT NULL COMMENT '还款交易码失效时间',
   `create_time` datetime NOT NULL COMMENT '记录创建时间',
   `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
@@ -477,17 +485,20 @@ CREATE TABLE if NOT EXISTS `tb_user_sns_info` (
   KEY `idx_type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `tb_app_sdk_apply_info` (
+DROP TABLE IF EXISTS tb_app_sdk_location_info;
+CREATE TABLE `tb_app_sdk_location_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `apply_long` float DEFAULT NULL COMMENT 'gps经度',
-  `apply_lat` int(11) DEFAULT NULL COMMENT 'gps纬度',
+  `apply_long` varchar(32) DEFAULT NULL COMMENT 'gps经度',
+  `apply_lat` varchar(32) DEFAULT NULL COMMENT 'gps纬度',
   `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
   `mobile` varchar(255) DEFAULT NULL COMMENT '手机号',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_mobile` (`mobile`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS tp_app_sdk_contract_info;
 CREATE TABLE `tp_app_sdk_contract_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
@@ -497,8 +508,11 @@ CREATE TABLE `tp_app_sdk_contract_info` (
   `contract_memo` varchar(255) DEFAULT NULL COMMENT '通讯录备注',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_mobile` (`mobile`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_core_risk_rules;
 CREATE TABLE `tb_core_risk_rules` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `product_id` int(11) DEFAULT NULL,
@@ -513,6 +527,8 @@ CREATE TABLE `tb_core_risk_rules` (
   `val_right` float DEFAULT NULL COMMENT '右值',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_core_credit_level_rules;
 CREATE TABLE `tb_core_credit_level_rules` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `reloan_times` int(11) DEFAULT NULL COMMENT '复贷次数',
@@ -520,6 +536,8 @@ CREATE TABLE `tb_core_credit_level_rules` (
   `level` int(11) DEFAULT NULL COMMENT '信用等级',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_core_risk_decesion_result;
 CREATE TABLE `tb_core_risk_decesion_result` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `apply_time` datetime DEFAULT NULL,
@@ -530,6 +548,8 @@ CREATE TABLE `tb_core_risk_decesion_result` (
   `refuse_code` varchar(255) DEFAULT NULL COMMENT '拒贷码',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_core_risk_decesion_result_detail;
 CREATE TABLE `tb_core_risk_decesion_result_detail` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `rule_id` int(11) DEFAULT NULL,
@@ -542,9 +562,27 @@ CREATE TABLE `tb_core_risk_decesion_result_detail` (
   `decesion_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_core_risk_variables;
 CREATE TABLE `tb_core_risk_variables` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL COMMENT '变量名称',
   `value_type` int(11) DEFAULT NULL COMMENT '1表示名单   0表示数值',
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_market_plan;
+CREATE TABLE `tb_market_plan` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `topic` varchar(128) NOT NULL COMMENT 'mq topic:  user_business_state',
+  `tag` varchar(128) NOT NULL COMMENT 'mq tag: new_regist, loan_succ, ...',
+  `market_way` varchar(32) NOT NULL COMMENT 'sms/push/facebook',
+  `market_ext` varchar(1024) NOT NULL COMMENT '{"msg": "hello"}',
+  `priority` int(11) DEFAULT 100 NOT NULL,
+  `status` int(4) DEFAULT 0 NOT NULL COMMENT '0: 无效  1： 有效',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_topic` (`topic`),
+  KEY `idx_tag` (`tag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

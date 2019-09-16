@@ -6,12 +6,15 @@ import com.sup.backend.bean.AppSubmitOrder;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
-import com.sup.backend.core.Result;
+import com.sup.backend.mapper.TbProductInfoMapper;
 import com.sup.backend.util.HttpClient;
 import com.sup.backend.util.ToolUtils;
+import com.sup.common.bean.ApplyInfoParam;
+import com.sup.common.bean.TbProductInfoBean;
 import org.apache.log4j.Logger;
 import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -28,6 +31,9 @@ public class ApplyController {
   @Value("admin.uri")
   private String admin_uri;
 
+  @Autowired
+  private TbProductInfoMapper tb_product_info_mapper;
+
   // add/update/get apply info
   @LoginRequired
   @ResponseBody
@@ -35,7 +41,15 @@ public class ApplyController {
   public Object addApplyInfo(@LoginInfo LoginInfoCtx li, @RequestBody AppSubmitOrder order_detail) {
     JSONObject params = new JSONObject();
     DeferredResult<Object> ret = new DeferredResult<>();
-    ToolUtils.AsyncHttpPostJson(admin_uri, params, ret, resp -> {
+    //TbProductInfoBean product = tb_product_info_mapper.selectById(order_detail.getProduct_id());
+    ApplyInfoParam aip = new ApplyInfoParam();
+    aip.setApp_id(null);
+    aip.setChannel_id(null);
+    aip.setApply_quota(order_detail.getQuota());
+    aip.setPeriod(order_detail.getPeriod());
+    aip.setInfoIdMap(order_detail.getMaterial_ids());
+    aip.setProduct_id(order_detail.getProduct_id());
+    ToolUtils.AsyncHttpPostJson(admin_uri, aip, ret, resp -> {
       JSONObject obj = JSONObject.parseObject(resp.getResponseBody());
       return obj;
     });

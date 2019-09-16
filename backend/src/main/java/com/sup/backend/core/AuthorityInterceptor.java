@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.service.RedisClient;
+import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;

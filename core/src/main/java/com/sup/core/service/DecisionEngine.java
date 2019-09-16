@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
+import com.sup.common.bean.TbUserBankAccountInfoBean;
+import com.sup.common.util.DateUtil;
 import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
-import com.sup.core.util.DateUtil;
 import com.sup.core.util.RiskVariableConstants;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,14 +151,14 @@ public class DecisionEngine {
             riskBean.put(RiskVariableConstants.LATEST_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getLatest_days()));
         }    //overdue  days
 
-        UserBankInfoBean userBankInfoBean = this.userBankInfoMapper.selectOne(new QueryWrapper<UserBankInfoBean>().eq("info_id", info_id).orderByDesc("create_time"));
+        TbUserBankAccountInfoBean userBankInfoBean = this.userBankInfoMapper.selectOne(new QueryWrapper<TbUserBankAccountInfoBean>().eq("info_id", info_id).orderByDesc("create_time"));
         if (userBankInfoBean != null) {
 
             String account_id = userBankInfoBean.getAccount_id();
             if (account_id != null && !account_id.isEmpty()) {
-                List<UserBankInfoBean> sameIds = this.userBankInfoMapper.selectList(new QueryWrapper<UserBankInfoBean>().eq("account_id", account_id));
+                List<TbUserBankAccountInfoBean> sameIds = this.userBankInfoMapper.selectList(new QueryWrapper<TbUserBankAccountInfoBean>().eq("account_id", account_id));
                 HashSet<String> set = new HashSet<String>();
-                for (UserBankInfoBean ub : sameIds) {
+                for (TbUserBankAccountInfoBean ub : sameIds) {
                     int user_id = ub.getUser_id();
                     set.add(Integer.toString(user_id));
                 }
