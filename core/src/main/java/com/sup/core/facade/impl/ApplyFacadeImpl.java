@@ -1,5 +1,6 @@
 package com.sup.core.facade.impl;
 
+import com.sup.common.bean.ApplyInfoParam;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.core.facade.ApplyFacade;
 import com.sup.core.service.ApplyService;
@@ -23,6 +24,15 @@ public class ApplyFacadeImpl implements ApplyFacade {
     private ApplyService applyService;
 
     @Override
+    public Object addApplyInfo(ApplyInfoParam applyInfoParam) {
+        // TODO
+        // add apply info
+
+        // add apply material info
+
+        return null;
+    }
+
     public Object addApplyInfo(TbApplyInfoBean bean) {
         return applyService.addApplyInfo(bean);
     }
