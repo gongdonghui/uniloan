@@ -235,7 +235,7 @@ CREATE TABLE if NOT EXISTS `tb_credit_class` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'tb_product_info'
-DROP TABLE tb_product_info;
+DROP TABLE IF EXISTS tb_product_info;
 CREATE TABLE if NOT EXISTS `tb_product_info` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '产品id',
   `name` varchar(32) NOT NULL COMMENT '产品名称',
@@ -253,7 +253,6 @@ CREATE TABLE if NOT EXISTS `tb_product_info` (
   `material_needed` varchar(128) NOT NULL DEFAULT '' COMMENT '所需资料',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`),
-  KEY `idx_type` (`type`),
   KEY `idx_name` (`name`),
   KEY `idx_status` (`status`),
   KEY `idx_create_time` (`create_time`)
@@ -477,17 +476,20 @@ CREATE TABLE if NOT EXISTS `tb_user_sns_info` (
   KEY `idx_type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `tb_app_sdk_apply_info` (
+DROP TABLE IF EXISTS tb_app_sdk_location_info;
+CREATE TABLE `tb_app_sdk_location_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `apply_long` float DEFAULT NULL COMMENT 'gps经度',
-  `apply_lat` int(11) DEFAULT NULL COMMENT 'gps纬度',
+  `apply_long` varchar(32) DEFAULT NULL COMMENT 'gps经度',
+  `apply_lat` varchar(32) DEFAULT NULL COMMENT 'gps纬度',
   `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
   `mobile` varchar(255) DEFAULT NULL COMMENT '手机号',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_mobile` (`mobile`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS tp_app_sdk_contract_info;
 CREATE TABLE `tp_app_sdk_contract_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
@@ -497,8 +499,11 @@ CREATE TABLE `tp_app_sdk_contract_info` (
   `contract_memo` varchar(255) DEFAULT NULL COMMENT '通讯录备注',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_mobile` (`mobile`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_core_risk_rules;
 CREATE TABLE `tb_core_risk_rules` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `product_id` int(11) DEFAULT NULL,
@@ -513,6 +518,8 @@ CREATE TABLE `tb_core_risk_rules` (
   `val_right` float DEFAULT NULL COMMENT '右值',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_core_credit_level_rules;
 CREATE TABLE `tb_core_credit_level_rules` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `reloan_times` int(11) DEFAULT NULL COMMENT '复贷次数',
@@ -520,6 +527,8 @@ CREATE TABLE `tb_core_credit_level_rules` (
   `level` int(11) DEFAULT NULL COMMENT '信用等级',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_core_risk_decesion_result;
 CREATE TABLE `tb_core_risk_decesion_result` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `apply_time` datetime DEFAULT NULL,
@@ -530,6 +539,8 @@ CREATE TABLE `tb_core_risk_decesion_result` (
   `refuse_code` varchar(255) DEFAULT NULL COMMENT '拒贷码',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_core_risk_decesion_result_detail;
 CREATE TABLE `tb_core_risk_decesion_result_detail` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `rule_id` int(11) DEFAULT NULL,
@@ -542,6 +553,8 @@ CREATE TABLE `tb_core_risk_decesion_result_detail` (
   `decesion_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_core_risk_variables;
 CREATE TABLE `tb_core_risk_variables` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL COMMENT '变量名称',
