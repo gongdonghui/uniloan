@@ -1,13 +1,11 @@
-package com.sup.core.service;
+package com.sup.core.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import com.sup.common.bean.TbApplyInfoBean;
-import com.sup.common.bean.TbRepayPlanBean;
-import com.sup.common.bean.TbUserBankAccountInfoBean;
+import com.sup.common.bean.*;
 import com.sup.common.util.DateUtil;
 import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
+import com.sup.core.service.DecesionEngine;
 import com.sup.core.util.RiskVariableConstants;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,7 @@ import java.util.*;
 
 @Log4j
 @Service
-public class DecisionEngine {
+public class DecisionEngineImpl implements DecesionEngine {
     @Autowired
     private RiskRulesMapper riskRulesMapper;
 
@@ -46,35 +44,46 @@ public class DecisionEngine {
     @Autowired
     private RiskDecisionResultDetailMapper riskDecisionResultDetailMapper;
 
+    @Autowired
+    private TbAppSdkContractInfoMapper tbAppSdkContractInfoMapper;
+
+    @Autowired
+    private TbUserRegistInfoMapper tbUserRegistInfoMapper;
+
 
     private boolean applySingleRule(RiskRulesBean rule, String mobile, Map<String, Double> riskBean) {
 
+
+        String variable_name = rule.getVariable_name();
         if (rule.getValue_type() == 1) {  //名单类
-            String key = rule.getVariable_name() + mobile;
+            String key = variable_name + mobile;
             boolean exist = redisClient.Exist(key);
             return exist && rule.getIs_in() == 1;   //is_in:1 表示在名单 （白名单），0  表示不能在名单（黑名单）
 
 
-        } else {
-            String variable_name = rule.getVariable_name();
-            double val = riskBean.get(variable_name);
-            boolean ret = false;
-            if (rule.getRange_left() == 2) {
-                ret = val > rule.getVal_left();
+        } else {   //数值类变量
+            if (riskBean.containsKey(variable_name)) {
+                double val = riskBean.get(variable_name);
+                boolean ret = false;
+                if (rule.getRange_left() == 2) {
+                    ret = val > rule.getVal_left();
+                } else {
+                    ret = val >= rule.getVal_left();
+                }
+                boolean ret_right = false;
+                if (rule.getRange_right() == 1) {
+                    ret_right = val > rule.getVal_right();
+                } else {
+                    ret_right = val >= rule.getVal_left();
+                }
+                return ret && ret_right;
             } else {
-                ret = val >= rule.getVal_left();
+                  return  false;   //不存在变量时，规则不通过
             }
-            boolean ret_right = false;
-            if (rule.getRange_right() == 1) {
-                ret_right = val > rule.getVal_right();
-            } else {
-                ret_right = val >= rule.getVal_left();
-            }
-            return ret && ret_right;
         }
     }
 
-    public OverdueInfoBean getMaxOverdueDays(String userId) {
+    private OverdueInfoBean getMaxOverdueDays(String userId) {
 
 
         List<TbRepayPlanBean> plans = this.repayPlanInfoMapper.selectList(new QueryWrapper<TbRepayPlanBean>().eq("user_id", Integer.parseInt(userId)).orderByAsc("repay_start_date"));
@@ -106,9 +115,9 @@ public class DecisionEngine {
     }
 
     private ContractInfo getContractInfo(String mobile) {
-        UserBasicInfoBean userBasicInfoBean = this.userBasicInfoMapper.selectOne(new QueryWrapper<UserBasicInfoBean>().eq("mobile", mobile));
-        if (userBasicInfoBean != null) {
-            Integer userid = userBasicInfoBean.getUser_id();
+        TbUserRegistInfoBean userRegistInfoBean = this.tbUserRegistInfoMapper.selectOne(new QueryWrapper<TbUserRegistInfoBean>().eq("mobile", mobile));
+        if (userRegistInfoBean != null) {
+            Integer userid = userRegistInfoBean.getId();
             List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("user_id", userid));
             int apply_times = applyInfoBeanList.size();
             OverdueInfoBean overdueInfoBean = this.getMaxOverdueDays(Integer.toString(userid));
@@ -123,10 +132,13 @@ public class DecisionEngine {
     }
 
 
-    public Map<String, Double> prepareRiskVariables(String userId, String info_id) {
+    private Map<String, Double> prepareRiskVariables(String userId, String info_id,String user_mobile) {
 
 
-        Map<String, Double> riskBean = new HashMap<String, Double>();
+        Map<String, Double> riskBean = new HashMap<>();
+
+        //TODO  need to set  default value
+
         UserBasicInfoBean userBasicInfoBean = userBasicInfoMapper.selectOne(new QueryWrapper<UserBasicInfoBean>().eq("info_id", info_id));
         if (userBasicInfoBean != null) {
 
@@ -167,9 +179,9 @@ public class DecisionEngine {
         }
 
         List<UserEmergencyContactInfoBean> emeList = this.userEmergencyContactInfoMapper.selectList(new QueryWrapper<UserEmergencyContactInfoBean>().eq("info_id", info_id));
-        int max_overdue_times = 0;
-        int max_apply_times = 0;
         if (!emeList.isEmpty()) {
+            int max_overdue_times = 0;
+            int max_apply_times = 0;
             for (UserEmergencyContactInfoBean bean : emeList) {
                 String mobile = bean.getMobile();
                 ContractInfo contractInfo = this.getContractInfo(mobile);
@@ -180,7 +192,23 @@ public class DecisionEngine {
             riskBean.put(RiskVariableConstants.NUM_OF_OVERDUE_TIMES_IN_EMMERGENCY_CONTRACT, Double.valueOf(max_overdue_times));
 
         }
-        //TODO   get  contract  info
+        List<TbAppSdkContractInfoBean> contractInfoBeans = this.tbAppSdkContractInfoMapper.selectList(new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", user_mobile));
+        int size_of_contract = contractInfoBeans.size();
+        riskBean.put(RiskVariableConstants.NUM_OF_CONTRACT, Double.valueOf(size_of_contract));
+        if (!contractInfoBeans.isEmpty()) {
+            int max_overdue_times = 0;
+            int max_apply_times = 0;
+            for (TbAppSdkContractInfoBean appSdkContractInfoBean : contractInfoBeans) {
+                String mobile = appSdkContractInfoBean.getContract_info();
+                ContractInfo contractInfo = this.getContractInfo(mobile);
+                max_overdue_times = contractInfo.getOverdue_times() > max_overdue_times ? contractInfo.getOverdue_times() : max_overdue_times;
+                max_apply_times = contractInfo.getApply_times() > max_apply_times ? contractInfo.getApply_times() : max_apply_times;
+
+            }
+            riskBean.put(RiskVariableConstants.NUM_OF_APPLY_IN_CONTRACT, Double.valueOf(max_apply_times));
+            riskBean.put(RiskVariableConstants.NUM_OF_OVDUE_IN_CONTRACT, Double.valueOf(max_overdue_times));
+        }
+
 
         return riskBean;
 
@@ -189,13 +217,18 @@ public class DecisionEngine {
 
     public RiskDecisionResultBean applyRules(String userId, String applyId, String productId, String info_id) {
 
-        List<RiskRulesBean> rulesBeanList = riskRulesMapper.selectList(new QueryWrapper<RiskRulesBean>().eq("product_id", Integer.parseInt(productId)));
+        TbUserRegistInfoBean userRegistInfoBean = this.tbUserRegistInfoMapper.selectById(Integer.parseInt(userId));
+        if (userRegistInfoBean == null) return null;
+        //user id  not exist
+        String user_mobile = userRegistInfoBean.getMobile();
+        if (user_mobile.isEmpty()) return null;
+        //user  register mobie  is empty
 
-        Map<String, Double> riskBean = prepareRiskVariables(userId, info_id);
-        String mobile = "";
+        Map<String, Double> riskBean = prepareRiskVariables(userId, info_id,user_mobile);
 
         RiskDecisionResultBean result = new RiskDecisionResultBean();
         result.setRet(0);
+        List<RiskRulesBean> rulesBeanList = riskRulesMapper.selectList(new QueryWrapper<RiskRulesBean>().eq("product_id", Integer.parseInt(productId)));
         List<RiskDecisionResultDetailBean> detailBeanList = new ArrayList<>();
         for (RiskRulesBean rule : rulesBeanList) {
             RiskDecisionResultDetailBean decisionResultBean = new RiskDecisionResultDetailBean();
@@ -208,7 +241,7 @@ public class DecisionEngine {
             if (rule.getHit_type() == 1) {   //必须通过类
 
 
-                boolean ret = applySingleRule(rule, mobile, riskBean);
+                boolean ret = applySingleRule(rule, user_mobile, riskBean);
 
                 decisionResultBean.setRule_status(ret ? 1 : 0);
                 if (!ret) {
@@ -219,7 +252,7 @@ public class DecisionEngine {
 
             } else if (rule.getHit_type() == 0) {  //提示类
 
-                boolean ret = applySingleRule(rule, mobile, riskBean);
+                boolean ret = applySingleRule(rule, user_mobile, riskBean);
                 decisionResultBean.setRule_status(ret ? 1 : 0);
             }
             detailBeanList.add(decisionResultBean);
