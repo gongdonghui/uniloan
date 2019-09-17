@@ -318,7 +318,8 @@ CREATE TABLE if NOT EXISTS `tb_repay_plan` (
   `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`),
-  KEY `idx_apply_id` (`apply_id`)
+  KEY `idx_apply_id` (`apply_id`),
+  KEY `idx_repay_status` (`repay_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'tb_repay_stat'
@@ -341,10 +342,10 @@ CREATE TABLE if NOT EXISTS `tb_repay_stat` (
   `act_other` bigint(20) NOT NULL COMMENT '实还其他',
   `need_total` bigint(20) NOT NULL COMMENT '应还总额',
   `act_total` bigint(20) NOT NULL COMMENT '实还总额',
-  `current_seq` bigint(20) NOT NULL COMMENT '当前期数',
-  `normal_repay_times` bigint(20) NOT NULL COMMENT '正常还款期数',
-  `overdue_repay_times` bigint(20) NOT NULL COMMENT '逾期还款期数',
-  `overdue_times` bigint(20) NOT NULL COMMENT '逾期期数',
+  `current_seq` int(10) NOT NULL COMMENT '当前期数',
+  `normal_repay_times` int(10) NOT NULL COMMENT '正常还款期数',
+  `overdue_repay_times` int(10) NOT NULL COMMENT '逾期还款期数',
+  `overdue_times` int(10) NOT NULL COMMENT '逾期期数',
   `create_time` datetime NOT NULL COMMENT '记录创建时间',
   `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`apply_id`)

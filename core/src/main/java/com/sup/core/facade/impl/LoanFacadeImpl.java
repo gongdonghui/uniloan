@@ -1,10 +1,7 @@
 package com.sup.core.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.sup.common.bean.TbApplyInfoBean;
-import com.sup.common.bean.TbApplyMaterialInfoBean;
-import com.sup.common.bean.TbRepayPlanBean;
-import com.sup.common.bean.TbUserBankAccountInfoBean;
+import com.sup.common.bean.*;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.PayStatusInfo;
 import com.sup.common.bean.paycenter.RepayInfo;
@@ -22,14 +19,12 @@ import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.core.facade.LoanFacade;
-import com.sup.core.mapper.ApplyInfoMapper;
-import com.sup.core.mapper.ApplyMaterialInfoMapper;
-import com.sup.core.mapper.RepayPlanMapper;
-import com.sup.core.mapper.UserBankInfoMapper;
+import com.sup.core.mapper.*;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.Result;
 import com.sup.core.service.ApplyService;
 import com.sup.core.service.LoanService;
+import lombok.Data;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,8 +32,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Project:uniloan
@@ -69,6 +63,9 @@ public class LoanFacadeImpl implements LoanFacade {
 
     @Autowired
     private RepayPlanMapper repayPlanMapper;
+
+    @Autowired
+    private RepayStatMapper repayStatMapper;
 
     @Autowired
     private ApplyService applyService;
@@ -405,7 +402,54 @@ public class LoanFacadeImpl implements LoanFacade {
      */
     @Scheduled(cron = "30 0 * * * ?")
     public void statRepayInfo() {
-        // TODO
+        // TODO: 应当分页处理
+        // 1. 获取所有还款计划（不含未还）
+        List<TbRepayPlanBean> repayPlanBeans = repayPlanMapper.selectList(
+                new QueryWrapper<TbRepayPlanBean>().ne("repay_status", RepayPlanStatusEnum.PLAN_NOT_PAID.getCode())
+        );
+        if (repayPlanBeans == null || repayPlanBeans.size() == 0) {
+            log.info("Nothing to statistic.");
+            return;
+        }
+        // applyId => List<TbRepayPlanBean>
+        Map<String, List<TbRepayPlanBean>> repayPlanMap = new HashMap<>();
+        for (TbRepayPlanBean repayPlanBean : repayPlanBeans) {
+            String applyId = String.valueOf(repayPlanBean.getApply_id());
+            if (!repayPlanMap.containsKey(applyId)) {
+                repayPlanMap.put(applyId, new ArrayList<>());
+            }
+            repayPlanMap.get(applyId).add(repayPlanBean);
+        }
+
+        List<TbRepayStatBean> statBeans = repayStatMapper.selectList(
+                new QueryWrapper<TbRepayStatBean>().select("apply_id")
+        );
+        Set<String> statApplyIds = new HashSet<>();
+        for (TbRepayStatBean statBean : statBeans) {
+            statApplyIds.add(String.valueOf(statBean.getApply_id()));
+        }
+
+        // 2. 获取所有还款统计表中的applyId（便于识别是插入还是更新）
+        for (String applyId : repayPlanMap.keySet()) {
+            TbRepayStatBean statBean = statRepayPlan(applyId, repayPlanMap.get(applyId));
+            if (statBean == null) {
+                continue;
+            }
+            Date now = new Date();
+            if (statApplyIds.contains(applyId)) {
+                statBean.setUpdate_time(now);
+                if (repayStatMapper.update(statBean,
+                        new QueryWrapper<TbRepayStatBean>().eq("apply_id", applyId)) <= 0) {
+                    log.error("Failed to update! bean = " + GsonUtil.toJson(statBean));
+                }
+            } else {
+                statBean.setCreate_time(now);
+                statBean.setUpdate_time(now);
+                if (repayStatMapper.insert(statBean) <= 0) {
+                    log.error("Failed to insert! bean = " + GsonUtil.toJson(statBean));
+                }
+            }
+        }
     }
 
 
@@ -515,5 +559,21 @@ public class LoanFacadeImpl implements LoanFacade {
             repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode());
         }
         return loanService.updateRepayPlan(repayPlanBean);
+    }
+
+    protected TbRepayStatBean statRepayPlan(String applyId, List<TbRepayPlanBean> planBeans) {
+        if (planBeans == null || planBeans.size() == 0) {
+            return null;
+        }
+        Date now = new Date();
+        TbRepayStatBean statBean = new TbRepayStatBean();
+        statBean.setApply_id(Integer.valueOf(applyId));
+
+        for (TbRepayPlanBean planBean : planBeans) {
+
+        }
+        // TODO
+
+        return statBean;
     }
 }

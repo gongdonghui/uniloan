@@ -62,8 +62,9 @@ public class TbRepayPlanBean {
                 act_principal, act_interest, act_management_fee, act_penalty_interest,
                 act_late_payment_fee, act_breach_fee, act_other
         };
-        Long gap = 0L;
+
         synchronized (this) {
+            Long gap = 0L;
             for (int i = 0; i < needAmounts.length; ++i) {
                 if (actRepayAmount <= 0) {
                     break;
