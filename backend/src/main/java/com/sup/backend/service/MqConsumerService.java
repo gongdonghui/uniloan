@@ -24,10 +24,10 @@ import java.util.*;
  */
 @Service
 public class MqConsumerService {
-  @Value("${rocket.endpoint")
+  @Value("${rocket.consumer.endpoint")
   private String endpoint;
 
-  @Value("${rocket.group}")
+  @Value("${rocket.consumer.group}")
   private String group;
 
   @Autowired

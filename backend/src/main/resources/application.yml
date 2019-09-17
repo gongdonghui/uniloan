@@ -18,8 +18,12 @@ sms:
     password: yyyy
 
 rocket:
-  endpoint: localhost:9876
-  group: user_state_group
+  consumer:
+    endpoint: localhost:9876
+    group: user_state_group
+  producer:
+    endpoint: localhost:9876
+    group: user_state_group
 
 paycenter:
   uri: http://xxxxx/paycenter/repay
