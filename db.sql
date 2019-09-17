@@ -291,7 +291,7 @@ CREATE TABLE if NOT EXISTS `tb_repay_plan` (
   `repay_start_date` datetime NOT NULL COMMENT '当前开始还款时间',
   `repay_end_date` datetime NOT NULL COMMENT '还款截止日期',
   `repay_time` datetime DEFAULT NULL COMMENT '还款时间，未还为空',
-  `repay_status` tinyint(4) NOT NULL COMMENT '还款状态 0|待还  1|已还',
+  `repay_status` tinyint(4) NOT NULL COMMENT '还款状态 0|未还  1|未还清 2|已还清 3|自助还款处理中 4|自助还款处理失败',
   `is_overdue` tinyint(4) NOT NULL COMMENT '是否逾期 0|没有 1|逾期',
   `need_principal` bigint(20) NOT NULL COMMENT '应还本金',
   `act_principal` bigint(20) NOT NULL COMMENT '实还本金',
