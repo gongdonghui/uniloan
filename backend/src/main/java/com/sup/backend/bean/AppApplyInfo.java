@@ -22,5 +22,6 @@ public class AppApplyInfo {
   private Integer is_overdue; // 是否逾期
   private String latest_repay_date; // 最近还款日
   private String dest_account_no;  // 打款账号
+  private String trade_no;
   private String repay_img;   // 手动上传的打款凭证，需要人工审核
 }

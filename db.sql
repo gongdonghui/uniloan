@@ -586,3 +586,23 @@ CREATE TABLE `tb_market_plan` (
   KEY `idx_topic` (`topic`),
   KEY `idx_tag` (`tag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_manual_repay;
+CREATE TABLE `tb_manual_repay` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `plan_id` int(10) NOT NULL COMMENT '还款计划id',
+  `user_id` int(10) NOT NULL,
+  `apply_id` int(10) NOT NULL,
+  `seq_no` int(10) NOT NULL COMMENT '期数从1开始计数',
+  `repay_start_date` datetime NOT NULL COMMENT '当前开始还款时间',
+  `repay_end_date` datetime NOT NULL COMMENT '还款截止日期',
+  `is_overdue` tinyint(4) NOT NULL COMMENT '是否逾期 0|没有 1|逾期',
+  `need_total` bigint(20) NOT NULL COMMENT '应还总额',
+  `act_total` bigint(20) NOT NULL COMMENT '实还总额',
+  `trade_no` varchar(128) COMMENT '交易id，防止一个图片被多次使用',
+  `repay_image` varchar(128) NOT NULL COMMENT '还款图片',
+  `status` tinyint NOT NULL COMMENT '状态： 0|待处理  1|还款成功 2|还款失败',
+  `create_time` datetime NOT NULL COMMENT '记录创建时间',
+  `update_time` datetime NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

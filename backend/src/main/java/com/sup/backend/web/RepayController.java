@@ -6,6 +6,11 @@ import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.backend.bean.AppApplyInfo;
 import com.sup.backend.bean.LoginInfoCtx;
+import com.sup.backend.mapper.TbManualRepayMapper;
+import com.sup.backend.mapper.TbRepayPlanMapper;
+import com.sup.common.bean.TbManualRepayBean;
+import com.sup.common.bean.TbMarketPlanBean;
+import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.common.bean.TbUserRegistInfoBean;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
@@ -43,12 +48,15 @@ public class RepayController {
   @Autowired
   TbUserRegistInfoMapper tb_user_regist_info_mapper;
 
-  //////////////////////////////
-  // 还款接口
-  //////////////////////////////
+  @Autowired
+  TbManualRepayMapper tb_manual_repay_mapper;
+
+  @Autowired
+  TbRepayPlanMapper tb_repay_plan_mapper;
+
   @LoginRequired
   @ResponseBody
-  @RequestMapping(value = "getRepayLink", produces = "application/json;charset=UTF-8")
+  @RequestMapping(value = "get_repay_link", produces = "application/json;charset=UTF-8")
   public Object GetRepayLink(@RequestBody AppApplyInfo apply, @LoginInfo LoginInfoCtx li) {
     logger.info("----------- begin to getrepay link -------------");
     TbUserRegistInfoBean user = tb_user_regist_info_mapper.selectOne(new QueryWrapper<TbUserRegistInfoBean>().eq("id", li.getUser_id()));
@@ -76,15 +84,31 @@ public class RepayController {
   @ResponseBody
   @RequestMapping(value = "manual_repay", produces = "application/json;charset=UTF-8")
   public Object ManualRepay(@RequestBody AppApplyInfo apply, @LoginInfo LoginInfoCtx li) {
-    DeferredResult<Object> ret = new DeferredResult<>();
-    ToolUtils.AsyncHttpPostJson(admin_uri, apply, ret, resp -> {
-      JSONObject obj = JSON.parseObject(resp.getResponseBody());
-      return obj;
-    });
-    return ret;
+    //QueryWrapper<TbManualRepayBean> query = new QueryWrapper<TbManualRepayBean>().eq("trade_no", apply.getTrade_no());
+    //if (tb_manual_repay_mapper.selectOne(query) != null) {
+    //  return Result.fail("duplicate_trade_no");
+    //}
+
+    TbRepayPlanBean repay_plan_bean = tb_repay_plan_mapper.selectById(apply.getPlan_id());
+    TbManualRepayBean mb = new TbManualRepayBean();
+    mb.setPlan_id(repay_plan_bean.getId());
+    mb.setUser_id(repay_plan_bean.getUser_id());
+    mb.setApply_id(repay_plan_bean.getApply_id());
+    mb.setSeq_no(repay_plan_bean.getSeq_no());
+    mb.setRepay_start_date(repay_plan_bean.getRepay_start_date());
+    mb.setRepay_end_date(repay_plan_bean.getRepay_end_date());
+    mb.setIs_overdue(repay_plan_bean.getIs_overdue());
+    mb.setNeed_total(repay_plan_bean.getNeed_total());
+    mb.setAct_total(repay_plan_bean.getAct_total());
+    mb.setTrade_no("");
+    mb.setStatus(0);
+    mb.setRepay_image(apply.getRepay_img());
+    mb.setCreate_time(new Date());
+    mb.setUpdate_time(new Date());
+    tb_manual_repay_mapper.insert(mb);
+    return Result.succ("succ");
   }
 
-  // repayment complete callback
   @ResponseBody
   @RequestMapping(value = "callBack", produces = "application/json;charset=UTF-8")
   public Object repayCallBack(String userId, String applyId) {
