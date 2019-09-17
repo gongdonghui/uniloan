@@ -178,11 +178,30 @@ public class LoanFacadeImpl implements LoanFacade {
      */
     @Override
     public Result payCallBack(@RequestBody FunpayCallBackParam param) {
-        // TODO
         // update ApplyInfo status
-
-        // update RepayPlanInfo
-        return null;
+        TbApplyInfoBean bean = applyInfoMapper.selectOne(
+                new QueryWrapper<TbApplyInfoBean>().eq("applyId", param.getApplyId()).orderByDesc("create_time"));
+        if (bean == null) {
+            log.error("Invalid applyId = " + param.getApplyId());
+            return Result.fail("Invalid applyId!");
+        }
+        Integer status = param.getStatus();
+        FunpayOrderUtil.Status orderStatus = FunpayOrderUtil.getStatus(status);
+        if (orderStatus == FunpayOrderUtil.Status.PROCESSING) {
+            // 处理中回调个毛线～～
+            return Result.succ("");
+        }
+        if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
+            // 放款成功，需更新放款时间
+            bean.setLoan_time(new Date());
+            bean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
+        } else {
+            log.error("payCallBack: loan failed for applyId = " + bean.getId() +
+                    ", reason: " + FunpayOrderUtil.getMessage(status)
+            );
+            bean.setStatus(ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode());
+        }
+        return applyService.updateApplyInfo(bean);
     }
 
     /**
@@ -194,13 +213,15 @@ public class LoanFacadeImpl implements LoanFacade {
     @Override
     public Result repayCallBack(@RequestBody FunpayCallBackParam param) {
         // TODO
+        // update RepayPlanInfo
+
         return null;
     }
 
     /**
      * 定时检查进件状态，终审通过则尝试自动放款
      */
-    @Scheduled(cron = "0 */30 * * * ?")
+    @Scheduled(cron = "0 */15 * * * ?")
     public void checkApplyStatus() {
         // 获取所有终审通过的进件
         QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<TbApplyInfoBean>()
@@ -223,7 +244,7 @@ public class LoanFacadeImpl implements LoanFacade {
     /**
      * 定时检查放款是否成功
      */
-    @Scheduled(cron = "0 */30 * * * ?")
+    @Scheduled(cron = "0 */10 * * * ?")
     public void checkLoanResult() {
         // 1. 获取所有放款中的进件
         QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<TbApplyInfoBean>()
@@ -253,7 +274,7 @@ public class LoanFacadeImpl implements LoanFacade {
             }
             if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
                 // 放款成功，需更新放款时间
-                Date loanTime = DateUtil.parseDateTime(ret.getData().getSendTime());
+                Date loanTime = DateUtil.parse(ret.getData().getSendTime(), DateUtil.NO_SPLIT_FORMAT);
                 bean.setLoan_time(loanTime);
                 bean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
             } else {
@@ -267,6 +288,15 @@ public class LoanFacadeImpl implements LoanFacade {
                 log.error("checkLoanResult: Failed to update applyId = " + bean.getId());
             }
         }
+    }
+
+
+    /**
+     * 定时检查自主还款是否成功
+     */
+    @Scheduled(cron = "0 */10 * * * ?")
+    public void checkRepayResult() {
+        // TODO
     }
 
     /**

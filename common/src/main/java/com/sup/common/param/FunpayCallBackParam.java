@@ -2,6 +2,8 @@ package com.sup.common.param;
 
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * Project:uniloan
  * Class:  FunpayCallBackParam
@@ -16,4 +18,6 @@ public class FunpayCallBackParam {
     private String applyId;
     private String tradeNo;
     private Integer status;     // see code map in FunpayOrderUtil
+    private Integer amount;     // 交易金额（放款或者还款）
+    private Date    finishTime; // 交易完成时间
 }
