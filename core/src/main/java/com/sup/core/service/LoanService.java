@@ -15,7 +15,6 @@ import com.sup.core.mapper.RepayPlanMapper;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 
@@ -113,10 +112,10 @@ public class LoanService {
         repayPlanBean.setRepay_end_date(repayEndTime);
         repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_NOT_PAID.getCode());
         repayPlanBean.setIs_overdue(RepayPlanOverdueEnum.PLAN_NOT_OVER_DUE.getCode());
-        repayPlanBean.setNeed_principal(BigInteger.valueOf(principalToRepay));
-        repayPlanBean.setNeed_interest(BigInteger.valueOf(interestToRepay));
-        repayPlanBean.setNeed_management_fee(BigInteger.valueOf(feeToRepay));
-        repayPlanBean.setNeed_total(BigInteger.valueOf(totalToRepay));
+        repayPlanBean.setNeed_principal(Long.valueOf(principalToRepay));
+        repayPlanBean.setNeed_interest(Long.valueOf(interestToRepay));
+        repayPlanBean.setNeed_management_fee(Long.valueOf(feeToRepay));
+        repayPlanBean.setNeed_total(Long.valueOf(totalToRepay));
 
         return repayPlanBean;
     }

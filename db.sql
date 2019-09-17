@@ -291,7 +291,7 @@ CREATE TABLE if NOT EXISTS `tb_repay_plan` (
   `repay_start_date` datetime NOT NULL COMMENT '当前开始还款时间',
   `repay_end_date` datetime NOT NULL COMMENT '还款截止日期',
   `repay_time` datetime DEFAULT NULL COMMENT '还款时间，未还为空',
-  `repay_status` tinyint(4) NOT NULL COMMENT '还款状态 0|待还  1|已还',
+  `repay_status` tinyint(4) NOT NULL COMMENT '还款状态 0|未还  1|未还清 2|已还清 3|自助还款处理中 4|自助还款处理失败',
   `is_overdue` tinyint(4) NOT NULL COMMENT '是否逾期 0|没有 1|逾期',
   `need_principal` bigint(20) NOT NULL COMMENT '应还本金',
   `act_principal` bigint(20) NOT NULL COMMENT '实还本金',
@@ -318,7 +318,8 @@ CREATE TABLE if NOT EXISTS `tb_repay_plan` (
   `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`),
-  KEY `idx_apply_id` (`apply_id`)
+  KEY `idx_apply_id` (`apply_id`),
+  KEY `idx_repay_status` (`repay_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'tb_repay_stat'
@@ -341,10 +342,10 @@ CREATE TABLE if NOT EXISTS `tb_repay_stat` (
   `act_other` bigint(20) NOT NULL COMMENT '实还其他',
   `need_total` bigint(20) NOT NULL COMMENT '应还总额',
   `act_total` bigint(20) NOT NULL COMMENT '实还总额',
-  `current_seq` bigint(20) NOT NULL COMMENT '当前期数',
-  `normal_repay_times` bigint(20) NOT NULL COMMENT '正常还款期数',
-  `overdue_repay_times` bigint(20) NOT NULL COMMENT '逾期还款期数',
-  `overdue_times` bigint(20) NOT NULL COMMENT '逾期期数',
+  `current_seq` int(10) NOT NULL COMMENT '当前期数',
+  `normal_repay_times` int(10) NOT NULL COMMENT '正常还款期数',
+  `overdue_repay_times` int(10) NOT NULL COMMENT '逾期还款期数',
+  `overdue_times` int(10) NOT NULL COMMENT '逾期期数',
   `create_time` datetime NOT NULL COMMENT '记录创建时间',
   `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`apply_id`)

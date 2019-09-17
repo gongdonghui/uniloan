@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.math.BigInteger;
 import java.util.Date;
 
 /**
@@ -29,8 +28,8 @@ public class TbManualRepayBean {
   private Date repay_start_date;
   private Date repay_end_date;
   private Integer is_overdue;
-  private BigInteger need_total;
-  private BigInteger act_total;
+  private Long need_total;
+  private Long act_total;
   private String repay_image;
   private String trade_no;
   private Integer status;
