@@ -18,6 +18,7 @@ import com.sup.backend.mapper.TbUserRegistInfoMapper;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.RepayVO;
+import com.sup.common.loan.MaualRepayStatusEnum;
 import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,7 +102,7 @@ public class RepayController {
     mb.setNeed_total(repay_plan_bean.getNeed_total());
     mb.setAct_total(repay_plan_bean.getAct_total());
     mb.setTrade_no("");
-    mb.setStatus(0);
+    mb.setStatus(MaualRepayStatusEnum.TO_BE_CONFIRM.getCode());
     mb.setRepay_image(apply.getRepay_img());
     mb.setCreate_time(new Date());
     mb.setUpdate_time(new Date());
