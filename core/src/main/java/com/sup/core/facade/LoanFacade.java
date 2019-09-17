@@ -3,6 +3,7 @@ package com.sup.core.facade;
 import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.RepayVO;
+import com.sup.common.param.FunpayCallBackParam;
 import com.sup.common.util.Result;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,25 +59,21 @@ public interface LoanFacade {
 
     /**
      * 支付通道放款回调接口
-     * @param userId
-     * @param applyId
-     * @param tradeNo
+     * @param param
      * @return
      */
     @ResponseBody
     @RequestMapping(value = "payCallBack", produces = "application/json;charset=UTF-8")
-    Result payCallBack(String userId, String applyId, String tradeNo);
+    Result payCallBack(@RequestBody FunpayCallBackParam param);
 
 
     /**
      * 支付通道还款回调接口
-     * @param userId
-     * @param applyId
-     * @param tradeNo
+     * @param param
      * @return
      */
     @ResponseBody
     @RequestMapping(value = "repayCallBack", produces = "application/json;charset=UTF-8")
-    Result repayCallBack(String userId, String applyId, String tradeNo);
+    Result repayCallBack(@RequestBody FunpayCallBackParam param);
 
 }

@@ -8,6 +8,7 @@ import com.sup.common.loan.LoanFeeTypeEnum;
 import com.sup.common.loan.RepayPlanOverdueEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.util.DateUtil;
+import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
 import com.sup.core.mapper.ProductInfoMapper;
 import com.sup.core.mapper.RepayPlanMapper;
@@ -124,8 +125,8 @@ public class LoanService {
         if (bean == null) {
             return Result.fail("TbRepayPlanBean is null!");
         }
-        log.info("updateRepayPlan: userId = " + bean.getUser_id() +
-                ", applyId = " + bean.getApply_id());
+
+        log.info("updateRepayPlan: bean = " + GsonUtil.toJson(bean));
 
         bean.setUpdate_time(new Date());
         if (repayPlanMapper.updateById(bean) > 0) {

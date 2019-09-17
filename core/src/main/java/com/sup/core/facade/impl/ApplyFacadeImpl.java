@@ -1,7 +1,6 @@
 package com.sup.core.facade.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.sup.common.bean.ApplyInfoParam;
+import com.sup.common.param.ApplyInfoParam;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbApplyMaterialInfoBean;
 import com.sup.common.bean.TbProductInfoBean;
@@ -12,7 +11,6 @@ import com.sup.core.facade.ApplyFacade;
 import com.sup.core.mapper.ApplyMaterialInfoMapper;
 import com.sup.core.mapper.ProductInfoMapper;
 import com.sup.core.service.ApplyService;
-import com.sup.core.service.LoanService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

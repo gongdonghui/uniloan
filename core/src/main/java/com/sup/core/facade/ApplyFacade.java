@@ -1,14 +1,11 @@
 package com.sup.core.facade;
 
-import com.sup.common.bean.ApplyInfoParam;
+import com.sup.common.param.ApplyInfoParam;
 import com.sup.common.bean.TbApplyInfoBean;
-import com.sup.common.loan.ApplyMaterialTypeEnum;
 import com.sup.common.util.Result;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.Map;
 
 /**
  * Project:uniloan

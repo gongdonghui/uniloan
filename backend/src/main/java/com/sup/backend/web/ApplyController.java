@@ -1,19 +1,14 @@
 package com.sup.backend.web;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sup.backend.bean.AppSubmitOrder;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
 import com.sup.backend.mapper.TbProductInfoMapper;
-import com.sup.backend.util.HttpClient;
 import com.sup.backend.util.ToolUtils;
-import com.sup.common.bean.ApplyInfoParam;
-import com.sup.common.bean.TbProductInfoBean;
+import com.sup.common.param.ApplyInfoParam;
 import org.apache.log4j.Logger;
-import org.asynchttpclient.AsyncCompletionHandler;
-import org.asynchttpclient.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;

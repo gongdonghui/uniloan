@@ -5,6 +5,7 @@ import com.sup.common.bean.TbApplyInfoHistoryBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.LoanFeeTypeEnum;
 import com.sup.common.util.DateUtil;
+import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
 import com.sup.core.mapper.ApplyInfoHistoryMapper;
 import com.sup.core.mapper.ApplyInfoMapper;
@@ -67,10 +68,8 @@ public class ApplyService {
             );
             return Result.fail("invalid status!");
         }
-        log.info("updateApplyInfo: operator=" + bean.getOperator_id() +
-                ", applyId = " + bean.getId() +
-                ", new status = (" + bean.getStatus() +
-                ")" + newState.getCodeDesc()
+        log.info("updateApplyInfo: bean = " + GsonUtil.toJson(bean) +
+                ", new status = " + newState.getCodeDesc()
         );
         // TODO: should check the status order here to avoid invalid operation
 
@@ -82,7 +81,10 @@ public class ApplyService {
             bean.setInhand_quota(getInhandQuota(bean));
             bean.setPass_time(now);
         } else if (newState == ApplyStatusEnum.APPLY_LOAN_SUCC) {
-            bean.setLoan_time(now);
+            if (bean.getLoan_time() == null) {
+                // 手动放款时，放款时间可能为空
+                bean.setLoan_time(now);
+            }
             if (!loanService.addRepayPlan(bean)) {
                 log.error("Failed to add repay plan for applyId = " + bean.getId());
             }

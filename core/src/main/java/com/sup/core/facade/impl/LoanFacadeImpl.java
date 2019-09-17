@@ -1,7 +1,6 @@
 package com.sup.core.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbApplyMaterialInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
@@ -9,13 +8,16 @@ import com.sup.common.bean.TbUserBankAccountInfoBean;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.PayStatusInfo;
 import com.sup.common.bean.paycenter.RepayInfo;
-import com.sup.common.bean.paycenter.RepayStatusInfo;
+import com.sup.common.bean.paycenter.vo.PayStatusVO;
 import com.sup.common.bean.paycenter.vo.PayVO;
 import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.ApplyMaterialTypeEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
+import com.sup.common.param.FunpayCallBackParam;
 import com.sup.common.service.PayCenterService;
 import com.sup.common.util.DateUtil;
+import com.sup.common.util.FunpayOrderUtil;
+import com.sup.common.util.GsonUtil;
 import com.sup.core.facade.LoanFacade;
 import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.ApplyMaterialInfoMapper;
@@ -171,13 +173,11 @@ public class LoanFacadeImpl implements LoanFacade {
     /**
      * 支付通道放款回调接口
      *
-     * @param userId
-     * @param applyId
-     * @param tradeNo
+     * @param param
      * @return
      */
     @Override
-    public Result payCallBack(String userId, String applyId, String tradeNo) {
+    public Result payCallBack(@RequestBody FunpayCallBackParam param) {
         // TODO
         // update ApplyInfo status
 
@@ -188,13 +188,11 @@ public class LoanFacadeImpl implements LoanFacade {
     /**
      * 支付通道还款回调接口
      *
-     * @param userId
-     * @param applyId
-     * @param tradeNo
+     * @param param
      * @return
      */
     @Override
-    public Result repayCallBack(String userId, String applyId, String tradeNo) {
+    public Result repayCallBack(@RequestBody FunpayCallBackParam param) {
         // TODO
         return null;
     }
@@ -246,8 +244,28 @@ public class LoanFacadeImpl implements LoanFacade {
             }
             psi.setApplyId(String.valueOf(bean.getId()));
             psi.setTradeNo(bean.getTrade_number());
-            Result result = funpayService.payStatus(psi);
-            // TODO: 检查返回值，更新进件金额、状态
+            Result<PayStatusVO> ret = funpayService.payStatus(psi);
+
+            Integer status = ret.getData().getStatus();
+            FunpayOrderUtil.Status orderStatus = FunpayOrderUtil.getStatus(status);
+            if (orderStatus == FunpayOrderUtil.Status.PROCESSING) {
+                continue;
+            }
+            if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
+                // 放款成功，需更新放款时间
+                Date loanTime = DateUtil.parseDateTime(ret.getData().getSendTime());
+                bean.setLoan_time(loanTime);
+                bean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
+            } else {
+                log.error("Auto loan failed for applyId = " + bean.getId() +
+                        ", reason: " + FunpayOrderUtil.getMessage(status)
+                );
+                bean.setStatus(ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode());
+            }
+            Result result = applyService.updateApplyInfo(bean);
+            if (!result.isSucc()) {
+                log.error("checkLoanResult: Failed to update applyId = " + bean.getId());
+            }
         }
     }
 
