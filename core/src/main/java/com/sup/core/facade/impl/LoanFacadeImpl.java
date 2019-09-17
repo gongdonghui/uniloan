@@ -11,6 +11,7 @@ import com.sup.common.bean.paycenter.vo.PayVO;
 import com.sup.common.bean.paycenter.vo.RepayStatusVO;
 import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.ApplyMaterialTypeEnum;
+import com.sup.common.loan.RepayPlanOverdueEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.param.FunpayCallBackParam;
 import com.sup.common.param.ManualRepayParam;
@@ -567,12 +568,37 @@ public class LoanFacadeImpl implements LoanFacade {
         }
         Date now = new Date();
         TbRepayStatBean statBean = new TbRepayStatBean();
-        statBean.setApply_id(Integer.valueOf(applyId));
 
+        int normalRepayTimes = 0;
+        int overdueRepayTimes = 0;
+        int overdueTimes = 0;
+        int currentSeq = planBeans.size();
         for (TbRepayPlanBean planBean : planBeans) {
-
+            Date repayStartDate = planBean.getRepay_start_date();
+            if (DateUtil.compareDate(now, repayStartDate) < 0) {
+                // 待还还款计划中最小期数，即为当期
+                currentSeq = Math.min(currentSeq, planBean.getSeq_no());
+            }
+            RepayPlanOverdueEnum status = RepayPlanOverdueEnum.getStatusByCode(planBean.getRepay_status());
+            boolean isOverdue = status == RepayPlanOverdueEnum.PLAN_OVER_DUE;
+            boolean repayed = planBean.getAct_total() > 0;
+            if (isOverdue) {
+                overdueTimes += 1;
+                if (repayed) {
+                    overdueRepayTimes += 1;
+                }
+            } else if (repayed) {
+                normalRepayTimes += 1;
+            }
+            statBean.add(planBean);
         }
-        // TODO
+        statBean.setApply_id(Integer.valueOf(applyId));
+        statBean.setCurrent_seq(currentSeq);
+        statBean.setNormal_repay_times(normalRepayTimes);
+        statBean.setOverdue_repay_times(overdueRepayTimes);
+        statBean.setOverdue_times(overdueTimes);
+        statBean.setCreate_time(now);
+        statBean.setUpdate_time(now);
 
         return statBean;
     }

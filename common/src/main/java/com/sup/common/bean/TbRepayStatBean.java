@@ -40,4 +40,25 @@ public class TbRepayStatBean {
     private Date create_time;
     private Date update_time;
 
+    public void add(TbRepayPlanBean bean) {
+        synchronized (this) {
+            need_principal += bean.getNeed_principal();
+            act_principal  += bean.getAct_principal();
+            need_interest += bean.getNeed_interest();
+            act_interest  += bean.getAct_interest();
+            need_management_fee += bean.getNeed_management_fee();
+            act_management_fee  += bean.getAct_management_fee();
+            need_penalty_interest += bean.getNeed_penalty_interest();
+            act_penalty_interest  += bean.getAct_penalty_interest();
+            need_late_payment_fee += bean.getNeed_late_payment_fee();
+            act_late_payment_fee  += bean.getAct_late_payment_fee();
+            need_breach_fee += bean.getNeed_breach_fee();
+            act_breach_fee  += bean.getAct_breach_fee();
+            need_other += bean.getNeed_other();
+            act_other  += bean.getAct_other();
+
+            need_total += bean.getNeed_total();
+            act_total  += bean.getAct_total();
+        }
+    }
 }
