@@ -261,7 +261,7 @@ public class LoanFacadeImpl implements LoanFacade {
     public void checkApplyStatus() {
         // 获取所有终审通过的进件
         QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<TbApplyInfoBean>()
-                .eq("status", Integer.valueOf(ApplyStatusEnum.APPLY_FINAL_PASS.getCode()));
+                .eq("status", ApplyStatusEnum.APPLY_FINAL_PASS.getCode());
         // TODO: 应当分页处理
         List<TbApplyInfoBean> applyInfos = applyInfoMapper.selectList(wrapper);
         if (applyInfos == null || applyInfos.size() == 0) {
@@ -284,7 +284,7 @@ public class LoanFacadeImpl implements LoanFacade {
     public void checkLoanResult() {
         // 1. 获取所有放款中的进件
         QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<TbApplyInfoBean>()
-                .eq("status", Integer.valueOf(ApplyStatusEnum.APPLY_AUTO_LOANING.getCode()));
+                .eq("status", ApplyStatusEnum.APPLY_AUTO_LOANING.getCode());
         // TODO: 应当分页处理
         List<TbApplyInfoBean> applyInfos = applyInfoMapper.selectList(wrapper);
         if (applyInfos == null || applyInfos.size() == 0) {
@@ -413,9 +413,9 @@ public class LoanFacadeImpl implements LoanFacade {
             return;
         }
         // applyId => List<TbRepayPlanBean>
-        Map<String, List<TbRepayPlanBean>> repayPlanMap = new HashMap<>();
+        Map<Integer, List<TbRepayPlanBean>> repayPlanMap = new HashMap<>();
         for (TbRepayPlanBean repayPlanBean : repayPlanBeans) {
-            String applyId = String.valueOf(repayPlanBean.getApply_id());
+            Integer applyId = repayPlanBean.getApply_id();
             if (!repayPlanMap.containsKey(applyId)) {
                 repayPlanMap.put(applyId, new ArrayList<>());
             }
@@ -423,21 +423,27 @@ public class LoanFacadeImpl implements LoanFacade {
         }
 
         List<TbRepayStatBean> statBeans = repayStatMapper.selectList(
-                new QueryWrapper<TbRepayStatBean>().select("apply_id")
+                new QueryWrapper<TbRepayStatBean>().select("apply_id", "create_time")
         );
-        Set<String> statApplyIds = new HashSet<>();
+        Map<Integer, TbRepayStatBean> repayStatMap = new HashMap<>();
         for (TbRepayStatBean statBean : statBeans) {
-            statApplyIds.add(String.valueOf(statBean.getApply_id()));
+            repayStatMap.put(statBean.getApply_id(), statBean);
         }
 
         // 2. 获取所有还款统计表中的applyId（便于识别是插入还是更新）
-        for (String applyId : repayPlanMap.keySet()) {
-            TbRepayStatBean statBean = statRepayPlan(applyId, repayPlanMap.get(applyId));
+        boolean needUpdate;
+        for (Integer applyId : repayPlanMap.keySet()) {
+            TbRepayStatBean statBean = repayStatMap.getOrDefault(applyId, null);
+
             if (statBean == null) {
-                continue;
+                needUpdate = false;
+                statBean = statRepayPlan(applyId, repayPlanMap.get(applyId));
+            } else {
+                needUpdate = true;
+                statBean = statRepayPlan(statBean, repayPlanMap.get(applyId));
             }
             Date now = new Date();
-            if (statApplyIds.contains(applyId)) {
+            if (needUpdate) {
                 statBean.setUpdate_time(now);
                 if (repayStatMapper.update(statBean,
                         new QueryWrapper<TbRepayStatBean>().eq("apply_id", applyId)) <= 0) {
@@ -562,12 +568,17 @@ public class LoanFacadeImpl implements LoanFacade {
         return loanService.updateRepayPlan(repayPlanBean);
     }
 
-    protected TbRepayStatBean statRepayPlan(String applyId, List<TbRepayPlanBean> planBeans) {
+    protected TbRepayStatBean statRepayPlan(Integer applyId, List<TbRepayPlanBean> planBeans) {
+        TbRepayStatBean statBean = new TbRepayStatBean();
+        statBean.setApply_id(applyId);
+        return statRepayPlan(statBean, planBeans);
+    }
+
+    protected TbRepayStatBean statRepayPlan(TbRepayStatBean statBean, List<TbRepayPlanBean> planBeans) {
         if (planBeans == null || planBeans.size() == 0) {
-            return null;
+            return statBean;
         }
         Date now = new Date();
-        TbRepayStatBean statBean = new TbRepayStatBean();
 
         int normalRepayTimes = 0;
         int overdueRepayTimes = 0;
@@ -592,13 +603,11 @@ public class LoanFacadeImpl implements LoanFacade {
             }
             statBean.add(planBean);
         }
-        statBean.setApply_id(Integer.valueOf(applyId));
+
         statBean.setCurrent_seq(currentSeq);
         statBean.setNormal_repay_times(normalRepayTimes);
         statBean.setOverdue_repay_times(overdueRepayTimes);
         statBean.setOverdue_times(overdueTimes);
-        statBean.setCreate_time(now);
-        statBean.setUpdate_time(now);
 
         return statBean;
     }
