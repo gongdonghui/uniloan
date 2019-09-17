@@ -1,4 +1,4 @@
-package com.sup.common.bean;
+package com.sup.common.param;
 
 import com.sup.common.loan.ApplyMaterialTypeEnum;
 import lombok.Data;

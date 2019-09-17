@@ -35,7 +35,7 @@ public class Result<T> {
     }
 
     public static <T> Result succ(T data) {
-        return new Result().setStatus(kSuccess).setMessage("succ").setData(data);
+        return new Result<T>().setStatus(kSuccess).setMessage("succ").setData(data);
     }
 
     public static Result fail(String key) {
