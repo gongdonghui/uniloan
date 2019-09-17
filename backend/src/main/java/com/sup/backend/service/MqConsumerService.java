@@ -79,6 +79,7 @@ public class MqConsumerService {
 
   @PostConstruct
   public void init() throws Exception {
+    logger.info("do mqclient post_init...");
     consumer = new DefaultMQPushConsumer();
     consumer.setConsumerGroup(group);
     consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);

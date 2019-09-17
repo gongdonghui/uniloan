@@ -1,6 +1,5 @@
 package com.sup.backend.web;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,20 +13,15 @@ import com.sup.backend.service.SkyLineSmsService;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.*;
 import com.sup.common.util.Result;
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by xidongzhou1 on 2019/9/5.
@@ -35,15 +29,13 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping(value = "/cert")
-public class MaterialController {
-  public static Logger logger = Logger.getLogger(MaterialController.class);
+public class CertController {
+  public static Logger logger = Logger.getLogger(CertController.class);
   @Value("upload_path")
   private String upload_path;
 
   @Autowired
   RedisClient rc;
-  @Autowired
-  SkyLineSmsService sms_service;
   @Autowired
   TbUserRegistInfoMapper tb_user_regist_info_mapper;
   @Autowired
@@ -58,10 +50,6 @@ public class MaterialController {
   TbUserBankAccountInfoMapper tb_user_bank_account_mapper;
   @Autowired
   TbApplyMaterialInfoMapper tb_apply_info_material_mapper;
-  @Autowired
-  ApplyInfoMapper apply_info_mapper;
-  @Autowired
-  TbRepayPlanMapper tb_repay_plan_mapper;
 
 
   //////////////////////////////

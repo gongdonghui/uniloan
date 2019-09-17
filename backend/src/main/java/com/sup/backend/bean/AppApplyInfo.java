@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class AppApplyInfo {
-  private Integer order_id;    // 订单号
+  private Integer apply_id;    // 订单号
   private Integer plan_id;   // 期数 Id
   private String total_amount_to_be_repaid;  // 总计要还
   private String curr_amount_to_be_repaid;  // 这期要换
