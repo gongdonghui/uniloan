@@ -177,9 +177,45 @@ return: {
 从上面接口的返回的列表每一个 object 取即可
 
 
+自动还款：
+uri: /repay/get_repay_link 
+type: json 
+param:
+{
+  private Integer apply_id;    // 订单号
+  private Integer plan_id;   // 期数 Id
+  private String total_amount_to_be_repaid;  // 总计要还
+  private String curr_amount_to_be_repaid;  // 这期要换
+  private String period; // 当前期数
+  private Integer is_overdue; // 是否逾期
+  private String latest_repay_date; // 最近还款日
+  private String dest_account_no;  // 打款账号
+  private String repay_img;   // 手动上传的打款凭证，需要人工审核
+}
+return: 
+{
+  private String code;
+  private String shopLink;  便利店地址
+  private String tradeNo;  交易流水号
+  private String expireDate; 交易码过期时间  yyyy-dd-mm hh:mm:ss
+}
 
 
-
+手动还款：
+uri: /repay/manual_repay
+type: json  
+param: {
+  private Integer apply_id;    // 订单号
+  private Integer plan_id;   // 期数 Id
+  private String total_amount_to_be_repaid;  // 总计要还
+  private String curr_amount_to_be_repaid;  // 这期要换
+  private String period; // 当前期数
+  private Integer is_overdue; // 是否逾期
+  private String latest_repay_date; // 最近还款日
+  private String dest_account_no;  // 打款账号
+  private String repay_img;   // 手动上传的打款凭证，需要人工审核      手动还款必须设置！！
+}
+return:  null  
 
 
 
