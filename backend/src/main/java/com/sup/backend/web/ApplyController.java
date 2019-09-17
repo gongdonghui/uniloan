@@ -69,6 +69,7 @@ public class ApplyController {
           AppApplyInfo ai = new AppApplyInfo();
           ai.setCurr_amount_to_be_repaid(plan.getNeed_total().toString());
           ai.setDest_account_no("xx");
+          ai.setTotal_period(bean.getPeriod().toString());
           ai.setIs_overdue(plan.getRepay_end_date().getTime() > System.currentTimeMillis() ? 1: 0);
           ai.setApply_id(bean.getApp_id());
           ai.setPlan_id(plan.getId());

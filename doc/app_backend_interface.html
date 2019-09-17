@@ -62,6 +62,7 @@ return:  tag  // 字符串标示，代表该文件，可以理解为 服务器�
           "max_quota": "最大额度"
           "min_period": "最小期限",
           "max_period": "最大期限",
+          "status": 0,  // 0: 不可用  1: 可用 
           "rate": "利息",
           "period_type": "0:天，1:月，2:年",
           "material_needed": "0,1,2,3,4"   // 申请资料类型：0|身份证信息  1|基本信息 2|紧急联系人 3|职业信息 4|银行卡信息
@@ -165,6 +166,7 @@ return: {
         private Integer plan_id;   // 期数 Id
         private String total_amount_to_be_repaid;  // 总计要还
         private String curr_amount_to_be_repaid;  // 这期要换
+        private String total_period;  // 总期数
         private String period; // 当前期数
         private Integer is_overdue; // 是否逾期
         private String latest_repay_date; // 最近还款日

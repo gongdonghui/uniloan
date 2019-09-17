@@ -18,6 +18,7 @@ public class AppApplyInfo {
   private Integer plan_id;   // 期数 Id
   private String total_amount_to_be_repaid;  // 总计要还
   private String curr_amount_to_be_repaid;  // 这期要换
+  private String total_period; // 总期数
   private String period; // 当前期数
   private Integer is_overdue; // 是否逾期
   private String latest_repay_date; // 最近还款日

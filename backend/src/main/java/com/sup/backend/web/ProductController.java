@@ -1,5 +1,6 @@
 package com.sup.backend.web;
 
+import com.sup.backend.bean.AppProductInfo;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,6 +30,20 @@ public class ProductController {
   @RequestMapping(value = "list", produces = "application/json;charset=UTF-8")
   public Object getProduct(@LoginInfo LoginInfoCtx li) {
     List<TbProductInfoBean> beans = tb_product_info_mapper.selectList(null);
+    List<AppProductInfo> ret_beans = new ArrayList<>();
+    beans.forEach(bean -> {
+      AppProductInfo api = new AppProductInfo();
+      api.setId(bean.getId());
+      api.setName(bean.getName());
+      api.setMin_period(bean.getMin_period());
+      api.setMax_period(bean.getMax_period());
+      api.setMin_quota(bean.getMin_quota());
+      api.setMax_quota(bean.getMax_quota());
+      api.setRate(bean.getRate());
+      api.setPeriod_type(bean.getPeriod_type());
+      api.setMaterial_needed(bean.getMaterial_needed());
+      ret_beans.add(api);
+    });
     return Result.succ(beans);
   }
 }
