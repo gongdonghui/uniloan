@@ -40,7 +40,7 @@ public class TbRepayStatBean {
     private Date create_time;
     private Date update_time;
 
-    public void add(TbRepayPlanBean bean) {
+    public void inc(TbRepayPlanBean bean) {
         synchronized (this) {
             need_principal += bean.getNeed_principal();
             act_principal  += bean.getAct_principal();

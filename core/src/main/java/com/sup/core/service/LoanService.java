@@ -107,6 +107,7 @@ public class LoanService {
         TbRepayPlanBean repayPlanBean = new TbRepayPlanBean();
         repayPlanBean.setUser_id(bean.getUser_id());
         repayPlanBean.setApply_id(bean.getId());
+        repayPlanBean.setProduct_id(bean.getProduct_id());
         repayPlanBean.setSeq_no(1);
         repayPlanBean.setRepay_start_date(repayStartTime);
         repayPlanBean.setRepay_end_date(repayEndTime);
@@ -125,13 +126,16 @@ public class LoanService {
             return Result.fail("TbRepayPlanBean is null!");
         }
 
-        log.info("updateRepayPlan: bean = " + GsonUtil.toJson(bean));
+        log.debug("updateRepayPlan: bean = " + GsonUtil.toJson(bean));
 
         bean.setUpdate_time(new Date());
         if (repayPlanMapper.updateById(bean) > 0) {
             return Result.succ();
         }
-        return Result.fail("update failed!");
+
+        log.error("updateRepayPlan: bean = " + GsonUtil.toJson(bean));
+
+        return Result.fail("");
     }
 
     public Result getRepayPlan(String applyId) {

@@ -46,5 +46,5 @@ loan:
   auto-loan-retry-times: 3
 
 query:
-  page-num: 100
+  page-num: 500
 

@@ -1,6 +1,8 @@
 package com.sup.core.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sup.common.bean.*;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.PayStatusInfo;
@@ -69,6 +71,9 @@ public class LoanFacadeImpl implements LoanFacade {
     private RepayStatMapper repayStatMapper;
 
     @Autowired
+    private ProductInfoMapper   productInfoMapper;
+
+    @Autowired
     private ApplyService applyService;
 
     @Autowired
@@ -76,6 +81,8 @@ public class LoanFacadeImpl implements LoanFacade {
 
     @Autowired
     private PayCenterService funpayService;
+
+    private final float FLOAT_ZERO = 0.000001F;
 
 
     @Override
@@ -231,7 +238,7 @@ public class LoanFacadeImpl implements LoanFacade {
         FunpayOrderUtil.Status orderStatus = FunpayOrderUtil.getStatus(status);
         if (orderStatus != FunpayOrderUtil.Status.SUCCESS) {
             // do nothing
-            log.info("repayCallBack: repay failed for applyId = " + param.getApplyId() +
+            log.info("repayCallBack: nothing to do for applyId = " + param.getApplyId() +
                     ", reason: " + FunpayOrderUtil.getMessage(status)
             );
             return Result.succ();
@@ -388,14 +395,63 @@ public class LoanFacadeImpl implements LoanFacade {
      */
     @Scheduled(cron = "0 1 * * * ?")
     public void checkOverdue() {
-        // TODO
+        // 1. 获取所有产品信息（逾期日费率）
+        List<TbProductInfoBean> products = productInfoMapper.selectList(
+                new QueryWrapper<TbProductInfoBean>().select("id", "overdueRate", "gracePeriod")
+        );
+        if (products == null || products.size() == 0) {
+            // No products??
+            return;
+        }
+        Map<Integer, TbProductInfoBean> productsMap = new HashMap<>();
+        for (TbProductInfoBean bean : products) {
+            productsMap.put(bean.getId(), bean);
+        }
 
-        // 1. 获取所有放款中的进件
+        // TODO: 分页处理
+        // 2. 获取所有未还清、未核销、还款中的还款计划
+        Date now = new Date();
+        QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
+        wrapper.ne("repay_status", RepayPlanStatusEnum.PLAN_PAID_ALL.getCode());
+        wrapper.ne("repay_status", RepayPlanStatusEnum.PLAN_PAID_WRITE_OFF.getCode());
+        wrapper.le("repay_start_date", now);
 
-        // 2. 检查放款状态
+        Integer total = repayPlanMapper.selectCount(wrapper);
+        Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
+        for (int i = 1; i <= pageCount; ++i) {
+            Page<TbRepayPlanBean> page = new Page<>(i, QUERY_PAGE_NUM);
+            IPage<TbRepayPlanBean> repayPlanBeans = repayPlanMapper.selectPage(page, wrapper);
+            if (repayPlanBeans == null || repayPlanBeans.getSize() == 0) {
+                continue;
+            }
 
-        // 3. 对放款成功的进件：更新状态、添加还款计划
-
+            for (TbRepayPlanBean bean : repayPlanBeans.getRecords()) {
+                boolean isOverdue = bean.getIs_overdue() == RepayPlanOverdueEnum.PLAN_OVER_DUE.getCode();
+                Integer productId = bean.getProduct_id();
+                TbProductInfoBean productInfoBean = productsMap.getOrDefault(productId, null);
+                if (productInfoBean == null || productInfoBean.getOverdueRate() == null) {
+                    log.error("[FATAL] No product found or rate not set for productId = " + productId);
+                    continue;
+                }
+                // 最后还款日期为：截止日期+宽限期
+                Date repay_end_date = DateUtil.getDate(bean.getRepay_end_date(), productInfoBean.getGracePeriod());
+                boolean isLate = DateUtil.compareDate(repay_end_date, now) < 0;
+                if (!isOverdue || !isLate) {
+                    continue;
+                }
+                bean.setIs_overdue(RepayPlanOverdueEnum.PLAN_OVER_DUE.getCode());
+                Float rate = productInfoBean.getOverdueRate();
+                Long ori_total = bean.getNeed_total();
+                Long ori_penalty_interest = bean.getNeed_penalty_interest();
+                int  new_penalty_interest = (int) (bean.getNeed_principal() * rate);
+                bean.setNeed_penalty_interest(ori_penalty_interest + new_penalty_interest);
+                bean.setNeed_total(ori_total + new_penalty_interest);
+                Result r = loanService.updateRepayPlan(bean);
+                if (!r.isSucc()) {
+                    log.error("Failed to update");
+                }
+            }
+        }
     }
 
     /**
@@ -431,29 +487,23 @@ public class LoanFacadeImpl implements LoanFacade {
         }
 
         // 2. 获取所有还款统计表中的applyId（便于识别是插入还是更新）
-        boolean needUpdate;
         for (Integer applyId : repayPlanMap.keySet()) {
             TbRepayStatBean statBean = repayStatMap.getOrDefault(applyId, null);
 
-            if (statBean == null) {
-                needUpdate = false;
-                statBean = statRepayPlan(applyId, repayPlanMap.get(applyId));
-            } else {
-                needUpdate = true;
-                statBean = statRepayPlan(statBean, repayPlanMap.get(applyId));
-            }
             Date now = new Date();
-            if (needUpdate) {
-                statBean.setUpdate_time(now);
-                if (repayStatMapper.update(statBean,
-                        new QueryWrapper<TbRepayStatBean>().eq("apply_id", applyId)) <= 0) {
-                    log.error("Failed to update! bean = " + GsonUtil.toJson(statBean));
-                }
-            } else {
+            if (statBean == null) {
+                statBean = statRepayPlan(applyId, repayPlanMap.get(applyId));
                 statBean.setCreate_time(now);
                 statBean.setUpdate_time(now);
                 if (repayStatMapper.insert(statBean) <= 0) {
                     log.error("Failed to insert! bean = " + GsonUtil.toJson(statBean));
+                }
+            } else {
+                statBean = statRepayPlan(statBean, repayPlanMap.get(applyId));
+                statBean.setUpdate_time(now);
+                if (repayStatMapper.update(statBean,
+                        new QueryWrapper<TbRepayStatBean>().eq("apply_id", applyId)) <= 0) {
+                    log.error("Failed to update! bean = " + GsonUtil.toJson(statBean));
                 }
             }
         }
@@ -593,15 +643,11 @@ public class LoanFacadeImpl implements LoanFacade {
             RepayPlanOverdueEnum status = RepayPlanOverdueEnum.getStatusByCode(planBean.getRepay_status());
             boolean isOverdue = status == RepayPlanOverdueEnum.PLAN_OVER_DUE;
             boolean repayed = planBean.getAct_total() > 0;
-            if (isOverdue) {
-                overdueTimes += 1;
-                if (repayed) {
-                    overdueRepayTimes += 1;
-                }
-            } else if (repayed) {
-                normalRepayTimes += 1;
-            }
-            statBean.add(planBean);
+
+            overdueTimes += isOverdue ? 1 : 0;
+            overdueRepayTimes += isOverdue && repayed ? 1 : 0;
+            normalRepayTimes  += !isOverdue && repayed ? 1 : 0;
+            statBean.inc(planBean);
         }
 
         statBean.setCurrent_seq(currentSeq);
