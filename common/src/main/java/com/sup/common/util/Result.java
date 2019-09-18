@@ -30,8 +30,8 @@ public class Result<T> {
         return new Result().setStatus(status).setData(data).setMessage(message);
     }
 
-    public static Result succ() {
-        return new Result().setStatus(kSuccess).setMessage("succ");
+    public static Result<String> succ() {
+        return new Result<String>().setStatus(kSuccess).setMessage("succ");
     }
 
     public static <T> Result succ(T data) {

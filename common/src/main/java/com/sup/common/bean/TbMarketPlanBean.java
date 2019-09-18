@@ -23,6 +23,7 @@ public class TbMarketPlanBean {
   private String topic;
   private String tag;
   private String market_way;
+  private String market_ext;
   private Integer priority;
   private Integer status;
   private Date create_time;

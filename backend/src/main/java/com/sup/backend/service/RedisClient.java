@@ -20,6 +20,15 @@ public class RedisClient {
     vo.set(key, val, to, tu);
   }
 
+  public boolean SetEx(String key, String val, Long to, TimeUnit tu) {
+    ValueOperations<String, String> vo = redisTemplate.opsForValue();
+    return vo.setIfAbsent(key, val, to, tu);
+  }
+
+  public void Delete(String key) {
+    redisTemplate.delete(key);
+  }
+
   public String Get(String key) {
     ValueOperations<String, String> vo = redisTemplate.opsForValue();
     String val = vo.get(key);

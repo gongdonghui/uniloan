@@ -19,6 +19,7 @@ import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.MaualRepayStatusEnum;
+import com.sup.common.service.PayCenterService;
 import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,30 +56,41 @@ public class RepayController {
   @Autowired
   TbRepayPlanMapper tb_repay_plan_mapper;
 
+  //@Autowired
+  //private PayCenterService funPayFacade;
+
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "get_repay_link", produces = "application/json;charset=UTF-8")
   public Object GetRepayLink(@RequestBody AppApplyInfo apply, @LoginInfo LoginInfoCtx li) {
+
     logger.info("----------- begin to getrepay link -------------");
     TbUserRegistInfoBean user = tb_user_regist_info_mapper.selectOne(new QueryWrapper<TbUserRegistInfoBean>().eq("id", li.getUser_id()));
     final String name = user.getName();
     final String phone = user.getMobile();
     final Integer amount = Integer.parseInt(apply.getCurr_amount_to_be_repaid());
     final String orderid = apply.getPlan_id().toString();
-
     RepayInfo ri = new RepayInfo();
     ri.setAmount(amount);
     ri.setApplyId(orderid);
     ri.setName(name);
     ri.setPhone(phone);
     ri.setUserId(li.getUser_id().toString());
-    DeferredResult<Object> ret = new DeferredResult<>();
-    ToolUtils.AsyncHttpPostJson(paycenter_url + "/repay", ri, ret, resp -> {
-      Result<RepayVO> obj = JSON.parseObject(resp.getResponseBody(), new TypeReference<Result<RepayVO>>(){});
-      return obj;
-    });
-    logger.info("test_end...");
-    return ret;
+
+    if (false) {
+      //return funPayFacade.repay(ri);
+      return "succ";
+    } else {
+      // 如果前面有问题，要用异步的
+      DeferredResult<Object> ret = new DeferredResult<>();
+      ToolUtils.AsyncHttpPostJson(paycenter_url + "/repay", ri, ret, resp -> {
+        Result<RepayVO> obj = JSON.parseObject(resp.getResponseBody(), new TypeReference<Result<RepayVO>>() {
+        });
+        return obj;
+      });
+      logger.info("test_end...");
+      return ret;
+    }
   }
 
   @LoginRequired

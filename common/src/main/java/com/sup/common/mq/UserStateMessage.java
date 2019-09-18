@@ -10,6 +10,7 @@ import java.io.Serializable;
 @Data
 public class UserStateMessage implements Serializable {
   private Integer user_id;
+  private String mobile;
   private Integer rel_id;
   private String state;
   private String create_time;

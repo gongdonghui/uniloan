@@ -27,7 +27,7 @@ import java.util.*;
  */
 @Service
 public class MqProducerService {
-  @Value("${rocket.producer.endpoint")
+  @Value("${rocket.producer.endpoint}")
   private String endpoint;
 
   @Value("${rocket.producer.group}")
@@ -38,7 +38,7 @@ public class MqProducerService {
 
   @PostConstruct
   public void init() throws Exception {
-    logger.info("do mqclient producer post_init...");
+    logger.info("init_rocket_mq_producer: " + endpoint + "@" + group);
     producer = new DefaultMQProducer();
     producer.setProducerGroup(group);
     producer.setNamesrvAddr(endpoint);
