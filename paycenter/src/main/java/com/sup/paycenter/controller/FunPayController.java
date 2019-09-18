@@ -6,6 +6,8 @@ import com.google.common.collect.Maps;
 import com.google.gson.reflect.TypeToken;
 import com.sup.common.bean.paycenter.*;
 import com.sup.common.bean.paycenter.vo.*;
+import com.sup.common.param.FunpayCallBackParam;
+import com.sup.common.service.LoanService;
 import com.sup.common.util.Result;
 import com.sup.paycenter.bean.funpay.*;
 import com.sup.paycenter.util.DateUtil;
@@ -13,6 +15,7 @@ import com.sup.paycenter.util.FunPayParamsUtil;
 import com.sup.paycenter.util.GsonUtil;
 import com.sup.paycenter.util.OkBang;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +34,7 @@ public class FunPayController {
 
     @Value("${paycenter.secretKey}")
     private String secretKey;
-    @Value("${paycenter.}")
+    @Value("${paycenter.merchantId}")
     private String merchantId;
     @Value("${paycenter.merchantId}")
     private String businessId;
@@ -55,6 +58,8 @@ public class FunPayController {
     @Value("${paycenter.method.payCheck}")
     private String method_payCheck;
 
+    @Autowired
+    private LoanService loanService;
 
     private static final int FUNPAY_SUCCESS_FLAG = 10000;
 
@@ -257,6 +262,30 @@ public class FunPayController {
             r.setPurchaseTime(DateUtil.formatDateTime(dt));
         }
         return Result.succ(r);
+    }
+
+    @PostMapping(value = "payCallBack")
+    public String payCallBack(@RequestBody ReturnBean<TransferMoneyBean> bean) {
+        FunpayCallBackParam f = new FunpayCallBackParam();
+        f.setAmount(bean.getResult().getAmount());
+        f.setApplyId(bean.getResult().getOrderNo());
+        f.setFinishTime(DateUtil.parse(bean.getResult().getSendTime(), DateUtil.NO_SPLIT_FORMAT));
+        f.setStatus(bean.getResult().getStatus());
+        f.setTradeNo(bean.getResult().getTradeNo());
+        loanService.payCallBack(f);
+        return "";
+    }
+
+    @PostMapping(value = "repayCallBack")
+    public String repayCallBack(@RequestBody ReturnBean<OfflinePayBean> bean) {
+        FunpayCallBackParam f = new FunpayCallBackParam();
+        f.setAmount(bean.getResult().getAmount());
+        f.setApplyId(bean.getResult().getOrderNo());
+        f.setFinishTime(DateUtil.parse(bean.getResult().getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT));
+        f.setStatus(bean.getResult().getStatus());
+        f.setTradeNo(bean.getResult().getTradeNo());
+        loanService.repayCallBack(f);
+        return "";
     }
 
 }
