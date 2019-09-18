@@ -287,11 +287,12 @@ CREATE TABLE if NOT EXISTS `tb_repay_plan` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '作为plan_id',
   `user_id` int(10) NOT NULL,
   `apply_id` int(10) NOT NULL,
+  `product_id` int(10) NOT NULL,
   `seq_no` int(10) NOT NULL COMMENT '期数从1开始计数',
   `repay_start_date` datetime NOT NULL COMMENT '当前开始还款时间',
   `repay_end_date` datetime NOT NULL COMMENT '还款截止日期',
   `repay_time` datetime DEFAULT NULL COMMENT '还款时间，未还为空',
-  `repay_status` tinyint(4) NOT NULL COMMENT '还款状态 0|未还  1|未还清 2|已还清 3|自助还款处理中 4|自助还款处理失败',
+  `repay_status` tinyint(4) NOT NULL COMMENT '还款状态 0|未还  1|未还清 2|已还清 3|自助还款处理中 4|自助还款处理失败 5|核销',
   `is_overdue` tinyint(4) NOT NULL COMMENT '是否逾期 0|没有 1|逾期',
   `need_principal` bigint(20) NOT NULL COMMENT '应还本金',
   `act_principal` bigint(20) NOT NULL COMMENT '实还本金',
@@ -319,7 +320,10 @@ CREATE TABLE if NOT EXISTS `tb_repay_plan` (
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_apply_id` (`apply_id`),
-  KEY `idx_repay_status` (`repay_status`)
+  KEY `idx_repay_status` (`repay_status`),
+  KEY `idx_repay_start_date` (`repay_start_date`),
+  KEY `idx_repay_end_date` (`repay_end_date`),
+  KEY `idx_repay_time` (`repay_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'tb_repay_stat'

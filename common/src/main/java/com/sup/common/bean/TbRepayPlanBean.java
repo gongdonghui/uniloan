@@ -22,11 +22,12 @@ public class TbRepayPlanBean {
     private Integer id;         // repay plan id
     private Integer user_id;
     private Integer apply_id;
+    private Integer product_id;
     private Integer seq_no;
     private Date repay_start_date;
     private Date repay_end_date;
     private Date repay_time;
-    private Integer repay_status;
+    private Integer repay_status;   // 还款状态 0|未还  1|未还清 2|已还清 3|自助还款处理中 4|自助还款处理失败 5|核销
     private Integer is_overdue;
     private Long need_principal = 0L;
     private Long act_principal = 0L;

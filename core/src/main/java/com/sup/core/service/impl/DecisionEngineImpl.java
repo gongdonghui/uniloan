@@ -5,6 +5,7 @@ import com.sup.common.bean.*;
 import com.sup.common.util.DateUtil;
 import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
+import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.DecesionEngine;
 import com.sup.core.util.RiskVariableConstants;
 import lombok.extern.log4j.Log4j;
@@ -293,5 +294,13 @@ public class DecisionEngineImpl implements DecesionEngine {
 
         return true;
 
+    }
+
+
+    @Override
+    public RiskDecisionResultBean applyRules(AutoDecisionParam param) {
+        // TODO
+
+        return null;
     }
 }
