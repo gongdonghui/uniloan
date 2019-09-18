@@ -37,6 +37,9 @@ public class ApplyService {
     @Autowired
     private LoanService loanService;
 
+    @Autowired
+    private MqProducerService mqProducerService;
+
 
     public boolean addApplyInfo(TbApplyInfoBean bean) {
         log.info("addApplyInfo: userId=" + bean.getUser_id()
@@ -99,12 +102,17 @@ public class ApplyService {
         if (applyInfoMapper.updateById(bean) <= 0) {
             return Result.fail("update ApplyInfo failed!");
         }
+        sendMessage(bean);
         TbApplyInfoHistoryBean applyInfoHistoryBean = new TbApplyInfoHistoryBean(bean);
         applyInfoHistoryBean.setCreate_time(now);
         if (applyInfoHistoryMapper.insert(applyInfoHistoryBean) <= 0) {
             return Result.fail("insert into ApplyInfoHistory failed!");
         }
         return Result.succ();
+    }
+
+    protected void sendMessage(TbApplyInfoBean bean) {
+        // TODO: send mq message
     }
 
     protected int getInhandQuota(TbApplyInfoBean bean) {
