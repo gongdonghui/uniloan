@@ -15,6 +15,11 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
 
+rocket:
+  producer:
+    endpoint: localhost:9976
+    group: user_state_group
+
 spring:
   application:
     name: service-core

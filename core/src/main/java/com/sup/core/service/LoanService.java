@@ -10,7 +10,6 @@ import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
-import com.sup.core.mapper.ProductInfoMapper;
 import com.sup.core.mapper.RepayPlanMapper;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +27,6 @@ import java.util.List;
 
 @Log4j
 public class LoanService {
-
-    @Autowired
-    private ProductInfoMapper productInfoMapper;
 
     @Autowired
     private RepayPlanMapper repayPlanMapper;
@@ -142,9 +138,26 @@ public class LoanService {
         if (applyId == null) {
             return Result.fail("Invalid applyId!");
         }
-        QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<TbRepayPlanBean>();
+        QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
         List<TbRepayPlanBean> plans = repayPlanMapper.getRepayPlan(wrapper.eq("applyId", applyId));
 
         return Result.succ(plans);
+    }
+
+    public boolean writeOffRepayPlan(Integer applyId) {
+        // write off all the repay plan
+        if (applyId == null) {
+            return false;
+        }
+        QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
+        List<TbRepayPlanBean> plans = repayPlanMapper.getRepayPlan(wrapper.eq("applyId", applyId));
+        int status = RepayPlanStatusEnum.PLAN_PAID_WRITE_OFF.getCode();
+        Date now = new Date();
+        for (TbRepayPlanBean bean : plans) {
+            bean.setRepay_status(status);
+            bean.setUpdate_time(now);
+            repayPlanMapper.updateById(bean);
+        }
+        return true;
     }
 }

@@ -92,6 +92,9 @@ public class ApplyService {
             if (!loanService.addRepayPlan(bean)) {
                 log.error("Failed to add repay plan for applyId = " + bean.getId());
             }
+        } else if (newState == ApplyStatusEnum.APPLY_WRITE_OFF) {
+            // 还款计划也更新为核销
+            loanService.writeOffRepayPlan(bean.getId());
         }
         if (applyInfoMapper.updateById(bean) <= 0) {
             return Result.fail("update ApplyInfo failed!");
