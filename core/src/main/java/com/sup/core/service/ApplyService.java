@@ -60,6 +60,10 @@ public class ApplyService {
     }
 
     public Result updateApplyInfo(TbApplyInfoBean bean) {
+        if (bean == null) {
+            return Result.fail("Bean is null!");
+        }
+
         ApplyStatusEnum newState = ApplyStatusEnum.getStatusByCode(bean.getStatus());
         if (newState == null) {
             log.error("updateApplyInfo: invalid status=" + bean.getStatus()
