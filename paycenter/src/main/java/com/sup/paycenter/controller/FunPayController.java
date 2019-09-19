@@ -233,6 +233,7 @@ public class FunPayController {
             Date dt = DateUtil.parse(resultBean.getResult().getSendTime(), DateUtil.NO_SPLIT_FORMAT);
             p.setSendTime(DateUtil.formatDateTime(dt));
         }
+        p.setAmount(resultBean.getResult().getAmount());
         return Result.succ(p);
     }
 
@@ -261,6 +262,7 @@ public class FunPayController {
             Date dt = DateUtil.parse(resultBean.getResult().getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT);
             r.setPurchaseTime(DateUtil.formatDateTime(dt));
         }
+        r.setAmount(resultBean.getResult().getAmount());
         return Result.succ(r);
     }
 

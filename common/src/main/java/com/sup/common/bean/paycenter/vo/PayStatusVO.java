@@ -8,6 +8,7 @@ import lombok.Data;
  */
 @Data
 public class PayStatusVO {
+    private Integer amount;
     private Integer status;
     private String sendTime;    // yyyyMMddHHmmss
 }
