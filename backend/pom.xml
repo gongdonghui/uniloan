@@ -125,6 +125,13 @@
             <version>4.5.1</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.nutz/ssdb4j -->
+        <dependency>
+            <groupId>org.nutz</groupId>
+            <artifactId>ssdb4j</artifactId>
+            <version>10.0</version>
+        </dependency>
+
         <dependency>
             <groupId>com.google.collections</groupId>
             <artifactId>google-collections</artifactId>

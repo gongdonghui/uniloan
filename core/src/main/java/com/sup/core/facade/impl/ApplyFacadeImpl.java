@@ -1,22 +1,31 @@
 package com.sup.core.facade.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.param.ApplyInfoParam;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbApplyMaterialInfoBean;
 import com.sup.common.bean.TbProductInfoBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.DateUtil;
+import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
+import com.sup.core.bean.RiskDecisionResultBean;
 import com.sup.core.facade.ApplyFacade;
+import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.ApplyMaterialInfoMapper;
 import com.sup.core.mapper.ProductInfoMapper;
+import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.ApplyService;
+import com.sup.core.service.impl.DecisionEngineImpl;
+import com.sup.core.status.DecisionEngineStatusEnum;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Project:uniloan
@@ -34,13 +43,53 @@ public class ApplyFacadeImpl implements ApplyFacade {
     private ApplyService applyService;
 
     @Autowired
+    private DecisionEngineImpl decisionEngine;
+
+    @Autowired
     private ApplyMaterialInfoMapper applyMaterialInfoMapper;
 
     @Autowired
     private ProductInfoMapper productInfoMapper;
 
+    @Autowired
+    private ApplyInfoMapper applyInfoMapper;
+
+
     @Value("apply.expire-days")
     private int APPLY_EXPIRE_DAYS;
+
+
+    @Scheduled(cron = "0 */10 * * * ?")
+    public void checkApplyInfo() {
+        // 1. 获取所有新提交的进件
+        List<TbApplyInfoBean> applyInfoBeans = applyInfoMapper.selectList(
+                new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_INIT.getCode())
+        );
+
+        if (applyInfoBeans == null || applyInfoBeans.size() == 0) {
+            return;
+        }
+        AutoDecisionParam param = new AutoDecisionParam();
+        for (TbApplyInfoBean bean : applyInfoBeans) {
+            param.setApplyId(String.valueOf(bean.getId()));
+            param.setProductId(String.valueOf(bean.getProduct_id()));
+            param.setUserId(String.valueOf(bean.getUser_id()));
+            // 2. 自动审查
+            RiskDecisionResultBean result = decisionEngine.applyRules(param);
+            if (result == null) {
+                // Exception??
+                log.error("DecisionEngine return null for param = " + GsonUtil.toJson(param));
+                bean.setStatus(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
+            } else if (result.getRet() == DecisionEngineStatusEnum.APPLY_DE_AUTO_PASS.getCode()) {
+                bean.setStatus(ApplyStatusEnum.APPLY_AUTO_PASS.getCode());
+            } else {
+                bean.setStatus(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
+                bean.setDeny_code(result.getRefuse_code());
+            }
+            // 3. 更新进件状态
+            applyService.updateApplyInfo(bean);
+        }
+    }
 
     @Override
     public Result addApplyInfo(ApplyInfoParam applyInfoParam) {

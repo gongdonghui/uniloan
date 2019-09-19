@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by xidongzhou1 on 2019/9/5.
@@ -52,6 +53,17 @@ public class CertController {
   TbApplyMaterialInfoMapper tb_apply_info_material_mapper;
 
 
+
+  private boolean CheckDuplicateSubmit(String uri, Integer user_id) {
+    String dup_key = String.format("submit|%d_%s", user_id, uri);
+    return rc.SetEx(dup_key, "ok", 10l, TimeUnit.MINUTES);
+  }
+
+  private void ClearDuplicateSubmit(String uri, Integer user_id) {
+    String dup_key = String.format("submit|%d_%s", user_id, uri);
+    rc.Delete(dup_key);
+  }
+
   //////////////////////////////
   // 申请资料CRUD接口
   //////////////////////////////
@@ -68,6 +80,10 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = {"idcard/add", "idcard/update"}, produces = "application/json;charset=UTF-8")
   public Object UpdateCIC(@LoginInfo LoginInfoCtx li, @RequestBody TbUserCitizenIdentityCardInfoBean bean) {
+    if (!CheckDuplicateSubmit("idcard", li.getUser_id())) {
+      return Result.fail(1, "duplicate_submit");
+    }
+
     if (bean.getInfo_id() == null) {
       bean.setInfo_id(ToolUtils.getToken());
       bean.setUser_id(li.getUser_id());
@@ -78,6 +94,7 @@ public class CertController {
     } else {
       tb_user_citizen_identity_card_info_mapper.updateById(bean);
     }
+    ClearDuplicateSubmit("idcard", li.getUser_id());
     return Result.succ(bean.getInfo_id());
   }
 
@@ -108,6 +125,10 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = {"basic/add", "basic/update"}, produces = "application/json;charset=UTF-8")
   public Object updateBasicInfo(@LoginInfo LoginInfoCtx li, @RequestBody TbUserBasicInfoBean bean) {
+    if (!CheckDuplicateSubmit("basic", li.getUser_id())) {
+      return Result.fail(1, "duplicate_submit");
+    }
+
     if (bean.getInfo_id() == null) {
       bean.setInfo_id(ToolUtils.getToken());
       bean.setUser_id(li.getUser_id());
@@ -118,6 +139,7 @@ public class CertController {
     } else {
       tb_user_basic_info_mapper.updateById(bean);
     }
+    ClearDuplicateSubmit("basic", li.getUser_id());
     return Result.succ(bean.getInfo_id());
   }
 
@@ -149,6 +171,10 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = {"contact/add", "contact/update"}, produces = "application/json;charset=UTF-8")
   public Object updateEmergencyContact(@LoginInfo LoginInfoCtx li, @RequestBody List<TbUserEmergencyContactBean> beans) {
+    if (!CheckDuplicateSubmit("contact", li.getUser_id())) {
+      return Result.fail(1, "duplicate_submit");
+    }
+
     String info_id = null;
     for (TbUserEmergencyContactBean bean : beans) {
       if (bean.getInfo_id() != null) {
@@ -170,6 +196,7 @@ public class CertController {
         tb_user_emergency_contact_mapper.updateById(bean);
       }
     });
+    ClearDuplicateSubmit("contact", li.getUser_id());
     return Result.succ("succ");
   }
 
@@ -218,6 +245,10 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = {"employment/add", "employment/update"}, produces = "application/json;charset=UTF-8")
   public Object updateEmploymentInfo(@LoginInfo LoginInfoCtx li, @RequestBody TbUserEmploymentInfoBean bean) {
+    if (!CheckDuplicateSubmit("employment", li.getUser_id())) {
+      return Result.fail(1, "duplicate_submit");
+    }
+
     if (bean.getInfo_id() == null) {
       bean.setInfo_id(ToolUtils.getToken());
       bean.setUser_id(li.getUser_id());
@@ -228,6 +259,7 @@ public class CertController {
     } else {
       tb_user_employment_info_mapper.updateById(bean);
     }
+    ClearDuplicateSubmit("employment", li.getUser_id());
     return Result.succ("succ");
   }
 
@@ -259,6 +291,10 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = {"bank/add", "bank/update"}, produces = "application/json;charset=UTF-8")
   public Object updateEmergencyContact(@LoginInfo LoginInfoCtx li, @RequestBody TbUserBankAccountInfoBean bean) {
+    if (!CheckDuplicateSubmit("bank", li.getUser_id())) {
+      return Result.fail(1, "duplicate_submit");
+    }
+
     if (bean.getInfo_id() == null) {
       bean.setInfo_id(ToolUtils.getToken());
       bean.setUser_id(li.getUser_id());
@@ -269,6 +305,7 @@ public class CertController {
     } else {
       tb_user_bank_account_mapper.updateById(bean);
     }
+    ClearDuplicateSubmit("bank", li.getUser_id());
     return Result.succ("succ");
   }
 

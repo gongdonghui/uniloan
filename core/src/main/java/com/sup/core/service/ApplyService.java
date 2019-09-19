@@ -4,12 +4,16 @@ import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbApplyInfoHistoryBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.LoanFeeTypeEnum;
+import com.sup.common.mq.ApplyStateMessage;
+import com.sup.common.mq.MqTag;
+import com.sup.common.mq.MqTopic;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
 import com.sup.core.mapper.ApplyInfoHistoryMapper;
 import com.sup.core.mapper.ApplyInfoMapper;
 import lombok.extern.log4j.Log4j;
+import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -36,6 +40,9 @@ public class ApplyService {
 
     @Autowired
     private LoanService loanService;
+
+    @Autowired
+    private MqProducerService mqProducerService;
 
 
     public boolean addApplyInfo(TbApplyInfoBean bean) {
@@ -92,9 +99,18 @@ public class ApplyService {
             if (!loanService.addRepayPlan(bean)) {
                 log.error("Failed to add repay plan for applyId = " + bean.getId());
             }
+        } else if (newState == ApplyStatusEnum.APPLY_WRITE_OFF) {
+            // 还款计划也更新为核销
+            loanService.writeOffRepayPlan(bean.getId());
         }
         if (applyInfoMapper.updateById(bean) <= 0) {
             return Result.fail("update ApplyInfo failed!");
+        }
+        try {
+            sendMessage(bean);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Failed to send MQ message. e = " + e.getMessage());
         }
         TbApplyInfoHistoryBean applyInfoHistoryBean = new TbApplyInfoHistoryBean(bean);
         applyInfoHistoryBean.setCreate_time(now);
@@ -102,6 +118,20 @@ public class ApplyService {
             return Result.fail("insert into ApplyInfoHistory failed!");
         }
         return Result.succ();
+    }
+
+    protected void sendMessage(TbApplyInfoBean bean) throws Exception {
+        ApplyStateMessage asm = new ApplyStateMessage();
+        asm.setUser_id(bean.getUser_id());
+        asm.setProduct_id(bean.getProduct_id());
+        asm.setChannel_id(bean.getChannel_id());
+        asm.setApp_id(bean.getApp_id());
+        asm.setStatus(bean.getStatus());
+        asm.setDeny_code(bean.getDeny_code());
+        asm.setCreate_time(DateUtil.format(new Date(), DateUtil.DEFAULT_DATETIME_FORMAT));
+
+        Message msg = new Message(MqTopic.kUserState, MqTag.APPLY_STATUS_CHANGE,"", GsonUtil.toJson(asm).getBytes());
+        mqProducerService.sendMessage(msg);
     }
 
     protected int getInhandQuota(TbApplyInfoBean bean) {

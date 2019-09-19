@@ -1,6 +1,8 @@
 package com.sup.backend.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.backend.mapper.TbMarketPlanMapper;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.TbMarketPlanBean;
@@ -24,7 +26,7 @@ import java.util.*;
  */
 @Service
 public class MqConsumerService {
-  @Value("${rocket.consumer.endpoint")
+  @Value("${rocket.consumer.endpoint}")
   private String endpoint;
 
   @Value("${rocket.consumer.group}")
@@ -32,6 +34,9 @@ public class MqConsumerService {
 
   @Autowired
   private TbMarketPlanMapper tb_market_plan_mapper;
+
+  @Autowired
+  private SkyLineSmsService skyline_sms_service;
 
   private DefaultMQPushConsumer consumer;
 
@@ -75,12 +80,14 @@ public class MqConsumerService {
     }
     consumer.resume();
     subscribe_map = new_subs;
+    logger.info("final_topic_info:" + JSON.toJSONString(subscribe_map));
   }
 
   @PostConstruct
   public void init() throws Exception {
-    logger.info("do mqclient post_init...");
+    logger.info("init_rocket_mq_consumer: " + endpoint + "@" + group);
     consumer = new DefaultMQPushConsumer();
+    consumer.setNamesrvAddr(endpoint);
     consumer.setConsumerGroup(group);
     consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
     consumer.setConsumeThreadMax(1);
@@ -99,7 +106,7 @@ public class MqConsumerService {
         try {
           for (MessageExt msg : list) {
             UserStateMessage state_message = JSON.parseObject(msg.getBody(), UserStateMessage.class);
-            HandleMessage(state_message);
+            HandleMessage(msg.getTopic(), msg.getTags(), state_message);
           }
         } catch (Exception e) {
           System.out.println("exception: " + ToolUtils.GetTrace(e));
@@ -121,7 +128,29 @@ public class MqConsumerService {
     }).start();
   }
 
-  public void HandleMessage(UserStateMessage state_message) {
-    System.out.println(state_message.getState());
+  public void HandleMessage(String topic, String tag, UserStateMessage msg) throws Exception {
+    logger.info(String.format("[recv_msg]:[%s|%s|%s]", topic, tag, JSON.toJSONString(msg)));
+    List<TbMarketPlanBean> beans = tb_market_plan_mapper.selectList(new QueryWrapper<TbMarketPlanBean>().eq("topic", topic).eq("tag", tag).eq("status", 1).orderByAsc("priority"));
+    if (beans.isEmpty()) {
+      return;
+    }
+
+    int priority_sel = beans.get(0).getPriority();
+    for (TbMarketPlanBean bean : beans) {
+      if (priority_sel != bean.getPriority()) {
+        break;
+      }
+
+      String market_way = bean.getMarket_way();
+      if ("sms".equals(market_way)) {
+        String content = JSON.parseObject(bean.getMarket_ext()).getString("msg");
+        Map<String, String> variable = JSON.parseObject(msg.getExt(), new TypeReference<Map<String, String>>(){});
+        for (String k : variable.keySet()) {
+          content = content.replace(String.format("${%s}", k), variable.get(k));
+        }
+        logger.info("send_sms_message_content: " + content);
+        //skyline_sms_service.SendSms(ImmutableList.of(msg.getMobile()), content);
+      }
+    }
   }
 }
