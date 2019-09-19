@@ -255,6 +255,7 @@ CREATE TABLE if NOT EXISTS `tb_product_info` (
   `overdueRate` float unsigned NOT NULL COMMENT '逾期日费费',
   `gracePeriod` int(11) DEFAULT 0 COMMENT '宽限期',
   `order` int(11) DEFAULT 0 COMMENT '排列顺序',
+  `credit_class_id` int(11) DEFAULT 0 COMMENT '信用等级',
   `material_needed` varchar(128) NOT NULL DEFAULT '' COMMENT '所需资料',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`),

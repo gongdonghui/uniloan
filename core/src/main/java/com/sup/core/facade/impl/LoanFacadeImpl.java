@@ -208,7 +208,6 @@ public class LoanFacadeImpl implements LoanFacade {
             if (param.getAmount() != bean.getInhand_quota()) {
                 log.error("########### invalid loan amount ############");
                 log.error("param = " + GsonUtil.toJson(param));
-                log.error("bean  = " + GsonUtil.toJson(bean));
                 bean.setInhand_quota(param.getAmount());
             }
             bean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
@@ -242,6 +241,11 @@ public class LoanFacadeImpl implements LoanFacade {
                     ", reason: " + FunpayOrderUtil.getMessage(status)
             );
             return Result.succ();
+        }
+        if (param.getAmount() <= 0) {
+            // WTF???
+            log.error("########### invalid repay amount ############");
+            log.error("param = " + GsonUtil.toJson(param));
         }
         return repayAndUpdate(param.getApplyId(), Long.valueOf(param.getAmount()), param.getFinishTime());
     }
@@ -312,8 +316,8 @@ public class LoanFacadeImpl implements LoanFacade {
             if (!ret.isSucc()) {
                 continue;
             }
-
-            Integer status = ret.getData().getStatus();
+            PayStatusVO ps = ret.getData();
+            Integer status = ps.getStatus();
             FunpayOrderUtil.Status orderStatus = FunpayOrderUtil.getStatus(status);
             if (orderStatus == FunpayOrderUtil.Status.PROCESSING) {
                 continue;
@@ -321,9 +325,16 @@ public class LoanFacadeImpl implements LoanFacade {
             if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
                 // TODO
                 // 放款成功，检查金额？
-
+                Integer amount = ps.getAmount();
+                if (amount > 0 && amount != bean.getInhand_quota()) {
+                    // 放款金额不一致？？？
+                    log.error("########### invalid loan amount ############");
+                    log.error("PayStatusVO = " + GsonUtil.toJson(ps));
+                    log.error("ApplyInfo  = " + GsonUtil.toJson(bean));
+                    bean.setInhand_quota(amount);
+                }
                 // 更新放款时间
-                Date loanTime = DateUtil.parse(ret.getData().getSendTime(), DateUtil.NO_SPLIT_FORMAT);
+                Date loanTime = DateUtil.parse(ps.getSendTime(), DateUtil.NO_SPLIT_FORMAT);
                 bean.setLoan_time(loanTime);
                 bean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
             } else {
@@ -365,17 +376,22 @@ public class LoanFacadeImpl implements LoanFacade {
             if (!ret.isSucc()) {
                 continue;
             }
-            Integer status = ret.getData().getStatus();
+            RepayStatusVO rs = ret.getData();
+            Integer status = rs.getStatus();
             FunpayOrderUtil.Status orderStatus = FunpayOrderUtil.getStatus(status);
             if (orderStatus == FunpayOrderUtil.Status.PROCESSING) {
                 continue;
             }
             if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
                 // 还款成功，更新还款计划
-                Long repayAmount = 0L;
-                // TODO
-                // repayAmount = ret.getData().getAmount();
-                Date repayTime = DateUtil.parse(ret.getData().getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT);
+                Long repayAmount = Long.valueOf(rs.getAmount());
+                if (repayAmount <= 0) {
+                    // WTF ???
+                    log.error("########### invalid repay amount ############");
+                    log.error("RepayStatusVO = " + GsonUtil.toJson(rs));
+                    log.error("RepayPlanBean = " + GsonUtil.toJson(bean));
+                }
+                Date repayTime = DateUtil.parse(rs.getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT);
                 repayAndUpdate(bean, repayAmount, repayTime);
             } else {
                 log.error("Auto repay failed for applyId = " + bean.getId() +
