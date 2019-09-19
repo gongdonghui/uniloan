@@ -13,6 +13,7 @@ import com.sup.common.util.Result;
 import com.sup.core.mapper.RepayPlanMapper;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.List;
  */
 
 @Log4j
+@Service
 public class LoanService {
 
     @Autowired
@@ -60,7 +62,7 @@ public class LoanService {
         return false;
     }
 
-    public TbRepayPlanBean genRepayPlan(TbApplyInfoBean bean) {
+    private TbRepayPlanBean genRepayPlan(TbApplyInfoBean bean) {
 
         LoanFeeTypeEnum feeType = LoanFeeTypeEnum.getStatusByCode(bean.getFee_type());
         if (feeType == null) {

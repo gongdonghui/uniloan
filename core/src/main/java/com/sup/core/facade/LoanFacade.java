@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Create: 2019-09-05
  */
 
-@RequestMapping(value = "/loan")
+//@RequestMapping(value = "/loan")
 public interface LoanFacade {
 
     //////////////////////////////

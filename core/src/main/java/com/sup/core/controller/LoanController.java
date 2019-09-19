@@ -1,4 +1,4 @@
-package com.sup.core.facade.impl;
+package com.sup.core.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -13,6 +13,7 @@ import com.sup.common.bean.paycenter.vo.PayVO;
 import com.sup.common.bean.paycenter.vo.RepayStatusVO;
 import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.ApplyMaterialTypeEnum;
+import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.RepayPlanOverdueEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.param.FunpayCallBackParam;
@@ -21,34 +22,33 @@ import com.sup.common.service.PayCenterService;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
 import com.sup.common.util.GsonUtil;
-import com.sup.core.facade.LoanFacade;
-import com.sup.core.mapper.*;
-import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.Result;
+import com.sup.core.mapper.*;
 import com.sup.core.service.ApplyService;
 import com.sup.core.service.LoanService;
-import lombok.Data;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 
 /**
  * Project:uniloan
- * Class:  LoanFacadeImpl
+ * Class:  LoanFacade
  * <p>
  * Author: guanfeng
- * Create: 2019-09-09
+ * Create: 2019-09-05
  */
 
 @Log4j
-//@RestController
-public class LoanFacadeImpl implements LoanFacade {
-
+@RestController
+@RequestMapping(value = "/loan")
+public class LoanController {
     @Value("#{new Integer('${loan.auto-loan-retry-times}')}")
     private Integer AUTO_LOAN_RETRY_TIMES;
 
@@ -56,7 +56,7 @@ public class LoanFacadeImpl implements LoanFacade {
     private Integer QUERY_PAGE_NUM;
 
     @Autowired
-    private ApplyInfoMapper     applyInfoMapper;
+    private ApplyInfoMapper applyInfoMapper;
 
     @Autowired
     private UserBankInfoMapper userBankInfoMapper;
@@ -84,9 +84,14 @@ public class LoanFacadeImpl implements LoanFacade {
 
     private final float FLOAT_ZERO = 0.000001F;
 
+    //////////////////////////////
+    // 放款接口
+    //////////////////////////////
 
-    @Override
-    public Result autoLoan(String userId, String applyId) {
+    // auto loan
+    @ResponseBody
+    @RequestMapping(value = "autoExec", produces = "application/json;charset=UTF-8")
+    Result autoLoan(String userId, String applyId) {
         // get apply info and check apply status
         TbApplyInfoBean applyInfoBean = applyInfoMapper.selectById(applyId);
         if (applyInfoBean == null) {
@@ -96,8 +101,10 @@ public class LoanFacadeImpl implements LoanFacade {
         return autoLoan(applyInfoBean);
     }
 
-    @Override
-    public Result addRepayPlan(String userId, String applyId) {
+    // add/update/get loan plan
+    @ResponseBody
+    @RequestMapping(value = "plan/add", produces = "application/json;charset=UTF-8")
+    Result addRepayPlan(String userId, String applyId) {
         // get apply info and check apply status
         TbApplyInfoBean bean = applyInfoMapper.selectById(applyId);
         if (bean == null) {
@@ -113,24 +120,48 @@ public class LoanFacadeImpl implements LoanFacade {
         return Result.succ();
     }
 
-    @Override
-    public Result updateRepayPlan(TbRepayPlanBean bean) {
+    @ResponseBody
+    @RequestMapping(value = "plan/update", produces = "application/json;charset=UTF-8")
+    Result updateRepayPlan(@RequestBody TbRepayPlanBean bean) {
         return loanService.updateRepayPlan(bean);
     }
 
-    @Override
-    public Result getRepayPlan(String applyId) {
+    /**
+     *
+     * @param applyId
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "plan/get", produces = "application/json;charset=UTF-8")
+    Result getRepayPlan(String applyId) {
         return loanService.getRepayPlan(applyId);
     }
 
     /**
-     * 获取支付通道还款所需信息，包括支付码和链接
-     *
-     * @param repayInfo    还款参数
-     * @return 还款所需信息，包括交易码、便利店地址、流水号、交易码过期时间
+     * 手动还款
+     * @param param
+     * @return
      */
-    @Override
-    public Result getRepayInfo(@RequestBody RepayInfo repayInfo) {
+    @ResponseBody
+    @RequestMapping(value = "manualRepay", produces = "application/json;charset=UTF-8")
+    Result manualRepay(@RequestBody ManualRepayParam param) {
+        if (param.getAmount() == null || param.getAmount() <= 0) {
+            log.error("Invalid amount = " + GsonUtil.toJson(param));
+            return Result.fail("");
+        }
+        return repayAndUpdate(param.getApplyId(), Long.valueOf(param.getAmount()), param.getRepayTime());
+    }
+
+
+
+    /**
+     * 获取支付通道还款所需信息，包括支付码和链接
+     * @param repayInfo    还款参数
+     * @return  还款所需信息，包括交易码、便利店地址、流水号、交易码过期时间
+     */
+    @ResponseBody
+    @RequestMapping(value = "repayInfo/get", produces = "application/json;charset=UTF-8")
+    Result getRepayInfo(@RequestBody RepayInfo repayInfo) {
         // 检查是否已有还款信息
         QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
         TbRepayPlanBean repayPlanBean = repayPlanMapper.selectOne(
@@ -178,12 +209,12 @@ public class LoanFacadeImpl implements LoanFacade {
 
     /**
      * 支付通道放款回调接口
-     *
      * @param param
      * @return
      */
-    @Override
-    public Result payCallBack(@RequestBody FunpayCallBackParam param) {
+    @ResponseBody
+    @RequestMapping(value = "payCallBack", produces = "application/json;charset=UTF-8")
+    Result payCallBack(@RequestBody FunpayCallBackParam param) {
         // update ApplyInfo status
         TbApplyInfoBean bean = applyInfoMapper.selectOne(
                 new QueryWrapper<TbApplyInfoBean>().eq("applyId", param.getApplyId()).orderByDesc("create_time"));
@@ -220,15 +251,15 @@ public class LoanFacadeImpl implements LoanFacade {
         return applyService.updateApplyInfo(bean);
     }
 
+
     /**
      * 支付通道还款回调接口
-     *
      * @param param
      * @return
      */
-    @Override
-    public Result repayCallBack(@RequestBody FunpayCallBackParam param) {
-
+    @ResponseBody
+    @RequestMapping(value = "repayCallBack", produces = "application/json;charset=UTF-8")
+    Result repayCallBack(@RequestBody FunpayCallBackParam param) {
         if (param.getAmount() == null || param.getAmount() <= 0) {
             log.error("Invalid amount = " + GsonUtil.toJson(param));
             return Result.fail("");
@@ -250,21 +281,7 @@ public class LoanFacadeImpl implements LoanFacade {
         return repayAndUpdate(param.getApplyId(), Long.valueOf(param.getAmount()), param.getFinishTime());
     }
 
-    /**
-     * 手动还款
-     *
-     * @param param
-     * @return
-     */
-    @Override
-    public Result manualRepay(ManualRepayParam param) {
-        if (param.getAmount() == null || param.getAmount() <= 0) {
-            log.error("Invalid amount = " + GsonUtil.toJson(param));
-            return Result.fail("");
-        }
-        return repayAndUpdate(param.getApplyId(), Long.valueOf(param.getAmount()), param.getRepayTime());
-    }
-
+    ///////////////////////////////////////////////
     /**
      * 定时检查进件状态，终审通过则尝试自动放款
      */
@@ -536,8 +553,7 @@ public class LoanFacadeImpl implements LoanFacade {
         }
     }
 
-
-
+    ///////////////////////////////////////////////
     protected Result autoLoan(TbApplyInfoBean applyInfoBean) {
         String userId = String.valueOf(applyInfoBean.getUser_id());
         String applyId = String.valueOf(applyInfoBean.getId());
@@ -684,4 +700,5 @@ public class LoanFacadeImpl implements LoanFacade {
 
         return statBean;
     }
+
 }

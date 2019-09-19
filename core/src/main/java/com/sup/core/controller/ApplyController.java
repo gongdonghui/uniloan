@@ -1,16 +1,15 @@
-package com.sup.core.facade.impl;
+package com.sup.core.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.sup.common.param.ApplyInfoParam;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbApplyMaterialInfoBean;
 import com.sup.common.bean.TbProductInfoBean;
 import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.param.ApplyInfoParam;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
 import com.sup.core.bean.RiskDecisionResultBean;
-import com.sup.core.facade.ApplyFacade;
 import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.ApplyMaterialInfoMapper;
 import com.sup.core.mapper.ProductInfoMapper;
@@ -22,6 +21,9 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -29,15 +31,16 @@ import java.util.List;
 
 /**
  * Project:uniloan
- * Class:  ApplyFacadeImpl
+ * Class:  ApplyFacade
  * <p>
  * Author: guanfeng
- * Create: 2019-09-11
+ * Create: 2019-09-10
  */
 
 @Log4j
-//@RestController
-public class ApplyFacadeImpl implements ApplyFacade {
+@RestController
+@RequestMapping(value = "/apply")
+public class ApplyController {
 
     @Autowired
     private ApplyService applyService;
@@ -91,8 +94,10 @@ public class ApplyFacadeImpl implements ApplyFacade {
         }
     }
 
-    @Override
-    public Result addApplyInfo(ApplyInfoParam applyInfoParam) {
+    // add apply
+    @ResponseBody
+    @RequestMapping(value = "add", produces = "application/json;charset=UTF-8")
+    Result addApplyInfo(@RequestBody ApplyInfoParam applyInfoParam) {
         TbProductInfoBean product = productInfoMapper.selectById(applyInfoParam.getProduct_id());
         if (product == null) {
             log.error("invalid product id = " + applyInfoParam.getProduct_id());
@@ -146,8 +151,11 @@ public class ApplyFacadeImpl implements ApplyFacade {
         return Result.fail("Error in adding apply material!");
     }
 
-    @Override
-    public Result updateApplyInfo(TbApplyInfoBean bean) {
+    // audit apply
+    @ResponseBody
+    @RequestMapping(value = "update", produces = "application/json;charset=UTF-8")
+    Result updateApplyInfo(@RequestBody TbApplyInfoBean bean) {
         return applyService.updateApplyInfo(bean);
     }
+
 }

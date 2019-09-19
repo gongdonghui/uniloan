@@ -16,6 +16,7 @@ import lombok.extern.log4j.Log4j;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -30,6 +31,7 @@ import java.util.GregorianCalendar;
  */
 
 @Log4j
+@Service
 public class ApplyService {
 
     @Autowired
