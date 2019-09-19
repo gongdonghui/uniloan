@@ -273,7 +273,7 @@ public class LoanFacadeImpl implements LoanFacade {
         // 获取所有终审通过的进件
         QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<TbApplyInfoBean>()
                 .eq("status", ApplyStatusEnum.APPLY_FINAL_PASS.getCode());
-        // TODO: 应当分页处理
+        // TODO: 放款状态进件较少，可不用分页处理
         List<TbApplyInfoBean> applyInfos = applyInfoMapper.selectList(wrapper);
         if (applyInfos == null || applyInfos.size() == 0) {
             log.info("No APPLY_FINAL_PASS apply info.");
@@ -293,59 +293,62 @@ public class LoanFacadeImpl implements LoanFacade {
      */
     @Scheduled(cron = "0 */10 * * * ?")
     public void checkLoanResult() {
-        // 1. 获取所有放款中的进件
-        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<TbApplyInfoBean>()
-                .eq("status", ApplyStatusEnum.APPLY_AUTO_LOANING.getCode());
-        // TODO: 应当分页处理
-        List<TbApplyInfoBean> applyInfos = applyInfoMapper.selectList(wrapper);
-        if (applyInfos == null || applyInfos.size() == 0) {
-            log.info("No APPLY_AUTO_LOANING apply info.");
-            return;
-        }
+        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<TbApplyInfoBean>();
+        wrapper.eq("status", ApplyStatusEnum.APPLY_AUTO_LOANING.getCode());
 
-        // 2. 检查放款状态
+        Integer total = applyInfoMapper.selectCount(wrapper);
+        Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
         PayStatusInfo psi = new PayStatusInfo();
-        for (TbApplyInfoBean bean : applyInfos) {
-            if (bean.getTrade_number() == null) {
-                log.error("No trade number for applyId = " + bean.getId());
+        for (int i = 1; i <= pageCount; ++i) {
+            // 1. 获取放款中的进件
+            Page<TbApplyInfoBean> page = new Page<>(i, QUERY_PAGE_NUM, false);
+            IPage<TbApplyInfoBean> applyInfos = applyInfoMapper.selectPage(page, wrapper);
+            if (applyInfos == null || applyInfos.getSize() == 0) {
                 continue;
             }
-            psi.setApplyId(String.valueOf(bean.getId()));
-            psi.setTradeNo(bean.getTrade_number());
-            Result<PayStatusVO> ret = funpayService.payStatus(psi);
-            if (!ret.isSucc()) {
-                continue;
-            }
-            PayStatusVO ps = ret.getData();
-            Integer status = ps.getStatus();
-            FunpayOrderUtil.Status orderStatus = FunpayOrderUtil.getStatus(status);
-            if (orderStatus == FunpayOrderUtil.Status.PROCESSING) {
-                continue;
-            }
-            if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
-                // TODO
-                // 放款成功，检查金额？
-                Integer amount = ps.getAmount();
-                if (amount > 0 && amount != bean.getInhand_quota()) {
-                    // 放款金额不一致？？？
-                    log.error("########### invalid loan amount ############");
-                    log.error("PayStatusVO = " + GsonUtil.toJson(ps));
-                    log.error("ApplyInfo  = " + GsonUtil.toJson(bean));
-                    bean.setInhand_quota(amount);
+
+            // 2. 检查放款状态
+            for (TbApplyInfoBean bean : applyInfos.getRecords()) {
+                if (bean.getTrade_number() == null) {
+                    log.error("No trade number for applyId = " + bean.getId());
+                    continue;
                 }
-                // 更新放款时间
-                Date loanTime = DateUtil.parse(ps.getSendTime(), DateUtil.NO_SPLIT_FORMAT);
-                bean.setLoan_time(loanTime);
-                bean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
-            } else {
-                log.error("Auto loan failed for applyId = " + bean.getId() +
-                        ", reason: " + FunpayOrderUtil.getMessage(status)
-                );
-                bean.setStatus(ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode());
-            }
-            Result result = applyService.updateApplyInfo(bean);
-            if (!result.isSucc()) {
-                log.error("checkLoanResult: Failed to update applyId = " + bean.getId());
+                psi.setApplyId(String.valueOf(bean.getId()));
+                psi.setTradeNo(bean.getTrade_number());
+                Result<PayStatusVO> ret = funpayService.payStatus(psi);
+                if (!ret.isSucc()) {
+                    continue;
+                }
+                PayStatusVO ps = ret.getData();
+                Integer status = ps.getStatus();
+                FunpayOrderUtil.Status orderStatus = FunpayOrderUtil.getStatus(status);
+                if (orderStatus == FunpayOrderUtil.Status.PROCESSING) {
+                    continue;
+                }
+                if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
+                    // 放款成功，检查金额
+                    Integer amount = ps.getAmount();
+                    if (amount > 0 && amount != bean.getInhand_quota()) {
+                        // 放款金额不一致？？？
+                        log.error("########### invalid loan amount ############");
+                        log.error("PayStatusVO = " + GsonUtil.toJson(ps));
+                        log.error("ApplyInfo  = " + GsonUtil.toJson(bean));
+                        bean.setInhand_quota(amount);
+                    }
+                    // 更新放款时间
+                    Date loanTime = DateUtil.parse(ps.getSendTime(), DateUtil.NO_SPLIT_FORMAT);
+                    bean.setLoan_time(loanTime);
+                    bean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
+                } else {
+                    log.error("Auto loan failed for applyId = " + bean.getId() +
+                            ", reason: " + FunpayOrderUtil.getMessage(status)
+                    );
+                    bean.setStatus(ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode());
+                }
+                Result result = applyService.updateApplyInfo(bean);
+                if (!result.isSucc()) {
+                    log.error("checkLoanResult: Failed to update applyId = " + bean.getId());
+                }
             }
         }
     }
@@ -356,51 +359,56 @@ public class LoanFacadeImpl implements LoanFacade {
      */
     @Scheduled(cron = "0 */10 * * * ?")
     public void checkRepayResult() {
-        List<TbRepayPlanBean> repayPlanBeans = repayPlanMapper.selectList(
-                new QueryWrapper<TbRepayPlanBean>().eq("repay_status", RepayPlanStatusEnum.PLAN_PAID_PROCESSING.getCode())
-        );
-        if (repayPlanBeans == null || repayPlanBeans.size() == 0) {
-            log.info("No repayPlan to check!");
-            return;
-        }
-        // TODO: 应当分页处理
+        QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("repay_status", RepayPlanStatusEnum.PLAN_PAID_PROCESSING.getCode());
+
+        Integer total = repayPlanMapper.selectCount(wrapper);
+        Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
         RepayStatusInfo rsi = new RepayStatusInfo();
-        for (TbRepayPlanBean bean : repayPlanBeans) {
-            if (bean.getTrade_number() == null) {
-                log.error("No trade number for applyId = " + bean.getId());
+        for (int i = 1; i <= pageCount; ++i) {
+            Page<TbRepayPlanBean> page = new Page<>(i, QUERY_PAGE_NUM, false);
+            IPage<TbRepayPlanBean> repayPlanBeans = repayPlanMapper.selectPage(page, wrapper);
+            if (repayPlanBeans == null || repayPlanBeans.getSize() == 0) {
                 continue;
             }
-            rsi.setApplyId(String.valueOf(bean.getApply_id()));
-            rsi.setTradeNo(bean.getTrade_number());
-            Result<RepayStatusVO> ret = funpayService.repayStatus(rsi);
-            if (!ret.isSucc()) {
-                continue;
-            }
-            RepayStatusVO rs = ret.getData();
-            Integer status = rs.getStatus();
-            FunpayOrderUtil.Status orderStatus = FunpayOrderUtil.getStatus(status);
-            if (orderStatus == FunpayOrderUtil.Status.PROCESSING) {
-                continue;
-            }
-            if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
-                // 还款成功，更新还款计划
-                Long repayAmount = Long.valueOf(rs.getAmount());
-                if (repayAmount <= 0) {
-                    // WTF ???
-                    log.error("########### invalid repay amount ############");
-                    log.error("RepayStatusVO = " + GsonUtil.toJson(rs));
-                    log.error("RepayPlanBean = " + GsonUtil.toJson(bean));
+
+            for (TbRepayPlanBean bean : repayPlanBeans.getRecords()) {
+                if (bean.getTrade_number() == null) {
+                    log.error("No trade number for applyId = " + bean.getId());
+                    continue;
                 }
-                Date repayTime = DateUtil.parse(rs.getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT);
-                repayAndUpdate(bean, repayAmount, repayTime);
-            } else {
-                log.error("Auto repay failed for applyId = " + bean.getId() +
-                        ", reason: " + FunpayOrderUtil.getMessage(status)
-                );
-                bean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_ERROR.getCode());
-                Result result = loanService.updateRepayPlan(bean);
-                if (!result.isSucc()) {
-                    log.error("checkRepayResult: Failed to update repayPlan for applyId = " + bean.getApply_id());
+                rsi.setApplyId(String.valueOf(bean.getApply_id()));
+                rsi.setTradeNo(bean.getTrade_number());
+                Result<RepayStatusVO> ret = funpayService.repayStatus(rsi);
+                if (!ret.isSucc()) {
+                    continue;
+                }
+                RepayStatusVO rs = ret.getData();
+                Integer status = rs.getStatus();
+                FunpayOrderUtil.Status orderStatus = FunpayOrderUtil.getStatus(status);
+                if (orderStatus == FunpayOrderUtil.Status.PROCESSING) {
+                    continue;
+                }
+                if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
+                    // 还款成功，更新还款计划
+                    Long repayAmount = Long.valueOf(rs.getAmount());
+                    if (repayAmount <= 0) {
+                        // WTF ???
+                        log.error("########### invalid repay amount ############");
+                        log.error("RepayStatusVO = " + GsonUtil.toJson(rs));
+                        log.error("RepayPlanBean = " + GsonUtil.toJson(bean));
+                    }
+                    Date repayTime = DateUtil.parse(rs.getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT);
+                    repayAndUpdate(bean, repayAmount, repayTime);
+                } else {
+                    log.error("Auto repay failed for applyId = " + bean.getId() +
+                            ", reason: " + FunpayOrderUtil.getMessage(status)
+                    );
+                    bean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_ERROR.getCode());
+                    Result result = loanService.updateRepayPlan(bean);
+                    if (!result.isSucc()) {
+                        log.error("checkRepayResult: Failed to update repayPlan for applyId = " + bean.getApply_id());
+                    }
                 }
             }
         }
@@ -424,7 +432,6 @@ public class LoanFacadeImpl implements LoanFacade {
             productsMap.put(bean.getId(), bean);
         }
 
-        // TODO: 分页处理
         // 2. 获取所有未还清、未核销、还款中的还款计划
         Date now = new Date();
         QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
@@ -435,7 +442,7 @@ public class LoanFacadeImpl implements LoanFacade {
         Integer total = repayPlanMapper.selectCount(wrapper);
         Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
         for (int i = 1; i <= pageCount; ++i) {
-            Page<TbRepayPlanBean> page = new Page<>(i, QUERY_PAGE_NUM);
+            Page<TbRepayPlanBean> page = new Page<>(i, QUERY_PAGE_NUM, false);
             IPage<TbRepayPlanBean> repayPlanBeans = repayPlanMapper.selectPage(page, wrapper);
             if (repayPlanBeans == null || repayPlanBeans.getSize() == 0) {
                 continue;
@@ -475,25 +482,7 @@ public class LoanFacadeImpl implements LoanFacade {
      */
     @Scheduled(cron = "30 0 * * * ?")
     public void statRepayInfo() {
-        // TODO: 应当分页处理
-        // 1. 获取所有还款计划（不含未还）
-        List<TbRepayPlanBean> repayPlanBeans = repayPlanMapper.selectList(
-                new QueryWrapper<TbRepayPlanBean>().ne("repay_status", RepayPlanStatusEnum.PLAN_NOT_PAID.getCode())
-        );
-        if (repayPlanBeans == null || repayPlanBeans.size() == 0) {
-            log.info("Nothing to statistic.");
-            return;
-        }
-        // applyId => List<TbRepayPlanBean>
-        Map<Integer, List<TbRepayPlanBean>> repayPlanMap = new HashMap<>();
-        for (TbRepayPlanBean repayPlanBean : repayPlanBeans) {
-            Integer applyId = repayPlanBean.getApply_id();
-            if (!repayPlanMap.containsKey(applyId)) {
-                repayPlanMap.put(applyId, new ArrayList<>());
-            }
-            repayPlanMap.get(applyId).add(repayPlanBean);
-        }
-
+        // 1. 获取所有还款统计
         List<TbRepayStatBean> statBeans = repayStatMapper.selectList(
                 new QueryWrapper<TbRepayStatBean>().select("apply_id", "create_time")
         );
@@ -501,25 +490,47 @@ public class LoanFacadeImpl implements LoanFacade {
         for (TbRepayStatBean statBean : statBeans) {
             repayStatMap.put(statBean.getApply_id(), statBean);
         }
+        QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
+        wrapper.ne("repay_status", RepayPlanStatusEnum.PLAN_NOT_PAID.getCode());
 
-        // 2. 获取所有还款统计表中的applyId（便于识别是插入还是更新）
-        for (Integer applyId : repayPlanMap.keySet()) {
-            TbRepayStatBean statBean = repayStatMap.getOrDefault(applyId, null);
-
-            Date now = new Date();
-            if (statBean == null) {
-                statBean = statRepayPlan(applyId, repayPlanMap.get(applyId));
-                statBean.setCreate_time(now);
-                statBean.setUpdate_time(now);
-                if (repayStatMapper.insert(statBean) <= 0) {
-                    log.error("Failed to insert! bean = " + GsonUtil.toJson(statBean));
+        Integer total = repayPlanMapper.selectCount(wrapper);
+        Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
+        for (int i = 1; i <= pageCount; ++i) {
+            // 2. 获取还款计划（不含未还）
+            Page<TbRepayPlanBean> page = new Page<>(i, QUERY_PAGE_NUM, false);
+            IPage<TbRepayPlanBean> repayPlanBeans = repayPlanMapper.selectPage(page, wrapper);
+            if (repayPlanBeans == null || repayPlanBeans.getSize() == 0) {
+                continue;
+            }
+            // applyId => List<TbRepayPlanBean>
+            Map<Integer, List<TbRepayPlanBean>> repayPlanMap = new HashMap<>();
+            for (TbRepayPlanBean repayPlanBean : repayPlanBeans.getRecords()) {
+                Integer applyId = repayPlanBean.getApply_id();
+                if (!repayPlanMap.containsKey(applyId)) {
+                    repayPlanMap.put(applyId, new ArrayList<>());
                 }
-            } else {
-                statBean = statRepayPlan(statBean, repayPlanMap.get(applyId));
-                statBean.setUpdate_time(now);
-                if (repayStatMapper.update(statBean,
-                        new QueryWrapper<TbRepayStatBean>().eq("apply_id", applyId)) <= 0) {
-                    log.error("Failed to update! bean = " + GsonUtil.toJson(statBean));
+                repayPlanMap.get(applyId).add(repayPlanBean);
+            }
+
+            // 3. 获取还款统计表中的applyId（便于识别是插入还是更新）
+            for (Integer applyId : repayPlanMap.keySet()) {
+                TbRepayStatBean statBean = repayStatMap.getOrDefault(applyId, null);
+
+                Date now = new Date();
+                if (statBean == null) {
+                    statBean = statRepayPlan(applyId, repayPlanMap.get(applyId));
+                    statBean.setCreate_time(now);
+                    statBean.setUpdate_time(now);
+                    if (repayStatMapper.insert(statBean) <= 0) {
+                        log.error("Failed to insert! bean = " + GsonUtil.toJson(statBean));
+                    }
+                } else {
+                    statBean = statRepayPlan(statBean, repayPlanMap.get(applyId));
+                    statBean.setUpdate_time(now);
+                    if (repayStatMapper.update(statBean,
+                            new QueryWrapper<TbRepayStatBean>().eq("apply_id", applyId)) <= 0) {
+                        log.error("Failed to update! bean = " + GsonUtil.toJson(statBean));
+                    }
                 }
             }
         }
