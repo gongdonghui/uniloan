@@ -21,6 +21,7 @@
         <module>paycenter</module>
         <module>common</module>
         <module>core</module>
+        <module>eureka</module>
     </modules>
 
     <profiles>
