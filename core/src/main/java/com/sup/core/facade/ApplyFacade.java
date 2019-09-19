@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Create: 2019-09-10
  */
 
-//@RequestMapping(value = "/apply")
+@RequestMapping(value = "/apply")
 public interface ApplyFacade {
 
     // add apply

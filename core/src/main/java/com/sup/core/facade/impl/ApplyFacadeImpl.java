@@ -36,7 +36,7 @@ import java.util.List;
  */
 
 @Log4j
-//@RestController
+@RestController
 public class ApplyFacadeImpl implements ApplyFacade {
 
     @Autowired

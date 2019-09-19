@@ -38,8 +38,8 @@ import java.util.List;
  */
 
 @Log4j
-@RestController
-@RequestMapping(value = "/apply")
+//@RestController
+//@RequestMapping(value = "/apply")
 public class ApplyController {
 
     @Autowired

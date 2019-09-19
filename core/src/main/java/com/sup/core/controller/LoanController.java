@@ -46,8 +46,8 @@ import java.util.*;
  */
 
 @Log4j
-@RestController
-@RequestMapping(value = "/loan")
+//@RestController
+//@RequestMapping(value = "/loan")
 public class LoanController {
     @Value("#{new Integer('${loan.auto-loan-retry-times}')}")
     private Integer AUTO_LOAN_RETRY_TIMES;

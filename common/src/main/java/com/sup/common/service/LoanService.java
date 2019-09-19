@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Create: 2019-09-05
  */
 
-@FeignClient(value = "service-core-loan")
-@RequestMapping(value = "/loan")
+@FeignClient(value = "service-core-loan", path = "/loan")
+//@RequestMapping(value = "/loan")
 public interface LoanService {
 
     //////////////////////////////

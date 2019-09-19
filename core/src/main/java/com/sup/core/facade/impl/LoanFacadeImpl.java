@@ -46,7 +46,7 @@ import java.util.*;
  */
 
 @Log4j
-//@RestController
+@RestController
 public class LoanFacadeImpl implements LoanFacade {
 
     @Value("#{new Integer('${loan.auto-loan-retry-times}')}")
