@@ -125,14 +125,12 @@ public class UserController {
 
   @LoginRequired
   @ResponseBody
-  @PutMapping("upload")
+  @RequestMapping("upload")
   public Object uploadFile(@RequestParam("upload_file") MultipartFile file, @LoginInfo LoginInfoCtx li) throws Exception {
-    String tag = String.format("%d_%s", li.getUser_id(), (new SimpleDateFormat("yyyyMMddHHmmss")).format(new Date()));
-    //String abs_path = upload_path + "/" + tag;
-    //logger.info("will save to: " + abs_path);
-    //file.transferTo(new File(abs_path));
-    String file_content = CharStreams.toString(new InputStreamReader(file.getInputStream()));
-    boolean succ = ssdb.Set(tag, file_content);
+    String tag = String.format("%d_%07d_%s", RandomUtils.nextInt(1000, 9999), li.getUser_id(), (new SimpleDateFormat("yyyyMMddHHmmss")).format(new Date()));
+    byte[] binary = file.getBytes();
+    logger.info(String.format("tag => %s, file_size => %d", tag, binary.length));
+    boolean succ = ssdb.SetBytes(tag, binary);
     if (succ) {
       return Result.succ(tag);
     } else {

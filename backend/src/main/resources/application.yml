@@ -6,6 +6,7 @@ server:
   port: 10081
   tomcat:
     max-threads: 10
+  connection-timeout: 180000
 
 mybatis-plus:
   configuration:
@@ -14,8 +15,10 @@ mybatis-plus:
 sms:
   skyline:
     uri: http://sms.skylinelabs.cc:20003/sendsmsV2
-    account: xxxx
-    password: yyyy
+    account: cs_3pofo7
+    password: hJBJJ7oW
+    vip-account: cs_3pofo7
+    vip-password: hJBJJ7oW
 
 ssdb:
   host: localhost
@@ -69,5 +72,10 @@ spring:
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
             max-lifetime: 600000
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
 
 

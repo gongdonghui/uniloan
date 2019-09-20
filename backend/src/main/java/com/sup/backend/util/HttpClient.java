@@ -94,7 +94,6 @@ public class HttpClient {
         builder.addQueryParam(k, v);
       });
     }
-    //System.out.println("url: " + builder.toString());
     Future<Response> response_future = builder.execute();
     return response_future.get().getResponseBody();
   }

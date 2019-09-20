@@ -1,9 +1,11 @@
 package com.sup.backend.web;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.google.common.collect.ImmutableMap;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
@@ -20,8 +22,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -80,6 +84,7 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = {"idcard/add", "idcard/update"}, produces = "application/json;charset=UTF-8")
   public Object UpdateCIC(@LoginInfo LoginInfoCtx li, @RequestBody TbUserCitizenIdentityCardInfoBean bean) {
+    logger.info("----- recv bean: " + JSON.toJSONString(bean));
     if (!CheckDuplicateSubmit("idcard", li.getUser_id())) {
       return Result.fail(1, "duplicate_submit");
     }
@@ -95,7 +100,7 @@ public class CertController {
       tb_user_citizen_identity_card_info_mapper.updateById(bean);
     }
     ClearDuplicateSubmit("idcard", li.getUser_id());
-    return Result.succ(bean.getInfo_id());
+    return Result.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
   }
 
   @LoginRequired
@@ -117,7 +122,7 @@ public class CertController {
       old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
       mapper.insert(old_bean);
     }
-    return old_bean;
+    return Result.succ(old_bean);
   }
 
   // add/update/get user basic info
@@ -125,6 +130,7 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = {"basic/add", "basic/update"}, produces = "application/json;charset=UTF-8")
   public Object updateBasicInfo(@LoginInfo LoginInfoCtx li, @RequestBody TbUserBasicInfoBean bean) {
+    logger.info("----- recv bean: " + JSON.toJSONString(bean));
     if (!CheckDuplicateSubmit("basic", li.getUser_id())) {
       return Result.fail(1, "duplicate_submit");
     }
@@ -140,7 +146,7 @@ public class CertController {
       tb_user_basic_info_mapper.updateById(bean);
     }
     ClearDuplicateSubmit("basic", li.getUser_id());
-    return Result.succ(bean.getInfo_id());
+    return Result.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
   }
 
   @LoginRequired
@@ -162,7 +168,7 @@ public class CertController {
       old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
       mapper.insert(old_bean);
     }
-    return old_bean;
+    return Result.succ(old_bean);
   }
 
 
@@ -171,6 +177,7 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = {"contact/add", "contact/update"}, produces = "application/json;charset=UTF-8")
   public Object updateEmergencyContact(@LoginInfo LoginInfoCtx li, @RequestBody List<TbUserEmergencyContactBean> beans) {
+    logger.info("----- recv bean: " + JSON.toJSONString(beans));
     if (!CheckDuplicateSubmit("contact", li.getUser_id())) {
       return Result.fail(1, "duplicate_submit");
     }
@@ -184,6 +191,7 @@ public class CertController {
     }
     final String the_info_id = info_id;
     beans.forEach(bean -> {bean.setInfo_id(the_info_id);});
+    List<Map> rets = new ArrayList<>();
     beans.forEach(bean -> {
       if (bean.getInfo_id() == null) {
         bean.setInfo_id(ToolUtils.getToken());
@@ -195,9 +203,10 @@ public class CertController {
       } else {
         tb_user_emergency_contact_mapper.updateById(bean);
       }
+      rets.add(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
     });
     ClearDuplicateSubmit("contact", li.getUser_id());
-    return Result.succ("succ");
+    return Result.succ(rets);
   }
 
   @LoginRequired
@@ -227,7 +236,7 @@ public class CertController {
         tb_user_emergency_contact_mapper.insert(b);
       }
     }
-    return cands;
+    return Result.succ(cands);
   }
 
   @LoginRequired
@@ -245,6 +254,7 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = {"employment/add", "employment/update"}, produces = "application/json;charset=UTF-8")
   public Object updateEmploymentInfo(@LoginInfo LoginInfoCtx li, @RequestBody TbUserEmploymentInfoBean bean) {
+    logger.info("----- recv bean: " + JSON.toJSONString(bean));
     if (!CheckDuplicateSubmit("employment", li.getUser_id())) {
       return Result.fail(1, "duplicate_submit");
     }
@@ -260,7 +270,7 @@ public class CertController {
       tb_user_employment_info_mapper.updateById(bean);
     }
     ClearDuplicateSubmit("employment", li.getUser_id());
-    return Result.succ("succ");
+    return Result.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
   }
 
   @LoginRequired
@@ -282,7 +292,7 @@ public class CertController {
       old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
       mapper.insert(old_bean);
     }
-    return old_bean;
+    return Result.succ(old_bean);
   }
 
 
@@ -291,6 +301,7 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = {"bank/add", "bank/update"}, produces = "application/json;charset=UTF-8")
   public Object updateEmergencyContact(@LoginInfo LoginInfoCtx li, @RequestBody TbUserBankAccountInfoBean bean) {
+    logger.info("----- recv bean: " + JSON.toJSONString(bean));
     if (!CheckDuplicateSubmit("bank", li.getUser_id())) {
       return Result.fail(1, "duplicate_submit");
     }
@@ -306,7 +317,7 @@ public class CertController {
       tb_user_bank_account_mapper.updateById(bean);
     }
     ClearDuplicateSubmit("bank", li.getUser_id());
-    return Result.succ("succ");
+    return Result.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
   }
 
   @LoginRequired
@@ -328,7 +339,7 @@ public class CertController {
       old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
       mapper.insert(old_bean);
     }
-    return old_bean;
+    return Result.succ(old_bean);
   }
 
   @LoginRequired

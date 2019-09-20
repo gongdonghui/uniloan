@@ -3,6 +3,7 @@ package com.sup.backend.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.ImmutableList;
 import com.sup.backend.mapper.TbMarketPlanMapper;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.TbMarketPlanBean;
@@ -149,7 +150,7 @@ public class MqConsumerService {
           content = content.replace(String.format("${%s}", k), variable.get(k));
         }
         logger.info("send_sms_message_content: " + content);
-        //skyline_sms_service.SendSms(ImmutableList.of(msg.getMobile()), content);
+        skyline_sms_service.SendSms(ImmutableList.of(msg.getMobile()), content);
       }
     }
   }

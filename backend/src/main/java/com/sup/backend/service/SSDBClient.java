@@ -36,16 +36,17 @@ public class SSDBClient {
     }
   }
 
-  public String Get(String key) {
+  public byte[] GetBytes(String key) {
     Response resp =  ssdb.get(key);
     if (resp.notFound()) {
       return null;
     }
-    return resp.asString();
+    return resp.datas.get(0);
   }
 
-  public boolean Set(String key, String val) {
+  public boolean SetBytes(String key, byte[] val) {
     Response resp = ssdb.set(key, val);
     return resp.ok();
   }
+
 }

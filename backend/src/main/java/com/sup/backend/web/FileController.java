@@ -37,14 +37,7 @@ public class FileController {
   @ResponseBody
   @RequestMapping(value = "image/get", produces = MediaType.IMAGE_JPEG_VALUE)
   public byte[] GetFile(@RequestParam("key") String key) {
-    return ssdbClient.Get(key).getBytes();
-  }
-
-  @ResponseBody
-  @RequestMapping(value="test", produces = "application/json;charset=UTF-8")
-  public Object Test(@RequestParam("key") String key, @RequestParam("value") String value) {
-    ssdbClient.Set(key, value);
-    return Result.succ("ok");
+    return ssdbClient.GetBytes(key);
   }
 }
 

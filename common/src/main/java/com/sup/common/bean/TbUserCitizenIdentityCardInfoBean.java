@@ -22,7 +22,7 @@ public class TbUserCitizenIdentityCardInfoBean {
   private String info_id;
   private Integer user_id;
   private String name;
-  private String cic_no;
+  private String cid_no;
   private Integer gender;
   private String pic_1;
   private String pic_2;

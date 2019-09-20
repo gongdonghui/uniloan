@@ -44,6 +44,6 @@ public class ProductController {
       api.setMaterial_needed(bean.getMaterial_needed());
       ret_beans.add(api);
     });
-    return Result.succ(beans);
+    return Result.succ(ret_beans);
   }
 }
