@@ -114,7 +114,7 @@ CREATE TABLE if NOT EXISTS `tb_channel_info` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '渠道id',
   `type` varchar(32) NOT NULL DEFAULT '' COMMENT '渠道类型',
   `name` varchar(32) NOT NULL DEFAULT '' COMMENT '渠道名称',
-  `status` varchar(32) NOT NULL DEFAULT '' COMMENT '渠道状态',
+  `status` int(10) NOT NULL COMMENT '渠道状态',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_type` (`type`),
@@ -386,7 +386,7 @@ CREATE TABLE if NOT EXISTS `tb_user_basic_info` (
   `residence_city` smallint(6) NOT NULL DEFAULT '0' COMMENT '居住城市 0|河内  1|河外',
   `residence_addr` varchar(256) NOT NULL COMMENT '详细居住地址',
   `residen_duration` tinyint(4) NOT NULL DEFAULT '0' COMMENT '居住时长 0|3个月  1|6个月',
-  `purpose` tinyint(4) NOT NULL DEFAULT '0' COMMENT '用途 0|旅游  1|买车',
+  `purpose` tinyint(4) NOT NULL DEFAULT '0' COMMENT '用途 0|旅游  1|买车 2|其他',
   `purpose_other` varchar(128) NOT NULL DEFAULT '' COMMENT '用途其他 如果需要用户填写',
   `zalo_id` varchar(64) NOT NULL DEFAULT '' COMMENT 'zalo id',
   `age` tinyint(4) NOT NULL DEFAULT '0' COMMENT '年龄',
@@ -474,7 +474,7 @@ CREATE TABLE if NOT EXISTS `tb_user_regist_info` (
   KEY `idx_mobile` (`mobile`),
   KEY `idx_create_time` (`create_time`),
   KEY `idx_channel_id` (`channel_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1001 DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'tb_user_sns_info'
 DROP TABLE tb_user_sns_info;
