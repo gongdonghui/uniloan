@@ -1,0 +1,67 @@
+{
+  "general_city": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  },
+  "general_gender": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  },
+  "general_bank": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  },
+  "general_account_type": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  },
+  "basic_education": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  },
+  "basic_marriage": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  },
+  "basic_age": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  },
+  "basic_children_count": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  },
+  "basic_purpose": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  },
+  "basic_residence_duration": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  },
+  "emergency_relationship": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  },
+  "employment_job_occupation": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  },
+  "employment_income": {
+    "id": [1],
+    "en": ["1"],
+    "vi": ["1"]
+  }
+}

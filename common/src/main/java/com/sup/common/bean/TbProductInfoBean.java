@@ -23,7 +23,7 @@ public class TbProductInfoBean {
   @TableId(type = IdType.AUTO)
   private Integer id;
   private String name;
-  private String desc;
+  private String product_desc;
   private Integer status;
   private Float   rate;
   private Integer min_quota;
@@ -34,8 +34,8 @@ public class TbProductInfoBean {
   private Integer value_date_type; // 起息日方式，0:到账后计息，1:终审通过后计息
   private Float   fee;
   private Integer fee_type;     // 服务费收取方式，0:先扣除服务费，1:先扣除服务费和利息，2:到期扣除服务费和利息
-  private Float   overdueRate;  // 逾期日费率
-  private Integer gracePeriod;  // 宽限期
+  private Float   overdue_rate;  // 逾期日费率
+  private Integer grace_period;  // 宽限期
   private Integer order;        // 排列顺序
   private Integer credit_class_id;        // 信用等级id
   private String material_needed;

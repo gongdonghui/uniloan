@@ -469,18 +469,18 @@ public class LoanController {
                 boolean isOverdue = bean.getIs_overdue() == RepayPlanOverdueEnum.PLAN_OVER_DUE.getCode();
                 Integer productId = bean.getProduct_id();
                 TbProductInfoBean productInfoBean = productsMap.getOrDefault(productId, null);
-                if (productInfoBean == null || productInfoBean.getOverdueRate() == null) {
+                if (productInfoBean == null || productInfoBean.getOverdue_rate() == null) {
                     log.error("[FATAL] No product found or rate not set for productId = " + productId);
                     continue;
                 }
                 // 最后还款日期为：截止日期+宽限期
-                Date repay_end_date = DateUtil.getDate(bean.getRepay_end_date(), productInfoBean.getGracePeriod());
+                Date repay_end_date = DateUtil.getDate(bean.getRepay_end_date(), productInfoBean.getGrace_period());
                 boolean isLate = DateUtil.compareDate(repay_end_date, now) < 0;
                 if (!isOverdue || !isLate) {
                     continue;
                 }
                 bean.setIs_overdue(RepayPlanOverdueEnum.PLAN_OVER_DUE.getCode());
-                Float rate = productInfoBean.getOverdueRate();
+                Float rate = productInfoBean.getOverdue_rate();
                 Long ori_total = bean.getNeed_total();
                 Long ori_penalty_interest = bean.getNeed_penalty_interest();
                 int  new_penalty_interest = (int) (bean.getNeed_principal() * rate);

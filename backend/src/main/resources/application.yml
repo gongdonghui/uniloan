@@ -48,11 +48,12 @@ spring:
   redis:
     database: 0
     host: 127.0.0.1
-    port: 6379
+    port: 6388
     jedis:
       pool:
         max-active: 8
     timeout: 60000
+    password: dss_worker
 
   datasource:
     dynamic:
@@ -68,11 +69,5 @@ spring:
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
             max-lifetime: 600000
-
-        buyt:
-          username: root
-          password: root
-          url: 'jdbc:mysql://localhost:3306/buyt_new?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
-          driver-class-name: com.mysql.jdbc.Driver
 
 
