@@ -40,7 +40,7 @@ public class TbApplyInfoHistoryBean {
     public TbApplyInfoHistoryBean() {}
 
     public TbApplyInfoHistoryBean(TbApplyInfoBean bean) {
-        this.app_id = bean.getId();
+        this.apply_id = bean.getId();
         this.user_id = bean.getUser_id();
         this.product_id = bean.getProduct_id();
         this.channel_id = bean.getChannel_id();
