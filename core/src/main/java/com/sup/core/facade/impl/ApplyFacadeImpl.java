@@ -59,40 +59,22 @@ public class ApplyFacadeImpl implements ApplyFacade {
     private Integer APPLY_EXPIRE_DAYS;
 
 
-    @Scheduled(cron = "0 */10 * * * ?")
-    public void checkApplyInfo() {
-        // 1. 获取所有新提交的进件
-        List<TbApplyInfoBean> applyInfoBeans = applyInfoMapper.selectList(
-                new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_INIT.getCode())
-        );
-
-        if (applyInfoBeans == null || applyInfoBeans.size() == 0) {
-            return;
-        }
-        AutoDecisionParam param = new AutoDecisionParam();
-        for (TbApplyInfoBean bean : applyInfoBeans) {
-            param.setApplyId(String.valueOf(bean.getId()));
-            param.setProductId(String.valueOf(bean.getProduct_id()));
-            param.setUserId(String.valueOf(bean.getUser_id()));
-            // 2. 自动审查
-            RiskDecisionResultBean result = decisionEngine.applyRules(param);
-            if (result == null) {
-                // Exception??
-                log.error("DecisionEngine return null for param = " + GsonUtil.toJson(param));
-                bean.setStatus(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
-            } else if (result.getRet() == DecisionEngineStatusEnum.APPLY_DE_AUTO_PASS.getCode()) {
-                bean.setStatus(ApplyStatusEnum.APPLY_AUTO_PASS.getCode());
-            } else {
-                bean.setStatus(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
-                bean.setDeny_code(result.getRefuse_code());
-            }
-            // 3. 更新进件状态
-            applyService.updateApplyInfo(bean);
-        }
-    }
-
     @Override
     public Result addApplyInfo(ApplyInfoParam applyInfoParam) {
+        // 检测是否重复提交
+        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", applyInfoParam.getUser_id());
+        wrapper.eq("product_id", applyInfoParam.getProduct_id());
+        wrapper.eq("channel_id", applyInfoParam.getChannel_id());
+        wrapper.eq("app_id", applyInfoParam.getApp_id());
+        wrapper.orderByDesc("create_time");
+        TbApplyInfoBean oldApply = applyInfoMapper.selectOne(wrapper);
+        if (oldApply != null) {
+            if (oldApply.getStatus() == ApplyStatusEnum.APPLY_INIT.getCode()) {
+                return Result.fail("Duplicated Apply!");
+            }
+        }
+
         TbProductInfoBean product = productInfoMapper.selectById(applyInfoParam.getProduct_id());
         if (product == null) {
             log.error("invalid product id = " + applyInfoParam.getProduct_id());
