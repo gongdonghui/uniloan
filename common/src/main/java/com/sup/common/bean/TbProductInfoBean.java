@@ -36,7 +36,7 @@ public class TbProductInfoBean {
   private Integer fee_type;     // 服务费收取方式，0:先扣除服务费，1:先扣除服务费和利息，2:到期扣除服务费和利息
   private Float   overdue_rate;  // 逾期日费率
   private Integer grace_period;  // 宽限期
-  private Integer order;        // 排列顺序
+  private Integer product_order;        // 排列顺序
   private Integer credit_class_id;        // 信用等级id
   private String material_needed;
   private Date create_time;
