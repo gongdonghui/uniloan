@@ -46,6 +46,9 @@ param: upload_file: 文件
 return:  tag  // 字符串标示，代表该文件，可以理解为 服务器文件路径
 
 
+显示图片：
+uri:  /file/image/get?key=${tag}
+tag 之前存储返回的字符串， 可以从数据库的 pic_1, pic_2 等字段获得 
 
 
 
@@ -71,6 +74,24 @@ return:  tag  // 字符串标示，代表该文件，可以理解为 服务器�
 
 
 
+得到身份证：
+uri: /cert/idcard/get 
+type: json 
+param: 
+return:
+{
+  private Integer id;        // item id     
+  private String info_id;   // 组id 
+  private String name;
+  private String cic_no;   
+  private Integer gender;  // 性别：  0 男 1 女 
+  private String pic_1;
+  private String pic_2;
+  private String pic_3;
+  private String pic_4;
+}
+
+
 
 上传身份证：
 uri:  /cert/idcard/add 
@@ -85,8 +106,30 @@ param:
   private String pic_3;
   private String pic_4;
 }
-return:   info_id    // 字符串，标示资料，提交申请的时候，回传 
+return:   {"info_id": "xxxx", "id": 12332}    
+// 返回两个id， 如果后面要修改，将 info_id, id 放到 param， 仍然使用该 uri 回传即可, 后端会根据 param 里面有没有 info_id, id 决定是修改还是添加 
 
+
+
+得到基本信息：
+uri: /cert/basic/get 
+type: json 
+param:
+return:
+{
+  private Integer id;
+  private String info_id;
+  private Integer education;  学历   0|小学 1|初中 2|高中 3|中间 4|学院 5|综合性大学 6|大学后
+  private Integer marriage;  婚姻状态    0|已婚 1|单身 2|离异 3|丧偶
+  private Integer children_count;  子女个数
+  private Integer residence_city;  居住城市 0|河内  1|河外
+  private String residence_addr; 详细居住地址
+  private Integer residence_duration; 居住时长 0|3个月  1|6个月
+  private Integer purpose;  用途 0|旅游  1|买车
+  private String purpose_other; 用途其他 如果需要用户填写
+  private String zalo_id; 年龄
+  private Integer age;  
+}
 
 
 
@@ -106,8 +149,25 @@ param:
   private String zalo_id; 年龄
   private Integer age;  
 }
-return info_id 
+return:   {"info_id": "xxxx", "id": 12332}    
+// 返回两个id， 如果后面要修改，将 info_id, id 放到 param， 仍然使用该 uri 回传即可, 后端会根据 param 里面有没有 info_id, id 决定是修改还是添加 
 
+
+
+得到紧急联系人：
+uri: /cert/contact/get 
+type: json 
+param:
+return:
+[
+  {
+    private Integer id;
+    private String info_id;
+    private Integer relationship;  关系 0|父母 1|同事
+    private String name; 紧急联系人姓名
+    private String mobile;  紧急联系人电话
+  }
+]
 
 
 紧急联系人上传：
@@ -121,8 +181,44 @@ param:
     private String mobile;  紧急联系人电话
   }
 ]
-return info_id  
+return:   [{"info_id": "xxxx", "id": 12332}]    
+返回数组中的信息 和  请求的数组的顺序是 一一对应的 ！！
+// 返回两个id， 如果后面要修改，将 info_id, id 放到 param， 仍然使用该 uri 回传即可, 后端会根据 param 里面有没有 info_id, id 决定是修改还是添加 
 
+
+
+删除联系人：每次删除一位！！
+uri: /cert/contact/del 
+type: json 
+param:
+{
+  private Integer id      // 必填， 其余可不填
+  private String info_id 
+  private Integer relationship;  关系 0|父母 1|同事
+  private String name; 紧急联系人姓名
+  private String mobile;  紧急联系人电话
+}
+return "succ" 
+
+
+
+
+得到职业信息：
+uri: /cert/employment/get 
+type: json 
+param:
+return:
+{
+  private Integer id;
+  private String info_id;
+  private String company;  任职公司名称
+  private Integer company_city;  公司所在区域 0|河内 1|河外
+  private String company_addr; 公司详细地址
+  private String phone; 公司联系电话
+  private Integer job_occupation; 职业类型 0|工程师  1|服务行业
+  private Integer income; 收入状态 0|1~100  1|100~1000
+  private String work_pic;   工作照片
+}
 
 
 
@@ -139,8 +235,25 @@ param:
   private Integer income; 收入状态 0|1~100  1|100~1000
   private String work_pic;   工作照片
 }
-return info_id 
+return:   {"info_id": "xxxx", "id": 12332}    
+// 返回两个id， 如果后面要修改，将 info_id, id 放到 param， 仍然使用该 uri 回传即可, 后端会根据 param 里面有没有 info_id, id 决定是修改还是添加 
 
+
+
+
+得到银行卡：
+uri: /cert/bank/get 
+type: json 
+param:
+return: 
+{
+  private Integer id;
+  private String info_id;
+  private Integer account_type; 账户类型  0|借记卡 1|信用卡
+  private String name;  持卡人姓名
+  private Integer bank; 银行名称 0|xx_bank  1|yy_bank
+  private String account_id;  银行账号
+}
 
 
 银行账号上传
@@ -153,6 +266,11 @@ param:
   private Integer bank; 银行名称 0|xx_bank  1|yy_bank
   private String account_id;  银行账号
 }
+return:   {"info_id": "xxxx", "id": 12332}    
+// 返回两个id， 如果后面要修改，将 info_id, id 放到 param， 仍然使用该 uri 回传即可, 后端会根据 param 里面有没有 info_id, id 决定是修改还是添加 
+
+
+
 
 
 待还订单列表：
