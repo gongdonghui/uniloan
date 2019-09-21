@@ -44,6 +44,7 @@ public class TbApplyInfoBean {
     private String  deny_code;
     private String  comment;
     private String  trade_number;   // 自动放款流水号
+    private Integer asset_level;    // 资产登记，参见AssetLevelEnum
     private Date    create_time;    // 申请时间
     private Date    expire_time;    // 申请失效时间
     private Date    pass_time;      // 终审通过时间
