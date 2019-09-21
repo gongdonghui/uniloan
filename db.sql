@@ -626,6 +626,7 @@ CREATE TABLE `tb_manual_repay` (
 CREATE TABLE `tb_core_assets_level_ruels` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `between_paydays` int(11) DEFAULT NULL COMMENT '距离还款日的天数',
-  `level` varchar(255) DEFAULT NULL COMMENT '资产等级',
+  `level` int(11) DEFAULT NULL COMMENT '资产等级',
+  `level_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
