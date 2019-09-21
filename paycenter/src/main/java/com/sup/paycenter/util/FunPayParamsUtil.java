@@ -17,7 +17,7 @@ public class FunPayParamsUtil {
         String sign = sign(m, secretKey);
         m.put("sign", sign);
         String s = map2String(m);
-        return Base64.getEncoder().encodeToString(s.getBytes());
+        return Base64.getUrlEncoder().encodeToString(s.getBytes());
     }
 
     public static String params4Post(Map<String, String> m, String secretKey) {
@@ -29,7 +29,7 @@ public class FunPayParamsUtil {
     private static String sign(Map<String, String> m, String secretKey) {
         TreeMap<String, String> params = new TreeMap<>();
         m.forEach((k, v) -> params.put(k, v));
-        String s = map2String(m);
+        String s = map2String(params);
         s = s + secretKey;
         return DigestUtils.md5DigestAsHex(s.getBytes()).toUpperCase();
     }
