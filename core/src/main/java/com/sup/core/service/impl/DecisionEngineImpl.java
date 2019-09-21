@@ -7,6 +7,7 @@ import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.DecesionEngine;
+import com.sup.core.util.OverdueUtils;
 import com.sup.core.util.RiskVariableConstants;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,36 +89,6 @@ public class DecisionEngineImpl implements DecesionEngine {
         }
     }
 
-    private OverdueInfoBean getMaxOverdueDays(String userId) {
-
-
-        List<TbRepayPlanBean> plans = this.repayPlanInfoMapper.selectList(new QueryWrapper<TbRepayPlanBean>().eq("user_id", Integer.parseInt(userId)).orderByAsc("repay_start_date"));
-        if (plans.isEmpty()) {
-            return null;
-        }
-        int times = 0;
-        int max_days = 0;
-        int latest_days = -1;
-        for (TbRepayPlanBean repayPlanBean : plans) {
-            Date repay_date = repayPlanBean.getRepay_time();
-            Date repay_end_date = repayPlanBean.getRepay_end_date();
-            if (repay_date != null) {
-                int days = DateUtil.daysbetween(repay_end_date, repay_date);
-                if (days > 0) {
-                    times++;
-                    max_days = days > max_days ? days : max_days;
-                    if (latest_days < 0)
-                        latest_days = days;    //latest overdue days
-                }
-            }
-        }
-        OverdueInfoBean ret = new OverdueInfoBean();
-        ret.setTimes(times);
-        ret.setMax_days(max_days);
-        ret.setLatest_days(latest_days);
-        return ret;
-
-    }
 
     private ContractInfo getContractInfo(String mobile) {
         TbUserRegistInfoBean userRegistInfoBean = this.tbUserRegistInfoMapper.selectOne(new QueryWrapper<TbUserRegistInfoBean>().eq("mobile", mobile));
@@ -125,7 +96,7 @@ public class DecisionEngineImpl implements DecesionEngine {
             Integer userid = userRegistInfoBean.getId();
             List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("user_id", userid));
             int apply_times = applyInfoBeanList.size();
-            OverdueInfoBean overdueInfoBean = this.getMaxOverdueDays(Integer.toString(userid));
+            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(Integer.toString(userid), this.repayPlanInfoMapper);
             ContractInfo ret = new ContractInfo();
             ret.setOverdue_times(overdueInfoBean.getTimes());
             ret.setApply_times(apply_times);
@@ -177,7 +148,7 @@ public class DecisionEngineImpl implements DecesionEngine {
         }
 
         if (!basic_info_id.isEmpty()) {
-            UserBasicInfoBean userBasicInfoBean = userBasicInfoMapper.selectOne(new QueryWrapper<UserBasicInfoBean>().eq("info_id", basic_info_id));
+            TbUserBasicInfoBean userBasicInfoBean = userBasicInfoMapper.selectOne(new QueryWrapper<TbUserBasicInfoBean>().eq("info_id", basic_info_id));
             if (userBasicInfoBean != null) {
 
                 riskBean.put(RiskVariableConstants.AGE, Double.valueOf(userBasicInfoBean.getAge()));
@@ -193,7 +164,7 @@ public class DecisionEngineImpl implements DecesionEngine {
                 riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(last_dey_days));
             }
 
-            OverdueInfoBean overdueInfoBean = getMaxOverdueDays(userId);
+            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(userId, this.repayPlanInfoMapper);
             if (overdueInfoBean != null) { //overdue  days
 
                 riskBean.put(RiskVariableConstants.MAX_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getMax_days()));
@@ -218,7 +189,7 @@ public class DecisionEngineImpl implements DecesionEngine {
             }
         }
 
-        if(!eme_info_id.isEmpty()) {
+        if (!eme_info_id.isEmpty()) {
 
             List<UserEmergencyContactInfoBean> emeList = this.userEmergencyContactInfoMapper.selectList(new QueryWrapper<UserEmergencyContactInfoBean>().eq("info_id", eme_info_id));
             if (!emeList.isEmpty()) {
