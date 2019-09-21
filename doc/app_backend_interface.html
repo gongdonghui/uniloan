@@ -356,6 +356,36 @@ param:
 return: apply_id // interger， 申请成功的applyid
 
 
+sdk 上传gps:
+uri: /sdk/loc/new
+type: json
+param:
+{
+private String apply_long;
+private String apply_lat;
+private String device_id;
+private String mobile;
+}
+return "succ"
+
+
+sdk上传联系人：
+uri: /sdk/contract/new
+type: json
+param:
+[
+{
+private Integer id;
+private String device_id;
+private String mobile;
+private String contract_name;
+private String contract_info;
+private String contract_memo;
+}
+]
+return "succ"
+
+
 
 
 
