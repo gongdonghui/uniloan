@@ -24,7 +24,7 @@ CREATE TABLE if NOT EXISTS `tb_operation_task` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `apply_id` int(10) NOT NULL COMMENT '进件申请id',
   `operator_id` int(11) DEFAULT NULL COMMENT '操作者id',
-  `distributor_id` int(10) NOT NULL COMMENT '指派人id',
+  `distributor_id` int(10) DEFAULT NULL COMMENT '指派人id',
   `task_type` tinyint NOT NULL COMMENT '任务类型，0:初审，1:复审，2:终审，3:逾期（未还）',
   `status` int(10) NOT NULL COMMENT '任务状态：0:未审，1:已审，2:回收',
   `comment` varchar(256) DEFAULT NULL COMMENT '备注',

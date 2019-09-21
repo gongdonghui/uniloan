@@ -2,8 +2,10 @@ package com.sup.core.service;
 
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbApplyInfoHistoryBean;
+import com.sup.common.bean.TbOperationTaskBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.LoanFeeTypeEnum;
+import com.sup.common.loan.OperationTaskTypeEnum;
 import com.sup.common.mq.ApplyStateMessage;
 import com.sup.common.mq.MqTag;
 import com.sup.common.mq.MqTopic;
@@ -12,6 +14,7 @@ import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
 import com.sup.core.mapper.ApplyInfoHistoryMapper;
 import com.sup.core.mapper.ApplyInfoMapper;
+import com.sup.core.mapper.OperationTaskMapper;
 import lombok.extern.log4j.Log4j;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +39,13 @@ public class ApplyService {
 
     @Autowired
     private ApplyInfoMapper applyInfoMapper;
-
     @Autowired
     private ApplyInfoHistoryMapper applyInfoHistoryMapper;
+    @Autowired
+    private OperationTaskMapper operationTaskMapper;
 
     @Autowired
     private LoanService loanService;
-
     @Autowired
     private MqProducerService mqProducerService;
 
@@ -81,32 +84,68 @@ public class ApplyService {
             );
             return Result.fail("invalid status!");
         }
-        log.info("updateApplyInfo: bean = " + GsonUtil.toJson(bean) +
+        log.debug("updateApplyInfo: bean = " + GsonUtil.toJson(bean) +
                 ", new status = " + newState.getCodeDesc()
         );
         // TODO: should check the status order here to avoid invalid operation
 
         Date now = new Date();
         bean.setUpdate_time(now);
-        if (newState == ApplyStatusEnum.APPLY_INIT) {
-            bean.setCreate_time(now);
-        } else if (newState == ApplyStatusEnum.APPLY_FINAL_PASS) {
-            bean.setInhand_quota(getInhandQuota(bean));
-            bean.setPass_time(now);
-        } else if (newState == ApplyStatusEnum.APPLY_LOAN_SUCC) {
-            if (bean.getLoan_time() == null) {
-                // 手动放款时，放款时间可能为空
-                bean.setLoan_time(now);
-            }
-            if (!loanService.addRepayPlan(bean)) {
-                log.error("Failed to add repay plan for applyId = " + bean.getId());
-            }
-        } else if (newState == ApplyStatusEnum.APPLY_WRITE_OFF) {
-            // 还款计划也更新为核销
-            loanService.writeOffRepayPlan(bean.getId());
+        TbOperationTaskBean taskBean = null;
+        switch (newState) {  // 对特定状态，做相应的更新
+            case APPLY_INIT:
+                bean.setCreate_time(now);
+                break;
+            case APPLY_AUTO_PASS:   // 自动审核通过，添加初审任务
+                taskBean = new TbOperationTaskBean();
+                taskBean.setApply_id(bean.getId());
+                taskBean.setTask_type(OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode());
+                taskBean.setCreate_time(now);
+                if (operationTaskMapper.insert(taskBean) <= 0) {
+                    log.error("Failed to add operation task, bean = " + GsonUtil.toJson(taskBean));
+                }
+                break;
+            case APPLY_FIRST_PASS:  // 初审通过，添加终审任务
+                taskBean = new TbOperationTaskBean();
+                taskBean.setApply_id(bean.getId());
+                taskBean.setTask_type(OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode());
+                taskBean.setCreate_time(now);
+                if (operationTaskMapper.insert(taskBean) <= 0) {
+                    log.error("Failed to add operation task, bean = " + GsonUtil.toJson(taskBean));
+                }
+                break;
+//            case APPLY_SECOND_PASS: // 暂不使用
+//                break;
+            case APPLY_FINAL_PASS:  // 终审通过，更新到手金额
+                bean.setInhand_quota(getInhandQuota(bean));
+                bean.setPass_time(now);
+                break;
+            case APPLY_LOAN_SUCC:   // 放款成功，生成还款计划
+                if (bean.getLoan_time() == null) { // 手动放款时，放款时间可能为空
+                    bean.setLoan_time(now);
+                }
+                if (!loanService.addRepayPlan(bean)) {
+                    log.error("Failed to add repay plan for applyId = " + bean.getId());
+                }
+                break;
+            case APPLY_OVERDUE:     // 逾期，添加逾期任务
+                taskBean = new TbOperationTaskBean();
+                taskBean.setApply_id(bean.getId());
+                taskBean.setTask_type(OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+                taskBean.setCreate_time(now);
+                if (operationTaskMapper.insert(taskBean) <= 0) {
+                    log.error("Failed to add operation task, bean = " + GsonUtil.toJson(taskBean));
+                }
+                break;
+            case APPLY_WRITE_OFF:   // 还款计划也更新为核销
+                loanService.writeOffRepayPlan(bean.getId());
+                break;
+            default:
+                break;
         }
+
         if (applyInfoMapper.updateById(bean) <= 0) {
-            return Result.fail("update ApplyInfo failed!");
+            return Result.fail("update ApplyInfo failed! bean = " + GsonUtil.toJson(bean));
         }
         try {
             sendMessage(bean);
@@ -117,7 +156,7 @@ public class ApplyService {
         TbApplyInfoHistoryBean applyInfoHistoryBean = new TbApplyInfoHistoryBean(bean);
         applyInfoHistoryBean.setCreate_time(now);
         if (applyInfoHistoryMapper.insert(applyInfoHistoryBean) <= 0) {
-            return Result.fail("insert into ApplyInfoHistory failed!");
+            return Result.fail("insert into ApplyInfoHistory failed! bean = " + GsonUtil.toJson(applyInfoHistoryBean));
         }
         return Result.succ();
     }
