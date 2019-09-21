@@ -33,4 +33,5 @@ public class TbUserBasicInfoBean {
   private Integer age;
   private Date create_time;
   private Date expire_time;
+  private Integer  credit_level;
 }

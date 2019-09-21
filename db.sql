@@ -18,18 +18,23 @@ CREATE TABLE if NOT EXISTS `tb_app_version` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Create syntax for TABLE 'tb_apply_assignment'
-DROP TABLE tb_apply_assignment;
-CREATE TABLE if NOT EXISTS `tb_apply_assignment` (
+-- Create syntax for TABLE 'tb_operation_task'
+DROP TABLE tb_operation_task;
+CREATE TABLE if NOT EXISTS `tb_operation_task` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `operator_id` int(11) DEFAULT NULL COMMENT '操作者id',
   `apply_id` int(10) NOT NULL COMMENT '进件申请id',
+  `operator_id` int(11) DEFAULT NULL COMMENT '操作者id',
   `distributor_id` int(10) NOT NULL COMMENT '指派人id',
-  `status` int(10) NOT NULL COMMENT '分配状态：0:未审，1:已审，2:回收',
+  `task_type` tinyint NOT NULL COMMENT '任务类型，0:初审，1:复审，2:终审，3:逾期（未还）',
+  `status` int(10) NOT NULL COMMENT '任务状态：0:未审，1:已审，2:回收',
   `comment` varchar(256) DEFAULT NULL COMMENT '备注',
   `create_time` datetime NOT NULL COMMENT '记录创建时间',
-  `expire_time` datetime NOT NULL COMMENT '操作截止时间',
+  `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '操作截止时间',
+  `update_time` datetime NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`),
+  KEY `idx_apply_id` (`apply_id`),
+  KEY `idx_operator_id` (`operator_id`),
+  KEY `idx_task_type` (`task_type`),
   KEY `idx_status` (`status`),
   KEY `idx_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -58,6 +63,7 @@ CREATE TABLE if NOT EXISTS `tb_apply_info` (
   `deny_code` varchar(8) DEFAULT NULL COMMENT '拒贷码，根据阶段不一样，取值也不一样',
   `comment` varchar(256) DEFAULT NULL COMMENT '备注',
   `trade_number` varchar(256) DEFAULT NULL COMMENT '自动放款流水号',
+  `asset_level` int(8)  DEFAULT  NULL COMMENT '资产等级，0'
   `create_time` datetime NOT NULL COMMENT '申请时间',
   `expire_time` datetime NOT NULL COMMENT '申请失效时间',
   `pass_time` datetime DEFAULT NULL COMMENT '终审通过时间',
@@ -68,7 +74,10 @@ CREATE TABLE if NOT EXISTS `tb_apply_info` (
   KEY `idx_status` (`status`),
   KEY `idx_create_time` (`create_time`),
   KEY `idx_pass_time` (`pass_time`),
-  KEY `idx_loan_time` (`loan_time`)
+  KEY `idx_loan_time` (`loan_time`),
+  KEY `idx_credit_class` (`credit_class`),
+  KEY `idx_deny_code` (`deny_code`),
+  KEY `idx_asset_level` (`asset_level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'tb_apply_info_history'
@@ -376,7 +385,7 @@ CREATE TABLE if NOT EXISTS `tb_user_bank_account_info` (
 
 -- Create syntax for TABLE 'tb_user_basic_info'
 DROP TABLE tb_user_basic_info;
-CREATE TABLE if NOT EXISTS `tb_user_basic_info` (
+CREATE TABLE `tb_user_basic_info` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `info_id` varchar(32) NOT NULL COMMENT '资料标识id',
   `user_id` int(10) NOT NULL COMMENT '关联用户id',
@@ -386,7 +395,7 @@ CREATE TABLE if NOT EXISTS `tb_user_basic_info` (
   `residence_city` smallint(6) NOT NULL DEFAULT '0' COMMENT '居住城市 0|河内  1|河外',
   `residence_addr` varchar(256) NOT NULL COMMENT '详细居住地址',
   `residen_duration` tinyint(4) NOT NULL DEFAULT '0' COMMENT '居住时长 0|3个月  1|6个月',
-  `purpose` tinyint(4) NOT NULL DEFAULT '0' COMMENT '用途 0|旅游  1|买车 2|其他',
+  `purpose` tinyint(4) NOT NULL DEFAULT '0' COMMENT '用途 0|旅游  1|买车',
   `purpose_other` varchar(128) NOT NULL DEFAULT '' COMMENT '用途其他 如果需要用户填写',
   `zalo_id` varchar(64) NOT NULL DEFAULT '' COMMENT 'zalo id',
   `age` tinyint(4) NOT NULL DEFAULT '0' COMMENT '年龄',
@@ -394,11 +403,12 @@ CREATE TABLE if NOT EXISTS `tb_user_basic_info` (
   `latitude` float DEFAULT NULL COMMENT '纬度',
   `create_time` datetime NOT NULL,
   `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '有效期',
+  `credit_level` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_info_id` (`info_id`),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_create_time` (`create_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'tb_user_citizen_identity_card_info'
 DROP TABLE tb_user_citizen_identity_card_info;
@@ -610,5 +620,13 @@ CREATE TABLE `tb_manual_repay` (
   `status` tinyint NOT NULL COMMENT '状态： 0|待处理  1|还款成功 2|还款失败',
   `create_time` datetime NOT NULL COMMENT '记录创建时间',
   `update_time` datetime NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `tb_core_assets_level_ruels` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `between_paydays` int(11) DEFAULT NULL COMMENT '距离还款日的天数',
+  `level` int(11) DEFAULT NULL COMMENT '资产等级',
+  `level_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

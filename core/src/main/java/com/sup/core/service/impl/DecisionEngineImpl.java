@@ -7,6 +7,7 @@ import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.DecesionEngine;
+import com.sup.core.util.OverdueUtils;
 import com.sup.core.util.RiskVariableConstants;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,10 @@ public class DecisionEngineImpl implements DecesionEngine {
     private TbUserRegistInfoMapper tbUserRegistInfoMapper;
 
 
+    @Autowired
+    private ApplyMaterialInfoMapper applyMaterialInfoMapper;
+
+
     private boolean applySingleRule(RiskRulesBean rule, String mobile, Map<String, Double> riskBean) {
 
 
@@ -84,36 +89,6 @@ public class DecisionEngineImpl implements DecesionEngine {
         }
     }
 
-    private OverdueInfoBean getMaxOverdueDays(String userId) {
-
-
-        List<TbRepayPlanBean> plans = this.repayPlanInfoMapper.selectList(new QueryWrapper<TbRepayPlanBean>().eq("user_id", Integer.parseInt(userId)).orderByAsc("repay_start_date"));
-        if (plans.isEmpty()) {
-            return null;
-        }
-        int times = 0;
-        int max_days = 0;
-        int latest_days = -1;
-        for (TbRepayPlanBean repayPlanBean : plans) {
-            Date repay_date = repayPlanBean.getRepay_time();
-            Date repay_end_date = repayPlanBean.getRepay_end_date();
-            if (repay_date != null) {
-                int days = DateUtil.daysbetween(repay_end_date, repay_date);
-                if (days > 0) {
-                    times++;
-                    max_days = days > max_days ? days : max_days;
-                    if (latest_days < 0)
-                        latest_days = days;    //latest overdue days
-                }
-            }
-        }
-        OverdueInfoBean ret = new OverdueInfoBean();
-        ret.setTimes(times);
-        ret.setMax_days(max_days);
-        ret.setLatest_days(latest_days);
-        return ret;
-
-    }
 
     private ContractInfo getContractInfo(String mobile) {
         TbUserRegistInfoBean userRegistInfoBean = this.tbUserRegistInfoMapper.selectOne(new QueryWrapper<TbUserRegistInfoBean>().eq("mobile", mobile));
@@ -121,7 +96,7 @@ public class DecisionEngineImpl implements DecesionEngine {
             Integer userid = userRegistInfoBean.getId();
             List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("user_id", userid));
             int apply_times = applyInfoBeanList.size();
-            OverdueInfoBean overdueInfoBean = this.getMaxOverdueDays(Integer.toString(userid));
+            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(Integer.toString(userid), this.repayPlanInfoMapper);
             ContractInfo ret = new ContractInfo();
             ret.setOverdue_times(overdueInfoBean.getTimes());
             ret.setApply_times(apply_times);
@@ -133,7 +108,7 @@ public class DecisionEngineImpl implements DecesionEngine {
     }
 
 
-    private Map<String, Double> prepareRiskVariables(String userId, String info_id, String user_mobile) {
+    private Map<String, Double> prepareRiskVariables(String userId, String apply_id, String user_mobile) {
 
 
         Map<String, Double> riskBean = new HashMap<>();
@@ -149,65 +124,91 @@ public class DecisionEngineImpl implements DecesionEngine {
         riskBean.put(RiskVariableConstants.NUM_OF_OVDUE_IN_CONTRACT, Double.valueOf(0));
         riskBean.put(RiskVariableConstants.NUM_OF_CONTRACT, Double.valueOf(0));
 
-        //TODO  need to set  default value
+        List<TbApplyMaterialInfoBean> applyMaterialInfoBeans = this.applyMaterialInfoMapper.selectList(new QueryWrapper<TbApplyMaterialInfoBean>().eq("apply_id", Integer.parseInt(apply_id)));
+        String basic_info_id = "", eme_info_id = "", bank_info_id = "";
 
-        UserBasicInfoBean userBasicInfoBean = userBasicInfoMapper.selectOne(new QueryWrapper<UserBasicInfoBean>().eq("info_id", info_id));
-        if (userBasicInfoBean != null) {
+        //0|身份证信息  1|基本信息 2|紧急联系人 3|职业信息 4|银行卡信息
+        for (TbApplyMaterialInfoBean materialInfoBean : applyMaterialInfoBeans) {
+            int infoType = materialInfoBean.getInfo_type();
+            switch (infoType) {
 
-            riskBean.put(RiskVariableConstants.AGE, Double.valueOf(userBasicInfoBean.getAge()));
-        }//age
+                case 1:
+                    basic_info_id = materialInfoBean.getInfo_id();
+                    break;
+                case 2:
+                    eme_info_id = materialInfoBean.getInfo_id();
+                    break;
+                case 4:
+                    bank_info_id = materialInfoBean.getInfo_id();
+                    break;
 
-        QueryWrapper<TbApplyInfoBean> materialWrapper = new QueryWrapper<TbApplyInfoBean>();
-        TbApplyInfoBean applyInfoBean = applyInfoMapper.selectOne(
-                materialWrapper.eq("user_id", userId).eq("deny_code", ""));    // deny  date
-        if (applyInfoBean != null) {
+            }
 
-            Date deny_date = applyInfoBean.getUpdate_time();
-            int last_dey_days = DateUtil.daysbetween(deny_date, new Date());
-            riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(last_dey_days));
+
         }
 
-        OverdueInfoBean overdueInfoBean = getMaxOverdueDays(userId);
-        if (overdueInfoBean != null) { //overdue  days
+        if (!basic_info_id.isEmpty()) {
+            TbUserBasicInfoBean userBasicInfoBean = userBasicInfoMapper.selectOne(new QueryWrapper<TbUserBasicInfoBean>().eq("info_id", basic_info_id));
+            if (userBasicInfoBean != null) {
 
-            riskBean.put(RiskVariableConstants.MAX_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getMax_days()));
-            riskBean.put(RiskVariableConstants.OVERDUE_TIMES, Double.valueOf(overdueInfoBean.getTimes()));
-            riskBean.put(RiskVariableConstants.LATEST_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getLatest_days()));
+                riskBean.put(RiskVariableConstants.AGE, Double.valueOf(userBasicInfoBean.getAge()));
+            }//age
+
+            QueryWrapper<TbApplyInfoBean> materialWrapper = new QueryWrapper<TbApplyInfoBean>();
+            TbApplyInfoBean applyInfoBean = applyInfoMapper.selectOne(
+                    materialWrapper.eq("user_id", userId).eq("deny_code", ""));    // deny  date
+            if (applyInfoBean != null) {
+
+                Date deny_date = applyInfoBean.getUpdate_time();
+                int last_dey_days = DateUtil.daysbetween(deny_date, new Date());
+                riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(last_dey_days));
+            }
+
+            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(userId, this.repayPlanInfoMapper);
+            if (overdueInfoBean != null) { //overdue  days
+
+                riskBean.put(RiskVariableConstants.MAX_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getMax_days()));
+                riskBean.put(RiskVariableConstants.OVERDUE_TIMES, Double.valueOf(overdueInfoBean.getTimes()));
+                riskBean.put(RiskVariableConstants.LATEST_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getLatest_days()));
+            }
         }
+        if (!bank_info_id.isEmpty()) {
+            TbUserBankAccountInfoBean userBankInfoBean = this.userBankInfoMapper.selectOne(new QueryWrapper<TbUserBankAccountInfoBean>().eq("info_id", bank_info_id).orderByDesc("create_time"));
+            if (userBankInfoBean != null) {
 
-
-        TbUserBankAccountInfoBean userBankInfoBean = this.userBankInfoMapper.selectOne(new QueryWrapper<TbUserBankAccountInfoBean>().eq("info_id", info_id).orderByDesc("create_time"));
-        if (userBankInfoBean != null) {
-
-            String account_id = userBankInfoBean.getAccount_id();
-            if (account_id != null && !account_id.isEmpty()) {
-                List<TbUserBankAccountInfoBean> sameIds = this.userBankInfoMapper.selectList(new QueryWrapper<TbUserBankAccountInfoBean>().eq("account_id", account_id));
-                HashSet<String> set = new HashSet<String>();
-                for (TbUserBankAccountInfoBean ub : sameIds) {
-                    int user_id = ub.getUser_id();
-                    set.add(Integer.toString(user_id));
+                String account_id = userBankInfoBean.getAccount_id();
+                if (account_id != null && !account_id.isEmpty()) {
+                    List<TbUserBankAccountInfoBean> sameIds = this.userBankInfoMapper.selectList(new QueryWrapper<TbUserBankAccountInfoBean>().eq("account_id", account_id));
+                    HashSet<String> set = new HashSet<String>();
+                    for (TbUserBankAccountInfoBean ub : sameIds) {
+                        int user_id = ub.getUser_id();
+                        set.add(Integer.toString(user_id));
+                    }
+                    riskBean.put(RiskVariableConstants.NUM_OF_IDS_FOR_PIN, Double.valueOf(set.size()));
                 }
-                riskBean.put(RiskVariableConstants.NUM_OF_IDS_FOR_PIN, Double.valueOf(set.size()));
             }
         }
 
-        List<UserEmergencyContactInfoBean> emeList = this.userEmergencyContactInfoMapper.selectList(new QueryWrapper<UserEmergencyContactInfoBean>().eq("info_id", info_id));
-        if (!emeList.isEmpty()) {
-            int max_overdue_times = 0;
-            int max_apply_times = 0;
-            for (UserEmergencyContactInfoBean bean : emeList) {
-                String mobile = bean.getMobile();
-                if (!mobile.isEmpty()) {
-                    ContractInfo contractInfo = this.getContractInfo(mobile);
-                    if (contractInfo != null) {
-                        max_overdue_times = contractInfo.getOverdue_times() > max_overdue_times ? contractInfo.getOverdue_times() : max_overdue_times;
-                        max_apply_times = contractInfo.getApply_times() > max_apply_times ? contractInfo.getApply_times() : max_apply_times;
+        if (!eme_info_id.isEmpty()) {
+
+            List<UserEmergencyContactInfoBean> emeList = this.userEmergencyContactInfoMapper.selectList(new QueryWrapper<UserEmergencyContactInfoBean>().eq("info_id", eme_info_id));
+            if (!emeList.isEmpty()) {
+                int max_overdue_times = 0;
+                int max_apply_times = 0;
+                for (UserEmergencyContactInfoBean bean : emeList) {
+                    String mobile = bean.getMobile();
+                    if (!mobile.isEmpty()) {
+                        ContractInfo contractInfo = this.getContractInfo(mobile);
+                        if (contractInfo != null) {
+                            max_overdue_times = contractInfo.getOverdue_times() > max_overdue_times ? contractInfo.getOverdue_times() : max_overdue_times;
+                            max_apply_times = contractInfo.getApply_times() > max_apply_times ? contractInfo.getApply_times() : max_apply_times;
+                        }
                     }
                 }
-            }
-            riskBean.put(RiskVariableConstants.NUM_OF_APPLY_TIMES_IN_EMMERGENCY_CONTRACT, Double.valueOf(max_apply_times));
-            riskBean.put(RiskVariableConstants.NUM_OF_OVERDUE_TIMES_IN_EMMERGENCY_CONTRACT, Double.valueOf(max_overdue_times));
+                riskBean.put(RiskVariableConstants.NUM_OF_APPLY_TIMES_IN_EMMERGENCY_CONTRACT, Double.valueOf(max_apply_times));
+                riskBean.put(RiskVariableConstants.NUM_OF_OVERDUE_TIMES_IN_EMMERGENCY_CONTRACT, Double.valueOf(max_overdue_times));
 
+            }
         }
         List<TbAppSdkContractInfoBean> contractInfoBeans = this.tbAppSdkContractInfoMapper.selectList(new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", user_mobile));
         int size_of_contract = contractInfoBeans.size();
@@ -236,26 +237,40 @@ public class DecisionEngineImpl implements DecesionEngine {
     }
 
 
-    public RiskDecisionResultBean applyRules(String userId, String applyId, String productId, String info_id) {
+    private boolean serializeDecesionResult(RiskDecisionResultBean result, List<RiskDecisionResultDetailBean> detailBeans) {
 
-        TbUserRegistInfoBean userRegistInfoBean = this.tbUserRegistInfoMapper.selectById(Integer.parseInt(userId));
+        this.riskDecisionResultMapper.insert(result);
+        int did = result.getId();
+        for (RiskDecisionResultDetailBean detail : detailBeans) {
+            detail.setDecesion_id(did);
+            this.riskDecisionResultDetailMapper.insert(detail);
+        }
+
+        return true;
+
+    }
+
+
+    @Override
+    public RiskDecisionResultBean applyRules(AutoDecisionParam param) {
+        TbUserRegistInfoBean userRegistInfoBean = this.tbUserRegistInfoMapper.selectById(Integer.parseInt(param.getUserId()));
         if (userRegistInfoBean == null) return null;
         //user id  not exist
         String user_mobile = userRegistInfoBean.getMobile();
         if (user_mobile.isEmpty()) return null;
         //user  register mobie  is empty
 
-        Map<String, Double> riskBean = prepareRiskVariables(userId, info_id, user_mobile);
+        Map<String, Double> riskBean = prepareRiskVariables(param.getUserId(), param.getApplyId(), user_mobile);
 
         RiskDecisionResultBean result = new RiskDecisionResultBean();
         result.setRet(0);
-        List<RiskRulesBean> rulesBeanList = riskRulesMapper.selectList(new QueryWrapper<RiskRulesBean>().eq("product_id", Integer.parseInt(productId)));
+        List<RiskRulesBean> rulesBeanList = riskRulesMapper.selectList(new QueryWrapper<RiskRulesBean>().eq("product_id", Integer.parseInt(param.getProductId())));
         List<RiskDecisionResultDetailBean> detailBeanList = new ArrayList<>();
         for (RiskRulesBean rule : rulesBeanList) {
             RiskDecisionResultDetailBean decisionResultBean = new RiskDecisionResultDetailBean();
             decisionResultBean.setRule_id(rule.getId());
-            decisionResultBean.setApply_id(Integer.parseInt(applyId));
-            decisionResultBean.setUser_id(Integer.parseInt(userId));
+            decisionResultBean.setApply_id(Integer.parseInt(param.getApplyId()));
+            decisionResultBean.setUser_id(Integer.parseInt(param.getUserId()));
             decisionResultBean.setApply_date(new Date());
             decisionResultBean.setRule_hit_type(rule.getHit_type());
 
@@ -281,26 +296,6 @@ public class DecisionEngineImpl implements DecesionEngine {
         }
         serializeDecesionResult(result, detailBeanList);
         return result;
-    }
 
-    private boolean serializeDecesionResult(RiskDecisionResultBean result, List<RiskDecisionResultDetailBean> detailBeans) {
-
-        this.riskDecisionResultMapper.insert(result);
-        int did = result.getId();
-        for (RiskDecisionResultDetailBean detail : detailBeans) {
-            detail.setDecesion_id(did);
-            this.riskDecisionResultDetailMapper.insert(detail);
-        }
-
-        return true;
-
-    }
-
-
-    @Override
-    public RiskDecisionResultBean applyRules(AutoDecisionParam param) {
-        // TODO
-
-        return null;
     }
 }
