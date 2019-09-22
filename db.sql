@@ -623,10 +623,23 @@ CREATE TABLE `tb_manual_repay` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS tb_core_assets_level_rules;
 CREATE TABLE `tb_core_assets_level_ruels` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `between_paydays` int(11) DEFAULT NULL COMMENT '距离还款日的天数',
   `level` int(11) DEFAULT NULL COMMENT '资产等级',
   `level_name` varchar(128) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS tb_core_comment_label;
+CREATE TABLE `tb_core_comment_label` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `content` text,
+  `label_name` text,
+  `creator` int(11) DEFAULT NULL,
+  `creat_time` datetime DEFAULT NULL,
+  `scene` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
