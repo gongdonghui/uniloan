@@ -37,7 +37,7 @@ public class TbProductInfoBean {
   private Float   overdue_rate;  // 逾期日费率
   private Integer grace_period;  // 宽限期
   private Integer product_order;        // 排列顺序
-  private Integer credit_class_id;        // 信用等级id
+  private Integer credit_level;        // 信用等级id
   private String material_needed;
   private Date create_time;
 }

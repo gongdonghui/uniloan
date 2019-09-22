@@ -1,55 +1,33 @@
 debug: false
 
-
 server:
-  port: 10081
+  port: 10091
   tomcat:
-    max-threads: 10
+    max-threads: 4
   connection-timeout: 180000
 
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
 
-ssdb:
-  host: 140.143.207.211
-  port: 13288
-  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
-  timeout: 300000
+sms:
+  skyline:
+    uri: http://sms.skylinelabs.cc:20003/sendsmsV2
+    account: cs_wmve6s
+    password: 6RWTB71n
+    vip-account: cs_3pofo7
+    vip-password: hJBJJ7oW
 
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:51666/eureka/
 
 rocket:
   consumer:
     endpoint: 140.143.207.211:9976
-    group: app_backend
+    group: market
   producer:
     endpoint: 140.143.207.211:9976
-    group: app_backend
-
-paycenter:
-  uri: http://xxxxx/paycenter/repay
-
-admin:
-  uri: http://zzzz
+    group: market
 
 spring:
-  messages:
-    basename: static/i18n/messages
-
-  redis:
-    database: 0
-    host: 140.143.207.211
-    port: 6388
-    jedis:
-      pool:
-        max-active: 8
-    timeout: 60000
-    password: 13JPTmkZT5QmAV4s
-
   datasource:
     dynamic:
       hikari:
@@ -64,10 +42,4 @@ spring:
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
             max-lifetime: 600000
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 100MB
-      max-request-size: 100MB
-
 

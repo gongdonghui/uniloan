@@ -39,5 +39,12 @@ public class FileController {
   public byte[] GetFile(@RequestParam("key") String key) {
     return ssdbClient.GetBytes(key);
   }
+
+  @ResponseBody
+  @RequestMapping(value = "set", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Object Test(@RequestParam String key, @RequestParam String val) {
+    boolean r = ssdbClient.Set(key, val);
+    return Result.succ(r);
+  }
 }
 

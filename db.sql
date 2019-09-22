@@ -24,7 +24,7 @@ CREATE TABLE if NOT EXISTS `tb_operation_task` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `apply_id` int(10) NOT NULL COMMENT '进件申请id',
   `operator_id` int(11) DEFAULT NULL COMMENT '操作者id',
-  `distributor_id` int(10) NOT NULL COMMENT '指派人id',
+  `distributor_id` int(10) DEFAULT NULL COMMENT '指派人id',
   `task_type` tinyint NOT NULL COMMENT '任务类型，0:初审，1:复审，2:终审，3:逾期（未还）',
   `status` int(10) NOT NULL COMMENT '任务状态：0:未审，1:已审，2:回收',
   `has_owner` tinyint NOT NULL COMMENT '是否被指派或领取 0 不是 1 是',
@@ -64,7 +64,7 @@ CREATE TABLE if NOT EXISTS `tb_apply_info` (
   `deny_code` varchar(8) DEFAULT NULL COMMENT '拒贷码，根据阶段不一样，取值也不一样',
   `comment` varchar(256) DEFAULT NULL COMMENT '备注',
   `trade_number` varchar(256) DEFAULT NULL COMMENT '自动放款流水号',
-  `asset_level` int(8)  DEFAULT  NULL COMMENT '资产等级，0'
+  `asset_level` int(8)  DEFAULT  NULL COMMENT '资产等级，0',
   `create_time` datetime NOT NULL COMMENT '申请时间',
   `expire_time` datetime NOT NULL COMMENT '申请失效时间',
   `pass_time` datetime DEFAULT NULL COMMENT '终审通过时间',

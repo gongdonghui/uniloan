@@ -15,14 +15,13 @@ import com.sup.common.bean.TbUserRegistInfoBean;
 import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,8 +38,10 @@ public class InfoController {
 
   @PostConstruct
   public void Init() throws Exception {
-    File fp = ResourceUtils.getFile("classpath:app.dict");
-    BufferedReader br = new BufferedReader(new FileReader(fp));
+
+    ClassPathResource resource = new ClassPathResource("app.dict");
+    InputStream inputStream = resource.getInputStream();
+    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
     String line = null;
     StringBuffer sb = new StringBuffer();
     while ((line = br.readLine()) != null) {

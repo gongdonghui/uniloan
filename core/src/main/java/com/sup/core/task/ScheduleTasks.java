@@ -68,6 +68,9 @@ public class ScheduleTasks {
     @Autowired
     private CreditLevelRulesMapper creditLevelRulesMapper;
 
+    @Autowired
+    private    UserRegisterInfoMapper     userRegisterInfoMapper;
+
 
     @Autowired
     private LoanService loanService;
@@ -449,10 +452,10 @@ public class ScheduleTasks {
             OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(user_id,this.repayPlanMapper);
             for (CreditLevelRuleBean creditLevelRuleBean : creditLevelRuleBeans) {
                 if (reloan_times >= creditLevelRuleBean.getReloan_times() && overdueInfoBean.getMax_days() <= creditLevelRuleBean.getMax_overdue_days()) {
-                    TbUserBasicInfoBean basicInfoBean = this.userBasicInfoMapper.selectOne(new QueryWrapper<TbUserBasicInfoBean>().eq("user_id", Integer.parseInt(user_id)));
-                    if(basicInfoBean!=null) {
-                        basicInfoBean.setCredit_level(creditLevelRuleBean.getLevel());
-                        this.userBasicInfoMapper.updateById(basicInfoBean);
+                    TbUserRegistInfoBean  userRegistInfoBean   =  this.userRegisterInfoMapper.selectById(Integer.parseInt(user_id));
+                    if(userRegistInfoBean!=null) {
+                        userRegistInfoBean.setCredit_level(creditLevelRuleBean.getLevel());
+                        this.userRegisterInfoMapper.updateById(userRegistInfoBean);
                     } else {
                         log.error("Failed to update Credit level user_id:"+ user_id);
                     }
