@@ -124,7 +124,7 @@ CREATE TABLE if NOT EXISTS `tb_channel_info` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '渠道id',
   `type` varchar(32) NOT NULL DEFAULT '' COMMENT '渠道类型',
   `name` varchar(32) NOT NULL DEFAULT '' COMMENT '渠道名称',
-  `status` int(10) NOT NULL COMMENT '渠道状态',
+  `status` int(10) NOT NULL DEFAULT 0 COMMENT '渠道状态, 0:offline 1:online',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_type` (`type`),
@@ -409,7 +409,7 @@ CREATE TABLE `tb_user_basic_info` (
   KEY `idx_info_id` (`info_id`),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_create_time` (`create_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'tb_user_citizen_identity_card_info'
 DROP TABLE tb_user_citizen_identity_card_info;
