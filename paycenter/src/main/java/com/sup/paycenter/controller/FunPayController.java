@@ -14,8 +14,8 @@ import com.sup.paycenter.util.DateUtil;
 import com.sup.paycenter.util.FunPayParamsUtil;
 import com.sup.paycenter.util.GsonUtil;
 import com.sup.paycenter.util.OkBang;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,15 +30,16 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/")
+@Slf4j
 public class FunPayController {
 
     @Value("${paycenter.secretKey}")
     private String secretKey;
     @Value("${paycenter.merchantId}")
     private String merchantId;
-    @Value("${paycenter.merchantId}")
-    private String businessId;
     @Value("${paycenter.businessId}")
+    private String businessId;
+    @Value("${paycenter.version}")
     private String version;
     @Value("${paycenter.feeId}")
     private String feeId;
@@ -58,17 +59,17 @@ public class FunPayController {
     @Value("${paycenter.method.payCheck}")
     private String method_payCheck;
 
-    @Autowired
+    //@Autowired
     private LoanService loanService;
 
     private static final int FUNPAY_SUCCESS_FLAG = 10000;
 
     @GetMapping(value = "getBankList")
-    public Result<BankInfoVO> getBankList(@RequestParam(value = "bankNo") String bankNo) {
-        Map m = Maps.newHashMap();
+    public Result<List<BankInfoVO>> getBankList(@RequestParam(value = "bankNo") String bankNo) {
+        Map<String, String> m = Maps.newHashMap();
         m.put("merchantID", merchantId);
         m.put("businessID", businessId);
-        m.put("timestamp", System.currentTimeMillis());
+        m.put("timestamp", System.currentTimeMillis() + "");
         if (Strings.isNullOrEmpty(bankNo)) {
             m.put("bankID", "0");
         } else {
@@ -77,6 +78,7 @@ public class FunPayController {
         m.put("version", version);
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_getBankList + "?param=" + param);
+        log.info("getBankList:::result=" + result);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
@@ -87,7 +89,7 @@ public class FunPayController {
         }
         List<BankInfoVO> l = Lists.newArrayList();
         resultBean.getResult().getBankList().stream()
-                .filter(x -> x.getStatus() == 1)
+                .filter(x -> x.getStatus() == 0)
                 .forEach(x -> {
                     BankInfoVO i = new BankInfoVO();
                     i.setBankName(x.getBankName());
@@ -102,22 +104,23 @@ public class FunPayController {
     }
 
     @PostMapping(value = "verifyBankInfo")
-    public Result<VerifyVO> verifyBankInfo(@Valid BankInfo bankInfo) {
-        Map m = Maps.newHashMap();
+    public Result<VerifyVO> verifyBankInfo(@RequestBody @Valid BankInfo bankInfo) {
+        Map<String, String> m = Maps.newHashMap();
         m.put("merchantID", merchantId);
         m.put("businessID", businessId);
-        m.put("timestamp", System.currentTimeMillis());
+        m.put("timestamp", System.currentTimeMillis() + "");
         m.put("version", version);
         m.put("bankNo", bankInfo.getBankNo());
         m.put("bankLocation", "vn");
         m.put("accountNo", bankInfo.getAccountNo());
-        m.put("accountType", bankInfo.getAccountType());
+        m.put("accountType", bankInfo.getAccountType() + "");
         m.put("accountName", bankInfo.getAccountName());
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_verifyBankInfo + "?param=" + param);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
+        log.info("verifyBankInfo:::result=" + result);
         ReturnBean<VerifyBankInfoBean> resultBean = GsonUtil.fromJson(result, new TypeToken<ReturnBean<VerifyBankInfoBean>>() {
         }.getType());
         if (resultBean.getCode() != FUNPAY_SUCCESS_FLAG) {
@@ -131,30 +134,30 @@ public class FunPayController {
     }
 
     @PostMapping(value = "pay")
-    public Result<PayVO> pay(@Valid PayInfo payInfo) {
-        Map m = Maps.newHashMap();
+    public Result<PayVO> pay(@RequestBody @Valid PayInfo payInfo) {
+        Map<String, String> m = Maps.newHashMap();
         m.put("merchantID", merchantId);
         m.put("businessID", businessId);
-        m.put("timestamp", System.currentTimeMillis());
-        m.put("version", version);
         m.put("clientID", payInfo.getUserId());
+        m.put("timestamp", System.currentTimeMillis() + "");
         //todo  单位转换
-        m.put("amount", payInfo.getAmount());
+        m.put("amount", payInfo.getAmount() + "");
         m.put("currency", "VND");
         m.put("orderNo", payInfo.getApplyId());
-        m.put("bankLocation", "vn");
-        m.put("accountNo", payInfo.getAccountNo());
-        m.put("accountType", payInfo.getAccountType());
+        m.put("returnUrl", "https://d45582e9.ngrok.io/payCallBack");
         m.put("accountName", payInfo.getAccountName());
+        m.put("accountNo", payInfo.getAccountNo());
+        m.put("accountType", payInfo.getAccountType() + "");
+        m.put("bankLocation", "vn");
         m.put("bankNo", payInfo.getBankNo());
         m.put("bankBranchNo", "");
         m.put("remark", payInfo.getRemark());
         m.put("transferTime", payInfo.getTransferTime());
+        m.put("version", version);
         m.put("isAsync", "1");
-        //todo
-        m.put("returnUrl", "xxxxxxxx");
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_transferMoney + "?param=" + param);
+        log.info("pay:::result=" + result);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
@@ -169,29 +172,29 @@ public class FunPayController {
     }
 
     @PostMapping(value = "repay")
-    public Result<RepayVO> repay(@Valid RepayInfo repayInfo) {
-        Map m = Maps.newHashMap();
+    public Result<RepayVO> repay(@RequestBody @Valid RepayInfo repayInfo) {
+        Map<String, String> m = Maps.newHashMap();
         m.put("merchantID", merchantId);
         m.put("businessID", businessId);
         m.put("feeID", feeId);
-        m.put("timestamp", System.currentTimeMillis());
+        m.put("timestamp", System.currentTimeMillis() + "");
         m.put("version", version);
         m.put("clientID", repayInfo.getUserId());
         //todo 单位转换
-        m.put("amount", repayInfo.getAmount());
-        //todo 不知道计费点名称哪里来
-        m.put("name", "xxx");
+        m.put("amount", repayInfo.getAmount() + "");
+        m.put("name", "testpay");
         m.put("orderNo", repayInfo.getApplyId());
         //还款码有效期为T+7
         DateTime dt = new DateTime();
         dt.plusDays(7);
         m.put("expireDate", DateUtil.format(dt.toDate(), DateUtil.NO_SPLIT_FORMAT));
-        m.put("returnUrl", "xxx");
+        m.put("returnUrl", "https://d45582e9.ngrok.io/repayCallBack");
         m.put("purchaseType", "2");
         m.put("phoneNumber", repayInfo.getPhone());
         m.put("userName", repayInfo.getName());
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_offlinePay + "?param=" + param);
+        log.info("repay:::result=" + result);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
@@ -210,15 +213,16 @@ public class FunPayController {
 
     @PostMapping(value = "payStatus")
     public Result<PayStatusVO> payStatus(@Valid @RequestBody PayStatusInfo payStatusInfo) {
-        Map m = Maps.newHashMap();
+        Map<String, String> m = Maps.newHashMap();
         m.put("merchantID", merchantId);
         m.put("businessID", businessId);
-        m.put("timestamp", System.currentTimeMillis());
+        m.put("timestamp", System.currentTimeMillis() + "");
         m.put("version", version);
         m.put("tradeNo", payStatusInfo.getTradeNo());
         m.put("orderNo", payStatusInfo.getApplyId());
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_transferCheck + "?param=" + param);
+        log.info("payStatus:::result=" + result);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
@@ -239,15 +243,16 @@ public class FunPayController {
 
     @PostMapping(value = "repayStatus")
     public Result<RepayStatusVO> repayStatus(@Valid @RequestBody RepayStatusInfo repayStatusInfo) {
-        Map m = Maps.newHashMap();
+        Map<String, String> m = Maps.newHashMap();
         m.put("merchantID", merchantId);
         m.put("businessID", businessId);
-        m.put("timestamp", System.currentTimeMillis());
+        m.put("timestamp", System.currentTimeMillis() + "");
         m.put("version", version);
         m.put("tradeNo", repayStatusInfo.getTradeNo());
         m.put("orderNo", repayStatusInfo.getApplyId());
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_payCheck + "?param=" + param);
+        log.info("repayStatus:::result=" + result);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
@@ -268,6 +273,7 @@ public class FunPayController {
 
     @PostMapping(value = "payCallBack")
     public String payCallBack(@RequestBody ReturnBean<TransferMoneyBean> bean) {
+        log.info("payCallBack:::params=" + bean);
         FunpayCallBackParam f = new FunpayCallBackParam();
         f.setAmount(bean.getResult().getAmount());
         f.setApplyId(bean.getResult().getOrderNo());
@@ -280,6 +286,7 @@ public class FunPayController {
 
     @PostMapping(value = "repayCallBack")
     public String repayCallBack(@RequestBody ReturnBean<OfflinePayBean> bean) {
+        log.info("repayCallBack:::params=" + bean);
         FunpayCallBackParam f = new FunpayCallBackParam();
         f.setAmount(bean.getResult().getAmount());
         f.setApplyId(bean.getResult().getOrderNo());

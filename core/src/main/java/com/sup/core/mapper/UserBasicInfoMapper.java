@@ -1,7 +1,7 @@
 package com.sup.core.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.sup.core.bean.UserBasicInfoBean;
+import com.sup.common.bean.TbUserBasicInfoBean;
 
 /**
  * Project:uniloan
@@ -11,6 +11,6 @@ import com.sup.core.bean.UserBasicInfoBean;
  * Create: 2019-09-09
  */
 
-public interface UserBasicInfoMapper extends BaseMapper<UserBasicInfoBean> {
+public interface UserBasicInfoMapper extends BaseMapper<TbUserBasicInfoBean> {
 
 }

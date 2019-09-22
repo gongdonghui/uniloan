@@ -8,16 +8,18 @@ spring:
   application:
     name: service-paycenter
 paycenter:
-  secretKey: xxx
-  merchantId: xxx
-  businessId: xxx
-  feeId: xxx
-  version:  1.3
-  url:  "https://payment.funpay.asia"
+  secretKey: "2p1opUXzhAsUaX5zaQF451gKvl9303wQGM6542c3"
+  merchantId: "1473"
+  businessId: "104"
+  feeId: "104"
+  version:  "1.3"
+  #url:  "https://payment.funpay.asia"
+  url:  "https://sandbox.funpay.asia"
   method:
     getBankList: "/fun/transfer/getBankList"
     verifyBankInfo: "/fun/transfer/verifyBankInfo"
-    transferMoney: "/fun/transfer/transferMoney"
+    #transferMoney: "/fun/transfer/transferMoney"
+    transferMoney: "/sandbox/customer/getTransferPay.action"
     offlinePay: "/fun/payment/offlinePay"
     payCheck: "/fun/payment/check"
     transferCheck: "/fun/transfer/check"

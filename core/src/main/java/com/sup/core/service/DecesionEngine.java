@@ -9,7 +9,6 @@ package com.sup.core.service;
  * 2019/9/16
  */
 public interface DecesionEngine {
-    public RiskDecisionResultBean applyRules(String userId, String applyId, String productId, String info_id);
 
     public RiskDecisionResultBean applyRules(AutoDecisionParam param);
 

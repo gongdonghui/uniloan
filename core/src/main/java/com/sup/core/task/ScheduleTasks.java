@@ -3,10 +3,7 @@ package com.sup.core.task;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.sup.common.bean.TbApplyInfoBean;
-import com.sup.common.bean.TbProductInfoBean;
-import com.sup.common.bean.TbRepayPlanBean;
-import com.sup.common.bean.TbRepayStatBean;
+import com.sup.common.bean.*;
 import com.sup.common.bean.paycenter.PayStatusInfo;
 import com.sup.common.bean.paycenter.RepayStatusInfo;
 import com.sup.common.bean.paycenter.vo.PayStatusVO;
@@ -19,16 +16,14 @@ import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
-import com.sup.core.bean.RiskDecisionResultBean;
-import com.sup.core.mapper.ApplyInfoMapper;
-import com.sup.core.mapper.ProductInfoMapper;
-import com.sup.core.mapper.RepayPlanMapper;
-import com.sup.core.mapper.RepayStatMapper;
+import com.sup.core.bean.*;
+import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.ApplyService;
 import com.sup.core.service.LoanService;
 import com.sup.core.service.impl.DecisionEngineImpl;
 import com.sup.core.status.DecisionEngineStatusEnum;
+import com.sup.core.util.OverdueUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,6 +58,15 @@ public class ScheduleTasks {
     private ProductInfoMapper productInfoMapper;
     @Autowired
     private RepayStatMapper repayStatMapper;
+
+    @Autowired
+    private UserBasicInfoMapper userBasicInfoMapper;
+
+    @Autowired
+    private AssetsLevelRulesMapper assetsLevelRulesMapper;
+
+    @Autowired
+    private CreditLevelRulesMapper creditLevelRulesMapper;
 
 
     @Autowired
@@ -306,7 +310,7 @@ public class ScheduleTasks {
                 Float rate = productInfoBean.getOverdue_rate();
                 Long ori_total = bean.getNeed_total();
                 Long ori_penalty_interest = bean.getNeed_penalty_interest();
-                int  new_penalty_interest = (int) (bean.getNeed_principal() * rate);
+                int new_penalty_interest = (int) (bean.getNeed_principal() * rate);
                 bean.setNeed_penalty_interest(ori_penalty_interest + new_penalty_interest);
                 bean.setNeed_total(ori_total + new_penalty_interest);
                 Result r = loanService.updateRepayPlan(bean);
@@ -377,7 +381,6 @@ public class ScheduleTasks {
     }
 
 
-
     protected TbRepayStatBean statRepayPlan(Integer applyId, List<TbRepayPlanBean> planBeans) {
         TbRepayStatBean statBean = new TbRepayStatBean();
         statBean.setApply_id(applyId);
@@ -406,7 +409,7 @@ public class ScheduleTasks {
 
             overdueTimes += isOverdue ? 1 : 0;
             overdueRepayTimes += isOverdue && repayed ? 1 : 0;
-            normalRepayTimes  += !isOverdue && repayed ? 1 : 0;
+            normalRepayTimes += !isOverdue && repayed ? 1 : 0;
             statBean.inc(planBean);
         }
 
@@ -417,4 +420,81 @@ public class ScheduleTasks {
 
         return statBean;
     }
+
+    /**
+     * 每天更新用户的信用等级
+     */
+    @Scheduled(cron = "0 2 * * * ?")
+    public void updateCreditLevel() {
+        //TODO   improve by use  new  cleard user;
+        List<CreditLevelRuleBean> creditLevelRuleBeans = this.creditLevelRulesMapper.selectList(new QueryWrapper<CreditLevelRuleBean>().orderByDesc("level"));
+
+        List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_REPAY_ALL));  //结清状态的申请单
+        Map<String, Integer> clear_user = new HashMap<String, Integer>();
+        for (TbApplyInfoBean tbApplyMaterialInfoBean : applyInfoBeanList) {
+
+
+            String user_id = Integer.toString(tbApplyMaterialInfoBean.getUser_id());
+            if (clear_user.containsKey(user_id)) {
+                clear_user.put(user_id, clear_user.get(user_id) + 1);
+            } else {
+                clear_user.put(user_id, 1);
+            }
+
+
+        }
+        for (String user_id : clear_user.keySet()) {
+            int reloan_times = clear_user.get(user_id);
+
+            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(user_id,this.repayPlanMapper);
+            for (CreditLevelRuleBean creditLevelRuleBean : creditLevelRuleBeans) {
+                if (reloan_times >= creditLevelRuleBean.getReloan_times() && overdueInfoBean.getMax_days() <= creditLevelRuleBean.getMax_overdue_days()) {
+                    TbUserBasicInfoBean basicInfoBean = this.userBasicInfoMapper.selectOne(new QueryWrapper<TbUserBasicInfoBean>().eq("user_id", Integer.parseInt(user_id)));
+                    if(basicInfoBean!=null) {
+                        basicInfoBean.setCredit_level(creditLevelRuleBean.getLevel());
+                        this.userBasicInfoMapper.updateById(basicInfoBean);
+                    } else {
+                        log.error("Failed to update Credit level user_id:"+ user_id);
+                    }
+                    break;
+                }
+
+            }
+
+        }
+    }
+
+
+    /**
+     * 每天更新资产等级，
+     */
+    @Scheduled(cron = "0 3 * * * ?")
+    public void updateAssertLevel() {
+
+        List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_LOAN_SUCC).
+                or().eq("status", ApplyStatusEnum.APPLY_REPAY_PART).
+                or().eq("status", ApplyStatusEnum.APPLY_OVERDUE));   //TODO 结清的问题
+        Date date = new Date();
+        List<AssetsLevelRuleBean> assetsLevelRuleBeans = this.assetsLevelRulesMapper.selectList(new QueryWrapper<AssetsLevelRuleBean>().orderByDesc("between_paydays"));
+
+        for (TbApplyInfoBean tbApplyInfoBean : applyInfoBeanList) {
+
+            TbRepayPlanBean repayPlanBean = this.repayPlanMapper.selectOne(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", tbApplyInfoBean.getId()));
+            Date replay_end = repayPlanBean.getRepay_end_date();
+            int days = DateUtil.daysbetween(replay_end, date);
+
+            for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
+                if (days >= assetsLevelRuleBean.getBetween_paydays())  {
+                    tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
+                    this.applyInfoMapper.updateById(tbApplyInfoBean);
+                    break;
+                }
+
+
+            }
+        }
+
+
+    }
+
 }
