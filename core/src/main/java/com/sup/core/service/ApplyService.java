@@ -5,6 +5,7 @@ import com.sup.common.bean.TbApplyInfoHistoryBean;
 import com.sup.common.bean.TbOperationTaskBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.LoanFeeTypeEnum;
+import com.sup.common.loan.OperationTaskStatusEnum;
 import com.sup.common.loan.OperationTaskTypeEnum;
 import com.sup.common.mq.ApplyStateMessage;
 import com.sup.common.mq.MqTag;
@@ -100,6 +101,7 @@ public class ApplyService {
                 taskBean = new TbOperationTaskBean();
                 taskBean.setApply_id(bean.getId());
                 taskBean.setTask_type(OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode());
+                taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
                 taskBean.setCreate_time(now);
                 if (operationTaskMapper.insert(taskBean) <= 0) {
                     log.error("Failed to add operation task, bean = " + GsonUtil.toJson(taskBean));
@@ -109,6 +111,7 @@ public class ApplyService {
                 taskBean = new TbOperationTaskBean();
                 taskBean.setApply_id(bean.getId());
                 taskBean.setTask_type(OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode());
+                taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
                 taskBean.setCreate_time(now);
                 if (operationTaskMapper.insert(taskBean) <= 0) {
                     log.error("Failed to add operation task, bean = " + GsonUtil.toJson(taskBean));
@@ -132,6 +135,7 @@ public class ApplyService {
                 taskBean = new TbOperationTaskBean();
                 taskBean.setApply_id(bean.getId());
                 taskBean.setTask_type(OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+                taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
                 taskBean.setCreate_time(now);
                 if (operationTaskMapper.insert(taskBean) <= 0) {
                     log.error("Failed to add operation task, bean = " + GsonUtil.toJson(taskBean));
