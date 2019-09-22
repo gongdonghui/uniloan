@@ -27,6 +27,7 @@ CREATE TABLE if NOT EXISTS `tb_operation_task` (
   `distributor_id` int(10) NOT NULL COMMENT '指派人id',
   `task_type` tinyint NOT NULL COMMENT '任务类型，0:初审，1:复审，2:终审，3:逾期（未还）',
   `status` int(10) NOT NULL COMMENT '任务状态：0:未审，1:已审，2:回收',
+  `has_owner` tinyint NOT NULL COMMENT '是否被指派或领取 0 不是 1 是',
   `comment` varchar(256) DEFAULT NULL COMMENT '备注',
   `create_time` datetime NOT NULL COMMENT '记录创建时间',
   `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '操作截止时间',

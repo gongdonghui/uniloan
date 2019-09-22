@@ -4,8 +4,8 @@ import com.sup.cms.bean.CMSDepartmentBean;
 import com.sup.cms.bean.CMSLogInfoBean;
 import com.sup.cms.bean.CMSRoleBean;
 import com.sup.cms.bean.CMSUserBean;
-import com.sup.core.bean.ApplyInfoBean;
-import com.sup.core.bean.CreditClassBean;
+//import com.sup.core.bean.ApplyInfoBean;
+//import com.sup.core.bean.CreditClassBean;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,9 +26,9 @@ public interface CMSFacade {
     ////////////////////////////////////////////////////////////
 
     // apply info auto assigned
-    @ResponseBody
-    @RequestMapping(value = "auditTask/autoAssign", produces = "application/json;charset=UTF-8")
-    Object autoAuditAssign(@RequestBody ApplyInfoBean bean);
+    //@ResponseBody
+    //@RequestMapping(value = "auditTask/autoAssign", produces = "application/json;charset=UTF-8")
+    //Object autoAuditAssign(@RequestBody ApplyInfoBean bean);
 
     // apply info manual assigned
     @ResponseBody
@@ -153,13 +153,13 @@ public interface CMSFacade {
     // 用户信用等级接口
     ////////////////////////////////////////////////////////////
     // update/get user core class
-    @ResponseBody
-    @RequestMapping(value = "creditClass/add", produces = "application/json;charset=UTF-8")
-    Object addCreditClass(@RequestBody CreditClassBean bean);
-
-    @ResponseBody
-    @RequestMapping(value = "creditClass/update", produces = "application/json;charset=UTF-8")
-    Object updateCreditClass(@RequestBody CreditClassBean bean);
+//    @ResponseBody
+//    @RequestMapping(value = "creditClass/add", produces = "application/json;charset=UTF-8")
+//    Object addCreditClass(@RequestBody CreditClassBean bean);
+//
+//    @ResponseBody
+//    @RequestMapping(value = "creditClass/update", produces = "application/json;charset=UTF-8")
+//    Object updateCreditClass(@RequestBody CreditClassBean bean);
 
     // TODO: 产品配置
 
