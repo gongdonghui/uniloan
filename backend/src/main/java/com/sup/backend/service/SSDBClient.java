@@ -3,8 +3,10 @@ package com.sup.backend.service;
 import com.sup.backend.util.ToolUtils;
 import org.apache.log4j.Logger;
 import org.nutz.ssdb4j.impl.SimpleClient;
+import org.nutz.ssdb4j.impl.SocketSSDBStream;
 import org.nutz.ssdb4j.spi.Response;
 import org.nutz.ssdb4j.spi.SSDB;
+import org.nutz.ssdb4j.spi.SSDBStream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +27,16 @@ public class SSDBClient {
   @Value("${ssdb.timeout}")
   private Integer timeout;
 
+  @Value("${ssdb.auth}")
+  private String auth;
+
   private SSDB ssdb;
 
   @PostConstruct
   public void init() {
     try {
-      ssdb = new SimpleClient(host, port, timeout);
+      SSDBStream stream = new SocketSSDBStream(host, port, timeout, auth.getBytes());
+      ssdb = new SimpleClient(stream);
     } catch (Exception e) {
       logger.error(String.format("init_ssdb_exeception: %s", ToolUtils.GetTrace(e)));
     }
@@ -45,6 +51,11 @@ public class SSDBClient {
   }
 
   public boolean SetBytes(String key, byte[] val) {
+    Response resp = ssdb.set(key, val);
+    return resp.ok();
+  }
+
+  public boolean Set(String key, String val) {
     Response resp = ssdb.set(key, val);
     return resp.ok();
   }

@@ -1,5 +1,6 @@
 package com.sup.backend.web;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.backend.bean.AppApplyInfo;
@@ -86,21 +87,23 @@ public class ApplyController {
   @ResponseBody
   @RequestMapping(value = "new", produces = "application/json;charset=UTF-8")
   public Object addApplyInfo(@LoginInfo LoginInfoCtx li, @RequestBody AppSubmitOrder order_detail) {
-    JSONObject params = new JSONObject();
-    DeferredResult<Object> ret = new DeferredResult<>();
+    logger.info("apply_obj: " + JSON.toJSONString(order_detail));
+
+    //JSONObject params = new JSONObject();
+    //DeferredResult<Object> ret = new DeferredResult<>();
     //TbProductInfoBean product = tb_product_info_mapper.selectById(order_detail.getProduct_id());
-    ApplyInfoParam aip = new ApplyInfoParam();
-    aip.setApp_id(null);
-    aip.setChannel_id(null);
-    aip.setApply_quota(order_detail.getQuota());
-    aip.setPeriod(order_detail.getPeriod());
-    aip.setInfoIdMap(order_detail.getMaterial_ids());
-    aip.setProduct_id(order_detail.getProduct_id());
-    ToolUtils.AsyncHttpPostJson(admin_uri, aip, ret, resp -> {
-      JSONObject obj = JSONObject.parseObject(resp.getResponseBody());
-      return obj;
-    });
-    return ret;
+//    ApplyInfoParam aip = new ApplyInfoParam();
+//    aip.setApp_id(null);
+//    aip.setChannel_id(null);
+//    aip.setApply_quota(order_detail.getQuota());
+//    aip.setPeriod(order_detail.getPeriod());
+//    aip.setInfoIdMap(order_detail.getMaterial_ids());
+//    aip.setProduct_id(order_detail.getProduct_id());
+//    ToolUtils.AsyncHttpPostJson(admin_uri, aip, ret, resp -> {
+//      JSONObject obj = JSONObject.parseObject(resp.getResponseBody());
+//      return obj;
+//    });
+    return Result.succ("ok");
   }
 }
 

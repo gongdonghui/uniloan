@@ -22,6 +22,7 @@
         <module>common</module>
         <module>core</module>
         <module>eureka</module>
+        <module>market</module>
     </modules>
 
     <profiles>

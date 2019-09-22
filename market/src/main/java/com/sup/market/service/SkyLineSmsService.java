@@ -1,21 +1,20 @@
-package com.sup.backend.service;
+package com.sup.market.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.ImmutableMap;
-import com.sup.backend.util.HttpClient;
-import com.sup.backend.util.ToolUtils;
+import com.sup.market.util.HttpClient;
+import com.sup.market.util.ToolUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.URLEncoder;
-import java.nio.channels.SelectionKey;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
 
 /**
  * Created by xidongzhou1 on 2019/9/5.
@@ -44,7 +43,7 @@ public class SkyLineSmsService {
     return ToolUtils.Md5Sum(String.format("%s%s%s", account, password, time_str));
   }
 
-  public boolean send(List<String> mobiles, String content, String account, String password) throws Exception {
+  public boolean send(List<String> mobiles, String content, String account, String password, String senderid) throws Exception {
     Map<String, String> params = new HashMap<>();
     String time_str = (new SimpleDateFormat("yyyyMMddHHmmss")).format(new Date());
     StringBuffer sb = new StringBuffer();
@@ -53,10 +52,11 @@ public class SkyLineSmsService {
       .append("&sign=").append(genSign(account, password, time_str))
       .append("&numbers=").append(String.join(",", mobiles))
       .append("&datetime=").append(time_str)
-      .append("&senderid=").append("Verify")
       .append("&content=").append(URLEncoder.encode(content, "UTF-8"));
+    if (StringUtils.isNotEmpty(senderid)) {
+      sb.append("&senderid=").append("Verify");
+    }
     String url = sb.toString();
-
     logger.info("sms_to_send => " + url);
     String resp = HttpClient.httpGet(url, null);
     JSONObject resp_obj = JSON.parseObject(resp);
@@ -65,10 +65,10 @@ public class SkyLineSmsService {
   }
 
   public boolean SendSmsVip(List<String> mobiles, String content) throws Exception {
-    return send(mobiles, content, vip_account, vip_password);
+    return send(mobiles, content, vip_account, vip_password, "Verify");
   }
 
   public boolean SendSms(List<String> mobiles, String content) throws Exception {
-    return send(mobiles, content, account, password);
+    return send(mobiles, content, account, password, "");
   }
 }

@@ -11,7 +11,6 @@ import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
 import com.sup.backend.mapper.*;
 import com.sup.backend.service.RedisClient;
-import com.sup.backend.service.SkyLineSmsService;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.*;
 import com.sup.common.util.Result;
@@ -108,12 +107,12 @@ public class CertController {
   @RequestMapping(value = "idcard/get", produces = "application/json;charset=UTF-8")
   public Object getUserIdCardInfo(@LoginInfo LoginInfoCtx li) {
     BaseMapper<TbUserCitizenIdentityCardInfoBean> mapper = tb_user_citizen_identity_card_info_mapper;
-    Wrapper<TbUserCitizenIdentityCardInfoBean> cond = new QueryWrapper<TbUserCitizenIdentityCardInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time");
+    Wrapper<TbUserCitizenIdentityCardInfoBean> cond = new QueryWrapper<TbUserCitizenIdentityCardInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
     TbUserCitizenIdentityCardInfoBean old_bean = mapper.selectOne(cond);
     if (old_bean == null || old_bean.getExpire_time().getTime() < System.currentTimeMillis()) {
       return Result.succ(null);
     }
-    TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()));
+    TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()).last("limit 1"));
     if (apply_material != null) {
       String new_info_id = ToolUtils.getToken();
       old_bean.setId(null);
@@ -154,12 +153,12 @@ public class CertController {
   @RequestMapping(value = "basic/get", produces = "application/json;charset=UTF-8")
   public Object getUserBasicInfo(@LoginInfo LoginInfoCtx li) {
     BaseMapper<TbUserBasicInfoBean> mapper = tb_user_basic_info_mapper;
-    Wrapper<TbUserBasicInfoBean> cond = new QueryWrapper<TbUserBasicInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time");
+    Wrapper<TbUserBasicInfoBean> cond = new QueryWrapper<TbUserBasicInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
     TbUserBasicInfoBean old_bean = mapper.selectOne(cond);
     if (old_bean == null || old_bean.getExpire_time().getTime() < System.currentTimeMillis()) {
       return Result.succ(null);
     }
-    TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()));
+    TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()).last("limit 1"));
     if (apply_material != null) {
       String new_info_id = ToolUtils.getToken();
       old_bean.setId(null);
@@ -191,13 +190,17 @@ public class CertController {
     }
     final String the_info_id = info_id;
     beans.forEach(bean -> {bean.setInfo_id(the_info_id);});
+
     List<Map> rets = new ArrayList<>();
+    String new_info_id = ToolUtils.getToken();
+    Date new_create_time = new Date();
     beans.forEach(bean -> {
       if (bean.getInfo_id() == null) {
-        bean.setInfo_id(ToolUtils.getToken());
         bean.setUser_id(li.getUser_id());
-        bean.setCreate_time(new Date());
+        bean.setInfo_id(new_info_id);
+        bean.setCreate_time(new_create_time);
       }
+
       if (bean.getId() == null) {
         tb_user_emergency_contact_mapper.insert(bean);
       } else {
@@ -206,6 +209,7 @@ public class CertController {
       rets.add(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
     });
     ClearDuplicateSubmit("contact", li.getUser_id());
+    logger.info("----- return bean: " + JSON.toJSONString(rets));
     return Result.succ(rets);
   }
 
@@ -213,8 +217,9 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = "contact/get", produces = "application/json;charset=UTF-8")
   public Object getUserContactInfo(@LoginInfo LoginInfoCtx li) {
+    logger.info("recv request ...");
     BaseMapper<TbUserEmergencyContactBean> mapper = tb_user_emergency_contact_mapper;
-    Wrapper<TbUserEmergencyContactBean> cond = new QueryWrapper<TbUserEmergencyContactBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time");
+    Wrapper<TbUserEmergencyContactBean> cond = new QueryWrapper<TbUserEmergencyContactBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
     TbUserEmergencyContactBean old_bean = mapper.selectOne(cond);
     if (old_bean == null) {
       return Result.succ(null);
@@ -224,7 +229,7 @@ public class CertController {
     }
 
     List<TbUserEmergencyContactBean> cands = tb_user_emergency_contact_mapper.selectList(new QueryWrapper<TbUserEmergencyContactBean>().eq("info_id", old_bean.getInfo_id()));
-    TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()));
+    TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()).last("limit 1"));
     if (apply_material != null) {
       String new_info_id = ToolUtils.getToken();
       for (int i = 0; i < cands.size(); ++i) {
@@ -243,6 +248,7 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = "contact/del", produces = "application/json;charset=UTF-8")
   public Object deleteEmergencyContact(@LoginInfo LoginInfoCtx li, @RequestBody TbUserEmergencyContactBean bean) {
+    logger.info("----- recv bean: " + JSON.toJSONString(bean));
     if (bean.getId() != null) {
       tb_user_emergency_contact_mapper.deleteById(bean.getId());
     }
@@ -277,13 +283,14 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = "employment/get", produces = "application/json;charset=UTF-8")
   public Object getUserEmploymentInfo(@LoginInfo LoginInfoCtx li) {
+    logger.info("recv request ...");
     BaseMapper<TbUserEmploymentInfoBean> mapper = tb_user_employment_info_mapper;
-    Wrapper<TbUserEmploymentInfoBean> cond = new QueryWrapper<TbUserEmploymentInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time");
+    Wrapper<TbUserEmploymentInfoBean> cond = new QueryWrapper<TbUserEmploymentInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
     TbUserEmploymentInfoBean old_bean = mapper.selectOne(cond);
     if (old_bean == null || old_bean.getExpire_time().getTime() < System.currentTimeMillis()) {
       return Result.succ(null);
     }
-    TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()));
+    TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()).last("limit 1"));
     if (apply_material != null) {
       String new_info_id = ToolUtils.getToken();
       old_bean.setId(null);
@@ -324,13 +331,14 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = "bank/get", produces = "application/json;charset=UTF-8")
   public Object getUserBankInfo(@LoginInfo LoginInfoCtx li) {
+    logger.info("recv request ...");
     BaseMapper<TbUserBankAccountInfoBean> mapper = tb_user_bank_account_mapper;
-    Wrapper<TbUserBankAccountInfoBean> cond = new QueryWrapper<TbUserBankAccountInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time");
+    Wrapper<TbUserBankAccountInfoBean> cond = new QueryWrapper<TbUserBankAccountInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
     TbUserBankAccountInfoBean old_bean = mapper.selectOne(cond);
     if (old_bean == null || old_bean.getExpire_time().getTime() < System.currentTimeMillis()) {
       return Result.succ(null);
     }
-    TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()));
+    TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()).last("limit 1"));
     if (apply_material != null) {
       String new_info_id = ToolUtils.getToken();
       old_bean.setId(null);

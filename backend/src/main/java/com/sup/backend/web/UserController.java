@@ -17,7 +17,6 @@ import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
 import com.sup.backend.mapper.*;
 import com.sup.backend.service.RedisClient;
-import com.sup.backend.service.SkyLineSmsService;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.mq.MqTag;
@@ -31,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import sun.applet.resources.MsgAppletViewer_zh_TW;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -56,8 +54,6 @@ public class UserController {
   @Autowired
   RedisClient rc;
   @Autowired
-  SkyLineSmsService sms_service;
-  @Autowired
   TbUserRegistInfoMapper tb_user_regist_info_mapper;
   @Autowired
   MqProducerService mqProducerService;
@@ -73,7 +69,7 @@ public class UserController {
       return Result.succ("already_send_please_wait");
     }
 
-    String verify_code = "1234"; //String.valueOf(RandomUtils.nextInt(1000, 9999));
+    String verify_code = String.valueOf(RandomUtils.nextInt(1000, 9999));
 
     // send to queue to send to user ....
     UserStateMessage usm = new UserStateMessage();
