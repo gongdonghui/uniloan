@@ -1,12 +1,17 @@
 package com.sup.core.service;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.ImmutableMap;
 import com.sup.common.bean.*;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.PayVO;
 import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.*;
+import com.sup.common.mq.MqTag;
+import com.sup.common.mq.MqTopic;
+import com.sup.common.mq.UserStateMessage;
 import com.sup.common.param.FunpayCallBackParam;
 import com.sup.common.param.LoanCalculatorParam;
 import com.sup.common.param.ManualRepayParam;
@@ -17,6 +22,7 @@ import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
 import com.sup.core.mapper.*;
 import lombok.extern.log4j.Log4j;
+import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -55,7 +61,8 @@ public class LoanService {
     private ApplyService applyService;
     @Autowired
     private PayCenterService funpayService;
-
+    @Autowired
+    private MqProducerService mqProducerService;
 
     public Result autoLoan(TbApplyInfoBean applyInfoBean) {
         String userId = String.valueOf(applyInfoBean.getUser_id());
@@ -350,6 +357,14 @@ public class LoanService {
         } else {
             repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode());
         }
+        // TODO: send mq message
+        try {
+            sendMessage(repayPlanBean, repayAmount, repayTime);
+        }catch (Exception e) {
+            e.printStackTrace();
+            log.error("Failed to send MQ message. e = " + e.getMessage());
+        }
+
         return updateRepayPlan(repayPlanBean);
     }
 
@@ -395,6 +410,23 @@ public class LoanService {
         param.setInhandAmount(quotaInhand);
         param.setTotalAmount(loanAmount + feeTotal + interestTotal);
         return param;
+    }
+
+    protected void sendMessage(TbRepayPlanBean repayPlan, Long repayAmount, Date repayTime) throws Exception {
+        String state_desc = ApplyStatusEnum.getStatusByCode(repayPlan.getRepay_status()).getCodeDesc();
+        UserStateMessage message = new UserStateMessage();
+        message.setUser_id(repayPlan.getUser_id());
+        message.setRel_id(repayPlan.getApply_id());
+        message.setState(state_desc);
+        message.setCreate_time(DateUtil.format(new Date(), DateUtil.DEFAULT_DATETIME_FORMAT));
+        message.setExt(JSON.toJSONString(
+                ImmutableMap.of(
+                        "order_id", repayPlan.getApply_id().toString(),
+                        "repay_amount", repayAmount,
+                        "repay_time", repayTime
+                )));
+
+        mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, MqTag.REPAY_SUCC_NOTIFY, "", GsonUtil.toJson(message).getBytes()));
     }
 
     protected TbRepayPlanBean genRepayPlan(TbApplyInfoBean bean) {
