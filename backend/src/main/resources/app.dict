@@ -59,6 +59,11 @@
     "en": ["1", "2"],
     "vi": ["1", "2"]
   },
+  "employment_work_period": {
+    "id":  [1, 2],
+    "en": ["1", "2"],
+    "vi": ["1", "2"]
+  },
   "general_province": {
     "vi": ["Hà Nội", "Hải Phòng", "Hải Dương", "Hưng Yên", "Hà Nam", "Nam Định", "Thái Bình", "Ninh Bình", "Hà Giang", "Cao Bằng", "Lào Cai", "Bắc Cạn", "Lạng Sơn", "Tuyên Quang", "Yên Bái", "Thái Nguyên", "Phú Thọ", "Vĩnh Phúc", "Bắc Giang", "Bắc Ninh", "Quảng Ninh", "Điện Biên", "Lai Châu", "Sơn La", "Hòa Bình", "Thanh Hoá", "Nghệ An", "Hà Tĩnh", "Quảng Bình", "Quảng Trị", "Thừa Thiên - Huế", "Đà Nẵng", "Quảng Nam", "Quảng Ngãi", "Bình Định", "Phú Yên", "Khánh Hòa", "Kon Tum", "Gia Lai", "Đắc Lắc", "Đắk Nông", "TP Hồ Chí Minh", "Lâm Đồng", "Ninh Thuận", "Bình Phước", "Tây Ninh", "Bình Dương", "Đồng Nai", "Bình Thuận", "Bà Rịa - Vũng Tàu", "Long An", "Đồng Tháp", "An Giang", "Tiền Giang", "Vĩnh Long", "Bến Tre", "Kiên Giang", "Cần Thơ", "Hậu Giang", "Trà Vinh", "Sóc Trăng", "Bạc Liêu", "Cà Mau"],
     "en": ["101", "103", "107", "109", "111", "113", "115", "117", "201", "203", "205", "207", "209", "211", "213", "215", "217", "219", "221", "223", "225", "301", "302", "303", "305", "401", "403", "405", "407", "409", "411", "501", "503", "505", "507", "509", "511", "601", "603", "605", "606", "701", "703", "705", "707", "709", "711", "713", "715", "717", "801", "803", "805", "807", "809", "811", "813", "815", "816", "817", "819", "821", "823"],
