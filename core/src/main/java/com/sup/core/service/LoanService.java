@@ -309,6 +309,10 @@ public class LoanService {
             log.info("repayCallBack: nothing to do for applyId = " + param.getApplyId() +
                     ", reason: " + FunpayOrderUtil.getMessage(status)
             );
+            if (orderStatus == FunpayOrderUtil.Status.ERROR) {
+                sendRepayMessage(Integer.valueOf(param.getUserId()), Integer.valueOf(param.getApplyId()),
+                        RepayPlanStatusEnum.PLAN_PAID_ERROR, Long.valueOf(param.getAmount()), param.getFinishTime());
+            }
             return Result.succ();
         }
         if (param.getAmount() <= 0) {
@@ -352,18 +356,15 @@ public class LoanService {
         }
         repayPlanBean.updateActFields(repayAmount);
         repayPlanBean.setRepay_time(repayTime);
+        RepayPlanStatusEnum repayStatus;
+
         if (repayPlanBean.getAct_total() < repayPlanBean.getNeed_total()) {
-            repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_PART.getCode());
+            repayStatus = RepayPlanStatusEnum.PLAN_PAID_PART;
         } else {
-            repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode());
+            repayStatus = RepayPlanStatusEnum.PLAN_PAID_ALL;
         }
-        // TODO: send mq message
-        try {
-            sendMessage(repayPlanBean, repayAmount, repayTime);
-        }catch (Exception e) {
-            e.printStackTrace();
-            log.error("Failed to send MQ message. e = " + e.getMessage());
-        }
+        repayPlanBean.setRepay_status(repayStatus.getCode());
+        sendRepayMessage(repayPlanBean.getUser_id(), repayPlanBean.getApply_id(), repayStatus, repayAmount, repayTime);
 
         return updateRepayPlan(repayPlanBean);
     }
@@ -412,21 +413,26 @@ public class LoanService {
         return param;
     }
 
-    protected void sendMessage(TbRepayPlanBean repayPlan, Long repayAmount, Date repayTime) throws Exception {
-        String state_desc = ApplyStatusEnum.getStatusByCode(repayPlan.getRepay_status()).getCodeDesc();
-        UserStateMessage message = new UserStateMessage();
-        message.setUser_id(repayPlan.getUser_id());
-        message.setRel_id(repayPlan.getApply_id());
-        message.setState(state_desc);
-        message.setCreate_time(DateUtil.format(new Date(), DateUtil.DEFAULT_DATETIME_FORMAT));
-        message.setExt(JSON.toJSONString(
-                ImmutableMap.of(
-                        "order_id", repayPlan.getApply_id().toString(),
-                        "repay_amount", repayAmount,
-                        "repay_time", repayTime
-                )));
+    public void sendRepayMessage(Integer userId, Integer applyId, RepayPlanStatusEnum status, Long repayAmount, Date repayTime) {
+        try {
+            String state_desc = status.getCodeDesc();
+            UserStateMessage message = new UserStateMessage();
+            message.setUser_id(userId);
+            message.setRel_id(applyId);
+            message.setState(state_desc);
+            message.setCreate_time(DateUtil.format(new Date(), DateUtil.DEFAULT_DATETIME_FORMAT));
+            message.setExt(JSON.toJSONString(
+                    ImmutableMap.of(
+                            "order_id", applyId.toString(),
+                            "repay_amount", repayAmount,
+                            "repay_time", repayTime
+                    )));
 
-        mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, MqTag.REPAY_SUCC_NOTIFY, "", GsonUtil.toJson(message).getBytes()));
+            mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, MqTag.REPAY_SUCC_NOTIFY, "", GsonUtil.toJson(message).getBytes()));
+        }catch (Exception e) {
+            e.printStackTrace();
+            log.error("Failed to send MQ message. e = " + e.getMessage());
+        }
     }
 
     protected TbRepayPlanBean genRepayPlan(TbApplyInfoBean bean) {

@@ -176,7 +176,7 @@ public class ScheduleTasks {
                 if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
                     // 放款成功，检查金额
                     Integer amount = ps.getAmount();
-                    if (amount > 0 && amount != bean.getInhand_quota()) {
+                    if (amount > 0 && !amount.equals(bean.getInhand_quota())) {
                         // 放款金额不一致？？？
                         log.error("########### invalid loan amount ############");
                         log.error("PayStatusVO = " + GsonUtil.toJson(ps));
@@ -237,6 +237,7 @@ public class ScheduleTasks {
                 if (orderStatus == FunpayOrderUtil.Status.PROCESSING) {
                     continue;
                 }
+                Date repayTime = DateUtil.parse(rs.getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT);
                 if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
                     // 还款成功，更新还款计划
                     Long repayAmount = Long.valueOf(rs.getAmount());
@@ -246,12 +247,14 @@ public class ScheduleTasks {
                         log.error("RepayStatusVO = " + GsonUtil.toJson(rs));
                         log.error("RepayPlanBean = " + GsonUtil.toJson(bean));
                     }
-                    Date repayTime = DateUtil.parse(rs.getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT);
+
                     loanService.repayAndUpdate(bean, repayAmount, repayTime);
                 } else {
                     log.error("Auto repay failed for applyId = " + bean.getId() +
                             ", reason: " + FunpayOrderUtil.getMessage(status)
                     );
+                    loanService.sendRepayMessage(bean.getUser_id(), bean.getApply_id(), RepayPlanStatusEnum.PLAN_PAID_ERROR,
+                            Long.valueOf(rs.getAmount()), repayTime);
                     bean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_ERROR.getCode());
                     Result result = loanService.updateRepayPlan(bean);
                     if (!result.isSucc()) {
