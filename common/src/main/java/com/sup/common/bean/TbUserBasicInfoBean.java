@@ -24,7 +24,9 @@ public class TbUserBasicInfoBean {
   private Integer education;
   private Integer marriage;
   private Integer children_count;
+  private Integer residence_province;
   private Integer residence_city;
+  private Integer residence_country;
   private String residence_addr;
   private Integer residence_duration;
   private Integer purpose;

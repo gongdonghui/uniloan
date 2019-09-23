@@ -23,10 +23,13 @@ public class TbUserEmploymentInfoBean {
   private Integer user_id;
 
   private String company;
+  private Integer company_province;
   private Integer company_city;
+  private Integer company_country;
   private String company_addr;
   private String phone;
   private Integer job_occupation;
+  private Integer work_period;
   private Integer income;
   private String work_pic;
 

@@ -1,10 +1,12 @@
 package com.sup.backend.web;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.backend.bean.AppProductInfo;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
 import com.sup.backend.mapper.TbProductInfoMapper;
+import com.sup.backend.mapper.TbUserRegistInfoMapper;
 import com.sup.common.bean.TbProductInfoBean;
 import com.sup.common.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +27,15 @@ public class ProductController {
   @Autowired
   TbProductInfoMapper tb_product_info_mapper;
 
+  @Autowired
+  TbUserRegistInfoMapper tb_user_regist_info_mapper;
+
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "list", produces = "application/json;charset=UTF-8")
   public Object getProduct(@LoginInfo LoginInfoCtx li) {
-    List<TbProductInfoBean> beans = tb_product_info_mapper.selectList(null);
+    int credit_level = tb_user_regist_info_mapper.selectById(li.getUser_id()).getCredit_level();
+    List<TbProductInfoBean> beans = tb_product_info_mapper.selectList(new QueryWrapper<TbProductInfoBean>().eq("status", 1).eq("credit_level", credit_level));
     List<AppProductInfo> ret_beans = new ArrayList<>();
     beans.forEach(bean -> {
       AppProductInfo api = new AppProductInfo();

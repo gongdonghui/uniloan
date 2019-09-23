@@ -265,7 +265,7 @@ CREATE TABLE if NOT EXISTS `tb_product_info` (
   `overdue_rate` float unsigned NOT NULL COMMENT '逾期日费费',
   `grace_period` int(11) DEFAULT 0 COMMENT '宽限期',
   `product_order` int(11) DEFAULT 0 COMMENT '排列顺序',
-  `credit_class_id` int(11) DEFAULT 0 COMMENT '信用等级',
+  `credit_level` int(11) DEFAULT 0 COMMENT '信用等级',
   `material_needed` varchar(128) NOT NULL DEFAULT '' COMMENT '所需资料',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`),
@@ -393,7 +393,9 @@ CREATE TABLE `tb_user_basic_info` (
   `education` tinyint(4) NOT NULL COMMENT '学历   0|小学 1|初中 2|高中 3|中间 4|学院 5|综合性大学 6|大学后',
   `marriage` tinyint(4) NOT NULL DEFAULT '1' COMMENT '婚姻状态    0|已婚 1|单身 2|离异 3|丧偶',
   `children_count` tinyint(4) NOT NULL DEFAULT '0' COMMENT '子女个数',
-  `residence_city` smallint(6) NOT NULL DEFAULT '0' COMMENT '居住城市 0|河内  1|河外',
+  `residence_province` int(10) NOT NULL DEFAULT '0' COMMENT '省',
+  `residence_city` int(10) NOT NULL DEFAULT '0' COMMENT '城市',
+  `residence_country` int(10) NOT NULL DEFAULT '0' COMMENT '县',
   `residence_addr` varchar(256) NOT NULL COMMENT '详细居住地址',
   `residence_duration` tinyint(4) NOT NULL DEFAULT '0' COMMENT '居住时长 0|3个月  1|6个月',
   `purpose` tinyint(4) NOT NULL DEFAULT '0' COMMENT '用途 0|旅游  1|买车',
@@ -456,10 +458,13 @@ CREATE TABLE if NOT EXISTS `tb_user_employment_info` (
   `info_id` varchar(32) NOT NULL COMMENT '资料标识id',
   `user_id` int(10) NOT NULL COMMENT '关联用户id',
   `company` varchar(128) NOT NULL COMMENT '任职公司名称',
-  `company_city` smallint(6) NOT NULL COMMENT '公司所在区域 0|河内 1|河外',
+  `company_province` int(10) NOT NULL COMMENT '省',
+  `company_city` int(10) NOT NULL COMMENT '城市',
+  `company_country` int(10) NOT NULL COMMENT '县城',
   `company_addr` varchar(256) NOT NULL COMMENT '公司详细地址',
   `phone` varchar(32) NOT NULL COMMENT '公司联系电话',
   `job_occupation` tinyint(4) NOT NULL COMMENT '职业类型 0|工程师  1|服务行业',
+  `work_period` tinyint(4) NOT NULL COMMENT '工作时长',
   `income` tinyint(4) NOT NULL COMMENT '收入状态 0|1~100  1|100~1000',
   `work_pic` varchar(128) NOT NULL COMMENT '工作照片',
   `create_time` datetime NOT NULL,
@@ -477,6 +482,7 @@ CREATE TABLE if NOT EXISTS `tb_user_regist_info` (
   `mobile` varchar(32) NOT NULL COMMENT '登陆手机号',
   `name` varchar(64) COMMENT '用户姓名，在验证后补充',
   `type` int(11) NOT NULL DEFAULT '0' COMMENT '用户类型，0:借款用户',
+  `credit_level` int(11) DEFAULT 0 COMMENT '用户信用等级，根据这个找到匹配的产品',
   `status` int(11) NOT NULL DEFAULT '1' COMMENT '用户状态，1:正常',
   `channel_id` int(11) DEFAULT NULL COMMENT '注册渠道id',
   `promotion_info` varchar(512) DEFAULT NULL COMMENT '推广信息',
@@ -589,7 +595,7 @@ CREATE TABLE `tb_core_risk_variables` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_market_plan;
-CREATE TABLE `tb_market_plan` (
+CREATE TABLE IF NOT EXISTS `tb_market_plan` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `topic` varchar(128) NOT NULL COMMENT 'mq topic:  user_business_state',
   `tag` varchar(128) NOT NULL COMMENT 'mq tag: new_regist, loan_succ, ...',
@@ -605,7 +611,7 @@ CREATE TABLE `tb_market_plan` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_manual_repay;
-CREATE TABLE `tb_manual_repay` (
+CREATE TABLE IF NOT EXISTS `tb_manual_repay` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `plan_id` int(10) NOT NULL COMMENT '还款计划id',
   `user_id` int(10) NOT NULL,
@@ -625,7 +631,7 @@ CREATE TABLE `tb_manual_repay` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_core_assets_level_rules;
-CREATE TABLE `tb_core_assets_level_ruels` (
+CREATE TABLE IF NOT EXISTS `tb_core_assets_level_ruels` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `between_paydays` int(11) DEFAULT NULL COMMENT '距离还款日的天数',
   `level` int(11) DEFAULT NULL COMMENT '资产等级',
@@ -635,7 +641,7 @@ CREATE TABLE `tb_core_assets_level_ruels` (
 
 
 DROP TABLE IF EXISTS tb_core_comment_label;
-CREATE TABLE `tb_core_comment_label` (
+CREATE TABLE IF NOT EXISTS `tb_core_comment_label` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `content` text,
   `label_name` text,

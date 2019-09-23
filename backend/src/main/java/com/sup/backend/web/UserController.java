@@ -75,12 +75,11 @@ public class UserController {
     // send to queue to send to user ....
     UserStateMessage usm = new UserStateMessage();
     usm.setUser_id(-1);
-    usm.setState(MqTag.kIssueVerifyCode);
+    usm.setState(MqTag.ISSUE_VERIFY_CODE);
     usm.setMobile(mobile);
     usm.setExt((new JSONObject(ImmutableMap.of("verify_code", verify_code))).toJSONString());
     usm.setCreate_time(ToolUtils.NormTime(new Date()));
-    Message msg = new Message(MqTopic.kUserState, MqTag.kIssueVerifyCode, "", JSON.toJSONString(usm).getBytes());
-    
+    Message msg = new Message(MqTopic.SYSTEM_NOTIFY, MqTag.ISSUE_VERIFY_CODE, "", JSON.toJSONString(usm).getBytes());
 
     mqProducerService.sendMessage(msg);
     // save to redis to avoid duplicating sending message
