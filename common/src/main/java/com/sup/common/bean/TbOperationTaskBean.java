@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-@TableName("tb_market_plan")
+@TableName("tb_operation_task")
 public class TbOperationTaskBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -17,6 +17,7 @@ public class TbOperationTaskBean {
     private Integer distributor_id;
     private Integer task_type;      // 详见OperationTaskTypeEnum
     private Integer status;         // 详见OperationTaskStatusEnum
+    private Integer has_owner;      // 是否已分配（被指派或者领取） 0:不是，1:是
     private String  comment;
     private Date    create_time;
     private Date    expire_time;
