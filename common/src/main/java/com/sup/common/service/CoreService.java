@@ -1,7 +1,9 @@
 package com.sup.common.service;
 
+import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.common.bean.paycenter.RepayInfo;
+import com.sup.common.param.ApplyInfoParam;
 import com.sup.common.param.FunpayCallBackParam;
 import com.sup.common.param.LoanCalculatorParam;
 import com.sup.common.param.ManualRepayParam;
@@ -19,9 +21,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Create: 2019-09-05
  */
 
-// @FeignClient(name = "service-core-loan", path = "/loan")
-//@RequestMapping(value = "/loan")
-public interface LoanService {
+@FeignClient(name = "service-core")
+public interface CoreService {
+
+    // add apply
+    @ResponseBody
+    @RequestMapping(value = "/apply/add", produces = "application/json;charset=UTF-8")
+    Result addApplyInfo(@RequestBody ApplyInfoParam applyInfoParam);
+
+    // audit apply
+    @ResponseBody
+    @RequestMapping(value = "/apply/update", produces = "application/json;charset=UTF-8")
+    Result updateApplyInfo(@RequestBody TbApplyInfoBean bean);
 
     //////////////////////////////
     // 放款接口
@@ -33,22 +44,22 @@ public interface LoanService {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "calc", produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/loan/calc", produces = "application/json;charset=UTF-8")
     Result calculator(@RequestBody LoanCalculatorParam param);
 
 
     // auto loan
     @ResponseBody
-    @RequestMapping(value = "autoExec", produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/loan/autoExec", produces = "application/json;charset=UTF-8")
     Result autoLoan(String userId, String applyId);
 
     // add/update/get loan plan
     @ResponseBody
-    @RequestMapping(value = "plan/add", produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/loan/plan/add", produces = "application/json;charset=UTF-8")
     Result addRepayPlan(String userId, String applyId);
 
     @ResponseBody
-    @RequestMapping(value = "plan/update", produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/loan/plan/update", produces = "application/json;charset=UTF-8")
     Result updateRepayPlan(@RequestBody TbRepayPlanBean bean);
 
     /**
@@ -57,7 +68,7 @@ public interface LoanService {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "plan/get", produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/loan/plan/get", produces = "application/json;charset=UTF-8")
     Result getRepayPlan(String applyId);
 
     /**
@@ -66,7 +77,7 @@ public interface LoanService {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "manualRepay", produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/loan/manualRepay", produces = "application/json;charset=UTF-8")
     Result manualRepay(@RequestBody ManualRepayParam param);
 
 
@@ -77,7 +88,7 @@ public interface LoanService {
      * @return  还款所需信息，包括交易码、便利店地址、流水号、交易码过期时间
      */
     @ResponseBody
-    @RequestMapping(value = "repayInfo/get", produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/loan/repayInfo/get", produces = "application/json;charset=UTF-8")
     Result getRepayInfo(@RequestBody RepayInfo repayInfo);
 
     /**
@@ -86,7 +97,7 @@ public interface LoanService {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "payCallBack", produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/loan/payCallBack", produces = "application/json;charset=UTF-8")
     Result payCallBack(@RequestBody FunpayCallBackParam param);
 
 
@@ -96,7 +107,7 @@ public interface LoanService {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "repayCallBack", produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/loan/repayCallBack", produces = "application/json;charset=UTF-8")
     Result repayCallBack(@RequestBody FunpayCallBackParam param);
 
 }

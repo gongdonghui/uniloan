@@ -325,7 +325,7 @@ CREATE TABLE if NOT EXISTS `tb_repay_plan` (
   `repay_code` varchar(256) DEFAULT NULL COMMENT '还款交易码',
   `repay_location` varchar(256) DEFAULT NULL COMMENT '还款便利店地址',
   `trade_number` varchar(256) DEFAULT NULL COMMENT '自动还款流水号',
-  `expire_time` datetime NOT NULL COMMENT '还款交易码失效时间',
+  `expire_time` datetime DEFAULT NULL COMMENT '还款交易码失效时间',
   `create_time` datetime NOT NULL COMMENT '记录创建时间',
   `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),

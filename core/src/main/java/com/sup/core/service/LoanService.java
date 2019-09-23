@@ -81,7 +81,7 @@ public class LoanService {
         // 2. get user bank info
         QueryWrapper<TbApplyMaterialInfoBean> materialWrapper = new QueryWrapper<>();
         TbApplyMaterialInfoBean applyMaterialInfoBean = applyMaterialInfoMapper.selectOne(materialWrapper
-                .eq("applyId", applyId)
+                .eq("apply_id", applyId)
                 .eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_BANK.getCode()));
 
         if (applyMaterialInfoBean == null) {
@@ -142,7 +142,7 @@ public class LoanService {
         // 检查是否已有还款信息
         QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
         TbRepayPlanBean repayPlanBean = repayPlanMapper.selectOne(
-                wrapper.eq("applyId", Integer.valueOf(repayInfo.getApplyId())).orderByDesc("create_time"));
+                wrapper.eq("apply_id", Integer.valueOf(repayInfo.getApplyId())).orderByDesc("create_time"));
         if (repayPlanBean == null) {
             log.error("Invalid applyId = " + repayInfo.getApplyId());
             return Result.fail("Invalid applyId!");
@@ -386,6 +386,7 @@ public class LoanService {
             log.error("Invalid feeType! product bean = " + GsonUtil.toJson(productInfoBean));
             return null;
         }
+
         int loanAmount = applyAmount;
         int feeTotal = (int)(loanAmount * productInfoBean.getFee());
         int interestTotal = (int) (loanAmount * productInfoBean.getRate() * applyPeriod);
@@ -410,6 +411,8 @@ public class LoanService {
         param.setApplyPeriod(applyPeriod);
         param.setInhandAmount(quotaInhand);
         param.setTotalAmount(loanAmount + feeTotal + interestTotal);
+        // log.info("Product bean: " + GsonUtil.toJson(productInfoBean));
+        // log.info("Return bran: " + GsonUtil.toJson(param));
         return param;
     }
 
@@ -475,6 +478,7 @@ public class LoanService {
         Date repayStartTime = bean.getLoan_time();
         Date repayEndTime = DateUtil.getDate(repayStartTime, bean.getPeriod());
 
+        Date now = new Date();
         TbRepayPlanBean repayPlanBean = new TbRepayPlanBean();
         repayPlanBean.setUser_id(bean.getUser_id());
         repayPlanBean.setApply_id(bean.getId());
@@ -488,6 +492,8 @@ public class LoanService {
         repayPlanBean.setNeed_interest(Long.valueOf(interestToRepay));
         repayPlanBean.setNeed_management_fee(Long.valueOf(feeToRepay));
         repayPlanBean.setNeed_total(Long.valueOf(totalToRepay));
+        repayPlanBean.setCreate_time(now);
+        repayPlanBean.setUpdate_time(now);
 
         return repayPlanBean;
     }

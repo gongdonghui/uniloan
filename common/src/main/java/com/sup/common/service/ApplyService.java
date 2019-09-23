@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Create: 2019-09-10
  */
 
-@FeignClient(value = "service-core-apply", path = "/apply")
+// @FeignClient(name = "service-core-apply", path = "/apply")
 //@RequestMapping(value = "/apply")
 public interface ApplyService {
 
