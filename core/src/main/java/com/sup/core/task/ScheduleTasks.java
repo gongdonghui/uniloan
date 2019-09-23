@@ -9,6 +9,7 @@ import com.sup.common.bean.paycenter.RepayStatusInfo;
 import com.sup.common.bean.paycenter.vo.PayStatusVO;
 import com.sup.common.bean.paycenter.vo.RepayStatusVO;
 import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.loan.ProductStatusEnum;
 import com.sup.common.loan.RepayPlanOverdueEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.service.PayCenterService;
@@ -78,7 +79,7 @@ public class ScheduleTasks {
     private PayCenterService funpayService;
 
 
-    @Scheduled(cron = "0 */10 * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     public void checkApplyInfo() {
         // 1. 获取所有新提交的进件
         List<TbApplyInfoBean> applyInfoBeans = applyInfoMapper.selectList(
@@ -115,7 +116,7 @@ public class ScheduleTasks {
     /**
      * 定时检查进件状态，终审通过则尝试自动放款
      */
-    @Scheduled(cron = "0 */15 * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     public void checkApplyStatus() {
         // 获取所有终审通过的进件
         QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<TbApplyInfoBean>()
@@ -138,7 +139,7 @@ public class ScheduleTasks {
     /**
      * 定时检查放款是否成功
      */
-    @Scheduled(cron = "0 */10 * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     public void checkLoanResult() {
         QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<TbApplyInfoBean>();
         wrapper.eq("status", ApplyStatusEnum.APPLY_AUTO_LOANING.getCode());
@@ -204,7 +205,7 @@ public class ScheduleTasks {
     /**
      * 定时检查自助还款是否成功
      */
-    @Scheduled(cron = "0 */10 * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     public void checkRepayResult() {
         QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
         wrapper.eq("repay_status", RepayPlanStatusEnum.PLAN_PAID_PROCESSING.getCode());
@@ -264,11 +265,12 @@ public class ScheduleTasks {
     /**
      * 每天查询逾期情况，并更新相应款项
      */
-    @Scheduled(cron = "0 1 * * * ?")
+    @Scheduled(cron = "0 */10 * * * ?")
+    // @Scheduled(cron = "0 1 * * * ?")
     public void checkOverdue() {
         // 1. 获取所有产品信息（逾期日费率）
         List<TbProductInfoBean> products = productInfoMapper.selectList(
-                new QueryWrapper<TbProductInfoBean>().select("id", "overdueRate", "gracePeriod")
+                new QueryWrapper<TbProductInfoBean>().eq("status", ProductStatusEnum.PRODUCT_STATUS_OFFLINE.getCode())
         );
         if (products == null || products.size() == 0) {
             // No products??
@@ -327,7 +329,8 @@ public class ScheduleTasks {
     /**
      * 每天更新还款统计表
      */
-    @Scheduled(cron = "30 0 * * * ?")
+    @Scheduled(cron = "0 */10 * * * ?")
+    // @Scheduled(cron = "30 0 * * * ?")
     public void statRepayInfo() {
         // 1. 获取所有还款统计
         List<TbRepayStatBean> statBeans = repayStatMapper.selectList(
@@ -474,12 +477,19 @@ public class ScheduleTasks {
     @Scheduled(cron = "0 3 * * * ?")
     public void updateAssertLevel() {
 
-        List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_LOAN_SUCC).
-                or().eq("status", ApplyStatusEnum.APPLY_REPAY_PART).
-                or().eq("status", ApplyStatusEnum.APPLY_OVERDUE));   //TODO 结清的问题
+        List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
+                .eq("status", ApplyStatusEnum.APPLY_LOAN_SUCC.getCode())
+                .or().eq("status", ApplyStatusEnum.APPLY_REPAY_PART.getCode())
+                .or().eq("status", ApplyStatusEnum.APPLY_OVERDUE.getCode()));
+
+        //TODO 结清的问题
         Date date = new Date();
         List<AssetsLevelRuleBean> assetsLevelRuleBeans = this.assetsLevelRulesMapper.selectList(new QueryWrapper<AssetsLevelRuleBean>().orderByDesc("between_paydays"));
 
+        if (applyInfoBeanList == null || applyInfoBeanList.size() == 0) {
+            log.info("Nothing to do in updating asset levels.");
+            return;
+        }
         for (TbApplyInfoBean tbApplyInfoBean : applyInfoBeanList) {
 
             TbRepayPlanBean repayPlanBean = this.repayPlanMapper.selectOne(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", tbApplyInfoBean.getId()));

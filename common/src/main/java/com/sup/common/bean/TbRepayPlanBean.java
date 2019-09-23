@@ -3,6 +3,7 @@ package com.sup.common.bean;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -24,9 +25,14 @@ public class TbRepayPlanBean {
     private Integer apply_id;
     private Integer product_id;
     private Integer seq_no;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date repay_start_date;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date repay_end_date;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date repay_time;
+
     private Integer repay_status;   // 还款状态 0|未还  1|未还清 2|已还清 3|自助还款处理中 4|自助还款处理失败 5|核销
     private Integer is_overdue;
     private Long need_principal = 0L;
@@ -49,8 +55,12 @@ public class TbRepayPlanBean {
     private String  repay_code;     // 自动还款交易码
     private String  repay_location; // 自动还款地址
     private String  trade_number;   // 自动还款流水号
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date expire_time;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date create_time;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date update_time;
 
     // 根据实际还款金额，仅更新实际还款各个字段，状态仍需在调用出处理
