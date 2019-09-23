@@ -4,7 +4,7 @@ debug:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:51666/eureka/
+      defaultZone: http://140.143.207.211:51666/eureka/
 
 server:
   port: 10083
@@ -17,7 +17,7 @@ mybatis-plus:
 
 rocket:
   producer:
-    endpoint: localhost:9976
+    endpoint: 140.143.207.211:9976
     group: user_state_group
 
 spring:
@@ -31,18 +31,18 @@ spring:
       primary: test
       datasource:
         test:
-          username: dev
-          password: Ict123465
-          url: 'jdbc:mysql://47.92.200.47:3306/test_uniloan?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          username: uniloan_test
+          password: 13JPTmkZT5QmAV4s
+          url: 'jdbc:mysql://140.143.207.211:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
             max-lifetime: 600000
 
-        online:
-          username: dev
-          password: Ict123465
-          url: 'jdbc:mysql://47.92.200.47:3306/test_uniloan?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
-          driver-class-name: com.mysql.jdbc.Driver
+#        online:
+#          username: dev
+#          password: Ict123465
+#          url: 'jdbc:mysql://47.92.200.47:3306/test_uniloan?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+#          driver-class-name: com.mysql.jdbc.Driver
 
 apply:
   expire-days: 7

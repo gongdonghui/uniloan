@@ -16,6 +16,7 @@ import com.sup.common.mq.ApplyStateMessage;
 import com.sup.common.mq.MqTag;
 import com.sup.common.mq.MqTopic;
 import com.sup.common.mq.UserStateMessage;
+import com.sup.common.param.LoanCalculatorParam;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
@@ -129,7 +130,13 @@ public class ApplyService {
 //            case APPLY_SECOND_PASS: // 暂不使用
 //                break;
             case APPLY_FINAL_PASS:  // 终审通过，更新到手金额
-                bean.setInhand_quota(getInhandQuota(bean));
+                LoanCalculatorParam param = loanService.calcLoanAmount(bean);
+                if (param == null) {
+                    log.error("Calculate loan amount failed! bean = " + GsonUtil.toJson(bean));
+                    break;
+                }
+                //bean.setInhand_quota(getInhandQuota(bean));
+                bean.setInhand_quota(param.getInhandAmount());
                 bean.setPass_time(now);
                 break;
             case APPLY_LOAN_SUCC:   // 放款成功，生成还款计划
@@ -186,30 +193,30 @@ public class ApplyService {
         mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, state_desc, "", GsonUtil.toJson(message).getBytes()));
     }
 
-    protected int getInhandQuota(TbApplyInfoBean bean) {
-        LoanFeeTypeEnum feeType = LoanFeeTypeEnum.getStatusByCode(bean.getFee_type());
-        if (feeType == null) {
-            log.error("Invalid feeType = " + bean.getFee_type() + ", applyId = " + bean.getId());
-            return 0;
-        }
-        int loanAmount = bean.getGrant_quota();
-        int feeTotal = (int)(loanAmount * bean.getFee());    // service fee
-        int interestTotal = (int)(loanAmount * bean.getRate() * bean.getPeriod());
-
-        int quotaInhand = 0;
-        switch (feeType) {
-            case LOAN_PRE_FEE:
-                quotaInhand = loanAmount - feeTotal;
-                break;
-            case LOAN_PRE_FEE_PRE_INTEREST:
-                quotaInhand = loanAmount - feeTotal - interestTotal;
-                break;
-            case LOAN_POST_FEE_POST_INTEREST:
-                quotaInhand = loanAmount;
-                break;
-            default:
-                break;
-        }
-        return quotaInhand;
-    }
+//    protected int getInhandQuota(TbApplyInfoBean bean) {
+//        LoanFeeTypeEnum feeType = LoanFeeTypeEnum.getStatusByCode(bean.getFee_type());
+//        if (feeType == null) {
+//            log.error("Invalid feeType = " + bean.getFee_type() + ", applyId = " + bean.getId());
+//            return 0;
+//        }
+//        int loanAmount = bean.getGrant_quota();
+//        int feeTotal = (int)(loanAmount * bean.getFee());    // service fee
+//        int interestTotal = (int)(loanAmount * bean.getRate() * bean.getPeriod());
+//
+//        int quotaInhand = 0;
+//        switch (feeType) {
+//            case LOAN_PRE_FEE:
+//                quotaInhand = loanAmount - feeTotal;
+//                break;
+//            case LOAN_PRE_FEE_PRE_INTEREST:
+//                quotaInhand = loanAmount - feeTotal - interestTotal;
+//                break;
+//            case LOAN_POST_FEE_POST_INTEREST:
+//                quotaInhand = loanAmount;
+//                break;
+//            default:
+//                break;
+//        }
+//        return quotaInhand;
+//    }
 }

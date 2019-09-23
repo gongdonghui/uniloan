@@ -16,6 +16,7 @@ import com.sup.common.loan.ApplyMaterialTypeEnum;
 import com.sup.common.loan.RepayPlanOverdueEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.param.FunpayCallBackParam;
+import com.sup.common.param.LoanCalculatorParam;
 import com.sup.common.param.ManualRepayParam;
 import com.sup.common.service.PayCenterService;
 import com.sup.common.util.DateUtil;
@@ -55,6 +56,20 @@ public class LoanFacadeImpl implements LoanFacade {
     private LoanService loanService;
 
     private final float FLOAT_ZERO = 0.000001F;
+
+
+    /**
+     * 放款计算器，预估到手金额以及还款总额度
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public Result calculator(LoanCalculatorParam param) {
+        // TODO
+
+        return null;
+    }
 
     @Override
     public Result autoLoan(String userId, String applyId) {

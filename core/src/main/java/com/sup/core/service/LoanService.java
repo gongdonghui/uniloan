@@ -1,26 +1,21 @@
 package com.sup.core.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.sup.common.bean.TbApplyInfoBean;
-import com.sup.common.bean.TbApplyMaterialInfoBean;
-import com.sup.common.bean.TbRepayPlanBean;
-import com.sup.common.bean.TbUserBankAccountInfoBean;
+import com.sup.common.bean.*;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.PayVO;
 import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.*;
 import com.sup.common.param.FunpayCallBackParam;
+import com.sup.common.param.LoanCalculatorParam;
 import com.sup.common.param.ManualRepayParam;
 import com.sup.common.service.PayCenterService;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
-import com.sup.core.mapper.ApplyInfoMapper;
-import com.sup.core.mapper.ApplyMaterialInfoMapper;
-import com.sup.core.mapper.RepayPlanMapper;
-import com.sup.core.mapper.UserBankInfoMapper;
+import com.sup.core.mapper.*;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,6 +48,8 @@ public class LoanService {
     private ApplyMaterialInfoMapper applyMaterialInfoMapper;
     @Autowired
     private ApplyInfoMapper applyInfoMapper;
+    @Autowired
+    private ProductInfoMapper productInfoMapper;
 
     @Autowired
     private ApplyService applyService;
@@ -354,6 +351,51 @@ public class LoanService {
             repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode());
         }
         return updateRepayPlan(repayPlanBean);
+    }
+
+    public LoanCalculatorParam calcLoanAmount(TbApplyInfoBean applyInfoBean) {
+        return calcLoanAmount(applyInfoBean.getProduct_id(), applyInfoBean.getGrant_quota(), applyInfoBean.getPeriod());
+    }
+
+    public LoanCalculatorParam calcLoanAmount(Integer productId, Integer applyAmount, Integer applyPeriod) {
+        // TODO
+        QueryWrapper<TbProductInfoBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("id", productId);
+        TbProductInfoBean productInfoBean = productInfoMapper.selectOne(wrapper);
+        if (productInfoBean == null) {
+            log.error("Invalid product id: " + productId);
+            return null;
+        }
+        LoanFeeTypeEnum feeType = LoanFeeTypeEnum.getStatusByCode(productInfoBean.getFee_type());
+        if (feeType == null) {
+            log.error("Invalid feeType! product bean = " + GsonUtil.toJson(productInfoBean));
+            return null;
+        }
+        int loanAmount = applyAmount;
+        int feeTotal = (int)(loanAmount * productInfoBean.getFee());
+        int interestTotal = (int) (loanAmount * productInfoBean.getRate() * applyPeriod);
+
+        int quotaInhand = 0;
+        switch (feeType) {
+            case LOAN_PRE_FEE:
+                quotaInhand = loanAmount - feeTotal;
+                break;
+            case LOAN_PRE_FEE_PRE_INTEREST:
+                quotaInhand = loanAmount - feeTotal - interestTotal;
+                break;
+            case LOAN_POST_FEE_POST_INTEREST:
+                quotaInhand = loanAmount;
+                break;
+            default:
+                break;
+        }
+        LoanCalculatorParam param = new LoanCalculatorParam();
+        param.setProductId(productId);
+        param.setApplyAmount(applyAmount);
+        param.setApplyPeriod(applyPeriod);
+        param.setInhandAmount(quotaInhand);
+        param.setTotalAmount(loanAmount + feeTotal + interestTotal);
+        return param;
     }
 
     protected TbRepayPlanBean genRepayPlan(TbApplyInfoBean bean) {
