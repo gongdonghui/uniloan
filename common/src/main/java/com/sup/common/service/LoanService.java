@@ -3,6 +3,7 @@ package com.sup.common.service;
 import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.param.FunpayCallBackParam;
+import com.sup.common.param.LoanCalculatorParam;
 import com.sup.common.param.ManualRepayParam;
 import com.sup.common.util.Result;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -25,6 +26,16 @@ public interface LoanService {
     //////////////////////////////
     // 放款接口
     //////////////////////////////
+
+    /**
+     * 放款计算器，预估到手金额以及还款总额度
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "calc", produces = "application/json;charset=UTF-8")
+    Result calculator(@RequestBody LoanCalculatorParam param);
+
 
     // auto loan
     @ResponseBody
