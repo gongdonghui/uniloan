@@ -70,6 +70,7 @@ public class UserController {
     }
 
     String verify_code = String.valueOf(RandomUtils.nextInt(1000, 9999));
+    verify_code = "1234";
 
     // send to queue to send to user ....
     UserStateMessage usm = new UserStateMessage();
@@ -79,6 +80,7 @@ public class UserController {
     usm.setExt((new JSONObject(ImmutableMap.of("verify_code", verify_code))).toJSONString());
     usm.setCreate_time(ToolUtils.NormTime(new Date()));
     Message msg = new Message(MqTopic.kUserState, MqTag.kIssueVerifyCode, "", JSON.toJSONString(usm).getBytes());
+    
 
     mqProducerService.sendMessage(msg);
     // save to redis to avoid duplicating sending message

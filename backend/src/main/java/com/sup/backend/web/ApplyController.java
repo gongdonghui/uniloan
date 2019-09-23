@@ -17,12 +17,12 @@ import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.param.ApplyInfoParam;
+import com.sup.common.service.ApplyService;
 import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,16 +38,14 @@ public class ApplyController {
 
   @Value("admin.uri")
   private String admin_uri;
-
-  @Autowired
-  private TbProductInfoMapper tb_product_info_mapper;
-
   @Autowired
   TbApplyMaterialInfoMapper tb_apply_info_material_mapper;
   @Autowired
   ApplyInfoMapper apply_info_mapper;
   @Autowired
   TbRepayPlanMapper tb_repay_plan_mapper;
+  //@Autowired
+  //private ApplyService apply_service;
 
   @LoginRequired
   @ResponseBody
@@ -88,21 +86,15 @@ public class ApplyController {
   @RequestMapping(value = "new", produces = "application/json;charset=UTF-8")
   public Object addApplyInfo(@LoginInfo LoginInfoCtx li, @RequestBody AppSubmitOrder order_detail) {
     logger.info("apply_obj: " + JSON.toJSONString(order_detail));
-
-    //JSONObject params = new JSONObject();
-    //DeferredResult<Object> ret = new DeferredResult<>();
-    //TbProductInfoBean product = tb_product_info_mapper.selectById(order_detail.getProduct_id());
-//    ApplyInfoParam aip = new ApplyInfoParam();
-//    aip.setApp_id(null);
-//    aip.setChannel_id(null);
-//    aip.setApply_quota(order_detail.getQuota());
-//    aip.setPeriod(order_detail.getPeriod());
-//    aip.setInfoIdMap(order_detail.getMaterial_ids());
-//    aip.setProduct_id(order_detail.getProduct_id());
-//    ToolUtils.AsyncHttpPostJson(admin_uri, aip, ret, resp -> {
-//      JSONObject obj = JSONObject.parseObject(resp.getResponseBody());
-//      return obj;
-//    });
+    ApplyInfoParam aip = new ApplyInfoParam();
+    aip.setUser_id(li.getUser_id());
+    aip.setApp_id(-1);
+    aip.setApply_quota(order_detail.getQuota());
+    aip.setProduct_id(order_detail.getProduct_id());
+    aip.setChannel_id(-1);
+    aip.setPeriod(order_detail.getPeriod());
+    aip.setInfoIdMap(order_detail.getMaterial_ids());
+    //Result r = apply_service.addApplyInfo(aip);
     return Result.succ("ok");
   }
 }

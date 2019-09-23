@@ -40,13 +40,6 @@ import java.util.Date;
 @RequestMapping(value = "/repay")
 public class RepayController {
   public static Logger logger = Logger.getLogger(RepayController.class);
-
-  @Value("paycenter.uri")
-  private String paycenter_url;
-
-  @Value("admin.uri")
-  private String admin_uri;
-
   @Autowired
   TbUserRegistInfoMapper tb_user_regist_info_mapper;
 
@@ -57,13 +50,12 @@ public class RepayController {
   TbRepayPlanMapper tb_repay_plan_mapper;
 
   //@Autowired
-  //private PayCenterService funPayFacade;
+  //private PayCenterService pay_service;
 
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "get_repay_link", produces = "application/json;charset=UTF-8")
   public Object GetRepayLink(@RequestBody AppApplyInfo apply, @LoginInfo LoginInfoCtx li) {
-
     logger.info("----------- begin to getrepay link -------------");
     TbUserRegistInfoBean user = tb_user_regist_info_mapper.selectOne(new QueryWrapper<TbUserRegistInfoBean>().eq("id", li.getUser_id()));
     final String name = user.getName();
@@ -76,21 +68,8 @@ public class RepayController {
     ri.setName(name);
     ri.setPhone(phone);
     ri.setUserId(li.getUser_id().toString());
-
-    if (false) {
-      //return funPayFacade.repay(ri);
-      return "succ";
-    } else {
-      // 如果前面有问题，要用异步的
-      DeferredResult<Object> ret = new DeferredResult<>();
-      ToolUtils.AsyncHttpPostJson(paycenter_url + "/repay", ri, ret, resp -> {
-        Result<RepayVO> obj = JSON.parseObject(resp.getResponseBody(), new TypeReference<Result<RepayVO>>() {
-        });
-        return obj;
-      });
-      logger.info("test_end...");
-      return ret;
-    }
+    return Result.succ("ok");
+    //return pay_service.repay(ri);
   }
 
   @LoginRequired

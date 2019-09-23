@@ -9,10 +9,10 @@ import java.io.Serializable;
  */
 @Data
 public class UserStateMessage implements Serializable {
-  private Integer user_id;
-  private String mobile;
-  private Integer rel_id;
-  private String state;
-  private String create_time;
-  private String ext;
+  protected Integer user_id;
+  protected String mobile;
+  protected Integer rel_id;
+  protected String state;
+  protected String create_time;
+  protected String ext;
 }

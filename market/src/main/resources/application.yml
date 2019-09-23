@@ -10,6 +10,12 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
 
+ontime-delivery:
+  redisson:
+    host: 140.143.207.211
+    port: 6388
+    auth: 13JPTmkZT5QmAV4s
+
 sms:
   skyline:
     uri: http://sms.skylinelabs.cc:20003/sendsmsV2

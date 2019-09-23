@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by xidongzhou1 on 2019/8/30.
  */
-public interface ApplyInfoMapper extends BaseMapper<TbApplyInfoBean> {
+public interface TbApplyInfoMapper extends BaseMapper<TbApplyInfoBean> {
   @Select("<script> select * from ${tableName} <if test='ew != null'> ${ew.customSqlSegment} </if> </script>")
   List<TbApplyInfoBean> selectCus(@Param("tableName") String tn, @Param(Constants.WRAPPER) Wrapper<TbApplyInfoBean> ew);
 }
