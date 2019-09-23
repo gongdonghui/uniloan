@@ -12,9 +12,7 @@ import com.sup.common.bean.paycenter.vo.PayStatusVO;
 import com.sup.common.bean.paycenter.vo.PayVO;
 import com.sup.common.bean.paycenter.vo.RepayStatusVO;
 import com.sup.common.bean.paycenter.vo.RepayVO;
-import com.sup.common.loan.ApplyMaterialTypeEnum;
-import com.sup.common.loan.RepayPlanOverdueEnum;
-import com.sup.common.loan.RepayPlanStatusEnum;
+import com.sup.common.loan.*;
 import com.sup.common.param.FunpayCallBackParam;
 import com.sup.common.param.LoanCalculatorParam;
 import com.sup.common.param.ManualRepayParam;
@@ -24,7 +22,6 @@ import com.sup.common.util.FunpayOrderUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.core.facade.LoanFacade;
 import com.sup.core.mapper.*;
-import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.Result;
 import com.sup.core.service.ApplyService;
 import com.sup.core.service.LoanService;
@@ -66,9 +63,14 @@ public class LoanFacadeImpl implements LoanFacade {
      */
     @Override
     public Result calculator(LoanCalculatorParam param) {
-        // TODO
-
-        return null;
+        Integer productId = param.getProductId();
+        Integer applyAmount = param.getApplyAmount();
+        Integer applyPeriod = param.getApplyPeriod();
+        param = loanService.calcLoanAmount(productId, applyAmount, applyPeriod);
+        if (param == null) {
+            return Result.fail("System error!");
+        }
+        return Result.succ(param);
     }
 
     @Override

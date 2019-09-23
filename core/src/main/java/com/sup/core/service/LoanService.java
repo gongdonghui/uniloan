@@ -358,7 +358,6 @@ public class LoanService {
     }
 
     public LoanCalculatorParam calcLoanAmount(Integer productId, Integer applyAmount, Integer applyPeriod) {
-        // TODO
         QueryWrapper<TbProductInfoBean> wrapper = new QueryWrapper<>();
         wrapper.eq("id", productId);
         TbProductInfoBean productInfoBean = productInfoMapper.selectOne(wrapper);
