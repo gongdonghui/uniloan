@@ -103,6 +103,7 @@ public class ApplyService {
                 taskBean.setTask_type(OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode());
                 taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
                 taskBean.setCreate_time(now);
+                taskBean.setUpdate_time(now);
                 if (operationTaskMapper.insert(taskBean) <= 0) {
                     log.error("Failed to add operation task, bean = " + GsonUtil.toJson(taskBean));
                 }
@@ -113,6 +114,7 @@ public class ApplyService {
                 taskBean.setTask_type(OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode());
                 taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
                 taskBean.setCreate_time(now);
+                taskBean.setUpdate_time(now);
                 if (operationTaskMapper.insert(taskBean) <= 0) {
                     log.error("Failed to add operation task, bean = " + GsonUtil.toJson(taskBean));
                 }
@@ -137,6 +139,7 @@ public class ApplyService {
                 taskBean.setTask_type(OperationTaskTypeEnum.TASK_OVERDUE.getCode());
                 taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
                 taskBean.setCreate_time(now);
+                taskBean.setUpdate_time(now);
                 if (operationTaskMapper.insert(taskBean) <= 0) {
                     log.error("Failed to add operation task, bean = " + GsonUtil.toJson(taskBean));
                 }
