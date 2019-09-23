@@ -1,5 +1,6 @@
 package com.sup.common.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -19,5 +20,7 @@ public class FunpayCallBackParam {
     private String tradeNo;
     private Integer status;     // see code map in FunpayOrderUtil
     private Integer amount;     // 交易金额（放款或者还款）
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date    finishTime; // 交易完成时间
 }

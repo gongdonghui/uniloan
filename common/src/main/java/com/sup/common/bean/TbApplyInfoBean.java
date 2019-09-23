@@ -3,6 +3,7 @@ package com.sup.common.bean;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -45,9 +46,15 @@ public class TbApplyInfoBean {
     private String  comment;
     private String  trade_number;   // 自动放款流水号
     private Integer asset_level;    // 资产登记，参见AssetLevelEnum
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date    create_time;    // 申请时间
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date    expire_time;    // 申请失效时间
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date    pass_time;      // 终审通过时间
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date    loan_time;      // 放款成功时间
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date    update_time;
 }

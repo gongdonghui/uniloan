@@ -1,5 +1,6 @@
 package com.sup.common.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -17,5 +18,7 @@ public class ManualRepayParam {
     private String  userId;
     private String  applyId;
     private Integer amount;     // 还款金额
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date    repayTime;  // 还款时间
 }
