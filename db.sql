@@ -395,7 +395,7 @@ CREATE TABLE `tb_user_basic_info` (
   `children_count` tinyint(4) NOT NULL DEFAULT '0' COMMENT '子女个数',
   `residence_city` smallint(6) NOT NULL DEFAULT '0' COMMENT '居住城市 0|河内  1|河外',
   `residence_addr` varchar(256) NOT NULL COMMENT '详细居住地址',
-  `residen_duration` tinyint(4) NOT NULL DEFAULT '0' COMMENT '居住时长 0|3个月  1|6个月',
+  `residence_duration` tinyint(4) NOT NULL DEFAULT '0' COMMENT '居住时长 0|3个月  1|6个月',
   `purpose` tinyint(4) NOT NULL DEFAULT '0' COMMENT '用途 0|旅游  1|买车',
   `purpose_other` varchar(128) NOT NULL DEFAULT '' COMMENT '用途其他 如果需要用户填写',
   `zalo_id` varchar(64) NOT NULL DEFAULT '' COMMENT 'zalo id',
@@ -515,8 +515,8 @@ CREATE TABLE `tb_app_sdk_location_info` (
   KEY `idx_mobile` (`mobile`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS tp_app_sdk_contract_info;
-CREATE TABLE `tp_app_sdk_contract_info` (
+DROP TABLE IF EXISTS tb_app_sdk_contract_info;
+CREATE TABLE `tb_app_sdk_contract_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
   `mobile` varchar(255) DEFAULT NULL COMMENT '手机号',

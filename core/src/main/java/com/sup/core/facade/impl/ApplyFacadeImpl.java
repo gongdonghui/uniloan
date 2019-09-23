@@ -7,25 +7,18 @@ import com.sup.common.bean.TbApplyMaterialInfoBean;
 import com.sup.common.bean.TbProductInfoBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.DateUtil;
-import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
-import com.sup.core.bean.RiskDecisionResultBean;
 import com.sup.core.facade.ApplyFacade;
 import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.ApplyMaterialInfoMapper;
 import com.sup.core.mapper.ProductInfoMapper;
-import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.ApplyService;
-import com.sup.core.service.impl.DecisionEngineImpl;
-import com.sup.core.status.DecisionEngineStatusEnum;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Project:uniloan
@@ -42,18 +35,13 @@ public class ApplyFacadeImpl implements ApplyFacade {
     @Autowired
     private ApplyService applyService;
 
-    @Autowired
-    private DecisionEngineImpl decisionEngine;
 
     @Autowired
     private ApplyMaterialInfoMapper applyMaterialInfoMapper;
-
     @Autowired
     private ProductInfoMapper productInfoMapper;
-
     @Autowired
     private ApplyInfoMapper applyInfoMapper;
-
 
     @Value("#{new Integer('${apply.expire-days}')}")
     private Integer APPLY_EXPIRE_DAYS;
