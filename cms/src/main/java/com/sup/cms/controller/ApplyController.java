@@ -25,6 +25,12 @@ public class ApplyController {
     @Autowired
     private ApplyOperationTaskMapper applyOperationTaskMapper;
 
+    /**
+     * 信审或者终审的待指派或者待领取-列表
+     * 根据不同参数 可以展示不同列表
+     * @param params
+     * @return
+     */
     @PostMapping("/approval/getList")
     public String getList1(@Valid @RequestBody ApplyApprovalGetListParams params) {
         QueryWrapper<ApprovalGetListBean> qw = new QueryWrapper<>();
@@ -49,6 +55,12 @@ public class ApplyController {
         return ResponseUtil.success(list);
     }
 
+    /**
+     * 信审或者终审的待指派或者待领取-按钮
+     * 根据不同参数 既可以是主动认领也可以是被指派
+     * @param params
+     * @return
+     */
     @PostMapping("/approval/allocation")
     public String allocation(@Valid @RequestBody ApplyApprovalAllocationParams params) {
         //todo 校验 终审和信审不能是同一个操作人
@@ -65,24 +77,46 @@ public class ApplyController {
         }
     }
 
+    /**
+     * 详情页面 跟尚香沟通后 发现这个详情页面 很多地方都用
+     * 所以打算单独提到一个controller
+     * 并且分成多个接口 同时提取不同方向的detail信息
+     * @param applyId
+     * @return
+     */
     @GetMapping("/approval/details")
     public String details(@RequestParam("applyId") String applyId) {
         //todo 根据applyId获取全部信息 拼装后返回展示在页面即可
         return ResponseUtil.success();
     }
 
+    /**
+     * 审批按钮
+     * @param params
+     * @return
+     */
     @PostMapping("/approval/action")
     public String action(@Valid @RequestBody ApplyApprovalActionParams params) {
         //todo 调用关老师接口改apply状态
         return ResponseUtil.success();
     }
 
+    /**
+     * 挂起按钮
+     * @param applyId
+     * @return
+     */
     @GetMapping("/approval/hangUp")
     public String hangUp(@RequestParam("applyId") String applyId) {
         //todo 不知道挂起是要干啥 看看能不能这期先不做
         return ResponseUtil.success();
     }
 
+    /**
+     * 进件管理页面-列表
+     * @param params
+     * @return
+     */
     @PostMapping("/management/getList")
     public String getList2(@Valid @RequestBody ApplyManagementGetListParams params) {
         //todo 入参已和前端对齐一致
@@ -90,6 +124,11 @@ public class ApplyController {
         return ResponseUtil.success();
     }
 
+    /**
+     * 指派历史-列表
+     * @param params
+     * @return
+     */
     @PostMapping("/allocation/history")
     public String history(@Valid @RequestBody ApplyAllocationHistoryParams params) {
         //todo 入参已和前端对齐一致
@@ -97,6 +136,11 @@ public class ApplyController {
         return ResponseUtil.success();
     }
 
+    /**
+     * 指派历史-重新指派
+     * @param params
+     * @return
+     */
     @PostMapping("/allocation/re")
     public String reAllocation(@Valid @RequestBody ApplyApprovalAllocationParams params) {
         //todo 重新指派的时候 是否只可以 重新指派自己曾经指派过的  还是胡乱的指派

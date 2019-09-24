@@ -22,7 +22,7 @@ public class CollectionController {
 // ->催收档案里显示所有已经指派了人的催收情况 在这里可以重新指派之类的
 
     /**
-     * 查看指派记录
+     * 查看指派记录按钮
      *
      * @param applyId
      * @return
@@ -32,34 +32,67 @@ public class CollectionController {
         return "";
     }
 
+    /**
+     * 添加催收记录按钮
+     * @param params
+     * @return
+     */
     @PostMapping("/addAllocateRecord")
     public String addAllocateRecord(@Valid @RequestBody CollectionAddAllocateRecordParams params) {
         return "";
     }
 
+    /**
+     * 预期派单-列表
+     * @param params
+     * @return
+     */
     @PostMapping("/allocate/getList")
     public String allocateGetList(@Valid @RequestBody CollectionAllocateGetListParams params) {
         return "";
     }
 
+    /**
+     * 预期派单-派单按钮
+     * @param params
+     * @return
+     */
     @PostMapping("/allocate/action")
     public String allocateAction(@Valid @RequestBody CollectionAllocateActionParams params) {
         //todo 不仅要update表 还要找地方存指派记录
         return "";
     }
 
+    /**
+     * 我的催收-列表
+     * @param params
+     * @return
+     */
     @PostMapping("/mine/getList")
     public String mine(@Valid @RequestBody CollectionMineGetListParams params) {
         return "";
     }
 
+    /**
+     * 催收档案-列表
+     * @param params
+     * @return
+     */
     @PostMapping("/archives/getList")
     public String archivesGetList(@Valid @RequestBody CollectionArchivesGetListParams params) {
         return "";
     }
 
+    /**
+     * 催收档案-重新指派按钮
+     * @param params
+     * @return
+     */
     @PostMapping("/archives/reAllocate")
     public String reAllocate(@Valid @RequestBody CollectionArchivesReAllocateParams params) {
         return "";
     }
+
+    //todo 还差一个召回按钮 不知道干啥的 待商讨
+
 }

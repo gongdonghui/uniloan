@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 public class CollectionAddAllocateRecordParams {
     private String mobile;
-    private String stats;
+    private String status;
     private Date alertDate;
     private String comment;
     private String applyId;
