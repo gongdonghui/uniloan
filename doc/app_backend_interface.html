@@ -284,11 +284,10 @@ return:   {"info_id": "xxxx", "id": 12332}
 
 
 待还订单列表：
-uri: /apply/list 
+uri: /apply/list_repay_applies 
 type: kv 
 param:
-return: {
-  "pending_list": [
+return: [
     {
         private Integer apply_id;    // 订单号
         private Integer plan_id;   // 期数 Id
@@ -302,10 +301,29 @@ return: {
         private String repay_img;   // 手动上传的打款凭证，需要人工审核
     }
   ]
-}
 
 还款明细： 
 从上面接口的返回的列表每一个 object 取即可
+
+
+
+审核中订单：
+uri:  /apply/list_pending_applies 
+type: 
+param:
+return: 
+[
+ {
+  private Integer apply_id;    // 订单号
+  private Integer status;
+  private String amount;
+  private String period;
+  private String rate;
+  private String apply_time;
+ }
+]
+
+
 
 
 自动还款：
