@@ -21,4 +21,6 @@ public class RepayInfo {
     private String name;
     @NotBlank(message = "手机不能为空")
     private String phone;
+    @NotBlank(message = "回款时orderNo不能为空")
+    private String orderNo;
 }

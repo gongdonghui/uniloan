@@ -19,6 +19,7 @@ import java.util.List;
  * @Date: 2019/9/22 11:00
  */
 @RequestMapping("/apply")
+@RestController
 public class ApplyController {
 
     @Autowired
@@ -97,9 +98,19 @@ public class ApplyController {
     }
 
     @PostMapping("/allocation/re")
-    public String reAllocation(@Valid @RequestBody ApplyApprovalReAllocationParams params) {
+    public String reAllocation(@Valid @RequestBody ApplyApprovalAllocationParams params) {
         //todo 重新指派的时候 是否只可以 重新指派自己曾经指派过的  还是胡乱的指派
-        return ResponseUtil.success();
+        ApplyOperationTaskBean bean = new ApplyOperationTaskBean();
+        bean.setId(params.getId());
+        bean.setOperatorId(params.getOperatorId());
+        if (params.getDistributorId() != null) {
+            bean.setDistributorId(params.getDistributorId());
+        }
+        if (applyOperationTaskMapper.updateById(bean) > 0) {
+            return ResponseUtil.success();
+        } else {
+            return ResponseUtil.failed();
+        }
     }
 
 }
