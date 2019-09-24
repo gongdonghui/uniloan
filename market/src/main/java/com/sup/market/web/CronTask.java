@@ -53,15 +53,30 @@ public class CronTask {
   @Autowired
   private TbUserRegistInfoMapper tb_regist_info_mapper;
 
-  @Scheduled(cron = "0 0 0 * * *")
+
+  @Scheduled(cron = "0 0 12 * * *")
   public void NotifyRepayUser() {
     QueryWrapper query = new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()).orderByAsc("create_time");
     List<TbApplyInfoBean> applies = tb_apply_info_mapper.selectList(query);
+    if (applies == null) {
+      logger.info("has_no_loan_succ_order");
+      return;
+    }
+
     for (TbApplyInfoBean apply : applies) {
+      logger.info("analyze_apply: " + apply.getId().toString());
       try {
+
         TbRepayStatBean stat_bean = tb_repay_stat_mapper.selectOne(new QueryWrapper<TbRepayStatBean>().eq("apply_id", apply.getId()).last("limit 1"));
+        if (stat_bean == null) {
+          logger.info("found_no_stat_bean_for_apply: " + apply.getId().toString());
+          continue;
+        }
+
         int curr_repay_seq_no = stat_bean.getCurrent_seq();
         TbRepayPlanBean plan = tb_repay_plan_mapper.selectOne(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", apply.getId()).eq("seq_no", curr_repay_seq_no));
+        logger.info(String.format("current_seq_no: %d, plan: %s", curr_repay_seq_no, JSON.toJSONString(plan)));
+
         if (plan.getRepay_status().equals(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode())) {
           continue;
         }
@@ -69,6 +84,7 @@ public class CronTask {
         Date plan_dt = plan.getRepay_end_date();
         long plan_day = plan_dt.getTime() / (24 * 3600 * 1000l);
         long today = System.currentTimeMillis() / (24 * 3600 * 1000l);
+        logger.info(String.format("plan_dt: %s, today: %s", ToolUtils.NormTime(plan_dt), ToolUtils.NormTime(new Date())));
         if (plan_day == (today + 1)) {
           // need to pay tomorrow !!
           UserStateMessage user_msg = new UserStateMessage();
@@ -93,7 +109,6 @@ public class CronTask {
           producer.sendMessage(new Message(SYSTEM_NOTIFY, ONEDAY_OVERDUE_NOTIFY, "", JSON.toJSONString(user_msg).getBytes()));
           continue;
         }
-
       } catch (Exception e) {
         logger.error("run_cron_task_error: " + ToolUtils.GetTrace(e));
       }

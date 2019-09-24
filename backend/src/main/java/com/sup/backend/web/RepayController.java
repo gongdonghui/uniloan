@@ -19,6 +19,7 @@ import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.MaualRepayStatusEnum;
+import com.sup.common.service.CoreService;
 import com.sup.common.service.PayCenterService;
 import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
@@ -49,38 +50,34 @@ public class RepayController {
   @Autowired
   TbRepayPlanMapper tb_repay_plan_mapper;
 
-  //@Autowired
-  //private PayCenterService pay_service;
+  @Autowired
+  private CoreService core;
 
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "get_repay_link", produces = "application/json;charset=UTF-8")
   public Object GetRepayLink(@RequestBody AppApplyInfo apply, @LoginInfo LoginInfoCtx li) {
-    logger.info("----------- begin to getrepay link -------------");
-    TbUserRegistInfoBean user = tb_user_regist_info_mapper.selectOne(new QueryWrapper<TbUserRegistInfoBean>().eq("id", li.getUser_id()));
+    logger.info("----------- begin to getrepay link -------------: " + JSON.toJSONString(apply));
+    TbUserRegistInfoBean user = tb_user_regist_info_mapper.selectById(li.getUser_id());
     final String name = user.getName();
     final String phone = user.getMobile();
     final Integer amount = Integer.parseInt(apply.getCurr_amount_to_be_repaid());
-    final String orderid = apply.getPlan_id().toString();
+    final String orderid = apply.getApply_id().toString();
     RepayInfo ri = new RepayInfo();
     ri.setAmount(amount);
     ri.setApplyId(orderid);
     ri.setName(name);
     ri.setPhone(phone);
     ri.setUserId(li.getUser_id().toString());
-    return Result.succ("ok");
-    //return pay_service.repay(ri);
+    Result<RepayVO> repay_ret = core.getRepayInfo(ri);
+    logger.info("repay_ret => " + JSON.toJSONString(repay_ret));
+    return repay_ret;
   }
 
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "manual_repay", produces = "application/json;charset=UTF-8")
   public Object ManualRepay(@RequestBody AppApplyInfo apply, @LoginInfo LoginInfoCtx li) {
-    //QueryWrapper<TbManualRepayBean> query = new QueryWrapper<TbManualRepayBean>().eq("trade_no", apply.getTrade_no());
-    //if (tb_manual_repay_mapper.selectOne(query) != null) {
-    //  return Result.fail("duplicate_trade_no");
-    //}
-
     TbRepayPlanBean repay_plan_bean = tb_repay_plan_mapper.selectById(apply.getPlan_id());
     TbManualRepayBean mb = new TbManualRepayBean();
     mb.setPlan_id(repay_plan_bean.getId());

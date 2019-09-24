@@ -35,7 +35,7 @@ public class ProductController {
   @RequestMapping(value = "list", produces = "application/json;charset=UTF-8")
   public Object getProduct(@LoginInfo LoginInfoCtx li) {
     int credit_level = tb_user_regist_info_mapper.selectById(li.getUser_id()).getCredit_level();
-    List<TbProductInfoBean> beans = tb_product_info_mapper.selectList(new QueryWrapper<TbProductInfoBean>().eq("status", 1).eq("credit_level", credit_level));
+    List<TbProductInfoBean> beans = tb_product_info_mapper.selectList(new QueryWrapper<TbProductInfoBean>().eq("status", 1));
     List<AppProductInfo> ret_beans = new ArrayList<>();
     beans.forEach(bean -> {
       AppProductInfo api = new AppProductInfo();
@@ -46,6 +46,7 @@ public class ProductController {
       api.setMin_quota(bean.getMin_quota());
       api.setMax_quota(bean.getMax_quota());
       api.setRate(bean.getRate());
+      api.setStatus(bean.getCredit_level().equals(credit_level) ? 1: 0);
       api.setPeriod_type(bean.getPeriod_type());
       api.setMaterial_needed(bean.getMaterial_needed());
       ret_beans.add(api);

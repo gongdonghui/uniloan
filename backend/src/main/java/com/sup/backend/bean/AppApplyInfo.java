@@ -16,6 +16,7 @@ import lombok.experimental.Accessors;
 public class AppApplyInfo {
   private Integer apply_id;    // 订单号
   private Integer plan_id;   // 期数 Id
+  private Integer contract_amount;
   private String total_amount_to_be_repaid;  // 总计要还
   private String curr_amount_to_be_repaid;  // 这期要换
   private String total_period; // 总期数

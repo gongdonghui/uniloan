@@ -7,6 +7,7 @@ import com.sup.backend.service.RedisClient;
 import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -25,7 +26,7 @@ public class AuthorityInterceptor extends HandlerInterceptorAdapter {
 
 
   public static void WriteResult(HttpServletResponse resp, Result ret) throws Exception {
-    resp.setContentType("application/json;charset=utf-8");
+    resp.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
     resp.getWriter().print(JSON.toJSONString(ret, SerializerFeature.WriteMapNullValue));
     resp.getWriter().close();
     resp.flushBuffer();

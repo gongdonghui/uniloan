@@ -17,6 +17,7 @@ import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -35,9 +36,6 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping(value = "/cert")
 public class CertController {
   public static Logger logger = Logger.getLogger(CertController.class);
-  @Value("upload_path")
-  private String upload_path;
-
   @Autowired
   RedisClient rc;
   @Autowired
@@ -54,7 +52,6 @@ public class CertController {
   TbUserBankAccountInfoMapper tb_user_bank_account_mapper;
   @Autowired
   TbApplyMaterialInfoMapper tb_apply_info_material_mapper;
-
 
 
   private boolean CheckDuplicateSubmit(String uri, Integer user_id) {
@@ -97,6 +94,13 @@ public class CertController {
       tb_user_citizen_identity_card_info_mapper.insert(bean);
     } else {
       tb_user_citizen_identity_card_info_mapper.updateById(bean);
+    }
+
+    TbUserRegistInfoBean regist_info = tb_user_regist_info_mapper.selectById(li.getUser_id());
+    if (StringUtils.isEmpty(regist_info.getName()) && (!StringUtils.isEmpty(bean.getName()))) {
+      regist_info.setName(bean.getName());
+      tb_user_regist_info_mapper.updateName(li.getUser_id(), bean.getName());
+      logger.info(String.format("update user_id: %d, name: (%s) => (%s)", li.getUser_id(), regist_info.getName(), bean.getName()));
     }
     ClearDuplicateSubmit("idcard", li.getUser_id());
     return Result.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
@@ -170,8 +174,6 @@ public class CertController {
     return Result.succ(old_bean);
   }
 
-
-  // add/update/get user contact info
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = {"contact/add", "contact/update"}, produces = "application/json;charset=UTF-8")
@@ -200,7 +202,6 @@ public class CertController {
         bean.setInfo_id(new_info_id);
         bean.setCreate_time(new_create_time);
       }
-
       if (bean.getId() == null) {
         tb_user_emergency_contact_mapper.insert(bean);
       } else {
