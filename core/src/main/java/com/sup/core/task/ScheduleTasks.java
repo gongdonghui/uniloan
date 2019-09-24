@@ -8,10 +8,7 @@ import com.sup.common.bean.paycenter.PayStatusInfo;
 import com.sup.common.bean.paycenter.RepayStatusInfo;
 import com.sup.common.bean.paycenter.vo.PayStatusVO;
 import com.sup.common.bean.paycenter.vo.RepayStatusVO;
-import com.sup.common.loan.ApplyStatusEnum;
-import com.sup.common.loan.ProductStatusEnum;
-import com.sup.common.loan.RepayPlanOverdueEnum;
-import com.sup.common.loan.RepayPlanStatusEnum;
+import com.sup.common.loan.*;
 import com.sup.common.service.PayCenterService;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
@@ -59,6 +56,8 @@ public class ScheduleTasks {
     private ProductInfoMapper productInfoMapper;
     @Autowired
     private RepayStatMapper repayStatMapper;
+    @Autowired
+    private RepayHistoryMapper repayHistoryMapper;
 
     @Autowired
     private UserBasicInfoMapper userBasicInfoMapper;
@@ -207,25 +206,25 @@ public class ScheduleTasks {
      */
     @Scheduled(cron = "0 */5 * * * ?")
     public void checkRepayResult() {
-        QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
-        wrapper.eq("repay_status", RepayPlanStatusEnum.PLAN_PAID_PROCESSING.getCode());
-
-        Integer total = repayPlanMapper.selectCount(wrapper);
+        // 检查还款明细
+        QueryWrapper<TbRepayHistoryBean> historyWrapper = new QueryWrapper<>();
+        historyWrapper.eq("repay_status", RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
+        Integer total = repayHistoryMapper.selectCount(historyWrapper);
         Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
         RepayStatusInfo rsi = new RepayStatusInfo();
         for (int i = 1; i <= pageCount; ++i) {
-            Page<TbRepayPlanBean> page = new Page<>(i, QUERY_PAGE_NUM, false);
-            IPage<TbRepayPlanBean> repayPlanBeans = repayPlanMapper.selectPage(page, wrapper);
-            if (repayPlanBeans == null || repayPlanBeans.getSize() == 0) {
+            Page<TbRepayHistoryBean> page = new Page<>(i, QUERY_PAGE_NUM, false);
+            IPage<TbRepayHistoryBean> repayHistoryBeans = repayHistoryMapper.selectPage(page, historyWrapper);
+            if (repayHistoryBeans == null || repayHistoryBeans.getSize() == 0) {
                 continue;
             }
 
-            for (TbRepayPlanBean bean : repayPlanBeans.getRecords()) {
+            for (TbRepayHistoryBean bean : repayHistoryBeans.getRecords()) {
                 if (bean.getTrade_number() == null) {
-                    log.error("No trade number for applyId = " + bean.getId());
+                    log.error("No trade number! bean = " + GsonUtil.toJson(bean));
                     continue;
                 }
-                rsi.setApplyId(String.valueOf(bean.getApply_id()));
+                rsi.setOrderNo(String.valueOf(bean.getId()));   // repay id
                 rsi.setTradeNo(bean.getTrade_number());
                 Result<RepayStatusVO> ret = funpayService.repayStatus(rsi);
                 if (!ret.isSucc()) {
@@ -247,18 +246,16 @@ public class ScheduleTasks {
                         log.error("RepayStatusVO = " + GsonUtil.toJson(rs));
                         log.error("RepayPlanBean = " + GsonUtil.toJson(bean));
                     }
-
                     loanService.repayAndUpdate(bean, repayAmount, repayTime, false);
                 } else {
-                    log.error("Auto repay failed for applyId = " + bean.getId() +
+                    log.error("Auto repay failed for bean = " + GsonUtil.toJson(bean) +
                             ", reason: " + FunpayOrderUtil.getMessage(status)
                     );
                     loanService.sendRepayMessage(bean.getUser_id(), bean.getApply_id(), RepayPlanStatusEnum.PLAN_PAID_ERROR,
                             Long.valueOf(rs.getAmount()), repayTime);
-                    bean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_ERROR.getCode());
-                    Result result = loanService.updateRepayPlan(bean);
-                    if (!result.isSucc()) {
-                        log.error("checkRepayResult: Failed to update repayPlan for applyId = " + bean.getApply_id());
+                    bean.setRepay_status(RepayStatusEnum.REPAY_STATUS_FAILED.getCode());
+                    if (repayHistoryMapper.updateById(bean) <= 0) {
+                        log.error("checkRepayResult: Failed to update for bean = " + GsonUtil.toJson(bean));
                     }
                 }
             }
@@ -344,12 +341,14 @@ public class ScheduleTasks {
             repayStatMap.put(statBean.getApply_id(), statBean);
         }
         QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
-        wrapper.ne("repay_status", RepayPlanStatusEnum.PLAN_NOT_PAID.getCode());
+        wrapper.orderByAsc("id");
+        // wrapper.ne("repay_status", RepayPlanStatusEnum.PLAN_NOT_PAID.getCode());
 
         Integer total = repayPlanMapper.selectCount(wrapper);
         Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
+        log.info("Total repayPlan num: " + total);
         for (int i = 1; i <= pageCount; ++i) {
-            // 2. 获取还款计划（不含未还）
+            // 2. 获取还款计划
             Page<TbRepayPlanBean> page = new Page<>(i, QUERY_PAGE_NUM, false);
             IPage<TbRepayPlanBean> repayPlanBeans = repayPlanMapper.selectPage(page, wrapper);
             if (repayPlanBeans == null || repayPlanBeans.getSize() == 0) {

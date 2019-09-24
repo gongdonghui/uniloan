@@ -4,10 +4,16 @@ debug:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://192.168.78.32:51666/eureka/
+      #defaultZone: http://192.168.78.32:51666/eureka/
+      defaultZone: http://127.0.0.1:51666/eureka/
+
 ribbon:
   eureka:
     enable: true
+  #请求处理的超时时间
+  ReadTimeout: 60000
+  #请求连接的超时时间
+  ConnectTimeout: 60000
 
 server:
   port: 10083

@@ -249,7 +249,7 @@ public class FunPayController {
         m.put("timestamp", System.currentTimeMillis() + "");
         m.put("version", version);
         m.put("tradeNo", repayStatusInfo.getTradeNo());
-        m.put("orderNo", repayStatusInfo.getApplyId());
+        m.put("orderNo", repayStatusInfo.getOrderNo());
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_payCheck + "?param=" + param);
         log.info("repayStatus:::result=" + result);
@@ -276,7 +276,7 @@ public class FunPayController {
         log.info("payCallBack:::params=" + bean);
         FunpayCallBackParam f = new FunpayCallBackParam();
         f.setAmount(bean.getResult().getAmount());
-        f.setApplyId(bean.getResult().getOrderNo());
+        f.setOrderNo(bean.getResult().getOrderNo());
         f.setFinishTime(DateUtil.parse(bean.getResult().getSendTime(), DateUtil.NO_SPLIT_FORMAT));
         f.setStatus(bean.getResult().getStatus());
         f.setTradeNo(bean.getResult().getTradeNo());
@@ -289,7 +289,7 @@ public class FunPayController {
         log.info("repayCallBack:::params=" + bean);
         FunpayCallBackParam f = new FunpayCallBackParam();
         f.setAmount(bean.getResult().getAmount());
-        f.setApplyId(bean.getResult().getOrderNo());
+        f.setOrderNo(bean.getResult().getOrderNo());
         f.setFinishTime(DateUtil.parse(bean.getResult().getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT));
         f.setStatus(bean.getResult().getStatus());
         f.setTradeNo(bean.getResult().getTradeNo());

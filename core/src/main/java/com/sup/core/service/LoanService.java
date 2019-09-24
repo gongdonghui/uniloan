@@ -72,8 +72,7 @@ public class LoanService {
 
         ApplyStatusEnum status = ApplyStatusEnum.getStatusByCode(applyInfoBean.getStatus());
         if (status == null || status != ApplyStatusEnum.APPLY_FINAL_PASS) {
-            log.error("autoLoan: invalid apply status=" + status.getCode() + ", " + status.getCodeDesc());
-            return Result.fail("Invalid status!");
+            return Result.fail("Not APPLY_FINAL_PASS status!");
         }
         if (applyInfoBean.getInhand_quota() <= 0) {
             log.error("Invalid in-hand quota = " + applyInfoBean.getInhand_quota());
@@ -141,7 +140,6 @@ public class LoanService {
     }
 
     public Result getRepayInfo(@RequestBody RepayInfo repayInfo) {
-        // 检查是否已有还款信息
         QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
         TbRepayPlanBean repayPlanBean = repayPlanMapper.selectOne(
                 wrapper.eq("apply_id", Integer.valueOf(repayInfo.getApplyId())).orderByDesc("create_time"));
@@ -153,36 +151,49 @@ public class LoanService {
             return Result.fail("Nothing to repay.");
         }
         Date now = new Date();
-        Date repayExpireTime = repayPlanBean.getExpire_time();
-        String repayCode = repayPlanBean.getRepay_code();
-        String repayLoc = repayPlanBean.getRepay_location();
-        String tradeNo = repayPlanBean.getTrade_number();
-        if (repayCode != null && repayLoc != null && tradeNo != null && repayExpireTime != null
-                && DateUtil.compareDate(now, repayExpireTime) > 0) {
+        // 检查还款记录表，还款处理中的记录
+        QueryWrapper<TbRepayHistoryBean> historyWrapper = new QueryWrapper<>();
+        historyWrapper.eq("repay_status", RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
+        historyWrapper.ge("expire_time", now);
+
+        TbRepayHistoryBean repayHistoryBean = repayHistoryMapper.selectOne(historyWrapper);
+        if (repayHistoryBean != null) {
             RepayVO r = new RepayVO();
-            r.setCode(repayCode);
-            r.setShopLink(repayLoc);
-            r.setExpireDate(DateUtil.formatDateTime(repayExpireTime));
-            r.setTradeNo(tradeNo);
+            r.setCode(repayHistoryBean.getRepay_code());
+            r.setShopLink(repayHistoryBean.getRepay_location());
+            r.setExpireDate(DateUtil.formatDateTime(repayHistoryBean.getExpire_time()));
+            r.setTradeNo(repayHistoryBean.getTrade_number());
             return Result.succ(r);
         }
+
+        // 创建还款记录
+        repayHistoryBean = new TbRepayHistoryBean();
+        repayHistoryBean.setUser_id(Integer.valueOf(repayInfo.getUserId()));
+        repayHistoryBean.setApply_id(Integer.valueOf(repayInfo.getApplyId()));
+        repayHistoryBean.setRepay_amount(Long.valueOf(repayInfo.getAmount()));
+        repayHistoryBean.setCreate_time(now);
+        repayHistoryBean.setUpdate_time(now);
+        if (repayHistoryMapper.insert(repayHistoryBean) <= 0) {
+            log.error("Fail to add repay detail for bean: " + GsonUtil.toJson(repayInfo));
+            return Result.fail("");
+        }
+        repayInfo.setOrderNo(String.valueOf(repayHistoryBean.getId()));
         Result<RepayVO> result = funpayService.repay(repayInfo);
         if (!result.isSucc()) {
             log.error("Failed to get repay info for applyId = " + repayInfo.getApplyId() + ", msg = " + result.getMessage());
             return Result.fail("Failed to get repay info!");
         }
         RepayVO r = result.getData();
-        repayPlanBean.setRepay_code(r.getCode());
-        repayPlanBean.setRepay_location(r.getShopLink());
-        repayPlanBean.setTrade_number(r.getTradeNo());
-        repayPlanBean.setExpire_time(DateUtil.parseDateTime(r.getExpireDate()));
-        repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_PROCESSING.getCode());
+        repayHistoryBean.setRepay_code(r.getCode());
+        repayHistoryBean.setRepay_location(r.getShopLink());
+        repayHistoryBean.setTrade_number(r.getTradeNo());
+        repayHistoryBean.setExpire_time(DateUtil.parseDateTime(r.getExpireDate()));
+        repayHistoryBean.setRepay_status(RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
 
-        Result ret = updateRepayPlan(repayPlanBean);
-        if (!ret.isSucc()) {
-            log.error("getRepayInfo: update repayPlan failed! RepayV0 = " + GsonUtil.toJson(r));
+        if (repayHistoryMapper.updateById(repayHistoryBean) <= 0) {
+            log.error("Failed to update repayHistory bean = " + GsonUtil.toJson(repayHistoryBean));
+            return Result.fail("");
         }
-
         return Result.succ(r);
     }
 
@@ -191,7 +202,7 @@ public class LoanService {
         ApplyStatusEnum status = ApplyStatusEnum.getStatusByCode(applyInfoBean.getStatus());
         if (status != ApplyStatusEnum.APPLY_LOAN_SUCC) {
             // repay plan must be added after loan
-            log.error("addRepayPlan: invalid status=(" + status.getCode() + ")" + status.getCodeDesc());
+            log.error("addRepayPlan: invalid status = " + GsonUtil.toJson(status));
             return false;
         }
         // generate repay plan if not exist(need thread safe)
@@ -225,13 +236,32 @@ public class LoanService {
         log.debug("updateRepayPlan: bean = " + GsonUtil.toJson(bean));
 
         bean.setUpdate_time(new Date());
-        if (repayPlanMapper.updateById(bean) > 0) {
-            return Result.succ();
+        if (repayPlanMapper.updateById(bean) <= 0) {
+            log.error("updateRepayPlan failed! bean = " + GsonUtil.toJson(bean));
+            return Result.fail("");
         }
 
-        log.error("updateRepayPlan: bean = " + GsonUtil.toJson(bean));
+        // update ApplyInfo
+        TbApplyInfoBean applyInfoBean = applyInfoMapper.selectById(bean.getApply_id());
+        if (applyInfoBean == null) {
+            log.error("Invalid applyId! bean = " + GsonUtil.toJson(bean));
+            return Result.succ();
+        }
+        List<TbRepayPlanBean> planBeans = repayPlanMapper.selectList(
+                new QueryWrapper<TbRepayPlanBean>().eq("apply_id", bean.getApply_id())
+        );
+        assert(planBeans != null && planBeans.size() > 0);
+        TbRepayStatBean repayStatBean = new TbRepayStatBean();
+        for (TbRepayPlanBean planBean : planBeans) {
+            repayStatBean.inc(planBean);
+        }
+        if (repayStatBean.getAct_total().longValue() >= repayStatBean.getNeed_total().longValue()) {
+            applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
+            sendRepayMessage(bean.getUser_id(), bean.getApply_id(), ApplyStatusEnum.APPLY_REPAY_ALL);
+            applyInfoMapper.updateById(applyInfoBean);
+        }
 
-        return Result.fail("");
+        return Result.succ();
     }
 
     public Result getRepayPlan(String applyId) {
@@ -264,7 +294,7 @@ public class LoanService {
     public Result payCallBack(@RequestBody FunpayCallBackParam param) {
         // update ApplyInfo status
         TbApplyInfoBean bean = applyInfoMapper.selectOne(
-                new QueryWrapper<TbApplyInfoBean>().eq("applyId", param.getApplyId()).orderByDesc("create_time"));
+                new QueryWrapper<TbApplyInfoBean>().eq("apply_id", param.getOrderNo()).orderByDesc("create_time"));
         if (bean == null) {
             log.error("Invalid param = " + GsonUtil.toJson(param));
             return Result.fail("Invalid applyId!");
@@ -283,7 +313,7 @@ public class LoanService {
                 bean.setLoan_time(new Date());
             }
             // 检查放款金额与到手金额
-            if (param.getAmount() != bean.getInhand_quota()) {
+            if (!param.getAmount().equals(bean.getInhand_quota())) {
                 log.error("########### invalid loan amount ############");
                 log.error("param = " + GsonUtil.toJson(param));
                 bean.setInhand_quota(param.getAmount());
@@ -301,28 +331,31 @@ public class LoanService {
     public Result repayCallBack(@RequestBody FunpayCallBackParam param) {
 
         if (param.getAmount() == null || param.getAmount() <= 0) {
-            log.error("Invalid amount = " + GsonUtil.toJson(param));
+            log.error("Invalid amount. param = " + GsonUtil.toJson(param));
             return Result.fail("");
         }
         Integer status = param.getStatus();
         FunpayOrderUtil.Status orderStatus = FunpayOrderUtil.getStatus(status);
-        if (orderStatus != FunpayOrderUtil.Status.SUCCESS) {
-            // do nothing
-            log.info("repayCallBack: nothing to do for applyId = " + param.getApplyId() +
-                    ", reason: " + FunpayOrderUtil.getMessage(status)
-            );
-            if (orderStatus == FunpayOrderUtil.Status.ERROR) {
-                sendRepayMessage(Integer.valueOf(param.getUserId()), Integer.valueOf(param.getApplyId()),
-                        RepayPlanStatusEnum.PLAN_PAID_ERROR, Long.valueOf(param.getAmount()), param.getFinishTime());
-            }
+        if (orderStatus == FunpayOrderUtil.Status.PROCESSING) {
+            // 处理中，返回即可
             return Result.succ();
         }
-        if (param.getAmount() <= 0) {
-            // WTF???
-            log.error("########### invalid repay amount ############");
-            log.error("param = " + GsonUtil.toJson(param));
+        QueryWrapper<TbRepayHistoryBean> wrapper = new QueryWrapper<>();
+        TbRepayHistoryBean repayHistoryBean = repayHistoryMapper.selectById(param.getOrderNo());
+        if (repayHistoryBean == null) {
+            log.error("Invalid repayHistory id. param = " + GsonUtil.toJson(param));
+            return Result.fail("Invalid id!");
         }
-        return repayAndUpdate(param.getApplyId(), Long.valueOf(param.getAmount()), param.getFinishTime(), false);
+        if (orderStatus == FunpayOrderUtil.Status.ERROR) {
+            // 还款失败
+            repayHistoryBean.setRepay_status(RepayStatusEnum.REPAY_STATUS_FAILED.getCode());
+            repayHistoryMapper.updateById(repayHistoryBean);
+            sendRepayMessage(Integer.valueOf(param.getUserId()), Integer.valueOf(param.getOrderNo()),
+                    RepayPlanStatusEnum.PLAN_PAID_ERROR, Long.valueOf(param.getAmount()), param.getFinishTime());
+            return Result.fail("Repay failed!");
+        }
+
+        return repayAndUpdate(param.getOrderNo(), Long.valueOf(param.getAmount()), param.getFinishTime(), false);
     }
 
     public Result manualRepay(ManualRepayParam param) {
@@ -330,24 +363,36 @@ public class LoanService {
             log.error("Invalid amount = " + GsonUtil.toJson(param));
             return Result.fail("");
         }
-        return repayAndUpdate(param.getApplyId(), Long.valueOf(param.getAmount()), param.getRepayTime(), true);
-    }
-
-    protected Result repayAndUpdate(String applyId, Long repayAmount, Date repayTime, boolean isManual) {
-        // update RepayPlanInfo
-        TbRepayPlanBean repayPlanBean = repayPlanMapper.selectOne(
-                new QueryWrapper<TbRepayPlanBean>().eq("apply_id", applyId).orderByDesc("create_time")
-        );
-        if (repayPlanBean == null) {
-            log.error("Invalid applyId = " + applyId);
-            return Result.fail("Invalid applyId!");
+        // 创建还款记录
+        Date now = new Date();
+        TbRepayHistoryBean repayHistoryBean = new TbRepayHistoryBean();
+        repayHistoryBean.setUser_id(Integer.valueOf(param.getUserId()));
+        repayHistoryBean.setApply_id(Integer.valueOf(param.getApplyId()));
+        repayHistoryBean.setRepay_amount(Long.valueOf(param.getAmount()));
+        repayHistoryBean.setRepay_time(param.getRepayTime());
+        repayHistoryBean.setRepay_status(RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
+        repayHistoryBean.setCreate_time(now);
+        repayHistoryBean.setUpdate_time(now);
+        if (repayHistoryMapper.insert(repayHistoryBean) <= 0) {
+            log.error("Failed to add new repayHistory! bean = " + GsonUtil.toJson(repayHistoryBean));
+            return Result.fail("Failed to add new repayHistory!");
         }
-        log.info("repayAndUpdate: applyId = " + applyId + ", repayAmount = " + repayAmount);
-        return repayAndUpdate(repayPlanBean, repayAmount, repayTime, isManual);
+
+        return repayAndUpdate(repayHistoryBean, Long.valueOf(param.getAmount()), param.getRepayTime(), true);
     }
 
-    public Result repayAndUpdate(TbRepayPlanBean repayPlanBean, Long repayAmount, Date repayTime, boolean isManual) {
-        if (repayPlanBean == null) {
+    protected Result repayAndUpdate(String repayHistoryId, Long repayAmount, Date repayTime, boolean isManual) {
+        TbRepayHistoryBean repayHistoryBean = repayHistoryMapper.selectById(repayHistoryId);
+        if (repayHistoryBean == null) {
+            log.error("Invalid repayHistory id = " + repayHistoryId);
+            return Result.fail("Invalid id!");
+        }
+        return repayAndUpdate(repayHistoryBean, repayAmount, repayTime, isManual);
+    }
+
+    public Result repayAndUpdate(TbRepayHistoryBean repayHistoryBean, Long repayAmount, Date repayTime, boolean isManual) {
+
+        if (repayHistoryBean == null) {
             return Result.fail("");
         }
         if (repayAmount <= 0) {
@@ -356,6 +401,23 @@ public class LoanService {
         if (repayTime == null) {
             repayTime = new Date();
         }
+        // 更新还款记录
+        repayHistoryBean.setRepay_status(RepayStatusEnum.REPAY_STATUS_SUCCEED.getCode());
+        repayHistoryBean.setRepay_amount(repayAmount);
+        repayHistoryBean.setRepay_time(repayTime);
+        repayHistoryBean.setUpdate_time(new Date());
+        if (repayHistoryMapper.updateById(repayHistoryBean) <= 0) {
+            log.error("Failed to update bean: " + GsonUtil.toJson(repayHistoryBean));
+        }
+
+        // 更新还款计划
+        // TODO: 根据plan_id查找当期还款计划
+        TbRepayPlanBean repayPlanBean = repayPlanMapper.getByApplyId(repayHistoryBean.getApply_id());
+        if (repayPlanBean == null) {
+            log.error("Invalid apply id! bean = " + GsonUtil.toJson(repayHistoryBean));
+            return Result.fail("Invalid apply id!");
+        }
+
         repayPlanBean.updateActFields(repayAmount);
         repayPlanBean.setRepay_time(repayTime);
         RepayPlanStatusEnum repayStatus;
@@ -366,26 +428,7 @@ public class LoanService {
             repayStatus = RepayPlanStatusEnum.PLAN_PAID_ALL;
         }
         repayPlanBean.setRepay_status(repayStatus.getCode());
-        sendRepayMessage(repayPlanBean.getUser_id(), repayPlanBean.getApply_id(), repayStatus, repayAmount, repayTime);
-
-        // add to repay history
-        Date now = new Date();
-        TbRepayHistoryBean repayHistory = new TbRepayHistoryBean();
-        repayHistory.setApply_id(repayPlanBean.getApply_id());
-        repayHistory.setUser_id(repayPlanBean.getUser_id());
-        repayHistory.setRepay_plan_id(repayPlanBean.getId());
-        repayHistory.setRepay_amount(repayAmount);
-        repayHistory.setRepay_time(repayTime);
-        repayHistory.setCreate_time(now);
-        repayHistory.setUpdate_time(now);
-        if (!isManual) {
-            repayHistory.setRepay_code(repayPlanBean.getRepay_code());
-            repayHistory.setRepay_location(repayPlanBean.getRepay_location());
-            repayHistory.setTrade_number(repayPlanBean.getTrade_number());
-        }
-        if (repayHistoryMapper.insert(repayHistory) <= 0) {
-            log.error("Insert into repayHistory failed! bean = " + GsonUtil.toJson(repayHistory));
-        }
+        sendRepayMessage(repayPlanBean.getUser_id(), repayHistoryBean.getId(), repayStatus, repayAmount, repayTime);
 
         return updateRepayPlan(repayPlanBean);
     }
@@ -435,6 +478,26 @@ public class LoanService {
         // log.info("Product bean: " + GsonUtil.toJson(productInfoBean));
         // log.info("Return bran: " + GsonUtil.toJson(param));
         return param;
+    }
+
+    public void sendRepayMessage(Integer userId, Integer applyId, ApplyStatusEnum status) {
+        try {
+            String state_desc = status.getCodeDesc();
+            UserStateMessage message = new UserStateMessage();
+            message.setUser_id(userId);
+            message.setRel_id(applyId);
+            message.setState(state_desc);
+            message.setCreate_time(DateUtil.format(new Date(), DateUtil.DEFAULT_DATETIME_FORMAT));
+            message.setExt(JSON.toJSONString(
+                    ImmutableMap.of(
+                            "order_id", applyId.toString()
+                    )));
+
+            mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, MqTag.APPLY_STATUS_CHANGE, "", GsonUtil.toJson(message).getBytes()));
+        }catch (Exception e) {
+            e.printStackTrace();
+            log.error("Failed to send MQ message. e = " + e.getMessage());
+        }
     }
 
     public void sendRepayMessage(Integer userId, Integer applyId, RepayPlanStatusEnum status, Long repayAmount, Date repayTime) {
