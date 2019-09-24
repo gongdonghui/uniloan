@@ -18,6 +18,7 @@ import java.util.Map;
  * @Date: 2019/9/18 16:33
  */
 @RequestMapping("/product")
+@RestController
 public class ProductController {
 
     @Autowired

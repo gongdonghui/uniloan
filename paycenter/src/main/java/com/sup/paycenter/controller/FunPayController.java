@@ -183,7 +183,7 @@ public class FunPayController {
         //todo 单位转换
         m.put("amount", repayInfo.getAmount() + "");
         m.put("name", "testpay");
-        m.put("orderNo", repayInfo.getApplyId());
+        m.put("orderNo", repayInfo.getOrderNo());
         //还款码有效期为T+7
         DateTime dt = new DateTime();
         dt.plusDays(7);
