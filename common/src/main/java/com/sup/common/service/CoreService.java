@@ -47,17 +47,6 @@ public interface CoreService {
     @RequestMapping(value = "/loan/calc", produces = "application/json;charset=UTF-8")
     Result calculator(@RequestBody LoanCalculatorParam param);
 
-
-    // auto loan
-    @ResponseBody
-    @RequestMapping(value = "/loan/autoExec", produces = "application/json;charset=UTF-8")
-    Result autoLoan(String userId, String applyId);
-
-    // add/update/get loan plan
-    @ResponseBody
-    @RequestMapping(value = "/loan/plan/add", produces = "application/json;charset=UTF-8")
-    Result addRepayPlan(String userId, String applyId);
-
     @ResponseBody
     @RequestMapping(value = "/loan/plan/update", produces = "application/json;charset=UTF-8")
     Result updateRepayPlan(@RequestBody TbRepayPlanBean bean);

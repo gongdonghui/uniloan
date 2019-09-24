@@ -56,6 +56,8 @@ public class LoanService {
     private ApplyInfoMapper applyInfoMapper;
     @Autowired
     private ProductInfoMapper productInfoMapper;
+    @Autowired
+    private RepayHistoryMapper  repayHistoryMapper;
 
     @Autowired
     private ApplyService applyService;
@@ -166,7 +168,7 @@ public class LoanService {
         }
         Result<RepayVO> result = funpayService.repay(repayInfo);
         if (!result.isSucc()) {
-            log.error("Failed to get repay info for applyId = " + repayInfo.getApplyId());
+            log.error("Failed to get repay info for applyId = " + repayInfo.getApplyId() + ", msg = " + result.getMessage());
             return Result.fail("Failed to get repay info!");
         }
         RepayVO r = result.getData();
@@ -320,7 +322,7 @@ public class LoanService {
             log.error("########### invalid repay amount ############");
             log.error("param = " + GsonUtil.toJson(param));
         }
-        return repayAndUpdate(param.getApplyId(), Long.valueOf(param.getAmount()), param.getFinishTime());
+        return repayAndUpdate(param.getApplyId(), Long.valueOf(param.getAmount()), param.getFinishTime(), false);
     }
 
     public Result manualRepay(ManualRepayParam param) {
@@ -328,23 +330,23 @@ public class LoanService {
             log.error("Invalid amount = " + GsonUtil.toJson(param));
             return Result.fail("");
         }
-        return repayAndUpdate(param.getApplyId(), Long.valueOf(param.getAmount()), param.getRepayTime());
+        return repayAndUpdate(param.getApplyId(), Long.valueOf(param.getAmount()), param.getRepayTime(), true);
     }
 
-    public Result repayAndUpdate(String applyId, Long repayAmount, Date repayTime) {
+    protected Result repayAndUpdate(String applyId, Long repayAmount, Date repayTime, boolean isManual) {
         // update RepayPlanInfo
         TbRepayPlanBean repayPlanBean = repayPlanMapper.selectOne(
-                new QueryWrapper<TbRepayPlanBean>().eq("applyId", applyId).orderByDesc("create_time")
+                new QueryWrapper<TbRepayPlanBean>().eq("apply_id", applyId).orderByDesc("create_time")
         );
         if (repayPlanBean == null) {
             log.error("Invalid applyId = " + applyId);
             return Result.fail("Invalid applyId!");
         }
         log.info("repayAndUpdate: applyId = " + applyId + ", repayAmount = " + repayAmount);
-        return repayAndUpdate(repayPlanBean, repayAmount, repayTime);
+        return repayAndUpdate(repayPlanBean, repayAmount, repayTime, isManual);
     }
 
-    public Result repayAndUpdate(TbRepayPlanBean repayPlanBean, Long repayAmount, Date repayTime) {
+    public Result repayAndUpdate(TbRepayPlanBean repayPlanBean, Long repayAmount, Date repayTime, boolean isManual) {
         if (repayPlanBean == null) {
             return Result.fail("");
         }
@@ -365,6 +367,25 @@ public class LoanService {
         }
         repayPlanBean.setRepay_status(repayStatus.getCode());
         sendRepayMessage(repayPlanBean.getUser_id(), repayPlanBean.getApply_id(), repayStatus, repayAmount, repayTime);
+
+        // add to repay history
+        Date now = new Date();
+        TbRepayHistoryBean repayHistory = new TbRepayHistoryBean();
+        repayHistory.setApply_id(repayPlanBean.getApply_id());
+        repayHistory.setUser_id(repayPlanBean.getUser_id());
+        repayHistory.setRepay_plan_id(repayPlanBean.getId());
+        repayHistory.setRepay_amount(repayAmount);
+        repayHistory.setRepay_time(repayTime);
+        repayHistory.setCreate_time(now);
+        repayHistory.setUpdate_time(now);
+        if (!isManual) {
+            repayHistory.setRepay_code(repayPlanBean.getRepay_code());
+            repayHistory.setRepay_location(repayPlanBean.getRepay_location());
+            repayHistory.setTrade_number(repayPlanBean.getTrade_number());
+        }
+        if (repayHistoryMapper.insert(repayHistory) <= 0) {
+            log.error("Insert into repayHistory failed! bean = " + GsonUtil.toJson(repayHistory));
+        }
 
         return updateRepayPlan(repayPlanBean);
     }

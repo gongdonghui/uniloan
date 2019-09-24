@@ -248,7 +248,7 @@ public class ScheduleTasks {
                         log.error("RepayPlanBean = " + GsonUtil.toJson(bean));
                     }
 
-                    loanService.repayAndUpdate(bean, repayAmount, repayTime);
+                    loanService.repayAndUpdate(bean, repayAmount, repayTime, false);
                 } else {
                     log.error("Auto repay failed for applyId = " + bean.getId() +
                             ", reason: " + FunpayOrderUtil.getMessage(status)
