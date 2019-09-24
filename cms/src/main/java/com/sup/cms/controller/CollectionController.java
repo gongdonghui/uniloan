@@ -1,6 +1,9 @@
 package com.sup.cms.controller;
 
+import com.sup.cms.bean.vo.*;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * @Author: kouichi
@@ -24,14 +27,39 @@ public class CollectionController {
      * @param applyId
      * @return
      */
-    @GetMapping("/records")
-    public String records(@RequestParam("") String applyId) {
+    @GetMapping("/allocateRecords")
+    public String allocateRecords(@RequestParam("") String applyId) {
+        return "";
+    }
+
+    @PostMapping("/addAllocateRecord")
+    public String addAllocateRecord(@Valid @RequestBody CollectionAddAllocateRecordParams params) {
         return "";
     }
 
     @PostMapping("/allocate/getList")
-    public String allocateGetList() {
+    public String allocateGetList(@Valid @RequestBody CollectionAllocateGetListParams params) {
         return "";
     }
 
+    @PostMapping("/allocate/action")
+    public String allocateAction(@Valid @RequestBody CollectionAllocateActionParams params) {
+        //todo 不仅要update表 还要找地方存指派记录
+        return "";
+    }
+
+    @PostMapping("/mine/getList")
+    public String mine(@Valid @RequestBody CollectionMineGetListParams params) {
+        return "";
+    }
+
+    @PostMapping("/archives/getList")
+    public String archivesGetList(@Valid @RequestBody CollectionArchivesGetListParams params) {
+        return "";
+    }
+
+    @PostMapping("/archives/reAllocate")
+    public String reAllocate(@Valid @RequestBody CollectionArchivesReAllocateParams params) {
+        return "";
+    }
 }
