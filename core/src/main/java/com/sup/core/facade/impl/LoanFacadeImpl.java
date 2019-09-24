@@ -72,34 +72,34 @@ public class LoanFacadeImpl implements LoanFacade {
         }
         return Result.succ(param);
     }
-
-    @Override
-    public Result autoLoan(String userId, String applyId) {
-        // get apply info and check apply status
-        TbApplyInfoBean applyInfoBean = applyInfoMapper.selectById(applyId);
-        if (applyInfoBean == null) {
-            log.error("autoLoan: invalid applyId=" + applyId);
-            return Result.fail("Invalid applyId!");
-        }
-        return loanService.autoLoan(applyInfoBean);
-    }
-
-    @Override
-    public Result addRepayPlan(String userId, String applyId) {
-        // get apply info and check apply status
-        TbApplyInfoBean bean = applyInfoMapper.selectById(applyId);
-        if (bean == null) {
-            log.error("addRepayPlan: invalid applyId=" + applyId);
-            return Result.fail("Invalid applyId!");
-        }
-
-        if (!loanService.addRepayPlan(bean)) {
-            log.error("Failed to generate repay plan for user(" + userId + "), applyId = " + applyId);
-            return Result.fail("Failed to add repay plan!");
-        }
-
-        return Result.succ();
-    }
+//
+//    @Override
+//    public Result autoLoan(String userId, String applyId) {
+//        // get apply info and check apply status
+//        TbApplyInfoBean applyInfoBean = applyInfoMapper.selectById(applyId);
+//        if (applyInfoBean == null) {
+//            log.error("autoLoan: invalid applyId=" + applyId);
+//            return Result.fail("Invalid applyId!");
+//        }
+//        return loanService.autoLoan(applyInfoBean);
+//    }
+//
+//    @Override
+//    public Result addRepayPlan(String userId, String applyId) {
+//        // get apply info and check apply status
+//        TbApplyInfoBean bean = applyInfoMapper.selectById(applyId);
+//        if (bean == null) {
+//            log.error("addRepayPlan: invalid applyId=" + applyId);
+//            return Result.fail("Invalid applyId!");
+//        }
+//
+//        if (!loanService.addRepayPlan(bean)) {
+//            log.error("Failed to generate repay plan for user(" + userId + "), applyId = " + applyId);
+//            return Result.fail("Failed to add repay plan!");
+//        }
+//
+//        return Result.succ();
+//    }
 
     @Override
     public Result updateRepayPlan(TbRepayPlanBean bean) {

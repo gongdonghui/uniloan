@@ -7,7 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import com.sup.common.bean.paycenter.*;
 import com.sup.common.bean.paycenter.vo.*;
 import com.sup.common.param.FunpayCallBackParam;
-import com.sup.common.service.LoanService;
+import com.sup.common.service.CoreService;
 import com.sup.common.util.Result;
 import com.sup.paycenter.bean.funpay.*;
 import com.sup.paycenter.util.DateUtil;
@@ -60,7 +60,7 @@ public class FunPayController {
     private String method_payCheck;
 
     //@Autowired
-    private LoanService loanService;
+    private CoreService coreService;
 
     private static final int FUNPAY_SUCCESS_FLAG = 10000;
 
@@ -280,7 +280,7 @@ public class FunPayController {
         f.setFinishTime(DateUtil.parse(bean.getResult().getSendTime(), DateUtil.NO_SPLIT_FORMAT));
         f.setStatus(bean.getResult().getStatus());
         f.setTradeNo(bean.getResult().getTradeNo());
-        loanService.payCallBack(f);
+        coreService.payCallBack(f);
         return "";
     }
 
@@ -293,7 +293,7 @@ public class FunPayController {
         f.setFinishTime(DateUtil.parse(bean.getResult().getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT));
         f.setStatus(bean.getResult().getStatus());
         f.setTradeNo(bean.getResult().getTradeNo());
-        loanService.repayCallBack(f);
+        coreService.repayCallBack(f);
         return "";
     }
 

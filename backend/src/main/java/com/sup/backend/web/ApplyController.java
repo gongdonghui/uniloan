@@ -17,7 +17,6 @@ import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.param.ApplyInfoParam;
-import com.sup.common.service.ApplyService;
 import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

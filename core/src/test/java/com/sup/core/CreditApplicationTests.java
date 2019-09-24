@@ -1,6 +1,6 @@
 package com.sup.core;
 
-import com.sup.common.service.ApplyService;
+import com.sup.common.service.CoreService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class CreditApplicationTests {
 
 	@Autowired
-	private ApplyService applyService;
+	private CoreService service;
 
 	@Test
 	public void contextLoads() {
@@ -20,7 +20,7 @@ public class CreditApplicationTests {
 
 	@Test
 	public void testApplyService() {
-		System.out.println(applyService.updateApplyInfo(null));
+		System.out.println(service.updateApplyInfo(null));
 	}
 
 }

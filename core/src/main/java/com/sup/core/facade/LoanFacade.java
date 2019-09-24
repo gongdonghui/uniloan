@@ -35,15 +35,15 @@ public interface LoanFacade {
     @RequestMapping(value = "calc", produces = "application/json;charset=UTF-8")
     Result calculator(@RequestBody LoanCalculatorParam param);
 
-    // auto loan
-    @ResponseBody
-    @RequestMapping(value = "autoExec", produces = "application/json;charset=UTF-8")
-    Result autoLoan(String userId, String applyId);
-
-    // add/update/get loan plan
-    @ResponseBody
-    @RequestMapping(value = "plan/add", produces = "application/json;charset=UTF-8")
-    Result addRepayPlan(String userId, String applyId);
+//    // auto loan
+//    @ResponseBody
+//    @RequestMapping(value = "autoExec", produces = "application/json;charset=UTF-8")
+//    Result autoLoan(String userId, String applyId);
+//
+//    // add/update/get loan plan
+//    @ResponseBody
+//    @RequestMapping(value = "plan/add", produces = "application/json;charset=UTF-8")
+//    Result addRepayPlan(String userId, String applyId);
 
     @ResponseBody
     @RequestMapping(value = "plan/update", produces = "application/json;charset=UTF-8")

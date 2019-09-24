@@ -650,3 +650,27 @@ CREATE TABLE IF NOT EXISTS `tb_core_comment_label` (
   `scene` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS tb_repay_history;
+CREATE TABLE IF NOT EXISTS `tb_repay_history` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) NOT NULL,
+  `apply_id` int(10) NOT NULL,
+  `repay_plan_id` int(10) DEFAULT NULL COMMENT '还款计划id',
+  `repay_time` datetime NOT NULL COMMENT '还款时间',
+  `repay_amount` bigint(20) NOT NULL COMMENT '还款金额',
+  `operator_id` int(11) DEFAULT 0 COMMENT '催收员id',
+  `repay_type` int(11) DEFAULT NULL COMMENT '还款类型 0:自助还款 1:手动还款 2:催收回款',
+  `repay_code` varchar(256) DEFAULT NULL COMMENT '还款交易码',
+  `repay_location` varchar(256) DEFAULT NULL COMMENT '还款便利店地址',
+  `trade_number` varchar(256) DEFAULT NULL COMMENT '自动还款流水号',
+  `create_time` datetime NOT NULL COMMENT '记录创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_apply_id` (`apply_id`),
+  KEY `idx_repay_type` (`repay_type`),
+  KEY `idx_repay_time` (`repay_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
