@@ -12,6 +12,8 @@ import com.sup.backend.mapper.TbUserRegistInfoMapper;
 import com.sup.common.bean.TbAppSdkContractInfoBean;
 import com.sup.common.bean.TbAppSdkLocationInfoBean;
 import com.sup.common.bean.TbUserRegistInfoBean;
+import com.sup.common.param.LoanCalculatorParam;
+import com.sup.common.service.CoreService;
 import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,9 @@ public class InfoController {
   public static Logger logger = Logger.getLogger(InfoController.class);
   private JSONObject dict;
 
+  @Autowired
+  CoreService core;
+
   @PostConstruct
   public void Init() throws Exception {
 
@@ -49,7 +54,13 @@ public class InfoController {
     }
     br.close();
     dict = JSON.parseObject(sb.toString());
-    logger.info("read_app_dict_succ: " + JSON.toJSONString(dict));
+    //logger.info("read_app_dict_succ: " + JSON.toJSONString(dict));
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "calc", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Object CaculateAmount(@RequestBody LoanCalculatorParam param) {
+    return core.calculator(param);
   }
 
   @ResponseBody

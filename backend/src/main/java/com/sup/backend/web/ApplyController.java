@@ -1,7 +1,6 @@
 package com.sup.backend.web;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.backend.bean.AppApplyInfo;
 import com.sup.backend.bean.AppApplyOverView;
@@ -9,9 +8,8 @@ import com.sup.backend.bean.AppSubmitOrder;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
-import com.sup.backend.mapper.ApplyInfoMapper;
+import com.sup.backend.mapper.TbApplyInfoMapper;
 import com.sup.backend.mapper.TbApplyMaterialInfoMapper;
-import com.sup.backend.mapper.TbProductInfoMapper;
 import com.sup.backend.mapper.TbRepayPlanMapper;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.TbApplyInfoBean;
@@ -23,7 +21,6 @@ import com.sup.common.service.CoreService;
 import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -39,11 +36,11 @@ public class ApplyController {
   @Autowired
   TbApplyMaterialInfoMapper tb_apply_info_material_mapper;
   @Autowired
-  ApplyInfoMapper apply_info_mapper;
+  TbApplyInfoMapper apply_info_mapper;
   @Autowired
   TbRepayPlanMapper tb_repay_plan_mapper;
-  //@Autowired
-  //private CoreService apply_service;
+  @Autowired
+  private CoreService core;
 
   @LoginRequired
   @ResponseBody
@@ -125,9 +122,8 @@ public class ApplyController {
     aip.setChannel_id(-1);
     aip.setPeriod(order_detail.getPeriod());
     aip.setInfoIdMap(order_detail.getMaterial_ids());
-    return Result.succ(aip);
-    //Result r = apply_service.addApplyInfo(aip);
-    //return r;
+    Result r = core.addApplyInfo(aip);
+    return r;
   }
 }
 

@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.ImmutableList;
+import com.sup.common.bean.TbUserRegistInfoBean;
 import com.sup.market.mapper.TbMarketPlanMapper;
+import com.sup.market.mapper.TbUserRegistInfoMapper;
 import com.sup.market.util.ToolUtils;
 import com.sup.common.bean.TbMarketPlanBean;
 import com.sup.common.mq.UserStateMessage;
@@ -18,6 +20,7 @@ import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -35,6 +38,9 @@ public class MqConsumerService {
 
   @Autowired
   private TbMarketPlanMapper tb_market_plan_mapper;
+
+  @Autowired
+  private TbUserRegistInfoMapper tb_user_regist_info_mapper;
 
   @Autowired
   private SkyLineSmsService skyline_sms_service;
@@ -148,6 +154,10 @@ public class MqConsumerService {
         continue;
       }
 
+      if (StringUtils.isEmpty(msg.getMobile())) {
+        msg.setMobile(tb_user_regist_info_mapper.selectById(msg.getUser_id()).getMobile());
+      }
+
       String market_way = bean.getMarket_way();
       if ("sms".equals(market_way)) {
         String content = JSON.parseObject(bean.getMarket_ext()).getString("msg");
@@ -155,14 +165,16 @@ public class MqConsumerService {
         for (String k : variable.keySet()) {
           content = content.replace(String.format("${%s}", k), variable.get(k));
         }
-        skyline_sms_service.SendSms(ImmutableList.of(msg.getMobile()), content);
+        logger.info(String.format("sms|user_id=%d|content=%d|state=%s", msg.getUser_id(), content, msg.getState()));
+        //skyline_sms_service.SendSms(ImmutableList.of(msg.getMobile()), content);
       } else if ("sms_vip".equals(market_way)) {
         String content = JSON.parseObject(bean.getMarket_ext()).getString("msg");
         Map<String, String> variable = JSON.parseObject(msg.getExt(), new TypeReference<Map<String, String>>(){});
         for (String k : variable.keySet()) {
           content = content.replace(String.format("${%s}", k), variable.get(k));
         }
-        skyline_sms_service.SendSmsVip(ImmutableList.of(msg.getMobile()), content);
+        logger.info(String.format("sms_vip|user_id=%d|content=%d|state=%s", msg.getUser_id(), content, msg.getState()));
+        //skyline_sms_service.SendSmsVip(ImmutableList.of(msg.getMobile()), content);
       }
     }
   }
