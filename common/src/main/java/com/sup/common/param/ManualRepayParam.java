@@ -17,8 +17,7 @@ import java.util.Date;
 public class ManualRepayParam {
     private String  userId;
     private String  applyId;
+    private String  operatorId;
     private Integer amount;     // 还款金额
-
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date    repayTime;  // 还款时间
+    private String  repayTime;  // 还款时间 yyyy-MM-dd HH:mm:ss
 }
