@@ -60,6 +60,8 @@ public class LoanService {
     private ApplyService applyService;
     @Autowired
     private PayCenterService funpayService;
+    @Autowired
+    private MqMessenger mqMessenger;
 
     public Result autoLoan(TbApplyInfoBean applyInfoBean) {
         String userId = String.valueOf(applyInfoBean.getUser_id());
@@ -106,6 +108,7 @@ public class LoanService {
             payInfo.setAccountNo(bankInfoBean.getAccount_id());
             payInfo.setAccountType(bankInfoBean.getAccount_type());
             payInfo.setAccountName(bankInfoBean.getName());
+            payInfo.setRemark(applyId);
 
             try {
                 for (int i = 0; i < AUTO_LOAN_RETRY_TIMES; i++) {
@@ -254,7 +257,7 @@ public class LoanService {
         }
         if (repayStatBean.getAct_total().longValue() >= repayStatBean.getNeed_total().longValue()) {
             applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
-            MqMessenger.applyStatusChange(applyInfoBean);
+            mqMessenger.applyStatusChange(applyInfoBean);
             applyInfoMapper.updateById(applyInfoBean);
         }
 
@@ -347,7 +350,7 @@ public class LoanService {
             // 还款失败
             repayHistoryBean.setRepay_status(RepayStatusEnum.REPAY_STATUS_FAILED.getCode());
             repayHistoryMapper.updateById(repayHistoryBean);
-            MqMessenger.sendRepayMessage(repayHistoryBean);
+            mqMessenger.sendRepayMessage(repayHistoryBean);
             return Result.fail("Repay failed!");
         }
 
@@ -447,7 +450,7 @@ public class LoanService {
         }
         repayPlanBean.setRepay_status(repayStatus.getCode());
         // sendRepayMessage(repayPlanBean.getUser_id(), repayHistoryBean.getId(), repayStatus, repayAmount, repayTime);
-        MqMessenger.sendRepayMessage(repayHistoryBean);
+        mqMessenger.sendRepayMessage(repayHistoryBean);
         return updateRepayPlan(repayPlanBean);
     }
 

@@ -56,6 +56,8 @@ public class ApplyService {
 
     @Autowired
     private LoanService loanService;
+    @Autowired
+    private MqMessenger mqMessenger;
 
 
     public boolean addApplyInfo(TbApplyInfoBean bean) {
@@ -164,7 +166,7 @@ public class ApplyService {
                 break;
         }
 
-        MqMessenger.applyStatusChange(bean);
+        mqMessenger.applyStatusChange(bean);
 
         if (applyInfoMapper.updateById(bean) <= 0) {
             return Result.fail("update ApplyInfo failed! bean = " + GsonUtil.toJson(bean));

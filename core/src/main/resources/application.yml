@@ -7,13 +7,33 @@ eureka:
       #defaultZone: http://192.168.78.32:51666/eureka/
       defaultZone: http://127.0.0.1:51666/eureka/
 
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 20000
+        readTimeout: 20000
+
+
+##hystrix的超时时间
+#hystrix:
+#  command:
+#    default:
+#      execution:
+#        timeout:
+#          enabled: true
+#        isolation:
+#          thread:
+#            timeoutInMilliseconds: 30000
+
+#ribbon的超时时间
 ribbon:
-  eureka:
-    enable: true
   #请求处理的超时时间
   ReadTimeout: 60000
   #请求连接的超时时间
   ConnectTimeout: 60000
+  eureka:
+    enable: true
 
 server:
   port: 10083
