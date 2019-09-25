@@ -133,7 +133,7 @@ public class ScheduleTasks {
         for (TbApplyInfoBean bean : applyInfos) {
             Result r = loanService.autoLoan(bean);
             if (!r.isSucc()) {
-                log.error("Failed to auto loan for applyId = " + bean.getId());
+                log.error("Failed to auto loan for applyId = " + bean.getId() + ", " + r.getMessage());
             }
         }
     }

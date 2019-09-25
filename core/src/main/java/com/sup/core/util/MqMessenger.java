@@ -13,13 +13,16 @@ import com.sup.common.mq.UserStateMessage;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.core.service.MqProducerService;
+import lombok.Data;
 import lombok.extern.log4j.Log4j;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
 @Log4j
+@Component
 public class MqMessenger {
 
     @Autowired
