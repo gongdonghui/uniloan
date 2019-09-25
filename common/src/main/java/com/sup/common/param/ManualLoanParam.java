@@ -20,6 +20,5 @@ public class ManualLoanParam {
     private String  operatorId; // 操作人ID
     private Integer amount;     // 放款金额
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date    loanTime;  // 放款时间
+    private String  loanTime;  // 放款时间 yyyy-MM-dd HH:mm:ss
 }

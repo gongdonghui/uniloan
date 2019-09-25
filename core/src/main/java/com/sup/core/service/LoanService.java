@@ -372,9 +372,10 @@ public class LoanService {
             log.error("param = " + GsonUtil.toJson(param));
             log.error("bean  = " + GsonUtil.toJson(applyInfoBean));
         }
+        Date loanTime = DateUtil.parse(param.getLoanTime(), DateUtil.DEFAULT_DATETIME_FORMAT);
         applyInfoBean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
         applyInfoBean.setOperator_id(Integer.valueOf(param.getOperatorId()));
-        applyInfoBean.setLoan_time(param.getLoanTime());
+        applyInfoBean.setLoan_time(loanTime);
 
         return applyService.updateApplyInfo(applyInfoBean);
     }
@@ -386,11 +387,13 @@ public class LoanService {
         }
         // 创建还款记录
         Date now = new Date();
+        Date repayTime = DateUtil.parse(param.getRepayTime(), DateUtil.DEFAULT_DATETIME_FORMAT);
         TbRepayHistoryBean repayHistoryBean = new TbRepayHistoryBean();
         repayHistoryBean.setUser_id(Integer.valueOf(param.getUserId()));
         repayHistoryBean.setApply_id(Integer.valueOf(param.getApplyId()));
+        repayHistoryBean.setOperator_id(Integer.valueOf(param.getOperatorId()));
         repayHistoryBean.setRepay_amount(Long.valueOf(param.getAmount()));
-        repayHistoryBean.setRepay_time(param.getRepayTime());
+        repayHistoryBean.setRepay_time(repayTime);
         repayHistoryBean.setRepay_status(RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
         repayHistoryBean.setCreate_time(now);
         repayHistoryBean.setUpdate_time(now);
@@ -399,7 +402,7 @@ public class LoanService {
             return Result.fail("Failed to add new repayHistory!");
         }
 
-        return repayAndUpdate(repayHistoryBean, Long.valueOf(param.getAmount()), param.getRepayTime(), true);
+        return repayAndUpdate(repayHistoryBean, Long.valueOf(param.getAmount()), repayTime, true);
     }
 
     protected Result repayAndUpdate(String repayHistoryId, Long repayAmount, Date repayTime, boolean isManual) {
