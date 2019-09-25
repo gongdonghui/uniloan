@@ -37,6 +37,9 @@ public class MqMessenger {
     public void applyStatusChange(TbApplyInfoBean bean) {
         try {
             String state_desc = ApplyStatusEnum.getStatusByCode(bean.getStatus()).getCodeDesc();
+            String pass_time = bean.getPass_time() == null ? "" : DateUtil.formatTime(bean.getPass_time());
+            String loan_time = bean.getLoan_time() == null ? "" : DateUtil.formatTime(bean.getLoan_time());
+
             UserStateMessage message = new UserStateMessage();
             message.setUser_id(bean.getUser_id());
             message.setRel_id(bean.getApp_id());
@@ -45,8 +48,8 @@ public class MqMessenger {
             message.setExt(JSON.toJSONString(
                     ImmutableMap.of(
                             "order_id", bean.getId().toString(),
-                            "pass_time", DateUtil.formatDate(bean.getPass_time()),
-                            "loan_time", DateUtil.formatDate(bean.getLoan_time())
+                            "pass_time", pass_time,
+                            "loan_time", loan_time
                     ))
             );
             mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, state_desc, "", GsonUtil.toJson(message).getBytes()));
