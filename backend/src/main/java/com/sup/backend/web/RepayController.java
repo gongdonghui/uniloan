@@ -88,7 +88,7 @@ public class RepayController {
     mb.setRepay_end_date(repay_plan_bean.getRepay_end_date());
     mb.setIs_overdue(repay_plan_bean.getIs_overdue());
     mb.setNeed_total(repay_plan_bean.getNeed_total());
-    mb.setAct_total(repay_plan_bean.getAct_total());
+    mb.setAct_total(0l);
     mb.setTrade_no("");
     mb.setStatus(MaualRepayStatusEnum.TO_BE_CONFIRM.getCode());
     mb.setRepay_image(apply.getRepay_img());

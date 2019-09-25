@@ -69,6 +69,7 @@ public class ApplyController {
       ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()));
       ret_app_beans.add(ov);
     }
+    System.out.println(JSON.toJSONString(ret_app_beans));
     return Result.succ(ret_app_beans);
   }
 
@@ -100,12 +101,15 @@ public class ApplyController {
           ai.setIs_overdue(plan.getRepay_end_date().getTime() < System.currentTimeMillis() ? 1: 0);
           ai.setApply_id(bean.getId());
           ai.setPlan_id(plan.getId());
-          ai.setPeriod(plan.getSeq_no().toString());
+          ai.setRate(bean.getRate().toString());
+          ai.setTerm("1");
+          ai.setTotal_terms("1");
           ai.setLatest_repay_date(ToolUtils.NormTime(plan.getRepay_end_date()).substring(0, 10));
           ret_app_beans.add(ai);
         }
       }
     }
+    logger.info("return: " + JSON.toJSONString(ret_app_beans));
     return Result.succ(ret_app_beans);
   }
 

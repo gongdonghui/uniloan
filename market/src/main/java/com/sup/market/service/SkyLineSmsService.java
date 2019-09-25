@@ -20,7 +20,7 @@ import java.util.Map;
  * Created by xidongzhou1 on 2019/9/5.
  */
 @Component
-public class SkyLineSmsService {
+public class   SkyLineSmsService {
   public static Logger logger = Logger.getLogger(SkyLineSmsService.class);
 
   @Value("${sms.skyline.uri}")

@@ -165,7 +165,7 @@ public class MqConsumerService {
         for (String k : variable.keySet()) {
           content = content.replace(String.format("${%s}", k), variable.get(k));
         }
-        logger.info(String.format("sms|user_id=%d|content=%d|state=%s", msg.getUser_id(), content, msg.getState()));
+        logger.info(String.format("sms|user_id=%d|content=%s|state=%s", msg.getUser_id(), content, msg.getState()));
         //skyline_sms_service.SendSms(ImmutableList.of(msg.getMobile()), content);
       } else if ("sms_vip".equals(market_way)) {
         String content = JSON.parseObject(bean.getMarket_ext()).getString("msg");
@@ -173,7 +173,7 @@ public class MqConsumerService {
         for (String k : variable.keySet()) {
           content = content.replace(String.format("${%s}", k), variable.get(k));
         }
-        logger.info(String.format("sms_vip|user_id=%d|content=%d|state=%s", msg.getUser_id(), content, msg.getState()));
+        logger.info(String.format("sms_vip|user_id=%d|content=%s|state=%s", msg.getUser_id(), content, msg.getState()));
         //skyline_sms_service.SendSmsVip(ImmutableList.of(msg.getMobile()), content);
       }
     }
