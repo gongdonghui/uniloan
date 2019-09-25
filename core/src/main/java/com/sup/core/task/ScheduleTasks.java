@@ -77,6 +77,8 @@ public class ScheduleTasks {
     private LoanService loanService;
     @Autowired
     private PayCenterService funpayService;
+    @Autowired
+    private MqMessenger mqMessenger;
 
 
     @Scheduled(cron = "0 */5 * * * ?")
@@ -253,7 +255,7 @@ public class ScheduleTasks {
                             ", reason: " + FunpayOrderUtil.getMessage(status)
                     );
                     bean.setRepay_status(RepayStatusEnum.REPAY_STATUS_FAILED.getCode());
-                    MqMessenger.sendRepayMessage(bean);
+                    mqMessenger.sendRepayMessage(bean);
                     if (repayHistoryMapper.updateById(bean) <= 0) {
                         log.error("checkRepayResult: Failed to update for bean = " + GsonUtil.toJson(bean));
                     }

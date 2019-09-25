@@ -23,7 +23,7 @@ import java.util.Date;
 public class MqMessenger {
 
     @Autowired
-    private static MqProducerService mqProducerService;
+    private MqProducerService mqProducerService;
 
 
     /**
@@ -31,7 +31,7 @@ public class MqMessenger {
      * @param bean
      * @throws Exception
      */
-    public static void applyStatusChange(TbApplyInfoBean bean) {
+    public void applyStatusChange(TbApplyInfoBean bean) {
         try {
             String state_desc = ApplyStatusEnum.getStatusByCode(bean.getStatus()).getCodeDesc();
             UserStateMessage message = new UserStateMessage();
@@ -39,7 +39,13 @@ public class MqMessenger {
             message.setRel_id(bean.getApp_id());
             message.setState(state_desc);
             message.setCreate_time(DateUtil.format(new Date(), DateUtil.DEFAULT_DATETIME_FORMAT));
-            message.setExt(JSON.toJSONString(ImmutableMap.of("order_id", bean.getId().toString())));
+            message.setExt(JSON.toJSONString(
+                    ImmutableMap.of(
+                            "order_id", bean.getId().toString(),
+                            "pass_time", DateUtil.formatDate(bean.getPass_time()),
+                            "loan_time", DateUtil.formatDate(bean.getLoan_time())
+                    ))
+            );
             mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, state_desc, "", GsonUtil.toJson(message).getBytes()));
         }catch (Exception e) {
             e.printStackTrace();
@@ -51,7 +57,7 @@ public class MqMessenger {
      * 还款消息通知
      * @param repayHistoryBean
      */
-    public static void sendRepayMessage(TbRepayHistoryBean repayHistoryBean) {
+    public void sendRepayMessage(TbRepayHistoryBean repayHistoryBean) {
         try {
             RepayStatusEnum status = RepayStatusEnum.getStatusByCode(repayHistoryBean.getRepay_status());
             String state_desc = status.getCodeDesc();
@@ -64,7 +70,7 @@ public class MqMessenger {
                     ImmutableMap.of(
                             "order_id", repayHistoryBean.getApply_id().toString(),
                             "repay_amount", repayHistoryBean.getRepay_amount(),
-                            "repay_time", repayHistoryBean.getRepay_time()
+                            "repay_time", DateUtil.formatDate(repayHistoryBean.getRepay_time())
                     )));
             if (status == RepayStatusEnum.REPAY_STATUS_SUCCEED) {
                 mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, MqTag.REPAY_SUCC_NOTIFY, "", GsonUtil.toJson(message).getBytes()));
