@@ -13,6 +13,7 @@ import lombok.experimental.Accessors;
 public class Result<T> {
     public static Integer kSuccess = 0;
     public static Integer kError = 1;
+    public static Integer kTokenError = 2;
 
     private Integer status;
     private String message;

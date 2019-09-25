@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
+import static com.sup.common.util.Result.kTokenError;
+
 /**
  * Created by xidongzhou1 on 2019/9/5.
  */
@@ -49,13 +51,13 @@ public class AuthorityInterceptor extends HandlerInterceptorAdapter {
 
       if (StringUtils.isEmpty(token)) {
         logger.warn("invalid request, token is null");
-        WriteResult(resp, Result.fail("no_token"));
+        WriteResult(resp, Result.fail(kTokenError, "no_token"));
         return false;
       }
 
       String login_info_str = rc.Get(token);
       if (StringUtils.isEmpty(login_info_str)) {
-        WriteResult(resp, Result.fail("expire_token"));
+        WriteResult(resp, Result.fail(kTokenError, "expire_token"));
         return false;
       }
 
