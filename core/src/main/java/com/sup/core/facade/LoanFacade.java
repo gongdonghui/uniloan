@@ -5,6 +5,7 @@ import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.param.FunpayCallBackParam;
 import com.sup.common.param.LoanCalculatorParam;
+import com.sup.common.param.ManualLoanParam;
 import com.sup.common.param.ManualRepayParam;
 import com.sup.common.util.Result;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -57,6 +58,15 @@ public interface LoanFacade {
     @ResponseBody
     @RequestMapping(value = "plan/get", produces = "application/json;charset=UTF-8")
     Result getRepayPlan(String applyId);
+
+    /**
+     * 手动放款
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "manualLoan", produces = "application/json;charset=UTF-8")
+    Result manualLoan(@RequestBody ManualLoanParam param);
 
     /**
      * 手动还款

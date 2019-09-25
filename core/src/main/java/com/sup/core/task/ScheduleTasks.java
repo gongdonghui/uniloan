@@ -21,6 +21,7 @@ import com.sup.core.service.ApplyService;
 import com.sup.core.service.LoanService;
 import com.sup.core.service.impl.DecisionEngineImpl;
 import com.sup.core.status.DecisionEngineStatusEnum;
+import com.sup.core.util.MqMessenger;
 import com.sup.core.util.OverdueUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -251,9 +252,8 @@ public class ScheduleTasks {
                     log.error("Auto repay failed for bean = " + GsonUtil.toJson(bean) +
                             ", reason: " + FunpayOrderUtil.getMessage(status)
                     );
-                    loanService.sendRepayMessage(bean.getUser_id(), bean.getApply_id(), RepayPlanStatusEnum.PLAN_PAID_ERROR,
-                            Long.valueOf(rs.getAmount()), repayTime);
                     bean.setRepay_status(RepayStatusEnum.REPAY_STATUS_FAILED.getCode());
+                    MqMessenger.sendRepayMessage(bean);
                     if (repayHistoryMapper.updateById(bean) <= 0) {
                         log.error("checkRepayResult: Failed to update for bean = " + GsonUtil.toJson(bean));
                     }

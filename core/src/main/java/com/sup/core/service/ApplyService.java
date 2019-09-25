@@ -23,6 +23,7 @@ import com.sup.common.util.Result;
 import com.sup.core.mapper.ApplyInfoHistoryMapper;
 import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.OperationTaskMapper;
+import com.sup.core.util.MqMessenger;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 import lombok.extern.log4j.Log4j;
 import org.apache.rocketmq.common.message.Message;
@@ -55,8 +56,6 @@ public class ApplyService {
 
     @Autowired
     private LoanService loanService;
-    @Autowired
-    private MqProducerService mqProducerService;
 
 
     public boolean addApplyInfo(TbApplyInfoBean bean) {
@@ -165,15 +164,12 @@ public class ApplyService {
                 break;
         }
 
+        MqMessenger.applyStatusChange(bean);
+
         if (applyInfoMapper.updateById(bean) <= 0) {
             return Result.fail("update ApplyInfo failed! bean = " + GsonUtil.toJson(bean));
         }
-        try {
-            sendMessage(bean);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("Failed to send MQ message. e = " + e.getMessage());
-        }
+
         TbApplyInfoHistoryBean applyInfoHistoryBean = new TbApplyInfoHistoryBean(bean);
         applyInfoHistoryBean.setCreate_time(now);
         if (applyInfoHistoryMapper.insert(applyInfoHistoryBean) <= 0) {
@@ -182,16 +178,16 @@ public class ApplyService {
         return Result.succ();
     }
 
-    protected void sendMessage(TbApplyInfoBean bean) throws Exception {
-        String state_desc = ApplyStatusEnum.getStatusByCode(bean.getStatus()).getCodeDesc();
-        UserStateMessage message = new UserStateMessage();
-        message.setUser_id(bean.getUser_id());
-        message.setRel_id(bean.getApp_id());
-        message.setState(state_desc);
-        message.setCreate_time(DateUtil.format(new Date(), DateUtil.DEFAULT_DATETIME_FORMAT));
-        message.setExt(JSON.toJSONString(ImmutableMap.of("order_id", bean.getApp_id().toString())));
-        mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, state_desc, "", GsonUtil.toJson(message).getBytes()));
-    }
+//    protected void sendMessage(TbApplyInfoBean bean) throws Exception {
+//        String state_desc = ApplyStatusEnum.getStatusByCode(bean.getStatus()).getCodeDesc();
+//        UserStateMessage message = new UserStateMessage();
+//        message.setUser_id(bean.getUser_id());
+//        message.setRel_id(bean.getApp_id());
+//        message.setState(state_desc);
+//        message.setCreate_time(DateUtil.format(new Date(), DateUtil.DEFAULT_DATETIME_FORMAT));
+//        message.setExt(JSON.toJSONString(ImmutableMap.of("order_id", bean.getApp_id().toString())));
+//        mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, state_desc, "", GsonUtil.toJson(message).getBytes()));
+//    }
 
 //    protected int getInhandQuota(TbApplyInfoBean bean) {
 //        LoanFeeTypeEnum feeType = LoanFeeTypeEnum.getStatusByCode(bean.getFee_type());

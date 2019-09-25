@@ -15,6 +15,7 @@ import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.*;
 import com.sup.common.param.FunpayCallBackParam;
 import com.sup.common.param.LoanCalculatorParam;
+import com.sup.common.param.ManualLoanParam;
 import com.sup.common.param.ManualRepayParam;
 import com.sup.common.service.PayCenterService;
 import com.sup.common.util.DateUtil;
@@ -142,6 +143,11 @@ public class LoanFacadeImpl implements LoanFacade {
     @Override
     public Result repayCallBack(@RequestBody FunpayCallBackParam param) {
        return loanService.repayCallBack(param);
+    }
+
+    @Override
+    public Result manualLoan(ManualLoanParam param) {
+        return loanService.manualLoan(param);
     }
 
     /**

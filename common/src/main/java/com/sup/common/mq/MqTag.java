@@ -11,5 +11,6 @@ public class MqTag {
 
   public static final String APPLY_STATUS_CHANGE = "apply_status_change";
   public static final String REPAY_SUCC_NOTIFY = "repay_succ_notify";
+  public static final String REPAY_FAIL_NOTIFY = "repay_fail_notify";
   public static final String REPAY_CLEAR_NOTIFY = "repay_clear_notify";
 }
