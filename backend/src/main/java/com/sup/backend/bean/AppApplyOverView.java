@@ -20,4 +20,6 @@ public class AppApplyOverView {
   private String period;
   private String rate;
   private String apply_time;
+  private String jieqing_amount;
+  private String jieqing_date;
 }

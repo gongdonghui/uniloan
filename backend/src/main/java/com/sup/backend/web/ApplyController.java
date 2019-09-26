@@ -11,9 +11,11 @@ import com.sup.backend.core.LoginRequired;
 import com.sup.backend.mapper.TbApplyInfoMapper;
 import com.sup.backend.mapper.TbApplyMaterialInfoMapper;
 import com.sup.backend.mapper.TbRepayPlanMapper;
+import com.sup.backend.mapper.TbRepayStatMapper;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
+import com.sup.common.bean.TbRepayStatBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.param.ApplyInfoParam;
@@ -40,6 +42,8 @@ public class ApplyController {
   @Autowired
   TbRepayPlanMapper tb_repay_plan_mapper;
   @Autowired
+  TbRepayStatMapper tb_repay_stat_mapper;
+  @Autowired
   private CoreService core;
 
   @LoginRequired
@@ -65,8 +69,9 @@ public class ApplyController {
       ov.setStatus(bean.getStatus());
       ov.setAmount(bean.getApply_quota().toString());
       ov.setApply_id(bean.getId());
+      ov.setRate(bean.getRate().toString());
       ov.setPeriod(bean.getPeriod().toString());
-      ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()));
+      ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()).substring(0, 10));
       ret_app_beans.add(ov);
     }
     System.out.println(JSON.toJSONString(ret_app_beans));
@@ -88,12 +93,16 @@ public class ApplyController {
       if (!pending_status.contains(bean.getStatus())) {
         continue;
       }
+      TbRepayStatBean stat_bean = tb_repay_stat_mapper.selectOne(new QueryWrapper<TbRepayStatBean>().eq("apply_id", bean.getId()).last("limit 1"));
       AppApplyOverView ov = new AppApplyOverView();
       ov.setStatus(bean.getStatus());
       ov.setAmount(bean.getApply_quota().toString());
       ov.setApply_id(bean.getId());
+      ov.setRate(bean.getRate().toString());
       ov.setPeriod(bean.getPeriod().toString());
-      ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()));
+      ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()).substring(0, 10));
+      ov.setJieqing_amount(stat_bean.getNeed_total().toString());
+      ov.setJieqing_date(ToolUtils.NormTime(bean.getUpdate_time()).substring(1, 10));
       ret_app_beans.add(ov);
     }
     System.out.println(JSON.toJSONString(ret_app_beans));
