@@ -73,10 +73,37 @@ public class ApplyController {
     return Result.succ(ret_app_beans);
   }
 
+
+  @LoginRequired
+  @ResponseBody
+  @RequestMapping(value = "list_complete_applies", produces = "application/json;charset=UTF-8")
+  public Object listComplete(@LoginInfo LoginInfoCtx li) {
+    QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id());
+    List<TbApplyInfoBean> beans = apply_info_mapper.selectList(query);
+    Set<Integer> pending_status = new HashSet<Integer>(){{
+      add(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
+    }};
+    List<AppApplyOverView> ret_app_beans = new ArrayList<>();
+    for (TbApplyInfoBean bean : beans) {
+      if (!pending_status.contains(bean.getStatus())) {
+        continue;
+      }
+      AppApplyOverView ov = new AppApplyOverView();
+      ov.setStatus(bean.getStatus());
+      ov.setAmount(bean.getApply_quota().toString());
+      ov.setApply_id(bean.getId());
+      ov.setPeriod(bean.getPeriod().toString());
+      ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()));
+      ret_app_beans.add(ov);
+    }
+    System.out.println(JSON.toJSONString(ret_app_beans));
+    return Result.succ(ret_app_beans);
+  }
+
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "list_repay_applies", produces = "application/json;charset=UTF-8")
-  public Object listApply(@LoginInfo LoginInfoCtx li) {
+  public Object listRepay(@LoginInfo LoginInfoCtx li) {
     QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id());
     List<TbApplyInfoBean> beans = apply_info_mapper.selectList(query);
     List<AppApplyInfo> ret_app_beans = new ArrayList<>();
