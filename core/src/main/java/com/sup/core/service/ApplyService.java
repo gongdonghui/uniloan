@@ -2,6 +2,7 @@ package com.sup.core.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * Project:uniloan
@@ -79,6 +81,21 @@ public class ApplyService {
             return false;
         }
         return true;
+    }
+
+    public List<TbApplyInfoBean> getApplyInprogress(Integer userId) {
+        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", userId);
+        wrapper.in("status", ApplyStatusEnum.APPLY_INIT
+                , ApplyStatusEnum.APPLY_AUTO_PASS
+                , ApplyStatusEnum.APPLY_FIRST_PASS
+                , ApplyStatusEnum.APPLY_SECOND_PASS
+                , ApplyStatusEnum.APPLY_FINAL_PASS
+                , ApplyStatusEnum.APPLY_AUTO_LOANING
+                , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED
+                , ApplyStatusEnum.APPLY_LOAN_SUCC
+                );
+        return applyInfoMapper.selectList(wrapper);
     }
 
     public Result updateApplyInfo(TbApplyInfoBean bean) {
