@@ -176,23 +176,30 @@ public class LoanService {
             return Result.fail("");
         }
         repayInfo.setOrderNo(String.valueOf(repayHistoryBean.getId()));
-        Result<RepayVO> result = funpayService.repay(repayInfo);
-        if (!result.isSucc()) {
-            log.error("Failed to get repay info for applyId = " + repayInfo.getApplyId() + ", msg = " + result.getMessage());
-            return Result.fail("Failed to get repay info!");
-        }
-        RepayVO r = result.getData();
-        repayHistoryBean.setRepay_code(r.getCode());
-        repayHistoryBean.setRepay_location(r.getShopLink());
-        repayHistoryBean.setTrade_number(r.getTradeNo());
-        repayHistoryBean.setExpire_time(DateUtil.parseDateTime(r.getExpireDate()));
-        repayHistoryBean.setRepay_status(RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
+        try {
+            Result<RepayVO> result = funpayService.repay(repayInfo);
+            if (!result.isSucc()) {
+                log.error("Failed to get repay info for applyId = " + repayInfo.getApplyId() + ", msg = " + result.getMessage());
+                return Result.fail("Failed to get repay info!");
+            }
+            RepayVO r = result.getData();
+            repayHistoryBean.setRepay_code(r.getCode());
+            repayHistoryBean.setRepay_location(r.getShopLink());
+            repayHistoryBean.setTrade_number(r.getTradeNo());
+            repayHistoryBean.setExpire_time(DateUtil.parseDateTime(r.getExpireDate()));
+            repayHistoryBean.setRepay_status(RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
 
-        if (repayHistoryMapper.updateById(repayHistoryBean) <= 0) {
-            log.error("Failed to update repayHistory bean = " + GsonUtil.toJson(repayHistoryBean));
-            return Result.fail("");
+            if (repayHistoryMapper.updateById(repayHistoryBean) <= 0) {
+                log.error("Failed to update repayHistory bean = " + GsonUtil.toJson(repayHistoryBean));
+                return Result.fail("");
+            }
+            return Result.succ(r);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Paycenter error: " + e.getMessage());
         }
-        return Result.succ(r);
+        return Result.fail("System error!");
     }
 
     public boolean addRepayPlan(TbApplyInfoBean applyInfoBean) {
@@ -521,20 +528,18 @@ public class LoanService {
         int principalToRepay = loanAmount;
         int feeToRepay = feeTotal;
         int interestToRepay = interestTotal;
+        int total = loanAmount + feeTotal + interestTotal;
 
         switch (feeType) {
             case LOAN_PRE_FEE:
-                principalToRepay = loanAmount;
                 feeToRepay = 0;
                 interestToRepay = interestTotal;
                 break;
             case LOAN_PRE_FEE_PRE_INTEREST:
-                principalToRepay = loanAmount;
                 feeToRepay = 0;
                 interestToRepay = 0;
                 break;
             case LOAN_POST_FEE_POST_INTEREST:
-                principalToRepay = loanAmount;
                 feeToRepay = feeTotal;
                 interestToRepay = interestTotal;
                 break;
@@ -560,9 +565,13 @@ public class LoanService {
         repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_NOT_PAID.getCode());
         repayPlanBean.setIs_overdue(RepayPlanOverdueEnum.PLAN_NOT_OVER_DUE.getCode());
         repayPlanBean.setNeed_principal(Long.valueOf(principalToRepay));
-        repayPlanBean.setNeed_interest(Long.valueOf(interestToRepay));
-        repayPlanBean.setNeed_management_fee(Long.valueOf(feeToRepay));
-        repayPlanBean.setNeed_total(Long.valueOf(totalToRepay));
+        repayPlanBean.setNeed_interest(Long.valueOf(interestTotal));
+        repayPlanBean.setNeed_management_fee(Long.valueOf(feeTotal));
+        repayPlanBean.setNeed_total(Long.valueOf(total));
+        // 实际已还款项，含已扣除费用（服务费、利息等）
+        repayPlanBean.setAct_interest(Long.valueOf(interestTotal - interestToRepay));
+        repayPlanBean.setAct_management_fee(Long.valueOf(feeTotal - feeToRepay));
+        repayPlanBean.setAct_total(Long.valueOf(total - totalToRepay));
         repayPlanBean.setCreate_time(now);
         repayPlanBean.setUpdate_time(now);
 
