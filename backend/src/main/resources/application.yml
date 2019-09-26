@@ -20,7 +20,7 @@ ssdb:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:51666/eureka/
+      defaultZone: http://192.168.78.32:51666/eureka/
 
 rocket:
   consumer:

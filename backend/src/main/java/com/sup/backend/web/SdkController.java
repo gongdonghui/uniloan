@@ -139,6 +139,7 @@ public class SdkController {
     if (app_list_info == null || app_list_info.getApps() == null || app_list_info.getApps().isEmpty()) {
       return Result.fail(1, "no_valid_items");
     }
+
     List<TbAppSdkAppListInfoBean> beans = new ArrayList<>();
     for (AppSdkAppListInfo.SingleItem item : app_list_info.getApps()) {
       TbAppSdkAppListInfoBean bean = new TbAppSdkAppListInfoBean();
