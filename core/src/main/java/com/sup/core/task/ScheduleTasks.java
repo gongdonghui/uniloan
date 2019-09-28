@@ -292,6 +292,7 @@ public class ScheduleTasks {
 
         Integer total = repayPlanMapper.selectCount(wrapper);
         Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
+        log.info("Total repayPlan num: " + total);
         for (int i = 1; i <= pageCount; ++i) {
             Page<TbRepayPlanBean> page = new Page<>(i, QUERY_PAGE_NUM, false);
             IPage<TbRepayPlanBean> repayPlanBeans = repayPlanMapper.selectPage(page, wrapper);

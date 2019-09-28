@@ -53,7 +53,7 @@ CREATE TABLE if NOT EXISTS `tb_apply_info` (
   `period` int(10) NOT NULL COMMENT '期限，从产品关联到',
   `quota` int(10) NOT NULL COMMENT '额度，从产品关联到',
   `fee` float NOT NULL COMMENT '服务费比例，从产品关联到',
-  `fee_type` int(16) NOT NULL COMMENT '服务费收取方式，从产品关联到',
+  `fee_type` int(16) NOT NULL COMMENT '服务费收取方式，0:先扣除服务费，1:先扣除服务费和利息，2:到期扣除服务费和利息',
   `status` int(10) NOT NULL COMMENT '进件最新状态, 0:待审核, 1:自动审核通过, 2:初审通过, 3:复审通过, 4:终审通过, 5:自动审核拒绝, 6:初审拒绝, 7:复审拒绝, 8:终审拒绝, 9:取消或异常, 10:自动放款中，11:自动放款失败，12:已放款/还款中，13:未还清，14:已还清， 15:逾期，16:核销',
   `operator_id` int(11) DEFAULT NULL COMMENT '最后操作者id',
   `apply_quota` int(10) NOT NULL COMMENT '用户实际申请的额度',
