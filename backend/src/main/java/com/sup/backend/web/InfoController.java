@@ -3,6 +3,8 @@ package com.sup.backend.web;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
@@ -60,7 +62,9 @@ public class InfoController {
   @ResponseBody
   @RequestMapping(value = "calc", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object CaculateAmount(@RequestBody LoanCalculatorParam param) {
-    return core.calculator(param);
+    Result<LoanCalculatorParam> ret = core.calculator(param);
+    logger.info("param:" + JSON.toJSONString(param) + ", return: " + JSON.toJSONString(ret));
+    return ret;
   }
 
   @ResponseBody
@@ -74,6 +78,16 @@ public class InfoController {
   @RequestMapping(value = "dict/get", produces = "application/json;charset=UTF-8")
   public Object QueryDict() {
     return Result.succ(dict);
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "const_map/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Object GetConstMap() {
+    JSONObject r = new JSONObject();
+    r.put("email", ImmutableList.of(ImmutableMap.of("k1", "zzz", "k2", "7:00 ~ 9:00")));
+    r.put("tel", ImmutableList.of(ImmutableMap.of("k1", "zzz", "k2", "7:00 ~ 9:00")));
+    r.put("account", ImmutableList.of(ImmutableMap.of("k1", "zzz", "k2", "7:00 ~ 9:00")));
+    return Result.succ(r);
   }
 }
 

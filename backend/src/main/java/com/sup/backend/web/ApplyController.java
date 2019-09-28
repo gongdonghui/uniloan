@@ -11,9 +11,11 @@ import com.sup.backend.core.LoginRequired;
 import com.sup.backend.mapper.TbApplyInfoMapper;
 import com.sup.backend.mapper.TbApplyMaterialInfoMapper;
 import com.sup.backend.mapper.TbRepayPlanMapper;
+import com.sup.backend.mapper.TbRepayStatMapper;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
+import com.sup.common.bean.TbRepayStatBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.param.ApplyInfoParam;
@@ -40,6 +42,8 @@ public class ApplyController {
   @Autowired
   TbRepayPlanMapper tb_repay_plan_mapper;
   @Autowired
+  TbRepayStatMapper tb_repay_stat_mapper;
+  @Autowired
   private CoreService core;
 
   @LoginRequired
@@ -65,17 +69,50 @@ public class ApplyController {
       ov.setStatus(bean.getStatus());
       ov.setAmount(bean.getApply_quota().toString());
       ov.setApply_id(bean.getId());
+      ov.setRate(bean.getRate().toString());
       ov.setPeriod(bean.getPeriod().toString());
-      ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()));
+      ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()).substring(0, 10));
       ret_app_beans.add(ov);
     }
+    System.out.println(JSON.toJSONString(ret_app_beans));
+    return Result.succ(ret_app_beans);
+  }
+
+
+  @LoginRequired
+  @ResponseBody
+  @RequestMapping(value = "list_complete_applies", produces = "application/json;charset=UTF-8")
+  public Object listComplete(@LoginInfo LoginInfoCtx li) {
+    QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id());
+    List<TbApplyInfoBean> beans = apply_info_mapper.selectList(query);
+    Set<Integer> pending_status = new HashSet<Integer>(){{
+      add(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
+    }};
+    List<AppApplyOverView> ret_app_beans = new ArrayList<>();
+    for (TbApplyInfoBean bean : beans) {
+      if (!pending_status.contains(bean.getStatus())) {
+        continue;
+      }
+      TbRepayStatBean stat_bean = tb_repay_stat_mapper.selectOne(new QueryWrapper<TbRepayStatBean>().eq("apply_id", bean.getId()).last("limit 1"));
+      AppApplyOverView ov = new AppApplyOverView();
+      ov.setStatus(bean.getStatus());
+      ov.setAmount(bean.getApply_quota().toString());
+      ov.setApply_id(bean.getId());
+      ov.setRate(bean.getRate().toString());
+      ov.setPeriod(bean.getPeriod().toString());
+      ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()).substring(0, 10));
+      ov.setJieqing_amount(stat_bean.getNeed_total().toString());
+      ov.setJieqing_date(ToolUtils.NormTime(bean.getUpdate_time()).substring(1, 10));
+      ret_app_beans.add(ov);
+    }
+    System.out.println(JSON.toJSONString(ret_app_beans));
     return Result.succ(ret_app_beans);
   }
 
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "list_repay_applies", produces = "application/json;charset=UTF-8")
-  public Object listApply(@LoginInfo LoginInfoCtx li) {
+  public Object listRepay(@LoginInfo LoginInfoCtx li) {
     QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id());
     List<TbApplyInfoBean> beans = apply_info_mapper.selectList(query);
     List<AppApplyInfo> ret_app_beans = new ArrayList<>();
@@ -100,12 +137,15 @@ public class ApplyController {
           ai.setIs_overdue(plan.getRepay_end_date().getTime() < System.currentTimeMillis() ? 1: 0);
           ai.setApply_id(bean.getId());
           ai.setPlan_id(plan.getId());
-          ai.setPeriod(plan.getSeq_no().toString());
+          ai.setRate(bean.getRate().toString());
+          ai.setTerm("1");
+          ai.setTotal_terms("1");
           ai.setLatest_repay_date(ToolUtils.NormTime(plan.getRepay_end_date()).substring(0, 10));
           ret_app_beans.add(ai);
         }
       }
     }
+    logger.info("return: " + JSON.toJSONString(ret_app_beans));
     return Result.succ(ret_app_beans);
   }
 

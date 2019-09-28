@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @EnableEurekaClient
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages={"com.sup.core"})
 @EnableFeignClients(basePackages = {"com.sup.common.service"})
 public class CreditApplication {
 

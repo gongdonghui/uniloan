@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.google.common.collect.ImmutableMap;
 import com.sup.backend.bean.LoginInfoCtx;
@@ -56,7 +57,7 @@ public class CertController {
 
   private boolean CheckDuplicateSubmit(String uri, Integer user_id) {
     String dup_key = String.format("submit|%d_%s", user_id, uri);
-    return rc.SetEx(dup_key, "ok", 10l, TimeUnit.MINUTES);
+    return rc.SetEx(dup_key, "ok", 5l, TimeUnit.SECONDS);
   }
 
   private void ClearDuplicateSubmit(String uri, Integer user_id) {
@@ -98,8 +99,10 @@ public class CertController {
 
     TbUserRegistInfoBean regist_info = tb_user_regist_info_mapper.selectById(li.getUser_id());
     if (StringUtils.isEmpty(regist_info.getName()) && (!StringUtils.isEmpty(bean.getName()))) {
-      regist_info.setName(bean.getName());
-      tb_user_regist_info_mapper.updateName(li.getUser_id(), bean.getName());
+      UpdateWrapper<TbUserRegistInfoBean> upd_wrapper = new UpdateWrapper<>();
+      upd_wrapper.eq("id", regist_info.getId());
+      upd_wrapper.set("name", bean.getName());
+      tb_user_regist_info_mapper.update(null, upd_wrapper);
       logger.info(String.format("update user_id: %d, name: (%s) => (%s)", li.getUser_id(), regist_info.getName(), bean.getName()));
     }
     ClearDuplicateSubmit("idcard", li.getUser_id());

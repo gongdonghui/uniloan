@@ -3,10 +3,7 @@ package com.sup.common.service;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.common.bean.paycenter.RepayInfo;
-import com.sup.common.param.ApplyInfoParam;
-import com.sup.common.param.FunpayCallBackParam;
-import com.sup.common.param.LoanCalculatorParam;
-import com.sup.common.param.ManualRepayParam;
+import com.sup.common.param.*;
 import com.sup.common.util.Result;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,6 +56,15 @@ public interface CoreService {
     @ResponseBody
     @RequestMapping(value = "/loan/plan/get", produces = "application/json;charset=UTF-8")
     Result getRepayPlan(String applyId);
+
+    /**
+     * 手动放款
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/loan/manualLoan", produces = "application/json;charset=UTF-8")
+    Result manualLoan(@RequestBody ManualLoanParam param);
 
     /**
      * 手动还款

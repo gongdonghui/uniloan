@@ -7,17 +7,18 @@ import java.util.Date;
 
 /**
  * Project:uniloan
- * Class:  ManualRepayParam
+ * Class:  ManualLoanParam
  * <p>
  * Author: guanfeng
  * Create: 2019-09-17
  */
 
 @Data
-public class ManualRepayParam {
+public class ManualLoanParam {
     private String  userId;
     private String  applyId;
-    private String  operatorId;
-    private Integer amount;     // 还款金额
-    private String  repayTime;  // 还款时间 yyyy-MM-dd HH:mm:ss
+    private String  operatorId; // 操作人ID
+    private Integer amount;     // 放款金额
+
+    private String  loanTime;  // 放款时间 yyyy-MM-dd HH:mm:ss
 }

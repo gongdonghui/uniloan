@@ -535,6 +535,23 @@ CREATE TABLE `tb_app_sdk_contract_info` (
   KEY `idx_mobile` (`mobile`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+DROP TABLE IF EXISTS tb_app_sdk_applist_info;
+CREATE TABLE `tb_app_sdk_applist_info` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
+  `mobile` varchar(255) DEFAULT NULL COMMENT '手机号',
+  `apk_name` varchar(255) DEFAULT NULL COMMENT 'app包名',
+  `apk_label` varchar(255) DEFAULT NULL COMMENT 'applabel信息',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_mobile` (`mobile`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+
 DROP TABLE IF EXISTS tb_core_risk_rules;
 CREATE TABLE `tb_core_risk_rules` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

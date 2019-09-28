@@ -2,6 +2,7 @@ package com.sup.core.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -23,6 +24,7 @@ import com.sup.common.util.Result;
 import com.sup.core.mapper.ApplyInfoHistoryMapper;
 import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.OperationTaskMapper;
+import com.sup.core.util.MqMessenger;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 import lombok.extern.log4j.Log4j;
 import org.apache.rocketmq.common.message.Message;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * Project:uniloan
@@ -56,7 +59,7 @@ public class ApplyService {
     @Autowired
     private LoanService loanService;
     @Autowired
-    private MqProducerService mqProducerService;
+    private MqMessenger mqMessenger;
 
 
     public boolean addApplyInfo(TbApplyInfoBean bean) {
@@ -78,6 +81,21 @@ public class ApplyService {
             return false;
         }
         return true;
+    }
+
+    public List<TbApplyInfoBean> getApplyInprogress(Integer userId) {
+        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", userId);
+        wrapper.in("status", ApplyStatusEnum.APPLY_INIT
+                , ApplyStatusEnum.APPLY_AUTO_PASS
+                , ApplyStatusEnum.APPLY_FIRST_PASS
+                , ApplyStatusEnum.APPLY_SECOND_PASS
+                , ApplyStatusEnum.APPLY_FINAL_PASS
+                , ApplyStatusEnum.APPLY_AUTO_LOANING
+                , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED
+                , ApplyStatusEnum.APPLY_LOAN_SUCC
+                );
+        return applyInfoMapper.selectList(wrapper);
     }
 
     public Result updateApplyInfo(TbApplyInfoBean bean) {
@@ -165,15 +183,12 @@ public class ApplyService {
                 break;
         }
 
+        mqMessenger.applyStatusChange(bean);
+
         if (applyInfoMapper.updateById(bean) <= 0) {
             return Result.fail("update ApplyInfo failed! bean = " + GsonUtil.toJson(bean));
         }
-        try {
-            sendMessage(bean);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("Failed to send MQ message. e = " + e.getMessage());
-        }
+
         TbApplyInfoHistoryBean applyInfoHistoryBean = new TbApplyInfoHistoryBean(bean);
         applyInfoHistoryBean.setCreate_time(now);
         if (applyInfoHistoryMapper.insert(applyInfoHistoryBean) <= 0) {
@@ -182,16 +197,16 @@ public class ApplyService {
         return Result.succ();
     }
 
-    protected void sendMessage(TbApplyInfoBean bean) throws Exception {
-        String state_desc = ApplyStatusEnum.getStatusByCode(bean.getStatus()).getCodeDesc();
-        UserStateMessage message = new UserStateMessage();
-        message.setUser_id(bean.getUser_id());
-        message.setRel_id(bean.getApp_id());
-        message.setState(state_desc);
-        message.setCreate_time(DateUtil.format(new Date(), DateUtil.DEFAULT_DATETIME_FORMAT));
-        message.setExt(JSON.toJSONString(ImmutableMap.of("order_id", bean.getApp_id().toString())));
-        mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, state_desc, "", GsonUtil.toJson(message).getBytes()));
-    }
+//    protected void sendMessage(TbApplyInfoBean bean) throws Exception {
+//        String state_desc = ApplyStatusEnum.getStatusByCode(bean.getStatus()).getCodeDesc();
+//        UserStateMessage message = new UserStateMessage();
+//        message.setUser_id(bean.getUser_id());
+//        message.setRel_id(bean.getApp_id());
+//        message.setState(state_desc);
+//        message.setCreate_time(DateUtil.format(new Date(), DateUtil.DEFAULT_DATETIME_FORMAT));
+//        message.setExt(JSON.toJSONString(ImmutableMap.of("order_id", bean.getApp_id().toString())));
+//        mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, state_desc, "", GsonUtil.toJson(message).getBytes()));
+//    }
 
 //    protected int getInhandQuota(TbApplyInfoBean bean) {
 //        LoanFeeTypeEnum feeType = LoanFeeTypeEnum.getStatusByCode(bean.getFee_type());

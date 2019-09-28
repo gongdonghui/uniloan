@@ -1,6 +1,5 @@
 package com.sup.core.facade.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.param.ApplyInfoParam;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbApplyMaterialInfoBean;
@@ -9,7 +8,6 @@ import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.Result;
 import com.sup.core.facade.ApplyFacade;
-import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.ApplyMaterialInfoMapper;
 import com.sup.core.mapper.ProductInfoMapper;
 import com.sup.core.service.ApplyService;
@@ -19,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Project:uniloan
@@ -40,8 +39,6 @@ public class ApplyFacadeImpl implements ApplyFacade {
     private ApplyMaterialInfoMapper applyMaterialInfoMapper;
     @Autowired
     private ProductInfoMapper productInfoMapper;
-    @Autowired
-    private ApplyInfoMapper applyInfoMapper;
 
     @Value("#{new Integer('${apply.expire-days}')}")
     private Integer APPLY_EXPIRE_DAYS;
@@ -50,17 +47,10 @@ public class ApplyFacadeImpl implements ApplyFacade {
     @Override
     public Result addApplyInfo(ApplyInfoParam applyInfoParam) {
         // 检测是否重复提交
-        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id", applyInfoParam.getUser_id());
-        wrapper.eq("product_id", applyInfoParam.getProduct_id());
-        wrapper.eq("channel_id", applyInfoParam.getChannel_id());
-        wrapper.eq("app_id", applyInfoParam.getApp_id());
-        wrapper.orderByDesc("create_time");
-        TbApplyInfoBean oldApply = applyInfoMapper.selectOne(wrapper);
-        if (oldApply != null) {
-            if (oldApply.getStatus() == ApplyStatusEnum.APPLY_INIT.getCode()) {
-                return Result.fail("Duplicated Apply!");
-            }
+
+        List<TbApplyInfoBean> oldApplys = applyService.getApplyInprogress(applyInfoParam.getUser_id());
+        if (oldApplys != null && oldApplys.size() > 0) {
+            return Result.fail("Duplicated Apply!");
         }
 
         TbProductInfoBean product = productInfoMapper.selectById(applyInfoParam.getProduct_id());
