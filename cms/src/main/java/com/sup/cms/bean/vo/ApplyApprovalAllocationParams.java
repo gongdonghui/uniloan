@@ -11,6 +11,11 @@ import javax.validation.constraints.NotNull;
 @Data
 public class ApplyApprovalAllocationParams {
     /**
+     * 信审0 终审1
+     */
+    @NotNull
+    private Integer type;
+    /**
      * 任务id
      */
     @NotNull

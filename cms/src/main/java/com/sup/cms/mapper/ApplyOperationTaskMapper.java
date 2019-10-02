@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface ApplyOperationTaskMapper extends BaseMapper<ApplyOperationTaskBean> {
     @Select("select " +
-            "a.id,a.apply_id,a.create_time," +
+            "a.id,a.apply_id,a.create_time,a.task_type,a.status,a.operator_id,a.update_time," +
             "b.credit_class,b.create_time as apply_create_time,b.expire_time as apply_expire_time," +
             "c.name as product_name" +
             "d.cid_no,d.name," +

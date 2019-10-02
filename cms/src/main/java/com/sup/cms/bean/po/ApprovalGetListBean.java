@@ -19,6 +19,33 @@ public class ApprovalGetListBean {
      */
     private Integer applyId;
     /**
+     * 任务名称
+     * 我返回 数字 你mapping成中文
+     * 0信审
+     * 2终审
+     */
+    private Integer taskType;
+    /**
+     * 执行结果
+     * 我返回数字 你mapping成中文
+     * 0 未审核
+     * 1 已审核
+     */
+    private Integer status;
+    /**
+     * 审批人
+     */
+    private Integer operatorId;
+    /**
+     * 指派时间
+     */
+    private Date updateTime;
+    /**
+     * 可重新指派
+     * 0 不可 1 可以
+     */
+    private Integer reAllocate;
+    /**
      * 申请产品
      */
     private String productName;

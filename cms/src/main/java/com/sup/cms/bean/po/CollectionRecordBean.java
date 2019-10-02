@@ -9,22 +9,19 @@ import java.util.Date;
 
 /**
  * @Author: kouichi
- * @Date: 2019/9/22 11:13
+ * @Date: 2019/10/2 16:07
  */
 @Data
-@TableName("tb_operation_task")
-public class ApplyOperationTaskBean {
+@TableName("tb_cms_collection_record")
+public class CollectionRecordBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private Integer applyId;
-    private Integer operatorId;
-    private Integer distributorId;
-    private Integer taskType;
-    private Integer status;
+    private String mobile;
+    private String status;
+    private Date alertDate;
     private String comment;
-    private Integer hasOwner;
+    private Integer applyId;
+    private String periods;
+    private Integer operatorId;
     private Date createTime;
-    private Date expireTime;
-    private Date updateTime;
-
 }

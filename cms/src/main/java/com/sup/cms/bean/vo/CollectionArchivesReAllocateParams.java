@@ -16,6 +16,11 @@ public class CollectionArchivesReAllocateParams {
     @NotNull
     private Integer id;
     /**
+     * 进件id
+     */
+    @NotNull
+    private Integer applyId;
+    /**
      * 被派人
      */
     @NotNull
