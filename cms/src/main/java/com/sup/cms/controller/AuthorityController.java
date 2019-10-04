@@ -14,12 +14,14 @@ import com.sup.cms.util.GsonUtil;
 import com.sup.cms.util.ResponseUtil;
 import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 权限管理页面
@@ -31,6 +33,8 @@ import java.util.Map;
 @RestController
 public class AuthorityController {
 
+    @Autowired
+    private StringRedisTemplate redis;
     @Autowired
     private AuthUserBeanMapper userBeanMapper;
     @Autowired
@@ -56,6 +60,7 @@ public class AuthorityController {
         m.put("userId", bean.getId());
         m.put("token", token);
         m.put("name", bean.getName());
+        redis.opsForValue().set(token, bean.getId() + "", 30, TimeUnit.MINUTES);
         return ResponseUtil.success(m);
     }
 
