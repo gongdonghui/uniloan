@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * gongshuai
  * <p>
@@ -18,4 +20,5 @@ public class AssetsLevelRuleBean {
     private Integer between_paydays;
     private Integer level;
     private String level_name;
+    private Date create_time;
 }

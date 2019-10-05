@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * gongshuai
  * <p>
@@ -19,4 +21,6 @@ public class CreditLevelRuleBean {
     private Integer max_overdue_days;
     private Integer reloan_times;
     private Integer level;
+    private Date create_time;
+
 }

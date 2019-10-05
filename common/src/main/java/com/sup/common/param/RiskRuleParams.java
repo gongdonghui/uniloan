@@ -1,17 +1,16 @@
-package com.sup.core.bean;
+package com.sup.common.param;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.util.Date;
 
+/**
+ * gongshuai
+ * <p>
+ * 2019/10/5
+ */
 @Data
-@TableName("tb_core_risk_rules")
-public class RiskRulesBean {
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+public class RiskRuleParams {
     private Integer product_id;
     private Integer hit_type;
     private Integer value_type;

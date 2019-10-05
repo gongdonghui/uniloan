@@ -565,6 +565,7 @@ CREATE TABLE `tb_core_risk_rules` (
   `credit_level` int(11) DEFAULT NULL COMMENT '信用等级',
   `val_left` float DEFAULT NULL COMMENT '左值',
   `val_right` float DEFAULT NULL COMMENT '右值',
+  `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -574,6 +575,7 @@ CREATE TABLE `tb_core_credit_level_rules` (
   `reloan_times` int(11) DEFAULT NULL COMMENT '复贷次数',
   `max_overdue_days` int(11) DEFAULT NULL COMMENT '历史最大逾期天数',
   `level` int(11) DEFAULT NULL COMMENT '信用等级',
+  `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -648,14 +650,14 @@ CREATE TABLE IF NOT EXISTS `tb_manual_repay` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_core_assets_level_rules;
-CREATE TABLE IF NOT EXISTS `tb_core_assets_level_ruels` (
+CREATE TABLE `tb_core_assets_level_ruels` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `between_paydays` int(11) DEFAULT NULL COMMENT '距离还款日的天数',
   `level` int(11) DEFAULT NULL COMMENT '资产等级',
   `level_name` varchar(128) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 DROP TABLE IF EXISTS tb_core_comment_label;
 CREATE TABLE IF NOT EXISTS `tb_core_comment_label` (
