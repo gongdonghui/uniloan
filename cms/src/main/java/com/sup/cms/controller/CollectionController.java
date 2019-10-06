@@ -2,9 +2,7 @@ package com.sup.cms.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
-import com.sup.cms.bean.po.ApplyOperationTaskBean;
-import com.sup.cms.bean.po.CollectionAllocateRecordBean;
-import com.sup.cms.bean.po.CollectionRecordBean;
+import com.sup.cms.bean.po.*;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.ApplyOperationTaskMapper;
 import com.sup.cms.mapper.CollectionAllocateRecordBeanMapper;
@@ -95,7 +93,8 @@ public class CollectionController {
      */
     @PostMapping("/allocate/getList")
     public String allocateGetList(@Valid @RequestBody CollectionAllocateGetListParams params) {
-        //todo 不确定字段都在哪里 稍后做
+        //todo
+        List<CollectionAllocateGetListBean> l = Lists.newArrayList();
         return "";
     }
 
@@ -141,7 +140,7 @@ public class CollectionController {
      */
     @PostMapping("/mine/getList")
     public String mine(@Valid @RequestBody CollectionMineGetListParams params) {
-        //todo 不知道字段在哪里 稍后做
+        //todo 提醒时间和催收人不知道有什么作用 如果这俩没作用的话 应该和预期列表的字段一致
         return "";
     }
 
@@ -154,6 +153,7 @@ public class CollectionController {
     @PostMapping("/archives/getList")
     public String archivesGetList(@Valid @RequestBody CollectionArchivesGetListParams params) {
         //todo 不知道字段在哪里 稍后做
+        List<CollectionArchivesGetListBean> l = Lists.newArrayList();
         return "";
     }
 

@@ -9,7 +9,7 @@ import java.util.Date;
  * @Date: 2019/9/22 13:38
  */
 @Data
-public class ApprovalGetListBean {
+public class ApplyApprovalGetListBean {
     /**
      * 任务编号
      */

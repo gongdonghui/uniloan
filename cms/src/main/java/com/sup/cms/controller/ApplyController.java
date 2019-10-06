@@ -1,12 +1,12 @@
 package com.sup.cms.controller;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.sup.cms.bean.po.ApplyManagementGetListBean;
 import com.sup.cms.bean.po.ApplyOperationTaskBean;
-import com.sup.cms.bean.po.ApprovalGetListBean;
+import com.sup.cms.bean.po.ApplyApprovalGetListBean;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.ApplyOperationTaskMapper;
+import com.sup.cms.mapper.CrazyJoinMapper;
 import com.sup.cms.util.DateUtil;
 import com.sup.cms.util.ResponseUtil;
 import com.sup.common.bean.TbApplyInfoBean;
@@ -32,6 +32,8 @@ public class ApplyController {
 
     @Autowired
     private ApplyOperationTaskMapper applyOperationTaskMapper;
+    @Autowired
+    private CrazyJoinMapper crazyJoinMapper;
     @Autowired
     private CoreService coreService;
 
@@ -61,7 +63,7 @@ public class ApplyController {
         sb.append(" and a.status=\"0\"");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
-        List<ApprovalGetListBean> list = applyOperationTaskMapper.search(sb.toString(), offset, rows);
+        List<ApplyApprovalGetListBean> list = crazyJoinMapper.applyApprovalGetList(sb.toString(), offset, rows);
         return ResponseUtil.success(list);
     }
 
@@ -148,8 +150,11 @@ public class ApplyController {
      */
     @PostMapping("/management/getList")
     public String getList2(@Valid @RequestBody ApplyManagementGetListParams params) {
-        //todo 不知道字段都在哪 待开发
-        List<ApplyManagementGetListBean> l = Lists.newArrayList();
+        StringBuilder sb = new StringBuilder();
+        //todo search条件待开发
+        Integer offset = (params.getPage() - 1) * params.getPageSize();
+        Integer rows = params.getPageSize();
+        List<ApplyManagementGetListBean> l = crazyJoinMapper.applyManagementGetList(sb.toString(), offset, rows);
         return ResponseUtil.success(l);
     }
 
@@ -181,7 +186,7 @@ public class ApplyController {
         sb.append(null != params.getApplyEndTime() ? " and b.create_time<=\"" + DateUtil.formatDateTime(params.getEndTime()) + "\"" : "");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
-        List<ApprovalGetListBean> list = applyOperationTaskMapper.search(sb.toString(), offset, rows);
+        List<ApplyApprovalGetListBean> list = crazyJoinMapper.applyApprovalGetList(sb.toString(), offset, rows);
         list.forEach(x -> x.setReAllocate(null == x.getOperatorId() ? 0 : 1));
         return ResponseUtil.success(list);
     }
