@@ -569,6 +569,9 @@ public class ScheduleTasks {
                 }
 
             }
+            Integer register = this.userRegisterInfoMapper.selectCount(new QueryWrapper<TbUserRegistInfoBean>()
+                    .ge("create_time", data_dt)
+                    .lt("create_time", calendar));
             Integer first_ovedue = repay - repay_actual;
             double forate = (first_ovedue + 0.00001f) / (repay + 0.00001f);
 
@@ -584,6 +587,7 @@ public class ScheduleTasks {
             operationReportBean.setRepay(repay);
             operationReportBean.setRepay_actual(repay_actual);
             operationReportBean.setFirst_overdue(first_ovedue);
+            operationReportBean.setRegister(register);
 
             this.operationReportMapper.insert(operationReportBean);
         } catch (Exception e) {
