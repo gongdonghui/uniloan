@@ -1,8 +1,10 @@
 package com.sup.cms.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.hash.Hashing;
 import com.google.gson.reflect.TypeToken;
 import com.sup.cms.bean.dto.AuthRoleList;
 import com.sup.cms.bean.dto.AuthResourceList;
@@ -12,7 +14,6 @@ import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.*;
 import com.sup.cms.util.GsonUtil;
 import com.sup.cms.util.ResponseUtil;
-import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -50,25 +51,31 @@ public class AuthorityController {
     public String doLogin(@RequestParam("userName") String userName, @RequestParam("password") String password) {
         QueryWrapper<AuthUserBean> qw = new QueryWrapper<>();
         qw.eq("user_name", userName);
-        qw.eq("password", MD5Encoder.encode(password.getBytes()));
+        qw.eq("password", Hashing.md5().newHasher().putString(password, Charsets.UTF_8).hash().toString());
         AuthUserBean bean = userBeanMapper.selectOne(qw);
         if (bean == null) {
             return ResponseUtil.failed("用户不存在或密码错误");
         }
-        String token = MD5Encoder.encode((userName + System.currentTimeMillis()).getBytes());
+        String token = Hashing.md5().newHasher().putString(userName + System.currentTimeMillis(), Charsets.UTF_8).hash().toString();
         Map m = Maps.newHashMap();
         m.put("userId", bean.getId());
         m.put("token", token);
         m.put("name", bean.getName());
-        redis.opsForValue().set(token, bean.getId() + "", 30, TimeUnit.MINUTES);
+        redis.opsForValue().set("CMS-" + token, bean.getId() + "", 30, TimeUnit.MINUTES);
         return ResponseUtil.success(m);
+    }
+
+    @GetMapping("/user/logout")
+    public String logout(@RequestParam("token") String token) {
+        redis.delete("CMS-" + token);
+        return ResponseUtil.success();
     }
 
     @GetMapping("/user/changePassword")
     public String changePassword(@RequestParam("userId") Integer userId, @RequestParam("password") String password) {
         AuthUserBean bean = new AuthUserBean();
         bean.setId(userId);
-        bean.setPassword(MD5Encoder.encode(password.getBytes()));
+        bean.setPassword(Hashing.md5().newHasher().putString(password, Charsets.UTF_8).hash().toString());
         if (userBeanMapper.updateById(bean) <= 0) {
             return ResponseUtil.failed();
         }
@@ -87,7 +94,7 @@ public class AuthorityController {
     public String userInsert(@RequestBody @Valid AuthAddUserParams params) {
         //先保存用户信息
         AuthUserBean bean = GsonUtil.beanCopy(params, AuthUserBean.class);
-        bean.setPassword(MD5Encoder.encode(params.getPassword().getBytes()));
+        bean.setPassword(Hashing.md5().newHasher().putString(params.getPassword(), Charsets.UTF_8).hash().toString());
         bean.setCreateTime(new Date());
         if (userBeanMapper.insert(bean) < 0) {
             return ResponseUtil.failed();

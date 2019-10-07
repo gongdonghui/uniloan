@@ -42,9 +42,9 @@ public class WebAppConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         //注册自定义拦截器，添加拦截路径和排除拦截路径
-        registry.addInterceptor(bizInterceptor())
-                .addPathPatterns("/**")
-                .excludePathPatterns("/auth/user/doLogin", "/auth/user/logout");
+//        registry.addInterceptor(bizInterceptor())
+//                .addPathPatterns("/**")
+//                .excludePathPatterns("/auth/user/doLogin", "/auth/user/logout");
     }
 
     public class BizInterceptor implements HandlerInterceptor {
@@ -69,12 +69,12 @@ public class WebAppConfig implements WebMvcConfigurer {
 
             try {
                 //1.检查是否登录 token存在就代表已登录
-                if (!redis.hasKey(token)) {
+                if (!redis.hasKey("CMS-" + token)) {
                     writeResponse(response, "用户未登录");
                     return false;
                 }
                 //1.1 登录成功时 刷新token有效时间
-                redis.expire(token, 30, TimeUnit.MINUTES);
+                redis.expire("CMS-" + token, 30, TimeUnit.MINUTES);
 
                 //2.是否有该访问权限
                 String requestURI = request.getRequestURI();
