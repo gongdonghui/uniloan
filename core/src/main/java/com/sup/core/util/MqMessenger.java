@@ -37,8 +37,8 @@ public class MqMessenger {
     public void applyStatusChange(TbApplyInfoBean bean) {
         try {
             String state_desc = ApplyStatusEnum.getStatusByCode(bean.getStatus()).getCodeDesc();
-            String pass_time = bean.getPass_time() == null ? "" : DateUtil.formatTime(bean.getPass_time());
-            String loan_time = bean.getLoan_time() == null ? "" : DateUtil.formatTime(bean.getLoan_time());
+            String pass_time = bean.getPass_time() == null ? "" : DateUtil.formatDateTime(bean.getPass_time());
+            String loan_time = bean.getLoan_time() == null ? "" : DateUtil.formatDateTime(bean.getLoan_time());
 
             UserStateMessage message = new UserStateMessage();
             message.setUser_id(bean.getUser_id());
@@ -52,6 +52,8 @@ public class MqMessenger {
                             "loan_time", loan_time
                     ))
             );
+            log.info("bean: " + GsonUtil.toJson(bean));
+            log.info("MQ message: " + GsonUtil.toJson(message));
             mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, state_desc, "", GsonUtil.toJson(message).getBytes()));
         }catch (Exception e) {
             e.printStackTrace();
@@ -76,8 +78,10 @@ public class MqMessenger {
                     ImmutableMap.of(
                             "order_id", repayHistoryBean.getApply_id().toString(),
                             "repay_amount", repayHistoryBean.getRepay_amount(),
-                            "repay_time", DateUtil.formatDate(repayHistoryBean.getRepay_time())
+                            "repay_time", DateUtil.formatDateTime(repayHistoryBean.getRepay_time())
                     )));
+            log.info("bean: " + GsonUtil.toJson(repayHistoryBean));
+            log.info("MQ message: " + GsonUtil.toJson(message));
             if (status == RepayStatusEnum.REPAY_STATUS_SUCCEED) {
                 mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, MqTag.REPAY_SUCC_NOTIFY, "", GsonUtil.toJson(message).getBytes()));
             } else if (status == RepayStatusEnum.REPAY_STATUS_FAILED) {

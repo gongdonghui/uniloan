@@ -14,7 +14,10 @@ import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
-import com.sup.core.bean.*;
+import com.sup.core.bean.AssetsLevelRuleBean;
+import com.sup.core.bean.CreditLevelRuleBean;
+import com.sup.core.bean.OverdueInfoBean;
+import com.sup.core.bean.RiskDecisionResultBean;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.ApplyService;
@@ -29,6 +32,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -70,7 +75,7 @@ public class ScheduleTasks {
     private CreditLevelRulesMapper creditLevelRulesMapper;
 
     @Autowired
-    private    UserRegisterInfoMapper     userRegisterInfoMapper;
+    private UserRegisterInfoMapper userRegisterInfoMapper;
 
 
     @Autowired
@@ -79,6 +84,9 @@ public class ScheduleTasks {
     private PayCenterService funpayService;
     @Autowired
     private MqMessenger mqMessenger;
+
+    @Autowired
+    private OperationReportMapper operationReportMapper;
 
 
     @Scheduled(cron = "0 */5 * * * ?")
@@ -292,6 +300,7 @@ public class ScheduleTasks {
 
         Integer total = repayPlanMapper.selectCount(wrapper);
         Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
+        log.info("Total repayPlan num: " + total);
         for (int i = 1; i <= pageCount; ++i) {
             Page<TbRepayPlanBean> page = new Page<>(i, QUERY_PAGE_NUM, false);
             IPage<TbRepayPlanBean> repayPlanBeans = repayPlanMapper.selectPage(page, wrapper);
@@ -456,15 +465,15 @@ public class ScheduleTasks {
         for (String user_id : clear_user.keySet()) {
             int reloan_times = clear_user.get(user_id);
 
-            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(user_id,this.repayPlanMapper);
+            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(user_id, this.repayPlanMapper);
             for (CreditLevelRuleBean creditLevelRuleBean : creditLevelRuleBeans) {
                 if (reloan_times >= creditLevelRuleBean.getReloan_times() && overdueInfoBean.getMax_days() <= creditLevelRuleBean.getMax_overdue_days()) {
-                    TbUserRegistInfoBean  userRegistInfoBean   =  this.userRegisterInfoMapper.selectById(Integer.parseInt(user_id));
-                    if(userRegistInfoBean!=null) {
+                    TbUserRegistInfoBean userRegistInfoBean = this.userRegisterInfoMapper.selectById(Integer.parseInt(user_id));
+                    if (userRegistInfoBean != null) {
                         userRegistInfoBean.setCredit_level(creditLevelRuleBean.getLevel());
                         this.userRegisterInfoMapper.updateById(userRegistInfoBean);
                     } else {
-                        log.error("Failed to update Credit level user_id:"+ user_id);
+                        log.error("Failed to update Credit level user_id:" + user_id);
                     }
                     break;
                 }
@@ -501,7 +510,7 @@ public class ScheduleTasks {
             int days = DateUtil.daysbetween(replay_end, date);
 
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
-                if (days >= assetsLevelRuleBean.getBetween_paydays())  {
+                if (days >= assetsLevelRuleBean.getBetween_paydays()) {
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
                     break;
@@ -509,6 +518,80 @@ public class ScheduleTasks {
 
 
             }
+        }
+
+
+    }
+
+    @Scheduled(cron = "0 4 * * * ?")   //T+1
+    public void dailyReport() {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  //昨天
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, -24);
+            String strDate = dateFormat.format(calendar.getTime());
+            Date data_dt = dateFormat.parse(strDate);
+
+            String str2Date = dateFormat.format(new Date());
+            Date current = dateFormat.parse(str2Date);
+
+            List<TbApplyInfoBean> list = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
+                    .ge("create_time", data_dt)
+                    .lt("create_time", current));
+            Integer pay = 0, pay_amt = 0, apply = 0, apply_cust = 0, auto_deny = 0, manual_deny = 0;
+            HashSet<Integer> user_set = new HashSet<>();
+            for (TbApplyInfoBean tbApplyInfoBean : list) {
+                user_set.add(tbApplyInfoBean.getUser_id());
+                if (tbApplyInfoBean.getStatus() == ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()) {
+                    ++pay;
+                    pay_amt += tbApplyInfoBean.getGrant_quota();
+
+                } else if (tbApplyInfoBean.getStatus() == ApplyStatusEnum.APPLY_AUTO_DENY.getCode()) {
+                    auto_deny++;
+                } else if (tbApplyInfoBean.getStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode() ||
+                        tbApplyInfoBean.getStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode()) {
+                    manual_deny++;
+                }
+
+
+            }
+            apply = list.size();
+            apply_cust = user_set.size();
+            List<TbRepayPlanBean> tbRepayPlanBeans = this.repayPlanMapper.selectList(new QueryWrapper<TbRepayPlanBean>()
+                    .ge("repay_end_date", data_dt)
+                    .lt("repay_end_date", current));
+            Integer repay = tbRepayPlanBeans.size();
+
+            Integer repay_actual = 0;
+            for (TbRepayPlanBean repayPlanBean : tbRepayPlanBeans) {
+                if (repayPlanBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
+                    ++repay_actual;
+                }
+
+            }
+            Integer register = this.userRegisterInfoMapper.selectCount(new QueryWrapper<TbUserRegistInfoBean>()
+                    .ge("create_time", data_dt)
+                    .lt("create_time", calendar));
+            Integer first_ovedue = repay - repay_actual;
+            double forate = (first_ovedue + 0.00001f) / (repay + 0.00001f);
+
+            OperationReportBean operationReportBean = new OperationReportBean();
+            operationReportBean.setData_dt(data_dt);
+            operationReportBean.setApply(apply);
+            operationReportBean.setApply_cust(apply_cust);
+            operationReportBean.setAuto_deny(auto_deny);
+            operationReportBean.setManual_deny(manual_deny);
+            operationReportBean.setPay(pay);
+            operationReportBean.setPay_amt(pay_amt);
+            operationReportBean.setForate(forate);
+            operationReportBean.setRepay(repay);
+            operationReportBean.setRepay_actual(repay_actual);
+            operationReportBean.setFirst_overdue(first_ovedue);
+            operationReportBean.setRegister(register);
+
+            this.operationReportMapper.insert(operationReportBean);
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
 
 

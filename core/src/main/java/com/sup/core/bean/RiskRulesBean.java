@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 @TableName("tb_core_risk_rules")
 public class RiskRulesBean {
@@ -20,4 +22,5 @@ public class RiskRulesBean {
     private Integer credit_level;
     private float val_left;
     private float val_right;
+    private Date create_time;
 }

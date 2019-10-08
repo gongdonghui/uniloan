@@ -1,0 +1,74 @@
+spring:
+  profiles:
+    active: dev
+server:
+  port: 8080
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+
+---
+spring:
+  profiles: dev
+  datasource:
+    name: mydb
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://140.143.207.211:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000
+    username: uniloan_test
+    password: 13JPTmkZT5QmAV4s
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    initialSize: 1
+    maxActive: 100
+    minIdle: 20
+    maxWait: 30000
+    validationQuery: SELECT 1
+    testOnBorrow: true
+    testOnReturn: true
+    testWhileIdle: true
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 25200000
+    removeAbandoned: true
+    removeAbandonedTimeout: 1800
+    logAbandoned: true
+    filters: mergeStat
+  redis:
+    host: 140.143.207.211
+    port: 6388
+    password: 13JPTmkZT5QmAV4s
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://192.168.78.32:51666/eureka/
+
+---
+spring:
+  profiles: prod
+  datasource:
+    name: mydb
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://1.1.1.1:3306/xxx?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    initialSize: 1
+    maxActive: 100
+    minIdle: 20
+    maxWait: 30000
+    validationQuery: SELECT 1
+    testOnBorrow: true
+    testOnReturn: true
+    testWhileIdle: true
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 25200000
+    removeAbandoned: true
+    removeAbandonedTimeout: 1800
+    logAbandoned: true
+    filters: mergeStat
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: 13JPTmkZT5QmAV4s
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://192.168.78.32:51666/eureka/

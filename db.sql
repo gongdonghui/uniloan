@@ -53,7 +53,7 @@ CREATE TABLE if NOT EXISTS `tb_apply_info` (
   `period` int(10) NOT NULL COMMENT '期限，从产品关联到',
   `quota` int(10) NOT NULL COMMENT '额度，从产品关联到',
   `fee` float NOT NULL COMMENT '服务费比例，从产品关联到',
-  `fee_type` int(16) NOT NULL COMMENT '服务费收取方式，从产品关联到',
+  `fee_type` int(16) NOT NULL COMMENT '服务费收取方式，0:先扣除服务费，1:先扣除服务费和利息，2:到期扣除服务费和利息',
   `status` int(10) NOT NULL COMMENT '进件最新状态, 0:待审核, 1:自动审核通过, 2:初审通过, 3:复审通过, 4:终审通过, 5:自动审核拒绝, 6:初审拒绝, 7:复审拒绝, 8:终审拒绝, 9:取消或异常, 10:自动放款中，11:自动放款失败，12:已放款/还款中，13:未还清，14:已还清， 15:逾期，16:核销',
   `operator_id` int(11) DEFAULT NULL COMMENT '最后操作者id',
   `apply_quota` int(10) NOT NULL COMMENT '用户实际申请的额度',
@@ -565,6 +565,7 @@ CREATE TABLE `tb_core_risk_rules` (
   `credit_level` int(11) DEFAULT NULL COMMENT '信用等级',
   `val_left` float DEFAULT NULL COMMENT '左值',
   `val_right` float DEFAULT NULL COMMENT '右值',
+  `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -574,6 +575,7 @@ CREATE TABLE `tb_core_credit_level_rules` (
   `reloan_times` int(11) DEFAULT NULL COMMENT '复贷次数',
   `max_overdue_days` int(11) DEFAULT NULL COMMENT '历史最大逾期天数',
   `level` int(11) DEFAULT NULL COMMENT '信用等级',
+  `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -648,14 +650,14 @@ CREATE TABLE IF NOT EXISTS `tb_manual_repay` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_core_assets_level_rules;
-CREATE TABLE IF NOT EXISTS `tb_core_assets_level_ruels` (
+CREATE TABLE `tb_core_assets_level_ruels` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `between_paydays` int(11) DEFAULT NULL COMMENT '距离还款日的天数',
   `level` int(11) DEFAULT NULL COMMENT '资产等级',
   `level_name` varchar(128) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 DROP TABLE IF EXISTS tb_core_comment_label;
 CREATE TABLE IF NOT EXISTS `tb_core_comment_label` (

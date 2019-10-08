@@ -22,6 +22,7 @@ public class ApplyOperationTaskBean {
     private Integer taskType;
     private Integer status;
     private String comment;
+    private Integer hasOwner;
     private Date createTime;
     private Date expireTime;
     private Date updateTime;

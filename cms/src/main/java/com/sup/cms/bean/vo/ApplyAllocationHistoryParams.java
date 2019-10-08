@@ -2,6 +2,7 @@ package com.sup.cms.bean.vo;
 
 import lombok.Data;
 
+import javax.validation.constraints.Min;
 import java.util.Date;
 
 /**
@@ -32,4 +33,8 @@ public class ApplyAllocationHistoryParams {
     private Date endTime;
     private Date applyCreateTime;
     private Date applyEndTime;
+    @Min(0)
+    private Integer pageSize;
+    @Min(0)
+    private Integer page;
 }
