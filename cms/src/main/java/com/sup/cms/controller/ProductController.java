@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,7 @@ public class ProductController {
 
     @PostMapping("/insert")
     public String insert(@Valid @RequestBody ProductInfoBean bean) {
+        bean.setCreateTime(new Date());
         if (productInfoMapper.insert(bean) > 0) {
             return ResponseUtil.success();
         } else {

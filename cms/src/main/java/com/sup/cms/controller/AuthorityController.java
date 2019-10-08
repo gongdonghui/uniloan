@@ -178,6 +178,7 @@ public class AuthorityController {
             userRoleBean.setRoleId(x);
             userRoleBean.setCreateTime(new Date());
             userRoleBeanMapper.insert(userRoleBean);
+
         });
         return ResponseUtil.success();
     }
@@ -280,6 +281,31 @@ public class AuthorityController {
         List<AuthResourceList> ll = GsonUtil.gson.fromJson(GsonUtil.toJson(l), new TypeToken<List<AuthResourceList>>() {
         }.getType());
         return ResponseUtil.success(ll);
+    }
+
+    @GetMapping("/getUserResources")
+    public String getUserResources(@RequestParam("token") String token) {
+        String userId = redis.opsForValue().get(token);
+        AuthUserBean user = userBeanMapper.selectById(userId);
+        QueryWrapper<AuthUserRoleBean> qw1 = new QueryWrapper<>();
+        qw1.eq("user_id", userId);
+        List<AuthResourceList> l = Lists.newArrayList();
+        List<AuthUserRoleBean> roleList = userRoleBeanMapper.selectList(qw1);
+        roleList.forEach(x -> {
+            QueryWrapper<AuthRoleResourceBean> qw2 = new QueryWrapper<>();
+            qw2.eq("role_id", x.getRoleId());
+            List<AuthRoleResourceBean> resourceList = roleResourceBeanMapper.selectList(qw2);
+            resourceList.forEach(xx -> {
+                AuthResourceBean b1 = resourceBeanMapper.selectById(xx.getResourceId());
+                AuthResourceList b2 = GsonUtil.beanCopy(b1, AuthResourceList.class);
+                l.add(b2);
+            });
+        });
+        Map m = Maps.newHashMap();
+        m.put("userId", user.getId());
+        m.put("name", user.getName());
+        m.put("resources", l);
+        return ResponseUtil.success(m);
     }
 
 }

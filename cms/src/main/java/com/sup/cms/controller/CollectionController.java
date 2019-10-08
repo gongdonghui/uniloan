@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.sup.cms.bean.po.*;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.ApplyOperationTaskMapper;
+import com.sup.cms.mapper.AuthUserBeanMapper;
 import com.sup.cms.mapper.CollectionAllocateRecordBeanMapper;
 import com.sup.cms.mapper.CollectionRecordBeanMapper;
 import com.sup.cms.util.GsonUtil;
@@ -41,6 +42,8 @@ public class CollectionController {
     private CollectionAllocateRecordBeanMapper collectionAllocateRecordBeanMapper;
     @Autowired
     private ApplyOperationTaskMapper applyOperationTaskMapper;
+    @Autowired
+    private AuthUserBeanMapper userBeanMapper;
 
     /**
      * 查看指派记录按钮
@@ -64,11 +67,17 @@ public class CollectionController {
      */
     @PostMapping("/addRecord")
     public String addRecord(@Valid @RequestBody CollectionAddAllocateRecordParams params) {
-        CollectionRecordBean bean = GsonUtil.beanCopy(params, CollectionRecordBean.class);
-        if (collectionRecordBeanMapper.insert(bean) > 0) {
-            return ResponseUtil.success();
+        //添加催收记录时把最新的催收状态 存入task的comment中
+        ApplyOperationTaskBean task = applyOperationTaskMapper.selectById(params.getApplyId());
+        task.setComment(params.getStatus());
+        if (applyOperationTaskMapper.updateById(task) <= 0) {
+            return ResponseUtil.failed();
         }
-        return ResponseUtil.failed();
+        CollectionRecordBean bean = GsonUtil.beanCopy(params, CollectionRecordBean.class);
+        if (collectionRecordBeanMapper.insert(bean) <= 0) {
+            return ResponseUtil.failed();
+        }
+        return ResponseUtil.success();
     }
 
     /**
@@ -94,6 +103,7 @@ public class CollectionController {
     @PostMapping("/allocate/getList")
     public String allocateGetList(@Valid @RequestBody CollectionAllocateGetListParams params) {
         //todo
+        // select b.id as applyId,a.update_time as lastAllocateDate,e.name,'' as mobile,a.comment as status,c.name as productName,b.period+'日/期, 共1期' as period,'不知道业务类型在哪' as type,'不知道逾期级别在哪' as overdueLevel,'不知道逾期填数在哪'b.loan_time as payDate from tb_operation_task a left join tb_apply_info b on a.apply_id=b.id left join tb_product_info c on b.product_id=c.id left join tb_apply_material_info d on b.id=d.apply_id left join tb_user_citizen_identity_card_info e on d.info_id=e.info_id left join tb_repay_plan f on b.id=f.apply_id where a.task_type=3 and d.info_type=0 and f.seq_no=1
         List<CollectionAllocateGetListBean> l = Lists.newArrayList();
         return "";
     }
@@ -117,15 +127,18 @@ public class CollectionController {
         bean.setOperatorId(params.getOperatorId());
         bean.setDistributorId(params.getDistributorId());
         bean.setHasOwner(1);
+        bean.setUpdateTime(new Date());
         if (applyOperationTaskMapper.updateById(bean) <= 0) {
             return ResponseUtil.failed();
         }
         CollectionAllocateRecordBean allocateRecordBean = new CollectionAllocateRecordBean();
-        allocateRecordBean.setActionTime(new Date());
+        allocateRecordBean.setActionTime(bean.getUpdateTime());
         allocateRecordBean.setApplyId(params.getApplyId());
         allocateRecordBean.setDistributorId(params.getDistributorId());
         allocateRecordBean.setCollectorId(params.getOperatorId());
-        //todo 还差存两个name 用户管理建好之后就可以做了
+        allocateRecordBean.setCreateTime(bean.getUpdateTime());
+        allocateRecordBean.setCollectorName(userBeanMapper.selectById(params.getOperatorId()).getName());
+        allocateRecordBean.setDistributorName(userBeanMapper.selectById(params.getDistributorId()).getName());
         if (collectionAllocateRecordBeanMapper.insert(allocateRecordBean) <= 0) {
             return ResponseUtil.failed();
         }
@@ -140,7 +153,8 @@ public class CollectionController {
      */
     @PostMapping("/mine/getList")
     public String mine(@Valid @RequestBody CollectionMineGetListParams params) {
-        //todo 提醒时间和催收人不知道有什么作用 如果这俩没作用的话 应该和预期列表的字段一致
+        //todo 提醒时间和催收人不知道有什么作用 如果这俩没作用的话 应该和逾期列表的字段一致
+        // 和逾期列表一样 把where条件限制一下审批人就可以了
         return "";
     }
 
@@ -177,13 +191,12 @@ public class CollectionController {
         allocateRecordBean.setApplyId(params.getApplyId());
         allocateRecordBean.setDistributorId(params.getDistributorId());
         allocateRecordBean.setCollectorId(params.getOperatorId());
-        //todo 还差存两个name 用户管理建好之后就可以做了
+        allocateRecordBean.setCollectorName(userBeanMapper.selectById(params.getOperatorId()).getName());
+        allocateRecordBean.setDistributorName(userBeanMapper.selectById(params.getDistributorId()).getName());
         if (collectionAllocateRecordBeanMapper.insert(allocateRecordBean) <= 0) {
             return ResponseUtil.failed();
         }
         return ResponseUtil.success();
     }
-
-    //todo 还差一个召回按钮 不知道干啥的 待商讨
 
 }

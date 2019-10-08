@@ -22,9 +22,10 @@ public interface CrazyJoinMapper extends BaseMapper {
             " from tb_operation_task a" +
             " join tb_apply_info b on a.apply_id=b.id" +
             " join tb_produt_info c on b.product_id=c.id" +
-            " join tb_user_citizen_identity_card_info d on b.user_id=d.user_id" +
-            " join tb_user_regist_info e on b.user_id=e.id" +
-            " where 1=1" +
+            " left join tb_apply_material_info d on b.id=d.apply_id" +
+            " left join tb_user_citizen_identity_card_info e on d.info_id=e.info_id" +
+            " join tb_user_regist_info f on b.user_id=f.id" +
+            " where c.info_type=0" +
             "${conditions}" +
             " limit #{offset},#{rows}")
     List<ApplyApprovalGetListBean> applyApprovalGetList(String conditions, Integer offset, Integer rows);
@@ -32,13 +33,14 @@ public interface CrazyJoinMapper extends BaseMapper {
     @Select("select " +
             "a.id as applyId,a.status as status,a.apply_quota as amount,1 as jiekuanqixian,a.fee_type as huanKuanFangShi,'' as shangHuiMingCheng,a.create_time as dealDate,a.create_time as createTime,a.update_time as updateTime" +
             "b.name as productName," +
-            "c.name as name," +
-            "d.APP_NAME as appName" +
+            "d.name as name," +
+            "e.APP_NAME as appName" +
             " from tb_apply_info a" +
             " left join tb_product_info b on a.product_id=b.id" +
-            " left join tb_user_citizen_identity_card_info c on a.user_id=c.user_id" +
-            " left join tb_app_version d on a.app_id=d.id" +
-            " where 1=1" +
+            " left join tb_apply_material_info c on a.id=c.apply_id" +
+            " left join tb_user_citizen_identity_card_info d on c.info_id=d.info_id" +
+            " left join tb_app_version e on a.app_id=d.id" +
+            " where c.info_type=0" +
             "${conditions}" +
             " limit #{offset},#{rows}")
     List<ApplyManagementGetListBean> applyManagementGetList(String conditions, Integer offset, Integer rows);
@@ -64,4 +66,9 @@ public interface CrazyJoinMapper extends BaseMapper {
             " repay_time as repayTime,act_total as actTotal,(need_total-act_total) as remainTotal,act_principal as actPrincipal,act_interest as actInterest,act_penalty_interest as actPenaltyInterest,(need_other-act_other) as remainOther from tb_repay_plan" +
             " where apply_id=#{applyId}")
     List<DetailsRepayRecordBean> detailsRepayRecord(Integer applyId);
+
+    @Select("select a.rule_status as ruleStatus,a.rule_hit_type as ruleHitType,b.variable_name as variableName from tb_core_risk_decesion_result_detail a left join tb_core_risk_rules b on a.rule_id=b.id" +
+            " where a.apply_id=#{applyId}")
+    DetailsRiskDecisionBean detailsRiskDecision(Integer applyId);
+
 }

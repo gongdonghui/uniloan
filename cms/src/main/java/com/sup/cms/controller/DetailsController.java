@@ -2,6 +2,7 @@ package com.sup.cms.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.*;
 import com.sup.cms.mapper.*;
 import com.sup.cms.util.ResponseUtil;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 详情页面
@@ -185,4 +187,29 @@ public class DetailsController {
         b.setBank(bankBean.getBank());
         return ResponseUtil.success(b);
     }
+
+    /**
+     * 决策引擎结果
+     *
+     * @param applyId
+     * @return
+     */
+    @GetMapping("/riskDecision")
+    public String riskDecision(@RequestParam("applyId") Integer applyId) {
+        DetailsRiskDecisionBean b = crazyJoinMapper.detailsRiskDecision(applyId);
+        return ResponseUtil.success(b);
+    }
+
+    /**
+     * 定价信息
+     */
+    @GetMapping("/dingjiaxinxi")
+    public String dingjiaxinxi(@RequestParam("applyId") Integer applyId) {
+        TbApplyInfoBean b = applyInfoMapper.selectById(applyId);
+        Map m = Maps.newHashMap();
+        m.put("grantQuota", b.getGrant_quota());
+        m.put("rate", b.getRate());
+        return ResponseUtil.success(m);
+    }
+
 }

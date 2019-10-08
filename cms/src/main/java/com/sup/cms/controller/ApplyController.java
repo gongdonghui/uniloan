@@ -53,8 +53,8 @@ public class ApplyController {
         sb.append(null != params.getEndTime() ? " and b.create_time<=\"" + DateUtil.formatDateTime(params.getEndTime()) + "\"" : "");
         sb.append(Strings.isNullOrEmpty(params.getName()) ? " and d.name=\"" + params.getName() + "\"" : "");
         sb.append(Strings.isNullOrEmpty(params.getCreditLevel()) ? " and b.credit_class=\"" + params.getCreditLevel() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getCidNo()) ? " and d.cid_no=\"" + params.getCidNo() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getMobile()) ? " and e.mobile=\"" + params.getMobile() + "\"" : "");
+        sb.append(Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
+        sb.append(Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile=\"" + params.getMobile() + "\"" : "");
         //单子是否已领 不管是指派的还是自己领的
         sb.append(" and a.has_owner=\"" + params.getType1() + "\"");
         //单子状态 是初审还是终审呢
@@ -151,7 +151,13 @@ public class ApplyController {
     @PostMapping("/management/getList")
     public String getList2(@Valid @RequestBody ApplyManagementGetListParams params) {
         StringBuilder sb = new StringBuilder();
-        //todo search条件待开发
+        sb.append(null != params.getStartTime() ? " and a.create_time>=\"" + DateUtil.formatDateTime(params.getStartTime()) + "\"" : "");
+        sb.append(null != params.getEndTime() ? " and a.create_time<=\"" + DateUtil.formatDateTime(params.getEndTime()) + "\"" : "");
+        sb.append(null != params.getStatus() ? " and a.status=\"" + params.getStatus() + "\"" : "");
+        sb.append(null != params.getApplyId() ? " and a.id=\"" + params.getApplyId() + "\"" : "");
+        sb.append(null != params.getName() ? " and d.name=\"" + params.getApplyId() + "\"" : "");
+        sb.append(null != params.getCidNo() ? " and d.cid_no=\"" + params.getApplyId() + "\"" : "");
+        sb.append(null != params.getAppName() ? " and e.app_name=\"" + params.getApplyId() + "\"" : "");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<ApplyManagementGetListBean> l = crazyJoinMapper.applyManagementGetList(sb.toString(), offset, rows);
@@ -199,7 +205,6 @@ public class ApplyController {
      */
     @PostMapping("/allocation/re")
     public String reAllocation(@Valid @RequestBody ApplyApprovalAllocationParams params) {
-        //todo 重新指派的时候 是否只可以 重新指派自己曾经指派过的  还是胡乱的指派
         ApplyOperationTaskBean bean = new ApplyOperationTaskBean();
         bean.setId(params.getId());
         bean.setOperatorId(params.getOperatorId());
