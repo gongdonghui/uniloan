@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -129,7 +130,8 @@ public class ApplyController {
 
         if (plan.getRepay_start_date().getTime() <= System.currentTimeMillis()) {
           AppApplyInfo ai = new AppApplyInfo();
-          ai.setCurr_amount_to_be_repaid(plan.getNeed_total().toString());
+          Long curr_need = plan.getNeed_total() - plan.getAct_total();
+          ai.setCurr_amount_to_be_repaid(curr_need.toString());
           ai.setTotal_amount_to_be_repaid(plan.getNeed_total().toString());
           ai.setDest_account_no("xx");
           ai.setContract_amount(bean.getApply_quota());
@@ -152,14 +154,14 @@ public class ApplyController {
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "new", produces = "application/json;charset=UTF-8")
-  public Object addApplyInfo(@LoginInfo LoginInfoCtx li, @RequestBody AppSubmitOrder order_detail) {
+  public Object addApplyInfo(@LoginInfo LoginInfoCtx li, @RequestBody AppSubmitOrder order_detail, HttpServletRequest req) {
     logger.info("apply_obj: " + JSON.toJSONString(order_detail));
     ApplyInfoParam aip = new ApplyInfoParam();
     aip.setUser_id(li.getUser_id());
-    aip.setApp_id(-1);
+    aip.setApp_id(Integer.parseInt(req.getHeader("app_id")));
+    aip.setChannel_id(Integer.parseInt(req.getHeader("channel_id")));
     aip.setApply_quota(order_detail.getQuota());
     aip.setProduct_id(order_detail.getProduct_id());
-    aip.setChannel_id(-1);
     aip.setPeriod(order_detail.getPeriod());
     aip.setInfoIdMap(order_detail.getMaterial_ids());
     Result r = core.addApplyInfo(aip);

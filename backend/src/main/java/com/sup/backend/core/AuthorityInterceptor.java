@@ -15,6 +15,9 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.sup.common.util.Result.kTokenError;
 
@@ -43,12 +46,17 @@ public class AuthorityInterceptor extends HandlerInterceptorAdapter {
     HandlerMethod handlerMethod = (HandlerMethod) handler;
     Method method = handlerMethod.getMethod();
     LoginRequired methodAnnotation = method.getAnnotation(LoginRequired.class);
+
+    //Map<String, String> head_map = new HashMap<>();
+    //Enumeration<String> head_vars = request.getHeaderNames();
+    //while (head_vars.hasMoreElements()) {
+    //  String key = head_vars.nextElement();
+    //  head_map.put(key, request.getHeader(key));
+    //  logger.info(String.format("header: [%s] = [%s]", key, request.getHeader(key)));
+    //}
+
     if (methodAnnotation != null) {
       String token = request.getHeader("token");
-      if (StringUtils.isEmpty(token)) {
-        token = request.getParameter("token");
-      }
-
       if (StringUtils.isEmpty(token)) {
         logger.warn("invalid request, token is null");
         WriteResult(resp, Result.fail(kTokenError, "no_token"));

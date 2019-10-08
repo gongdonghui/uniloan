@@ -12,7 +12,7 @@ mybatis-plus:
     map-underscore-to-camel-case: false
 
 ssdb:
-  host: 140.143.207.211
+  host: 127.0.0.1
   port: 13288
   auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
   timeout: 300000
@@ -20,14 +20,14 @@ ssdb:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://192.168.78.32:51666/eureka/
+      defaultZone: http://127.0.0.1:51666/eureka/
 
 rocket:
   consumer:
-    endpoint: 140.143.207.211:9976
+    endpoint: 127.0.0.1:9976
     group: app_backend
   producer:
-    endpoint: 140.143.207.211:9976
+    endpoint: 127.0.0.1:9976
     group: app_backend
 
 spring:
@@ -36,8 +36,8 @@ spring:
 
   redis:
     database: 0
-    host: 140.143.207.211
-    port: 6388
+    host: 127.0.0.1
+    port: 7789
     jedis:
       pool:
         max-active: 8
@@ -57,7 +57,8 @@ spring:
           url: 'jdbc:mysql://140.143.207.211:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
-            max-lifetime: 600000
+            max-lifetime: 300000
+
   servlet:
     multipart:
       enabled: true
