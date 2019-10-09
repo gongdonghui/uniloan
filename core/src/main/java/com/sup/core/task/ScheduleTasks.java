@@ -329,6 +329,7 @@ public class ScheduleTasks {
                 int new_penalty_interest = (int) (bean.getNeed_principal() * rate);
                 bean.setNeed_penalty_interest(ori_penalty_interest + new_penalty_interest);
                 bean.setNeed_total(ori_total + new_penalty_interest);
+
                 Result r = loanService.updateRepayPlan(bean);
                 if (!r.isSucc()) {
                     log.error("Failed to update");
@@ -343,6 +344,8 @@ public class ScheduleTasks {
     @Scheduled(cron = "0 */10 * * * ?")
     // @Scheduled(cron = "30 0 * * * ?")
     public void statRepayInfo() {
+        // TODO: 处理过程有待优化，仅处理还款中的数据
+
         // 1. 获取所有还款统计
         List<TbRepayStatBean> statBeans = repayStatMapper.selectList(
                 new QueryWrapper<TbRepayStatBean>().select("apply_id", "create_time")
@@ -410,21 +413,41 @@ public class ScheduleTasks {
         if (planBeans == null || planBeans.size() == 0) {
             return statBean;
         }
+        Collections.sort(planBeans, new Comparator<TbRepayPlanBean>() {
+            @Override
+            public int compare(TbRepayPlanBean o1, TbRepayPlanBean o2) {
+                return o1.getId() - o2.getId();
+            }
+        });
         Date now = new Date();
 
         int normalRepayTimes = 0;
         int overdueRepayTimes = 0;
         int overdueTimes = 0;
         int currentSeq = planBeans.size();
+        int overdueDays = 0;        // 逾期天数
+        int maxOverdueDays = 0;     // 最大逾期天数
+
         for (TbRepayPlanBean planBean : planBeans) {
             Date repayStartDate = planBean.getRepay_start_date();
-            if (DateUtil.compareDate(now, repayStartDate) < 0) {
-                // 待还还款计划中最小期数，即为当期
+            Date repayEndDate = planBean.getRepay_end_date();
+            if (DateUtil.compareDate(repayStartDate, now) <= 0 && DateUtil.compareDate(now, repayEndDate) <= 0) {
                 currentSeq = Math.min(currentSeq, planBean.getSeq_no());
             }
-            RepayPlanOverdueEnum status = RepayPlanOverdueEnum.getStatusByCode(planBean.getRepay_status());
-            boolean isOverdue = status == RepayPlanOverdueEnum.PLAN_OVER_DUE;
+            boolean isOverdue = planBean.getIs_overdue() == RepayPlanOverdueEnum.PLAN_OVER_DUE.getCode();
             boolean repayed = planBean.getAct_total() > 0;
+            if (isOverdue) {
+                Date overdueEndDate = now;
+                if (planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
+                    overdueEndDate = planBean.getRepay_time();
+                } else if (planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_WRITE_OFF.getCode()) {
+                    overdueEndDate = planBean.getUpdate_time();
+                } else {
+                    // 最后一期逾期天数
+                    overdueDays = Math.max(0, DateUtil.daysbetween(repayEndDate, now));
+                }
+                maxOverdueDays = Math.max(maxOverdueDays, DateUtil.daysbetween(repayEndDate, overdueEndDate));
+            }
 
             overdueTimes += isOverdue ? 1 : 0;
             overdueRepayTimes += isOverdue && repayed ? 1 : 0;
@@ -436,6 +459,8 @@ public class ScheduleTasks {
         statBean.setNormal_repay_times(normalRepayTimes);
         statBean.setOverdue_repay_times(overdueRepayTimes);
         statBean.setOverdue_times(overdueTimes);
+        statBean.setOverdue_days_max(maxOverdueDays);
+        statBean.setOverdue_days(overdueDays);
 
         return statBean;
     }

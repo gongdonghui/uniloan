@@ -16,22 +16,22 @@ public interface CrazyJoinMapper extends BaseMapper {
     @Select("select " +
             "a.id,a.apply_id,a.create_time,a.task_type,a.status,a.operator_id,a.update_time," +
             "b.credit_class,b.create_time as apply_create_time,b.expire_time as apply_expire_time," +
-            "c.name as product_name" +
-            "d.cid_no,d.name," +
-            "e.mobile" +
+            "c.name as product_name," +
+            "e.cid_no,e.name," +
+            "f.mobile" +
             " from tb_operation_task a" +
             " join tb_apply_info b on a.apply_id=b.id" +
-            " join tb_produt_info c on b.product_id=c.id" +
+            " join tb_product_info c on b.product_id=c.id" +
             " left join tb_apply_material_info d on b.id=d.apply_id" +
             " left join tb_user_citizen_identity_card_info e on d.info_id=e.info_id" +
             " join tb_user_regist_info f on b.user_id=f.id" +
-            " where c.info_type=0" +
-            "${conditions}" +
+            " where d.info_type=0" +
+            " ${conditions}" +
             " limit #{offset},#{rows}")
     List<ApplyApprovalGetListBean> applyApprovalGetList(String conditions, Integer offset, Integer rows);
 
     @Select("select " +
-            "a.id as applyId,a.status as status,a.apply_quota as amount,1 as jiekuanqixian,a.fee_type as huanKuanFangShi,'' as shangHuiMingCheng,a.create_time as dealDate,a.create_time as createTime,a.update_time as updateTime" +
+            "a.id as applyId,a.status as status,a.apply_quota as amount,1 as jiekuanqixian,a.fee_type as huanKuanFangShi,'' as shangHuiMingCheng,a.create_time as dealDate,a.create_time as createTime,a.update_time as updateTime," +
             "b.name as productName," +
             "d.name as name," +
             "e.APP_NAME as appName" +

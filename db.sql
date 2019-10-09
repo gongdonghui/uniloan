@@ -361,6 +361,8 @@ CREATE TABLE if NOT EXISTS `tb_repay_stat` (
   `normal_repay_times` int(10) NOT NULL COMMENT '正常还款期数',
   `overdue_repay_times` int(10) NOT NULL COMMENT '逾期还款期数',
   `overdue_times` int(10) NOT NULL COMMENT '逾期期数',
+  `overdue_days` int(10) NOT NULL DEFAULT 0 COMMENT '逾期天数，从最近逾期算起',
+  `overdue_days_max` int(10) NOT NULL DEFAULT 0 COMMENT '最大逾期天数',
   `create_time` datetime NOT NULL COMMENT '记录创建时间',
   `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`apply_id`)

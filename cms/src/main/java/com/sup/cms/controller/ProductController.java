@@ -31,9 +31,15 @@ public class ProductController {
     public String getList(@Valid @RequestBody ProductGetListParams params) {
         QueryWrapper<ProductInfoBean> qw = new QueryWrapper<>();
         Map m = Maps.newHashMap();
-        m.put("name", params.getName());
-        m.put("status", params.getStatus());
-        qw.allEq(m);
+        if (params.getName() != null) {
+            m.put("name", params.getName());
+        }
+        if (params.getStatus() != null) {
+            m.put("status", params.getStatus());
+        }
+        if (m.size() > 0) {
+            qw.allEq(m);
+        }
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         qw.last("limit " + offset + "," + rows);

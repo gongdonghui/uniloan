@@ -23,6 +23,7 @@
         <module>core</module>
         <module>eureka</module>
         <module>market</module>
+        <module>cms</module>
     </modules>
 
     <profiles>

@@ -37,6 +37,8 @@ public class TbRepayStatBean {
     private Integer normal_repay_times;
     private Integer overdue_repay_times;
     private Integer overdue_times;
+    private Integer overdue_days;
+    private Integer overdue_days_max;
     private Date create_time;
     private Date update_time;
 

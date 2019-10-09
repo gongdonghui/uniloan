@@ -47,6 +47,8 @@ public class AuthorityController {
     @Autowired
     private AuthResourceBeanMapper resourceBeanMapper;
 
+    private final String REDIS_CMS_PRE = "CMS-";
+
     @GetMapping("/user/doLogin")
     public String doLogin(@RequestParam("userName") String userName, @RequestParam("password") String password) {
         QueryWrapper<AuthUserBean> qw = new QueryWrapper<>();
@@ -61,13 +63,13 @@ public class AuthorityController {
         m.put("userId", bean.getId());
         m.put("token", token);
         m.put("name", bean.getName());
-        redis.opsForValue().set("CMS-" + token, bean.getId() + "", 30, TimeUnit.MINUTES);
+        redis.opsForValue().set(REDIS_CMS_PRE + token, bean.getId() + "", 30, TimeUnit.MINUTES);
         return ResponseUtil.success(m);
     }
 
     @GetMapping("/user/logout")
     public String logout(@RequestParam("token") String token) {
-        redis.delete("CMS-" + token);
+        redis.delete(REDIS_CMS_PRE + token);
         return ResponseUtil.success();
     }
 
@@ -285,7 +287,7 @@ public class AuthorityController {
 
     @GetMapping("/getUserResources")
     public String getUserResources(@RequestParam("token") String token) {
-        String userId = redis.opsForValue().get(token);
+        String userId = redis.opsForValue().get(REDIS_CMS_PRE + token);
         AuthUserBean user = userBeanMapper.selectById(userId);
         QueryWrapper<AuthUserRoleBean> qw1 = new QueryWrapper<>();
         qw1.eq("user_id", userId);

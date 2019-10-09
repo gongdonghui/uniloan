@@ -97,6 +97,9 @@ public class DecisionEngineImpl implements DecesionEngine {
             List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("user_id", userid));
             int apply_times = applyInfoBeanList.size();
             OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(Integer.toString(userid), this.repayPlanInfoMapper);
+            if (overdueInfoBean == null) {
+                return null;
+            }
             ContractInfo ret = new ContractInfo();
             ret.setOverdue_times(overdueInfoBean.getTimes());
             ret.setApply_times(apply_times);

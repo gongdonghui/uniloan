@@ -23,7 +23,7 @@ public class ProductInfoBean {
     private Integer minPeriod;
     private Integer maxPeriod;
     private Integer minQuota;
-    private Integer MaxQuota;
+    private Integer maxQuota;
     private Integer periodType;
     private Integer valueDateType;
     private Float fee;
@@ -31,7 +31,7 @@ public class ProductInfoBean {
     private Float overdueRate;
     private Integer gracePeriod;
     private Integer productOrder;
-    private Integer creditClassId;
+    private Integer creditLevel;
     private String materialNeeded;
     private Date createTime;
 }
