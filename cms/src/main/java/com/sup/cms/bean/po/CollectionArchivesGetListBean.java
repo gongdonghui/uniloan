@@ -13,11 +13,17 @@ public class CollectionArchivesGetListBean {
     private Integer applyId;
     private String mobile;
     private Date lastAllocateDate;
-    private String periodStatus;
+    /**
+     * 只有2的时候代表已还清 其余都是逾期中
+     */
+    private Integer periodStatus;
     /**
      * 催收状态
      */
     private String status;
+    /**
+     * 为1的时候代表部分还清
+     */
     private Integer partialRepay;
     private String appName;
     private String productName;
@@ -28,9 +34,7 @@ public class CollectionArchivesGetListBean {
     private String name;
     private Date shouldRepayDate;
     private Integer overdueDays;
-    private String overdueLevel;
     private Integer shouldRepayAmount;
     private String collector;
-    private Date alarmDate;
     private Date lastCollectDate;
 }
