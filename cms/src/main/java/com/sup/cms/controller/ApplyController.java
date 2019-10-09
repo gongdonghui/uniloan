@@ -51,19 +51,21 @@ public class ApplyController {
         sb.append(null != params.getApplyId() ? " and a.apply_id=\"" + params.getApplyId() + "\"" : "");
         sb.append(null != params.getStartTime() ? " and b.create_time>=\"" + DateUtil.formatDateTime(params.getStartTime()) + "\"" : "");
         sb.append(null != params.getEndTime() ? " and b.create_time<=\"" + DateUtil.formatDateTime(params.getEndTime()) + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getCreditLevel()) ? " and b.credit_class=\"" + params.getCreditLevel() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile=\"" + params.getMobile() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getCreditLevel()) ? " and b.credit_class=\"" + params.getCreditLevel() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile=\"" + params.getMobile() + "\"" : "");
         //单子是否已领 不管是指派的还是自己领的
-        sb.append(" and a.has_owner=\"" + params.getType1() + "\"");
+        sb.append(" and a.has_owner=" + params.getType1());
         //单子状态 是初审还是终审呢
-        sb.append(" and a.task_type=\"" + (params.getType2() == 0 ? "0" : "2") + "\"");
+        sb.append(" and a.task_type=" + (params.getType2() == 0 ? "0" : "2"));
         //审核状态 是审了还是没审呢
-        sb.append(" and a.status=\"0\"");
+        sb.append(" and a.status=0");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<ApplyApprovalGetListBean> list = crazyJoinMapper.applyApprovalGetList(sb.toString(), offset, rows);
+        log.info(">>> condition: " + sb.toString());
+
         return ResponseUtil.success(list);
     }
 
