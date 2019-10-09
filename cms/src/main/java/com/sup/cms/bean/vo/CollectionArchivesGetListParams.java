@@ -2,6 +2,7 @@ package com.sup.cms.bean.vo;
 
 import lombok.Data;
 
+import javax.validation.constraints.Min;
 import java.util.Date;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Date;
  */
 @Data
 public class CollectionArchivesGetListParams {
-    private String applyId;
+    private Integer applyId;
     private String name;
     private String mobile;
     private String cidNo;
@@ -22,10 +23,15 @@ public class CollectionArchivesGetListParams {
      * 期次状态
      */
     private String qiciStatus;
-    private String operatorId;
-    private String operatorStatus;
+    private Integer operatorId;
+    private Integer operatorStatus;
     /**
      * 催收状态
      */
     private String status;
+
+    @Min(0)
+    private Integer page;
+    @Min(0)
+    private Integer pageSize;
 }

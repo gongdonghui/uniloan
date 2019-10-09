@@ -1,13 +1,11 @@
 package com.sup.cms.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.sup.cms.bean.po.*;
 import com.sup.cms.bean.vo.*;
-import com.sup.cms.mapper.ApplyOperationTaskMapper;
-import com.sup.cms.mapper.AuthUserBeanMapper;
-import com.sup.cms.mapper.CollectionAllocateRecordBeanMapper;
-import com.sup.cms.mapper.CollectionRecordBeanMapper;
+import com.sup.cms.mapper.*;
 import com.sup.cms.util.GsonUtil;
 import com.sup.cms.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +42,8 @@ public class CollectionController {
     private ApplyOperationTaskMapper applyOperationTaskMapper;
     @Autowired
     private AuthUserBeanMapper userBeanMapper;
+    @Autowired
+    private CrazyJoinMapper crazyJoinMapper;
 
     /**
      * 查看指派记录按钮
@@ -70,6 +70,7 @@ public class CollectionController {
         //添加催收记录时把最新的催收状态 存入task的comment中
         ApplyOperationTaskBean task = applyOperationTaskMapper.selectById(params.getApplyId());
         task.setComment(params.getStatus());
+        task.setUpdateTime(new Date());
         if (applyOperationTaskMapper.updateById(task) <= 0) {
             return ResponseUtil.failed();
         }
@@ -102,10 +103,17 @@ public class CollectionController {
      */
     @PostMapping("/allocate/getList")
     public String allocateGetList(@Valid @RequestBody CollectionAllocateGetListParams params) {
-        //todo
-        // select b.id as applyId,a.update_time as lastAllocateDate,e.name,'' as mobile,a.comment as status,c.name as productName,b.period+'日/期, 共1期' as period,'不知道业务类型在哪' as type,'不知道逾期级别在哪' as overdueLevel,'不知道逾期填数在哪'b.loan_time as payDate from tb_operation_task a left join tb_apply_info b on a.apply_id=b.id left join tb_product_info c on b.product_id=c.id left join tb_apply_material_info d on b.id=d.apply_id left join tb_user_citizen_identity_card_info e on d.info_id=e.info_id left join tb_repay_plan f on b.id=f.apply_id where a.task_type=3 and d.info_type=0 and f.seq_no=1
-        List<CollectionAllocateGetListBean> l = Lists.newArrayList();
-        return "";
+        StringBuilder sb = new StringBuilder();
+        sb.append(null != params.getProductId() ? " and c.id=\"" + params.getProductId() + "\"" : "");
+        sb.append(null != params.getApplyId() ? " and b.id=\"" + params.getApplyId() + "\"" : "");
+        sb.append(null != params.getOverdueDays() ? " and h.overdue_days_max=\"" + params.getOverdueDays() + "\"" : "");
+        sb.append(Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
+        sb.append(Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
+        sb.append(Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
+        Integer offset = (params.getPage() - 1) * params.getPageSize();
+        Integer rows = params.getPageSize();
+        List<CollectionAllocateGetListBean> l = crazyJoinMapper.collectionAllocateGetList(sb.toString(), offset, rows);
+        return ResponseUtil.success(l);
     }
 
     /**
@@ -127,16 +135,16 @@ public class CollectionController {
         bean.setOperatorId(params.getOperatorId());
         bean.setDistributorId(params.getDistributorId());
         bean.setHasOwner(1);
-        bean.setUpdateTime(new Date());
+        bean.setExpireTime(new Date());
         if (applyOperationTaskMapper.updateById(bean) <= 0) {
             return ResponseUtil.failed();
         }
         CollectionAllocateRecordBean allocateRecordBean = new CollectionAllocateRecordBean();
-        allocateRecordBean.setActionTime(bean.getUpdateTime());
+        allocateRecordBean.setActionTime(bean.getExpireTime());
         allocateRecordBean.setApplyId(params.getApplyId());
         allocateRecordBean.setDistributorId(params.getDistributorId());
         allocateRecordBean.setCollectorId(params.getOperatorId());
-        allocateRecordBean.setCreateTime(bean.getUpdateTime());
+        allocateRecordBean.setCreateTime(bean.getExpireTime());
         allocateRecordBean.setCollectorName(userBeanMapper.selectById(params.getOperatorId()).getName());
         allocateRecordBean.setDistributorName(userBeanMapper.selectById(params.getDistributorId()).getName());
         if (collectionAllocateRecordBeanMapper.insert(allocateRecordBean) <= 0) {
@@ -147,15 +155,29 @@ public class CollectionController {
 
     /**
      * 我的催收-列表
+     * <p>
+     * 提醒时间和催收人不知道有什么作用 如果这俩没作用的话 应该和逾期列表的字段一致
      *
      * @param params
      * @return
      */
     @PostMapping("/mine/getList")
     public String mine(@Valid @RequestBody CollectionMineGetListParams params) {
-        //todo 提醒时间和催收人不知道有什么作用 如果这俩没作用的话 应该和逾期列表的字段一致
-        // 和逾期列表一样 把where条件限制一下审批人就可以了
-        return "";
+        StringBuilder sb = new StringBuilder();
+        //和逾期列表一样 把where条件限制一下审批人就可以了
+        sb.append(" and a.operator_id=\"" + params.getOperatorId() + "\"");
+        sb.append(null != params.getLastCollectionDateStart() ? " and a.update_time>=\"" + params.getLastCollectionDateStart() + "\"" : "");
+        sb.append(null != params.getLastCollectionDateEnd() ? " and a.update_time<=\"" + params.getLastCollectionDateEnd() + "\"" : "");
+        sb.append(null != params.getShouldRepayDateStart() ? " and f.repay_end_date>=\"" + params.getShouldRepayDateStart() + "\"" : "");
+        sb.append(null != params.getShouldRepayDateEnd() ? " and f.repay_end_date<=\"" + params.getShouldRepayDateEnd() + "\"" : "");
+        sb.append(null != params.getApplyId() ? " and b.id=\"" + params.getApplyId() + "\"" : "");
+        sb.append(Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
+        sb.append(Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
+        sb.append(Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
+        Integer offset = (params.getPage() - 1) * params.getPageSize();
+        Integer rows = params.getPageSize();
+        List<CollectionAllocateGetListBean> l = crazyJoinMapper.collectionAllocateGetList(sb.toString(), offset, rows);
+        return ResponseUtil.success(l);
     }
 
     /**
@@ -166,9 +188,20 @@ public class CollectionController {
      */
     @PostMapping("/archives/getList")
     public String archivesGetList(@Valid @RequestBody CollectionArchivesGetListParams params) {
-        //todo 不知道字段在哪里 稍后做
-        List<CollectionArchivesGetListBean> l = Lists.newArrayList();
-        return "";
+        StringBuilder sb = new StringBuilder();
+        sb.append(null != params.getApplyId() ? " and b.id=\"" + params.getApplyId() + "\"" : "");
+        sb.append(null != params.getShouldRepayDateStart() ? " and f.repay_end_date>=\"" + params.getShouldRepayDateStart() + "\"" : "");
+        sb.append(null != params.getShouldRepayDateEnd() ? " and f.repay_end_date<=\"" + params.getShouldRepayDateEnd() + "\"" : "");
+        sb.append(null != params.getOperatorId() ? " and i.id<=\"" + params.getOperatorId() + "\"" : "");
+        sb.append(null != params.getOperatorStatus() ? " and i.is_valid<=\"" + params.getOperatorStatus() + "\"" : "");
+        sb.append(Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
+        sb.append(Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
+        sb.append(Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
+        sb.append(Strings.isNullOrEmpty(params.getAppName()) ? " and j.APP_NAME=\"" + params.getAppName() + "\"" : "");
+        Integer offset = (params.getPage() - 1) * params.getPageSize();
+        Integer rows = params.getPageSize();
+        List<CollectionArchivesGetListBean> l = crazyJoinMapper.collectionArchivesGetList(sb.toString(), offset, rows);
+        return ResponseUtil.success(l);
     }
 
     /**

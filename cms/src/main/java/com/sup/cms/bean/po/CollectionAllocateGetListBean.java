@@ -37,4 +37,9 @@ public class CollectionAllocateGetListBean {
      */
     private Date payDate;
 
+    /**
+     * 最后催收时间
+     */
+    private Date update;
+
 }

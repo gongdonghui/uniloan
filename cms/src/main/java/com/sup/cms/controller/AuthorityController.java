@@ -310,4 +310,25 @@ public class AuthorityController {
         return ResponseUtil.success(m);
     }
 
+    /**
+     * 根据角色获取所有用户
+     */
+    @GetMapping("/getRoleUser")
+    public String getRoleUser(@RequestParam("roleId") Integer roleId) {
+        QueryWrapper<AuthUserRoleBean> qw = new QueryWrapper<>();
+        qw.eq("role_id", roleId);
+        List<AuthUserRoleBean> l = userRoleBeanMapper.selectList(qw);
+        List<Map<String, Integer>> result = Lists.newArrayList();
+        for (AuthUserRoleBean x : l) {
+            AuthUserBean b = userBeanMapper.selectById(x.getUserId());
+            if (b.getIsValid() == 0) {
+                continue;
+            }
+            Map<String, Integer> m = Maps.newHashMap();
+            m.put(b.getName(), b.getId());
+            result.add(m);
+        }
+        return ResponseUtil.success(result);
+    }
+
 }
