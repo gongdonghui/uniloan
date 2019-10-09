@@ -1,0 +1,26 @@
+2019-10-02 00:10:34.709 | AsyncResolver-bootstrap-executor-0 | com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver:43 |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 01:02:07.856 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 02:02:59.172 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 03:03:50.566 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 03:55:23.747 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 04:56:15.022 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 05:57:06.446 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 06:48:38.485 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 07:49:30.981 | AsyncResolver-bootstrap-executor-0 | com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver:43 |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 08:50:22.345 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 09:41:55.429 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 10:42:46.819 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 11:43:38.154 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 12:35:10.310 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 13:28:02.520 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 14:21:15.756 | AsyncResolver-bootstrap-executor-0 | ?:? |  |  |  |  | Resolving eureka endpoints via configuration
+2019-10-02 14:35:52.614 | Thread-31 | ?:? |  |  |  |  | Unregistering application SERVICE-PAYCENTER with eureka with status DOWN
+2019-10-02 14:35:52.617 | Thread-31 | ?:? |  |  |  |  | Saw local status change event StatusChangeEvent [timestamp=1569998152617, current=DOWN, previous=UP]
+2019-10-02 14:35:52.620 | DiscoveryClient-InstanceInfoReplicator-0 | ?:? |  |  |  |  | DiscoveryClient_SERVICE-PAYCENTER/kouichi-mbp:service-paycenter:8110: registering service...
+2019-10-02 14:35:52.646 | DiscoveryClient-InstanceInfoReplicator-0 | ?:? |  |  |  |  | DiscoveryClient_SERVICE-PAYCENTER/kouichi-mbp:service-paycenter:8110 - registration status: 204
+2019-10-02 14:35:52.709 | Thread-31 | ?:? |  |  |  |  | Scheduler quartzScheduler_$_NON_CLUSTERED paused.
+2019-10-02 14:35:52.724 | Thread-31 | ?:? |  |  |  |  | Shutting down Quartz Scheduler
+2019-10-02 14:35:52.726 | Thread-31 | org.quartz.core.QuartzScheduler:666 |  |  |  |  | Scheduler quartzScheduler_$_NON_CLUSTERED shutting down.
+2019-10-02 14:35:52.727 | Thread-31 | org.quartz.core.QuartzScheduler:585 |  |  |  |  | Scheduler quartzScheduler_$_NON_CLUSTERED paused.
+2019-10-02 14:35:52.730 | Thread-31 | org.quartz.core.QuartzScheduler:740 |  |  |  |  | Scheduler quartzScheduler_$_NON_CLUSTERED shutdown complete.
+2019-10-02 14:35:52.745 | Thread-31 | ?:? |  |  |  |  | Shutting down ExecutorService 'applicationTaskExecutor'

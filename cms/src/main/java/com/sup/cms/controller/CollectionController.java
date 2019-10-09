@@ -2,7 +2,6 @@ package com.sup.cms.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.sup.cms.bean.po.*;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.*;
@@ -107,9 +106,9 @@ public class CollectionController {
         sb.append(null != params.getProductId() ? " and c.id=\"" + params.getProductId() + "\"" : "");
         sb.append(null != params.getApplyId() ? " and b.id=\"" + params.getApplyId() + "\"" : "");
         sb.append(null != params.getOverdueDays() ? " and h.overdue_days_max=\"" + params.getOverdueDays() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<CollectionAllocateGetListBean> l = crazyJoinMapper.collectionAllocateGetList(sb.toString(), offset, rows);
@@ -171,9 +170,9 @@ public class CollectionController {
         sb.append(null != params.getShouldRepayDateStart() ? " and f.repay_end_date>=\"" + params.getShouldRepayDateStart() + "\"" : "");
         sb.append(null != params.getShouldRepayDateEnd() ? " and f.repay_end_date<=\"" + params.getShouldRepayDateEnd() + "\"" : "");
         sb.append(null != params.getApplyId() ? " and b.id=\"" + params.getApplyId() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<CollectionAllocateGetListBean> l = crazyJoinMapper.collectionAllocateGetList(sb.toString(), offset, rows);
@@ -194,10 +193,10 @@ public class CollectionController {
         sb.append(null != params.getShouldRepayDateEnd() ? " and f.repay_end_date<=\"" + params.getShouldRepayDateEnd() + "\"" : "");
         sb.append(null != params.getOperatorId() ? " and i.id<=\"" + params.getOperatorId() + "\"" : "");
         sb.append(null != params.getOperatorStatus() ? " and i.is_valid<=\"" + params.getOperatorStatus() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getAppName()) ? " and j.APP_NAME=\"" + params.getAppName() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getAppName()) ? " and j.APP_NAME=\"" + params.getAppName() + "\"" : "");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<CollectionArchivesGetListBean> l = crazyJoinMapper.collectionArchivesGetList(sb.toString(), offset, rows);
