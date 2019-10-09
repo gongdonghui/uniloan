@@ -87,7 +87,7 @@ public class ApplyController {
             return ResponseUtil.failed("该任务已被认领，操作失败");
         }
         //如果是终审 查询一下和信审是否为同一个人 同一个人直接拒绝
-        if (params.getType() == 1 && bean.getOperatorId().equals(params.getOperatorId())) {
+        if (params.getType() == 1 && params.getOperatorId().equals(bean.getOperatorId())) {
             return ResponseUtil.failed("终审和信审的审核人不能为同一人，操作失败");
         }
         bean.setOperatorId(params.getOperatorId());
