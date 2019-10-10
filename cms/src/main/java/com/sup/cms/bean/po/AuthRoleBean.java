@@ -1,6 +1,7 @@
 package com.sup.cms.bean.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -18,7 +19,10 @@ public class AuthRoleBean {
     private Integer id;
     private String name;
     private String comment;
+    @TableField(value = "is_valid")
     private Integer isValid;
+    @TableField(value = "create_time")
     private Date createTime;
+    @TableField(value = "update_time")
     private Date updateTime;
 }

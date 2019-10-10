@@ -31,6 +31,10 @@ public interface CoreService {
     @RequestMapping(value = "/apply/update", produces = "application/json;charset=UTF-8")
     Result updateApplyInfo(@RequestBody TbApplyInfoBean bean);
 
+    @ResponseBody
+    @RequestMapping(value = "/apply/get", produces = "application/json;charset=UTF-8")
+    Result<TbApplyInfoBean> getApplyInfo(@RequestBody Integer applyId);
+
     //////////////////////////////
     // 放款接口
     //////////////////////////////

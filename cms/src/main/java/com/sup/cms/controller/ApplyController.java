@@ -11,6 +11,7 @@ import com.sup.cms.util.DateUtil;
 import com.sup.cms.util.ResponseUtil;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.service.CoreService;
+import com.sup.common.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -121,10 +122,18 @@ public class ApplyController {
         if (applyOperationTaskMapper.updateById(bean) <= 0) {
             return ResponseUtil.failed();
         }
+        Result<TbApplyInfoBean> ret = coreService.getApplyInfo(params.getApplyId());
+        if (!ret.isSucc()) {
+            log.error("Invalid applyId = " + params.getApplyId());
+            return ResponseUtil.failed();
+        }
+        TbApplyInfoBean apply = ret.getData();
+
         //调用关老师接口改申请单状态
         //todo 和关佬确定一下是不是这么调用 都需要传哪些参数
-        TbApplyInfoBean apply = new TbApplyInfoBean();
-        apply.setId(params.getId());
+        // TbApplyInfoBean apply = new TbApplyInfoBean();
+        // apply.setId(params.getApplyId());
+
         apply.setUpdate_time(new Date());
         //如果是取消的话 直接设置取消状态
         if (params.getType().equals(2)) {

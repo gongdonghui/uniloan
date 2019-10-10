@@ -112,6 +112,10 @@ public class DetailsController {
         List<TbUserEmergencyContactBean> emergencyList = userEmergencyContactMapper.selectList(emergencyQw);
         TbUserEmploymentInfoBean employmentBean = userEmploymentInfoMapper.selectOne(employmentQw);
 
+        if (citizenBean == null || basicBean == null || emergencyList == null || employmentBean == null) {
+            log.error("some basic info is NULL. applyId = " + applyId);
+            return ResponseUtil.failed();
+        }
 
         DetailsBasicInfoBean bean = new DetailsBasicInfoBean();
         bean.setName(citizenBean.getName());
@@ -182,6 +186,8 @@ public class DetailsController {
         bankQw.eq("info_id", bank.getInfo_id());
         TbUserBankAccountInfoBean bankBean = userBankAccountInfoMapper.selectOne(bankQw);
         DetailsBankAccountBeEntrustedBean b = new DetailsBankAccountBeEntrustedBean();
+        // log.info(bank.toString());
+        log.info("applyId = " + applyId + ", info_id = " + bank.getInfo_id() + ", bankBean == null: " + (bankBean == null));
         b.setName(bankBean.getName());
         b.setAccount(bankBean.getAccount_id());
         b.setBank(bankBean.getBank());

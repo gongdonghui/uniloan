@@ -1,6 +1,7 @@
 package com.sup.cms.bean.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -16,7 +17,10 @@ import java.util.Date;
 public class AuthUserRoleBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
+    @TableField(value = "user_id")
     private Integer userId;
+    @TableField(value = "role_id")
     private Integer roleId;
+    @TableField(value = "create_time")
     private Date createTime;
 }

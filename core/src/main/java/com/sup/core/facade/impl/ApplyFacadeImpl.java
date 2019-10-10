@@ -8,6 +8,7 @@ import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.Result;
 import com.sup.core.facade.ApplyFacade;
+import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.ApplyMaterialInfoMapper;
 import com.sup.core.mapper.ProductInfoMapper;
 import com.sup.core.service.ApplyService;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.List;
+
+import static com.sup.common.util.Result.succ;
 
 /**
  * Project:uniloan
@@ -34,6 +37,8 @@ public class ApplyFacadeImpl implements ApplyFacade {
     @Autowired
     private ApplyService applyService;
 
+    @Autowired
+    private ApplyInfoMapper applyInfoMapper;
 
     @Autowired
     private ApplyMaterialInfoMapper applyMaterialInfoMapper;
@@ -101,7 +106,7 @@ public class ApplyFacadeImpl implements ApplyFacade {
         }
 
         if (addSucc) {
-            return Result.succ();
+            return succ();
         }
         return Result.fail("Error in adding apply material!");
     }
@@ -109,5 +114,11 @@ public class ApplyFacadeImpl implements ApplyFacade {
     @Override
     public Result updateApplyInfo(TbApplyInfoBean bean) {
         return applyService.updateApplyInfo(bean);
+    }
+
+    @Override
+    public Result<TbApplyInfoBean> getApplyInfo(Integer applyId) {
+        TbApplyInfoBean bean = applyInfoMapper.selectById(applyId);
+        return  Result.succ(bean);
     }
 }

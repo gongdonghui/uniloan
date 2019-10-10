@@ -5,7 +5,11 @@ server:
   port: 8090
 mybatis:
   configuration:
-    map-underscore-to-camel-case: true
+    map-underscore-to-camel-case: false
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
 
 ---
 spring:

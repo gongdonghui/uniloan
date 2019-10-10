@@ -28,4 +28,8 @@ public interface ApplyFacade {
     @RequestMapping(value = "update", produces = "application/json;charset=UTF-8")
     Result updateApplyInfo(@RequestBody TbApplyInfoBean bean);
 
+    @ResponseBody
+    @RequestMapping(value = "get", produces = "application/json;charset=UTF-8")
+    Result<TbApplyInfoBean> getApplyInfo(@RequestBody Integer applyId);
+
 }
