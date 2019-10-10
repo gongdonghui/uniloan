@@ -22,6 +22,17 @@ eureka:
     serviceUrl:
       defaultZone: http://127.0.0.1:51666/eureka/
 
+feign:
+  hystrix:
+    enabled: false
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE
+
 rocket:
   consumer:
     endpoint: 127.0.0.1:9976
