@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.service.RedisClient;
+import com.sup.backend.util.MessageUtils;
+import com.sup.backend.util.ToolUtils;
 import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,13 +61,13 @@ public class AuthorityInterceptor extends HandlerInterceptorAdapter {
       String token = request.getHeader("token");
       if (StringUtils.isEmpty(token)) {
         logger.warn("invalid request, token is null");
-        WriteResult(resp, Result.fail(kTokenError, "no_token"));
+        WriteResult(resp, ToolUtils.fail(kTokenError, "please_relogin"));
         return false;
       }
 
       String login_info_str = rc.Get(token);
       if (StringUtils.isEmpty(login_info_str)) {
-        WriteResult(resp, Result.fail(kTokenError, "expire_token"));
+        WriteResult(resp, ToolUtils.fail(kTokenError, "please_relogin"));
         return false;
       }
 

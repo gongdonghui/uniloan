@@ -14,7 +14,6 @@ import com.sup.backend.mapper.*;
 import com.sup.backend.service.RedisClient;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.*;
-import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,7 +82,7 @@ public class CertController {
   public Object UpdateCIC(@LoginInfo LoginInfoCtx li, @RequestBody TbUserCitizenIdentityCardInfoBean bean) {
     logger.info("----- recv bean: " + JSON.toJSONString(bean));
     if (!CheckDuplicateSubmit("idcard", li.getUser_id())) {
-      return Result.fail(1, "duplicate_submit");
+      return ToolUtils.fail(1, "duplicate_submit");
     }
 
     if (bean.getInfo_id() == null) {
@@ -106,7 +105,7 @@ public class CertController {
       logger.info(String.format("update user_id: %d, name: (%s) => (%s)", li.getUser_id(), regist_info.getName(), bean.getName()));
     }
     ClearDuplicateSubmit("idcard", li.getUser_id());
-    return Result.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
+    return ToolUtils.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
   }
 
   @LoginRequired
@@ -117,7 +116,7 @@ public class CertController {
     Wrapper<TbUserCitizenIdentityCardInfoBean> cond = new QueryWrapper<TbUserCitizenIdentityCardInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
     TbUserCitizenIdentityCardInfoBean old_bean = mapper.selectOne(cond);
     if (old_bean == null || old_bean.getExpire_time().getTime() < System.currentTimeMillis()) {
-      return Result.succ(null);
+      return ToolUtils.succ(null);
     }
     TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()).last("limit 1"));
     if (apply_material != null) {
@@ -128,7 +127,7 @@ public class CertController {
       old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
       mapper.insert(old_bean);
     }
-    return Result.succ(old_bean);
+    return ToolUtils.succ(old_bean);
   }
 
   // add/update/get user basic info
@@ -138,7 +137,7 @@ public class CertController {
   public Object updateBasicInfo(@LoginInfo LoginInfoCtx li, @RequestBody TbUserBasicInfoBean bean) {
     logger.info("----- recv bean: " + JSON.toJSONString(bean));
     if (!CheckDuplicateSubmit("basic", li.getUser_id())) {
-      return Result.fail(1, "duplicate_submit");
+      return ToolUtils.fail(1, "duplicate_submit");
     }
 
     if (bean.getInfo_id() == null) {
@@ -152,7 +151,7 @@ public class CertController {
       tb_user_basic_info_mapper.updateById(bean);
     }
     ClearDuplicateSubmit("basic", li.getUser_id());
-    return Result.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
+    return ToolUtils.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
   }
 
   @LoginRequired
@@ -163,7 +162,7 @@ public class CertController {
     Wrapper<TbUserBasicInfoBean> cond = new QueryWrapper<TbUserBasicInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
     TbUserBasicInfoBean old_bean = mapper.selectOne(cond);
     if (old_bean == null || old_bean.getExpire_time().getTime() < System.currentTimeMillis()) {
-      return Result.succ(null);
+      return ToolUtils.succ(null);
     }
     TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()).last("limit 1"));
     if (apply_material != null) {
@@ -174,7 +173,7 @@ public class CertController {
       old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
       mapper.insert(old_bean);
     }
-    return Result.succ(old_bean);
+    return ToolUtils.succ(old_bean);
   }
 
   @LoginRequired
@@ -183,7 +182,7 @@ public class CertController {
   public Object updateEmergencyContact(@LoginInfo LoginInfoCtx li, @RequestBody List<TbUserEmergencyContactBean> beans) {
     logger.info("----- recv bean: " + JSON.toJSONString(beans));
     if (!CheckDuplicateSubmit("contact", li.getUser_id())) {
-      return Result.fail(1, "duplicate_submit");
+      return ToolUtils.fail(1, "duplicate_submit");
     }
 
     String info_id = null;
@@ -214,7 +213,7 @@ public class CertController {
     });
     ClearDuplicateSubmit("contact", li.getUser_id());
     logger.info("----- return bean: " + JSON.toJSONString(rets));
-    return Result.succ(rets);
+    return ToolUtils.succ(rets);
   }
 
   @LoginRequired
@@ -226,10 +225,10 @@ public class CertController {
     Wrapper<TbUserEmergencyContactBean> cond = new QueryWrapper<TbUserEmergencyContactBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
     TbUserEmergencyContactBean old_bean = mapper.selectOne(cond);
     if (old_bean == null) {
-      return Result.succ(null);
+      return ToolUtils.succ(null);
     }
     if (old_bean == null || old_bean.getExpire_time().getTime() < System.currentTimeMillis()) {
-      return Result.succ(null);
+      return ToolUtils.succ(null);
     }
 
     List<TbUserEmergencyContactBean> cands = tb_user_emergency_contact_mapper.selectList(new QueryWrapper<TbUserEmergencyContactBean>().eq("info_id", old_bean.getInfo_id()));
@@ -245,7 +244,7 @@ public class CertController {
         tb_user_emergency_contact_mapper.insert(b);
       }
     }
-    return Result.succ(cands);
+    return ToolUtils.succ(cands);
   }
 
   @LoginRequired
@@ -256,7 +255,7 @@ public class CertController {
     if (bean.getId() != null) {
       tb_user_emergency_contact_mapper.deleteById(bean.getId());
     }
-    return Result.succ("ok");
+    return ToolUtils.succ("contact_del_succ");
   }
 
   // add/update/get user employment info
@@ -266,7 +265,7 @@ public class CertController {
   public Object updateEmploymentInfo(@LoginInfo LoginInfoCtx li, @RequestBody TbUserEmploymentInfoBean bean) {
     logger.info("----- recv bean: " + JSON.toJSONString(bean));
     if (!CheckDuplicateSubmit("employment", li.getUser_id())) {
-      return Result.fail(1, "duplicate_submit");
+      return ToolUtils.fail(1, "duplicate_submit");
     }
 
     if (bean.getInfo_id() == null) {
@@ -280,7 +279,7 @@ public class CertController {
       tb_user_employment_info_mapper.updateById(bean);
     }
     ClearDuplicateSubmit("employment", li.getUser_id());
-    return Result.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
+    return ToolUtils.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
   }
 
   @LoginRequired
@@ -292,7 +291,7 @@ public class CertController {
     Wrapper<TbUserEmploymentInfoBean> cond = new QueryWrapper<TbUserEmploymentInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
     TbUserEmploymentInfoBean old_bean = mapper.selectOne(cond);
     if (old_bean == null || old_bean.getExpire_time().getTime() < System.currentTimeMillis()) {
-      return Result.succ(null);
+      return ToolUtils.succ(null);
     }
     TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()).last("limit 1"));
     if (apply_material != null) {
@@ -303,7 +302,7 @@ public class CertController {
       old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
       mapper.insert(old_bean);
     }
-    return Result.succ(old_bean);
+    return ToolUtils.succ(old_bean);
   }
 
 
@@ -315,7 +314,7 @@ public class CertController {
     bean.setAccount_type(1);
     logger.info("----- recv bean: " + JSON.toJSONString(bean));
     if (!CheckDuplicateSubmit("bank", li.getUser_id())) {
-      return Result.fail(1, "duplicate_submit");
+      return ToolUtils.fail(1, "duplicate_submit");
     }
 
     if (bean.getInfo_id() == null) {
@@ -329,7 +328,7 @@ public class CertController {
       tb_user_bank_account_mapper.updateById(bean);
     }
     ClearDuplicateSubmit("bank", li.getUser_id());
-    return Result.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
+    return ToolUtils.succ(ImmutableMap.of("id", bean.getId(), "info_id", bean.getInfo_id()));
   }
 
   @LoginRequired
@@ -341,7 +340,7 @@ public class CertController {
     Wrapper<TbUserBankAccountInfoBean> cond = new QueryWrapper<TbUserBankAccountInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
     TbUserBankAccountInfoBean old_bean = mapper.selectOne(cond);
     if (old_bean == null || old_bean.getExpire_time().getTime() < System.currentTimeMillis()) {
-      return Result.succ(null);
+      return ToolUtils.succ(null);
     }
     TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_id", old_bean.getInfo_id()).last("limit 1"));
     if (apply_material != null) {
@@ -352,7 +351,7 @@ public class CertController {
       old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
       mapper.insert(old_bean);
     }
-    return Result.succ(old_bean);
+    return ToolUtils.succ(old_bean);
   }
 
   @LoginRequired
@@ -361,7 +360,7 @@ public class CertController {
   public Object TestMessage(@LoginInfo LoginInfoCtx li) {
     JSONObject parms = new JSONObject();
     parms.put("li", li);
-    return Result.succ(parms);
+    return ToolUtils.succ(parms);
   }
 }
 

@@ -11,6 +11,8 @@ import com.sup.backend.core.LoginRequired;
 import com.sup.backend.mapper.TbAppSdkContractInfoMapper;
 import com.sup.backend.mapper.TbAppSdkLocationInfoMapper;
 import com.sup.backend.mapper.TbUserRegistInfoMapper;
+import com.sup.backend.util.MessageUtils;
+import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.TbAppSdkContractInfoBean;
 import com.sup.common.bean.TbAppSdkLocationInfoBean;
 import com.sup.common.bean.TbUserRegistInfoBean;
@@ -25,6 +27,7 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
+import javax.print.attribute.standard.Media;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -87,7 +90,13 @@ public class InfoController {
     r.put("email", ImmutableList.of(ImmutableMap.of("k1", "zzz", "k2", "7:00 ~ 9:00")));
     r.put("tel", ImmutableList.of(ImmutableMap.of("k1", "zzz", "k2", "7:00 ~ 9:00")));
     r.put("account", ImmutableList.of(ImmutableMap.of("k1", "zzz", "k2", "7:00 ~ 9:00")));
-    return Result.succ(r);
+    return ToolUtils.succ(r);
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "test", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Object Test() {
+    return ToolUtils.succ("test", "login_succ");
   }
 }
 

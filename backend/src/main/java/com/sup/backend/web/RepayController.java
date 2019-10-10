@@ -21,7 +21,6 @@ import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.MaualRepayStatusEnum;
 import com.sup.common.service.CoreService;
 import com.sup.common.service.PayCenterService;
-import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,9 +68,7 @@ public class RepayController {
     ri.setName(name);
     ri.setPhone(phone);
     ri.setUserId(li.getUser_id().toString());
-    Result<RepayVO> repay_ret = core.getRepayInfo(ri);
-    logger.info("repay_ret => " + JSON.toJSONString(repay_ret));
-    return repay_ret;
+    return core.getRepayInfo(ri);
   }
 
   @LoginRequired
@@ -95,7 +92,7 @@ public class RepayController {
     mb.setCreate_time(new Date());
     mb.setUpdate_time(new Date());
     tb_manual_repay_mapper.insert(mb);
-    return Result.succ("succ");
+    return ToolUtils.succ("succ");
   }
 
   @ResponseBody

@@ -20,7 +20,6 @@ import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.param.ApplyInfoParam;
 import com.sup.common.service.CoreService;
-import com.sup.common.util.Result;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -76,7 +75,7 @@ public class ApplyController {
       ret_app_beans.add(ov);
     }
     System.out.println(JSON.toJSONString(ret_app_beans));
-    return Result.succ(ret_app_beans);
+    return ToolUtils.succ(ret_app_beans);
   }
 
 
@@ -107,7 +106,7 @@ public class ApplyController {
       ret_app_beans.add(ov);
     }
     System.out.println(JSON.toJSONString(ret_app_beans));
-    return Result.succ(ret_app_beans);
+    return ToolUtils.succ(ret_app_beans);
   }
 
   @LoginRequired
@@ -148,7 +147,7 @@ public class ApplyController {
       }
     }
     logger.info("return: " + JSON.toJSONString(ret_app_beans));
-    return Result.succ(ret_app_beans);
+    return ToolUtils.succ(ret_app_beans);
   }
 
   @LoginRequired
@@ -164,8 +163,7 @@ public class ApplyController {
     aip.setProduct_id(order_detail.getProduct_id());
     aip.setPeriod(order_detail.getPeriod());
     aip.setInfoIdMap(order_detail.getMaterial_ids());
-    Result r = core.addApplyInfo(aip);
-    return r;
+    return core.addApplyInfo(aip);
   }
 }
 

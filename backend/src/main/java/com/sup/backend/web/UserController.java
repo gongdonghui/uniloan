@@ -22,7 +22,6 @@ import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.mq.MqTag;
 import com.sup.common.mq.MqTopic;
 import com.sup.common.mq.UserStateMessage;
-import com.sup.common.util.Result;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.log4j.Logger;
 import org.apache.rocketmq.common.message.Message;
@@ -66,7 +65,7 @@ public class UserController {
     // check pre_mobile !!
     String verify_key = String.format("verify_%s", mobile);
     if (rc.Exist(verify_key)) {
-      return Result.succ("already_send_please_wait");
+      return ToolUtils.succ("already_send_please_wait");
     }
 
     String verify_code = String.valueOf(RandomUtils.nextInt(1000, 9999));
@@ -84,7 +83,7 @@ public class UserController {
     mqProducerService.sendMessage(msg);
     // save to redis to avoid duplicating sending message
     rc.Set(verify_key, verify_code, 5l, TimeUnit.MINUTES);
-    return Result.succ("succ");
+    return ToolUtils.succ("succ");
   }
 
   @ResponseBody
@@ -93,7 +92,7 @@ public class UserController {
     String verify_key = String.format("verify_%s", mobile);
     String verify_ans = rc.Get(verify_key);
     if (verify_ans == null || (!verify_ans.equals(verify_code))) {
-      return Result.fail("error_verify_code");
+      return ToolUtils.fail("error_verify_code");
     }
 
     TbUserRegistInfoBean regist_info = tb_user_regist_info_mapper.selectOne(new QueryWrapper<TbUserRegistInfoBean>().eq("mobile", mobile));
@@ -108,7 +107,7 @@ public class UserController {
     String token = ToolUtils.getToken();
     LoginInfoCtx li = new LoginInfoCtx(regist_info.getId(), ToolUtils.NormTime(new Date()));
     rc.Set(token, li.toString(), 30l, TimeUnit.DAYS);
-    return Result.succ(token);
+    return ToolUtils.succ(token, "login_succ");
   }
 
   @LoginRequired
@@ -117,7 +116,7 @@ public class UserController {
   public Object TestMessage(@LoginInfo LoginInfoCtx li) {
     JSONObject parms = new JSONObject();
     parms.put("li", li);
-    return Result.succ(parms);
+    return ToolUtils.succ(parms);
   }
 
   @LoginRequired
@@ -129,9 +128,9 @@ public class UserController {
     logger.info(String.format("tag => %s, file_size => %d", tag, binary.length));
     boolean succ = ssdb.SetBytes(tag, binary);
     if (succ) {
-      return Result.succ(tag);
+      return ToolUtils.succ(tag);
     } else {
-      return Result.fail("save_to_ssdb_error");
+      return ToolUtils.fail("save_to_ssdb_error");
     }
   }
 }

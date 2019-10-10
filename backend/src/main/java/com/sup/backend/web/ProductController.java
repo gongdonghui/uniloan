@@ -7,6 +7,7 @@ import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
 import com.sup.backend.mapper.TbProductInfoMapper;
 import com.sup.backend.mapper.TbUserRegistInfoMapper;
+import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.TbProductInfoBean;
 import com.sup.common.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,6 @@ public class ProductController {
       api.setMaterial_needed(bean.getMaterial_needed());
       ret_beans.add(api);
     });
-    return Result.succ(ret_beans);
+    return ToolUtils.succ(ret_beans);
   }
 }

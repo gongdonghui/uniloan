@@ -2,65 +2,66 @@
   "general_gender": {
     "id": [1, 2],
     "en": ["男", "女"],
+    "zh": ["男", "女"],
     "vi": ["Nam", "Nữ"]
-  },
-  "general_account_type": {
-    "id": [1, 2],
-    "en": ["1", "2"],
-    "vi": ["1", "2"]
-  },
-  "general_age": {
-    "id": [1, 2],
-    "en": ["1", "2"],
-    "vi": ["1", "2"]
   },
   "basic_education": {
     "id": [1, 2, 3, 4, 5, 6, 7],
     "en": ["小学", "初中", "高中", "中间", "学院", "综合性大学", "大学后"],
+    "zh": ["小学", "初中", "高中", "中间", "学院", "综合性大学", "大学后"],
     "vi": ["Tiểu học", "Trung học", "Trung học phổ thông", "Trung cấp", "Cao đẳng", "Đại học", "Sau đại học"]
   },
   "basic_marriage": {
     "id": [1, 2, 3, 4],
     "en": ["已婚", "单身", "离异", "丧偶"],
+    "zh": ["已婚", "单身", "离异", "丧偶"],
     "vi": ["Đã kết hôn", "Độc thân", "Ly dị", "Góa"]
   },
   "basic_children_count": {
     "id": [1, 2, 3, 4],
     "en": ["0个", "1个", "2个", "大于2个"],
+    "zh": ["0个", "1个", "2个", "大于2个"],
     "vi": ["0 con", "1 con", "2 con", "hơn 2 con"]
   },
   "basic_purpose": {
     "id": [1, 2, 3, 4, 5, 6, 7],
     "en": ["装修", "旅游", "教育", "医疗", "投资", "买车", "其他"],
+    "zh": ["装修", "旅游", "教育", "医疗", "投资", "买车", "其他"],
     "vi": ["Trang trí", "Du lịch", "Giáo dục", "Y tế", "Đầu tư", "Mua xe", "Khác"]
   },
   "basic_residence_duration": {
     "id": [1, 2, 3, 4, 5],
     "en": ["3个月", "6个月", "1年", "2年", "大于2年"],
+    "zh": ["3个月", "6个月", "1年", "2年", "大于2年"],
     "vi": ["3 tháng", "6 tháng", "1 năm", "2 năm", "hơn 2 năm"]
   },
   "emergency_relationship": {
     "id": [1, 2, 3, 4, 5, 6, 7],
     "en": ["父母", "子女", "配偶", "亲戚", "同事", "朋友", "同学"],
+    "zh": ["父母", "子女", "配偶", "亲戚", "同事", "朋友", "同学"],
     "vi": ["Bố mẹ", "Con cái", "Vợ chồng","Họ hàng", "Đồng nghiệp", "Bạn bè", "Bạn học"]
   },
   "employment_job_occupation": {
     "id": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38],
     "en": ["会计/财务官", "客服", "工程师", "主管", "行政", "信息技术", "顾问/分析师", "市场", "教师", "军人", "退休", "学生", "企业家", "警察", "农民", "渔夫", "艺术工作者（艺术家，音乐家，画家等）", "保安", "经纪人", "经销商", "飞行员/空乘", "船长", "船员", "机械师/司机/指挥", "工人", "饲养员", "医生", "医务人员", "律师/公证人", "厨师/调酒师", "研究员", "设计师", "建筑师", "木工和工匠", "官员", "临时工", "家庭主妇", "其他"],
+    "zh": ["会计/财务官", "客服", "工程师", "主管", "行政", "信息技术", "顾问/分析师", "市场", "教师", "军人", "退休", "学生", "企业家", "警察", "农民", "渔夫", "艺术工作者（艺术家，音乐家，画家等）", "保安", "经纪人", "经销商", "飞行员/空乘", "船长", "船员", "机械师/司机/指挥", "工人", "饲养员", "医生", "医务人员", "律师/公证人", "厨师/调酒师", "研究员", "设计师", "建筑师", "木工和工匠", "官员", "临时工", "家庭主妇", "其他"],
     "vi": ["Kế toán/Tài vụ", "Chăm sóc khách hàng", "Kỹ sư", "Chủ quản", "Hành chính", "Công nghệ thông tin", "Cố vấn/ Nhà phân tích", "Thị trường", "Nhà giáo", "Quân nhân", "Nghỉ hưu", "Học sinh", "Doanh nghiệp", "Cảnh sát", "Nông dân", "Ngư dân", "Người làm nghệ thuật (Nhà nghệ thuật, Nhà âm nhạc, Họa sĩ...)", "Bảo vệ", "Người quản lý", "Doanh nhân", "Phi hành viên/Không vận", "Thuyền trưởng", "Thuyền viên", "Thợ cơ khí/tài xế/chỉ huy", "Công nhân", "Chăn nuôi", "Bác sĩ", "Nhân viên y tế", "Luật sư/Công chứng viên", "Đầu bếp/Pha chế...", "Nghiên cứu viên", "Nhà thiết kế", "Kiến trúc sư", "Thợ mộc và thợ thủ công", "Quan chức", "Công nhân thời vụ", "Nội trợ", "Khác"]},
   "employment_work_period": {
     "id":  [1, 2, 3, 4],
     "en": ["小于6个月", "6个月到1年", "1年到2年", "大于2年"],
+    "zh": ["小于6个月", "6个月到1年", "1年到2年", "大于2年"],
     "vi": ["Thấp hơn 6 tháng", "6 tháng đến 1 năm", "1 đến 2 năm", "hơn 2 năm"]
   },
   "employment_income": {
     "id": [1, 2, 4, 4],
     "en": ["每月不到300万越南盾", "从300万越南盾/月到600万越南盾/月", "从600万越南盾/月到1200万越南盾/月", "超过1200万越南盾/月"],
+    "zh": ["每月不到300万越南盾", "从300万越南盾/月到600万越南盾/月", "从600万越南盾/月到1200万越南盾/月", "超过1200万越南盾/月"],
     "vi": ["Hằng tháng không đến 3 triệu đồng", "Từ 3-6 triệu đồng/tháng", "6-12 triệu đồng/tháng", "Trên 12 triệu đồng/tháng"]
   },
    "general_bank": {
       "id": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,3483,3487,3489,3490,3492,3493],
       "en": ["ABBank","ACB","Agribank","Viet Capital Bank","Bao Viet Bank","BIDV","Dong A Bank","Eximbank","GPBank","HDBank","Hongleong Bank Vietnam","Indovina Bank","Kien Long Bank","LienVietPostBank","Maritime","MB Bank","NCB","OCB","Oceanbank","PGBank","PVcomBank","Sacombank","SaiGon Bank","SCB","SeABank","SHB","Shinhan Bank Viet Nam","Techcombank","TPBank","UOB","Vietcombank","VIB","Public Bank Viet Nam","Viet A Bank","Vietbank","Vietinbank","VPBank","VRB","Wooribank","Bac A Bank","Namabank","CIMB","VPD","Industrial Bank of Korea - Ha Noi Branch","IBK"],
+      "zh": ["ABBank","ACB","Agribank","Viet Capital Bank","Bao Viet Bank","BIDV","Dong A Bank","Eximbank","GPBank","HDBank","Hongleong Bank Vietnam","Indovina Bank","Kien Long Bank","LienVietPostBank","Maritime","MB Bank","NCB","OCB","Oceanbank","PGBank","PVcomBank","Sacombank","SaiGon Bank","SCB","SeABank","SHB","Shinhan Bank Viet Nam","Techcombank","TPBank","UOB","Vietcombank","VIB","Public Bank Viet Nam","Viet A Bank","Vietbank","Vietinbank","VPBank","VRB","Wooribank","Bac A Bank","Namabank","CIMB","VPD","Industrial Bank of Korea - Ha Noi Branch","IBK"],
       "vi": ["Ngân hàng TMCP An Bình","Ngân hàng TMCP Á Châu","Ngân hàng Nông Nghiệp và Phát triển Nông Thôn Việt Nam","Ngân hàng  TMCP Bản Việt","Ngân hàng TMCP Bảo Việt","Ngân hàng TMCP Đầu tư và Phát triển Việt Nam","Ngân hàng TMCP Đông Á","Ngân hàng TMCP Xuất nhập khẩu Việt Nam","Ngân hàng TM TNHH MTV Dầu Khí Toàn Cầu","Ngân hàng TMCP Phát Triển Thành Phố Hồ Chí Minh","Ngân hàng TNHH MTV Hongleong Việt Nam","Ngân hàng TNHH Indovina","Ngân hàng  TMCP Kiên Long","Ngân hàng TMCP Bưu Điện Liên Việt","Ngân hàng TMCP Hàng Hải Việt Nam","Ngân hàng TMCP Quân Đội","Ngân hàng TMCP Quốc Dân","Ngân hàng TMCP Phương Đông","Ngân hàng TMCP Đại Dương","Ngân hàng  TMCP Xăng Dầu Petrolimex","Ngân hàng TMCP Đại Chúng Việt Nam","Ngân hàng TMCP Sài Gòn Thương Tín","Ngân hàng  TMCP Sài Gòn Công Thương","Ngân hàng TMCP Sài Gòn","Ngân hàng TMCP Đông Nam Á","Ngân hàng TMCP Sài Gòn - Hà Nội","Ngân hàng TNHH MTV Shinhan Việt Nam","Ngân hàng TMCP Kỹ thương Việt Nam","Ngân hàng TMCP Tiên Phong","Ngân hàng TNHH MTV United Overseas Bank","Ngân hàng TMCP Ngoại thương Việt Nam","Ngân hàng TMCP Quốc Tế","Ngân hàng TNHH MTV Public Việt Nam","Ngân hàng TMCP Việt Á","Ngân hàng TMCP Việt Nam Thương Tín","Ngân hàng TMCP Công Thương Việt Nam","Ngân hàng TMCP Việt Nam Thịnh Vương","Ngân hàng Liên Doanh Việt Nga","Ngân hàng Wooribank","Ngân hàng TMCP Bắc Á","Ngân hàng TMCP Nam Á","Ngân hàng TNHH MTV CIMB","Ngân hàng TMCP Việt Nam Thịnh Vượng - Khối Ngân hàng số VP Direct","Ngân hàng IBK - chi nhánh Hà Nội","Ngân hàng IBK - chi nhánh Hồ Chí Minh"]
     }
 }

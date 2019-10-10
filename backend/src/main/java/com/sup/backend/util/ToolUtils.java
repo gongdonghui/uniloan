@@ -1,7 +1,6 @@
 package com.sup.backend.util;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.sup.common.util.Result;
 import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.Response;
@@ -75,5 +74,21 @@ public class ToolUtils {
     PrintWriter pw = new PrintWriter(sw);
     t.printStackTrace(pw);
     return sw.toString();
+  }
+
+  public static<T> Result<T> succ(T  data) {
+    return Result.succ(data).setMessage(MessageUtils.get("succ"));
+  }
+
+  public static<T> Result<T> succ(T data, String key) {
+    return Result.succ(data).setMessage(MessageUtils.get(key));
+  }
+
+  public static Result<String> fail(String key) {
+    return Result.fail(MessageUtils.get(key));
+  }
+
+  public static Result<String> fail(Integer status, String key) {
+    return Result.fail(status, MessageUtils.get(key));
   }
 }
