@@ -40,7 +40,7 @@ public class Result<T> {
     }
 
     public static Result fail(String key) {
-        return new Result().setStatus(kError).setMessage(MessageUtils.get(key));
+        return new Result().setStatus(kError).setMessage(key);
     }
 
     public static Result fail(Integer status, String msg) {
