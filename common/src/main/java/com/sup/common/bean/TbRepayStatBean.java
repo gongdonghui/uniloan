@@ -31,6 +31,7 @@ public class TbRepayStatBean {
     private Long act_breach_fee = 0L;
     private Long need_other = 0L;
     private Long act_other = 0L;
+    private Long reduction_fee = 0L;
     private Long need_total = 0L;
     private Long act_total = 0L;
     private Integer current_seq;
@@ -58,6 +59,7 @@ public class TbRepayStatBean {
             act_breach_fee  += bean.getAct_breach_fee();
             need_other += bean.getNeed_other();
             act_other  += bean.getAct_other();
+            reduction_fee += bean.getReduction_fee();
 
             need_total += bean.getNeed_total();
             act_total  += bean.getAct_total();

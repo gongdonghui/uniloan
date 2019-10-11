@@ -275,7 +275,7 @@ public class ScheduleTasks {
     /**
      * 每天查询逾期情况，并更新相应款项
      */
-    @Scheduled(cron = "0 */10 * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     // @Scheduled(cron = "0 1 * * * ?")
     public void checkOverdue() {
         // 1. 获取所有产品信息（逾期日费率）
@@ -316,19 +316,24 @@ public class ScheduleTasks {
                     log.error("[FATAL] No product found or rate not set for productId = " + productId);
                     continue;
                 }
-                // 最后还款日期为：截止日期+宽限期
-                Date repay_end_date = DateUtil.getDate(bean.getRepay_end_date(), productInfoBean.getGrace_period());
+//                // 最后还款日期为：截止日期+宽限期
+//                Date repay_end_date = DateUtil.getDate(bean.getRepay_end_date(), productInfoBean.getGrace_period());
+                Date repay_end_date = bean.getRepay_end_date();
                 boolean isLate = DateUtil.compareDate(repay_end_date, now) < 0;
-                if (!isOverdue || !isLate) {
+                log.info("repay_end_date=" + repay_end_date + ", isLate=" + isLate);
+                if (!isOverdue && !isLate) {
                     continue;
                 }
                 bean.setIs_overdue(RepayPlanOverdueEnum.PLAN_OVER_DUE.getCode());
                 Float rate = productInfoBean.getOverdue_rate();
+                int overdueDays = DateUtil.daysbetween(repay_end_date, now);
+                Long new_penalty_interest = (long)(bean.getNeed_principal() * rate * overdueDays);
                 Long ori_total = bean.getNeed_total();
                 Long ori_penalty_interest = bean.getNeed_penalty_interest();
-                int new_penalty_interest = (int) (bean.getNeed_principal() * rate);
-                bean.setNeed_penalty_interest(ori_penalty_interest + new_penalty_interest);
-                bean.setNeed_total(ori_total + new_penalty_interest);
+                Long new_total = ori_total + new_penalty_interest - ori_penalty_interest;
+
+                bean.setNeed_penalty_interest(new_penalty_interest);
+                bean.setNeed_total(new_total);
 
                 Result r = loanService.updateRepayPlan(bean);
                 if (!r.isSucc()) {

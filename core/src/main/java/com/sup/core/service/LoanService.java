@@ -262,7 +262,7 @@ public class LoanService {
         for (TbRepayPlanBean planBean : planBeans) {
             repayStatBean.inc(planBean);
         }
-        if (repayStatBean.getAct_total().longValue() >= repayStatBean.getNeed_total().longValue()) {
+        if (repayStatBean.getAct_total().longValue() + repayStatBean.getReduction_fee() >= repayStatBean.getNeed_total().longValue()) {
             applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
             mqMessenger.applyStatusChange(applyInfoBean);
             applyInfoMapper.updateById(applyInfoBean);
@@ -453,7 +453,7 @@ public class LoanService {
         repayPlanBean.setRepay_time(repayTime);
         RepayPlanStatusEnum repayStatus;
 
-        if (repayPlanBean.getAct_total() < repayPlanBean.getNeed_total()) {
+        if (repayPlanBean.getAct_total() + repayPlanBean.getReduction_fee() < repayPlanBean.getNeed_total()) {
             repayStatus = RepayPlanStatusEnum.PLAN_PAID_PART;
         } else {
             repayStatus = RepayPlanStatusEnum.PLAN_PAID_ALL;

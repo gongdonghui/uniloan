@@ -143,6 +143,10 @@ public class ApplyController {
             if (params.getType2().equals(0)) {
                 apply.setStatus(params.getType().equals(1) ? 2 : 6);
             } else {
+                if (params.getGrantQuota() == null || params.getGrantQuota() < 0) {
+                    log.error("Invalid grant quota!");
+                }
+                apply.setGrant_quota(params.getGrantQuota());
                 apply.setStatus(params.getType().equals(1) ? 4 : 8);
             }
         }
@@ -192,9 +196,9 @@ public class ApplyController {
         sb.append(null != params.getStatus() ? " and a.status=\"" + params.getStatus() + "\"" : "");
         sb.append(null != params.getProductId() ? " and c.id=\"" + params.getProductId() + "\"" : "");
 
-        sb.append(Strings.isNullOrEmpty(params.getName()) ? " and d.name=\"" + params.getName() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getCid()) ? " and b.credit_class=\"" + params.getCid() + "\"" : "");
-        sb.append(Strings.isNullOrEmpty(params.getMobile()) ? " and e.mobile=\"" + params.getMobile() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getCid()) ? " and b.credit_class=\"" + params.getCid() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile=\"" + params.getMobile() + "\"" : "");
 
         sb.append(null != params.getCreateTime() ? " and a.update_time>=\"" + DateUtil.formatDateTime(params.getCreateTime()) + "\"" : "");
         sb.append(null != params.getEndTime() ? " and a.update_time<=\"" + DateUtil.formatDateTime(params.getEndTime()) + "\"" : "");
@@ -205,6 +209,7 @@ public class ApplyController {
         Integer rows = params.getPageSize();
         List<ApplyApprovalGetListBean> list = crazyJoinMapper.applyApprovalGetList(sb.toString(), offset, rows);
         list.forEach(x -> x.setReAllocate(null == x.getOperatorId() ? 0 : 1));
+        log.info(">>> condition: " + sb.toString());
         return ResponseUtil.success(list);
     }
 

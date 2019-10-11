@@ -81,61 +81,65 @@ public interface CrazyJoinMapper extends BaseMapper {
     DetailsRiskDecisionBean detailsRiskDecision(Integer applyId);
 
     @Select("select " +
-            "b.id as applyId," +
-            "a.expire_time as lastAllocateDate," +
-            "e.name," +
-            "g.mobile as mobile," +
-            "a.comment as status," +
-            "c.name as productName," +
-            "b.period+'日/期, 共1期' as period," +
-            "'未知' as type," +
-            "'未知' as overdueLevel," +
-            "h.overdue_days_max as overdueDays," +
-            "f.need_total as shouldRepayAmount," +
-            "f.repay_end_date as shouldRepayDate," +
-            "b.loan_time as payDate," +
-            "a.update_time as updateTime " +
-            "from tb_operation_task a" +
-            "left join tb_apply_info b on a.apply_id=b.id " +
-            "left join tb_product_info c on b.product_id=c.id " +
-            "left join tb_apply_material_info d on b.id=d.apply_id " +
-            "left join tb_user_citizen_identity_card_info e on d.info_id=e.info_id " +
-            "left join tb_repay_plan f on b.id=f.apply_id " +
-            "left join tb_user_regist_info g on b.user_id=g.id " +
-            "left join tb_repay_stat h on b.id=h.apply_id " +
-            "where a.task_type=3 and a.has_owner=0 and d.info_type=0 and f.seq_no=1" +
-            "${conditions}" +
+            " a.id as id," +
+            " b.id as applyId," +
+            " a.expire_time as lastAllocateDate," +
+            " e.name," +
+            " g.mobile as mobile," +
+            " a.comment as status," +
+            " c.name as productName," +
+            " b.period as period," +
+            " 1 as currentTerm, 1 as totalTerms," +
+            // "'未知' as type," +
+            // "'未知' as overdueLevel," +
+            " h.overdue_days_max as overdueDays," +
+            " f.need_total as shouldRepayAmount," +
+            " f.repay_end_date as shouldRepayDate," +
+            " b.loan_time as payDate," +
+            " a.update_time as updateTime " +
+            " from tb_operation_task a " +
+            " left join tb_apply_info b on a.apply_id=b.id " +
+            " left join tb_product_info c on b.product_id=c.id " +
+            " left join tb_apply_material_info d on b.id=d.apply_id " +
+            " left join tb_user_citizen_identity_card_info e on d.info_id=e.info_id " +
+            " left join tb_repay_plan f on b.id=f.apply_id " +
+            " left join tb_user_regist_info g on b.user_id=g.id " +
+            " left join tb_repay_stat h on b.id=h.apply_id " +
+            " where a.task_type=3 and a.has_owner=0 and d.info_type=0 and f.seq_no=1 " +
+            " ${conditions} " +
             " limit #{offset},#{rows}")
-    List<CollectionAllocateGetListBean> collectionAllocateGetList(String toString, Integer offset, Integer rows);
+    List<CollectionAllocateGetListBean> collectionAllocateGetList(String conditions, Integer offset, Integer rows);
 
     @Select("select " +
-            "b.id as applyId," +
-            "g.mobile as mobile," +
-            "a.expire_time as lastAllocateDate," +
-            "f.repay_status as periodStatus," +
-            "a.comment as status," +
-            "f.repay_status as partialRepay," +
-            "j.APP_NAME as appName," +
-            "c.name as productName," +
-            "b.period+'日/期, 共1期' as period," +
-            "e.name," +
-            "f.repay_end_date as shouldRepayDate," +
-            "h.overdue_days_max as overdueDays," +
-            "f.need_total as shouldRepayAmount," +
-            "i.name as collector," +
-            "a.update_time as lastCollectDate" +
-            "from tb_operation_task a " +
-            "left join tb_apply_info b on a.apply_id=b.id " +
-            "left join tb_product_info c on b.product_id=c.id " +
-            "left join tb_apply_material_info d on b.id=d.apply_id " +
-            "left join tb_user_citizen_identity_card_info e on d.info_id=e.info_id " +
-            "left join tb_repay_plan f on b.id=f.apply_id " +
-            "left join tb_user_regist_info g on b.user_id=g.id " +
-            "left join tb_repay_stat h on b.id=h.apply_id " +
-            "left join tb_cms_auth_user i on i.id=a.operator_id " +
-            "left join tb_app_version j on j.id=b.app_id " +
-            "where a.task_type=3 and d.info_type=0 and f.seq_no=1" +
-            "${conditions}" +
+            " a.id as id," +
+            " b.id as applyId," +
+            " g.mobile as mobile," +
+            " a.expire_time as lastAllocateDate," +
+            " f.repay_status as periodStatus," +
+            " a.comment as status," +
+            " f.repay_status as partialRepay," +
+            " j.APP_NAME as appName," +
+            " c.name as productName," +
+            " b.period as period," +
+            " 1 as currentTerm, 1 as totalTerms," +
+            " e.name," +
+            " f.repay_end_date as shouldRepayDate," +
+            " h.overdue_days_max as overdueDays," +
+            " f.need_total as shouldRepayAmount," +
+            " i.name as collector," +
+            " a.update_time as lastCollectDate" +
+            " from tb_operation_task a " +
+            " left join tb_apply_info b on a.apply_id=b.id " +
+            " left join tb_product_info c on b.product_id=c.id " +
+            " left join tb_apply_material_info d on b.id=d.apply_id " +
+            " left join tb_user_citizen_identity_card_info e on d.info_id=e.info_id " +
+            " left join tb_repay_plan f on b.id=f.apply_id " +
+            " left join tb_user_regist_info g on b.user_id=g.id " +
+            " left join tb_repay_stat h on b.id=h.apply_id " +
+            " left join tb_cms_auth_user i on i.id=a.operator_id " +
+            " left join tb_app_version j on j.id=b.app_id " +
+            " where a.task_type=3 and d.info_type=0 and f.seq_no=1" +
+            " ${conditions}" +
             " limit #{offset},#{rows}")
-    List<CollectionArchivesGetListBean> collectionArchivesGetList(String toString, Integer offset, Integer rows);
+    List<CollectionArchivesGetListBean> collectionArchivesGetList(String conditions, Integer offset, Integer rows);
 }

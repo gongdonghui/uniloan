@@ -14,11 +14,13 @@ import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.*;
 import com.sup.cms.util.GsonUtil;
 import com.sup.cms.util.ResponseUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RequestMapping("/auth")
 @RestController
+@Slf4j
 public class AuthorityController {
 
     @Autowired
@@ -87,8 +90,8 @@ public class AuthorityController {
     @GetMapping("/user/list")
     public String userList() {
         List<AuthUserBean> l = userBeanMapper.selectList(new QueryWrapper<>());
-        List<AuthUserList> ll = GsonUtil.gson.fromJson(GsonUtil.toJson(l), new TypeToken<List<AuthUserList>>() {
-        }.getType());
+        List<AuthUserList> ll = GsonUtil.gson.fromJson(GsonUtil.toJson(l), new ArrayList<AuthUserList>().getClass());
+                //new TypeToken<List<AuthUserList>>() { }.getType());
         return ResponseUtil.success(ll);
     }
 
@@ -289,6 +292,10 @@ public class AuthorityController {
     public String getUserResources(@RequestParam("token") String token) {
         String userId = redis.opsForValue().get(REDIS_CMS_PRE + token);
         AuthUserBean user = userBeanMapper.selectById(userId);
+        if (user == null) {
+            log.error("Invalid token: " + token);
+            return ResponseUtil.failed();
+        }
         QueryWrapper<AuthUserRoleBean> qw1 = new QueryWrapper<>();
         qw1.eq("user_id", userId);
         List<AuthResourceList> l = Lists.newArrayList();

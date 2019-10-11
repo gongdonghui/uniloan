@@ -10,6 +10,10 @@ import java.util.Date;
  */
 @Data
 public class CollectionArchivesGetListBean {
+    /**
+     * 任务id
+     */
+    private Integer id;
     private Integer applyId;
     private String mobile;
     private Date lastAllocateDate;
@@ -28,9 +32,17 @@ public class CollectionArchivesGetListBean {
     private String appName;
     private String productName;
     /**
-     * 期次  示例 7日/期, 共1期
+     * 每期的天数
      */
     private String period;
+    /**
+     * 当前期数
+     */
+    private String currentTerm;
+    /**
+     * 总期数
+     */
+    private String totalTerms;
     private String name;
     private Date shouldRepayDate;
     private Integer overdueDays;

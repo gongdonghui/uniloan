@@ -49,6 +49,7 @@ public class TbRepayPlanBean {
     private Long act_breach_fee = 0L;
     private Long need_other = 0L;
     private Long act_other = 0L;
+    private Long reduction_fee = 0L;
     private Long need_total = 0L;
     private Long act_total = 0L;
     private Integer operator_id = 0;

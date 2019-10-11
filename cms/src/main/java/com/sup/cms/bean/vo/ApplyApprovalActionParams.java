@@ -42,4 +42,9 @@ public class ApplyApprovalActionParams {
      */
     @NotBlank
     private String comment;
+
+    /**
+     * 审批授予额度
+     */
+    private Integer grantQuota;
 }
