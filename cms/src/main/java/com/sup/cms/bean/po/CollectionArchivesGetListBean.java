@@ -15,6 +15,7 @@ public class CollectionArchivesGetListBean {
      */
     private Integer id;
     private Integer applyId;
+    private Integer userId;
     private String mobile;
     private Date lastAllocateDate;
     /**

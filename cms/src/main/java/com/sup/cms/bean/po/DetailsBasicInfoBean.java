@@ -44,6 +44,9 @@ public class DetailsBasicInfoBean {
     private Integer job;
     //            薪资范围 收入状态 0|1~100  1|100~1000
     private Integer income;
+
+    private Integer work_period;
+
     // 紧急联系人
     private List<DetailsEmergencyContact> list;
 }

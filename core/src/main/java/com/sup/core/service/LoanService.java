@@ -287,7 +287,7 @@ public class LoanService {
             return false;
         }
         QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
-        List<TbRepayPlanBean> plans = repayPlanMapper.getRepayPlan(wrapper.eq("applyId", applyId));
+        List<TbRepayPlanBean> plans = repayPlanMapper.getRepayPlan(wrapper.eq("apply_id", applyId));
         int status = RepayPlanStatusEnum.PLAN_PAID_WRITE_OFF.getCode();
         Date now = new Date();
         for (TbRepayPlanBean bean : plans) {

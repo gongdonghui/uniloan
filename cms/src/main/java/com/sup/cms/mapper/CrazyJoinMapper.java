@@ -83,6 +83,7 @@ public interface CrazyJoinMapper extends BaseMapper {
     @Select("select " +
             " a.id as id," +
             " b.id as applyId," +
+            " b.user_id as userId," +
             " a.expire_time as lastAllocateDate," +
             " e.name," +
             " g.mobile as mobile," +
@@ -105,7 +106,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_repay_plan f on b.id=f.apply_id " +
             " left join tb_user_regist_info g on b.user_id=g.id " +
             " left join tb_repay_stat h on b.id=h.apply_id " +
-            " where a.task_type=3 and a.has_owner=0 and d.info_type=0 and f.seq_no=1 " +
+            " where a.task_type=3 and b.status!=16 and a.has_owner=0 and d.info_type=0 and f.seq_no=1 " +
             " ${conditions} " +
             " limit #{offset},#{rows}")
     List<CollectionAllocateGetListBean> collectionAllocateGetList(String conditions, Integer offset, Integer rows);
@@ -113,6 +114,7 @@ public interface CrazyJoinMapper extends BaseMapper {
     @Select("select " +
             " a.id as id," +
             " b.id as applyId," +
+            " b.user_id as userId," +
             " g.mobile as mobile," +
             " a.expire_time as lastAllocateDate," +
             " f.repay_status as periodStatus," +
@@ -138,7 +140,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_repay_stat h on b.id=h.apply_id " +
             " left join tb_cms_auth_user i on i.id=a.operator_id " +
             " left join tb_app_version j on j.id=b.app_id " +
-            " where a.task_type=3 and d.info_type=0 and f.seq_no=1" +
+            " where a.task_type=3 and b.status!=16 and d.info_type=0 and f.seq_no=1" +
             " ${conditions}" +
             " limit #{offset},#{rows}")
     List<CollectionArchivesGetListBean> collectionArchivesGetList(String conditions, Integer offset, Integer rows);

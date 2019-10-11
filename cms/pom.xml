@@ -21,6 +21,19 @@
 	</properties>
 
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.nutz/ssdb4j -->
+		<dependency>
+			<groupId>org.nutz</groupId>
+			<artifactId>ssdb4j</artifactId>
+			<version>10.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.asynchttpclient</groupId>
+			<artifactId>async-http-client</artifactId>
+			<version>2.10.2</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>

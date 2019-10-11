@@ -16,6 +16,7 @@ public class CollectionAllocateGetListBean {
     private Integer id;
 
     private Integer applyId;
+    private Integer userId;
     private Date lastAllocateDate;
     private String name;
     private String mobile;

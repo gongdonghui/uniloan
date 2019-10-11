@@ -8,8 +8,11 @@ import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.ApplyOperationTaskMapper;
 import com.sup.cms.mapper.CrazyJoinMapper;
 import com.sup.cms.util.DateUtil;
+import com.sup.cms.util.GsonUtil;
 import com.sup.cms.util.ResponseUtil;
 import com.sup.common.bean.TbApplyInfoBean;
+import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.param.ManualRepayParam;
 import com.sup.common.service.CoreService;
 import com.sup.common.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -243,6 +246,51 @@ public class ApplyController {
     @GetMapping("/approval/hangUp")
     public String hangUp(@RequestParam("applyId") String applyId) {
         //todo 不知道挂起是要干啥 看看能不能这期先不做
+        return ResponseUtil.success();
+    }
+
+    /**
+     * 核销
+     * @param applyId
+     * @return
+     */
+    @GetMapping("/writeOff")
+    public String writeOff(@RequestParam("applyId") String applyId) {
+        Result<TbApplyInfoBean> result = coreService.getApplyInfo(Integer.valueOf(applyId));
+        if (!result.isSucc()) {
+            return ResponseUtil.failed(result.getMessage());
+        }
+        TbApplyInfoBean applyInfoBean = result.getData();
+        if (applyInfoBean == null) {
+            return ResponseUtil.failed("Invalid applyId!");
+        }
+        applyInfoBean.setStatus(ApplyStatusEnum.APPLY_WRITE_OFF.getCode());
+        if (coreService.updateApplyInfo(applyInfoBean).isSucc()) {
+            return ResponseUtil.success();
+        }
+        log.error("Failed to write off apply:" + applyId);
+        return ResponseUtil.failed();
+    }
+
+    @PostMapping("/repay")
+    public String repay(@Valid @RequestBody ApplyRepayParams params) {
+        Result<TbApplyInfoBean> result = coreService.getApplyInfo(params.getApplyId());
+        if (!result.isSucc()) {
+            return ResponseUtil.failed(result.getMessage());
+        }
+        TbApplyInfoBean applyInfoBean = result.getData();
+        if (applyInfoBean == null) {
+            return ResponseUtil.failed("Invalid applyId!");
+        }
+        ManualRepayParam repayParam = new ManualRepayParam();
+        repayParam.setAmount(params.getRepayAmount());
+        repayParam.setApplyId(String.valueOf(params.getApplyId()));
+        repayParam.setOperatorId(String.valueOf(params.getOperatorId()));
+        repayParam.setUserId(String.valueOf(params.getUserId()));
+        repayParam.setRepayTime(params.getRepayDate());
+        if (!coreService.manualRepay(repayParam).isSucc()) {
+            return ResponseUtil.failed("Manual repay failed! params=" + GsonUtil.toJson(params));
+        }
         return ResponseUtil.success();
     }
 

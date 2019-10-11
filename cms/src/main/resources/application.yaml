@@ -11,6 +11,13 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
 
+ssdb:
+  host: 140.143.207.211
+  port: 13288
+  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
+  timeout: 300000
+
+
 ---
 spring:
   profiles: dev

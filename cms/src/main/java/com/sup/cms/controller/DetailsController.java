@@ -6,14 +6,14 @@ import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.*;
 import com.sup.cms.mapper.*;
 import com.sup.cms.util.ResponseUtil;
+import com.sup.cms.util.SSDBClient;
 import com.sup.common.bean.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +44,10 @@ public class DetailsController {
     private TbUserBankAccountInfoMapper userBankAccountInfoMapper;
     @Autowired
     private CrazyJoinMapper crazyJoinMapper;
+
+
+    @Autowired
+    private SSDBClient ssdbClient;
 
     /**
      * 进件信息
@@ -134,12 +138,15 @@ public class DetailsController {
         bean.setPhone(employmentBean.getPhone());
         bean.setJob(employmentBean.getJob_occupation());
         bean.setIncome(employmentBean.getIncome());
+        bean.setWork_period(employmentBean.getWork_period());
+
         List<DetailsEmergencyContact> list = Lists.newArrayList();
         emergencyList.forEach(x -> {
             DetailsEmergencyContact b = new DetailsEmergencyContact();
             b.setName(x.getName());
             b.setPhone(x.getMobile());
             b.setRelationship(x.getRelationship());
+            list.add(b);
         });
         bean.setList(list);
         return ResponseUtil.success(bean);
@@ -216,6 +223,20 @@ public class DetailsController {
         m.put("grantQuota", b.getGrant_quota());
         m.put("rate", b.getRate());
         return ResponseUtil.success(m);
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/image/get")
+    public String getImages(@RequestParam("keys") List<String> keys) {
+        if (keys == null || keys.size() == 0) {
+            return ResponseUtil.failed("No keys!");
+        }
+        ArrayList<byte[]> contents = new ArrayList<>();
+        for (String key: keys) {
+            contents.add(ssdbClient.GetBytes(key));
+        }
+        return ResponseUtil.success(contents);
     }
 
 }
