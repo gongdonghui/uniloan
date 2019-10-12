@@ -42,24 +42,28 @@ import java.util.List;
 public class InfoController {
   public static Logger logger = Logger.getLogger(InfoController.class);
   private JSONObject dict;
+  private JSONObject const_map;
 
   @Autowired
   CoreService core;
 
-  @PostConstruct
-  public void Init() throws Exception {
-
-    ClassPathResource resource = new ClassPathResource("app.dict");
+  private String LoadResourceFile(String path) throws Exception {
+    ClassPathResource resource = new ClassPathResource(path);
     InputStream inputStream = resource.getInputStream();
     BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-    String line = null;
+    String line;
     StringBuffer sb = new StringBuffer();
     while ((line = br.readLine()) != null) {
       sb.append(line);
     }
     br.close();
-    dict = JSON.parseObject(sb.toString());
-    //logger.info("read_app_dict_succ: " + JSON.toJSONString(dict));
+    return sb.toString();
+  }
+
+  @PostConstruct
+  public void Init() throws Exception {
+    dict = JSON.parseObject(LoadResourceFile("app.dict"));
+    const_map = JSON.parseObject(LoadResourceFile("const_map.dict"));
   }
 
   @ResponseBody
@@ -86,11 +90,7 @@ public class InfoController {
   @ResponseBody
   @RequestMapping(value = "const_map/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object GetConstMap() {
-    JSONObject r = new JSONObject();
-    r.put("email", ImmutableList.of(ImmutableMap.of("k1", "zzz", "k2", "7:00 ~ 9:00")));
-    r.put("tel", ImmutableList.of(ImmutableMap.of("k1", "zzz", "k2", "7:00 ~ 9:00")));
-    r.put("account", ImmutableList.of(ImmutableMap.of("k1", "zzz", "k2", "7:00 ~ 9:00")));
-    return ToolUtils.succ(r);
+    return ToolUtils.succ(const_map);
   }
 
   @ResponseBody

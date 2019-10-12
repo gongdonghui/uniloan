@@ -78,7 +78,6 @@ public class ApplyController {
     return ToolUtils.succ(ret_app_beans);
   }
 
-
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "list_complete_applies", produces = "application/json;charset=UTF-8")
@@ -129,10 +128,10 @@ public class ApplyController {
 
         if (plan.getRepay_start_date().getTime() <= System.currentTimeMillis()) {
           AppApplyInfo ai = new AppApplyInfo();
-          Long curr_need = plan.getNeed_total() - plan.getAct_total();
+          Long curr_need = plan.getNeed_total() - plan.getAct_total() - plan.getReduction_fee();
           ai.setCurr_amount_to_be_repaid(curr_need.toString());
           ai.setTotal_amount_to_be_repaid(plan.getNeed_total().toString());
-          ai.setDest_account_no("xx");
+          ai.setDest_account_no("");
           ai.setContract_amount(bean.getApply_quota());
           ai.setTotal_period(bean.getPeriod().toString());
           ai.setIs_overdue(plan.getRepay_end_date().getTime() < System.currentTimeMillis() ? 1: 0);
