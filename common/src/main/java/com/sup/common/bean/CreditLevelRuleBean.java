@@ -1,4 +1,4 @@
-package com.sup.core.bean;
+package com.sup.common.bean;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -12,13 +12,15 @@ import java.util.Date;
  * <p>
  * 2019/9/21
  */
+
 @Data
-@TableName("tb_core_assets_level_ruels")
-public class AssetsLevelRuleBean {
+@TableName("tb_core_credit_level_rules")
+public class CreditLevelRuleBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private Integer between_paydays;
+    private Integer max_overdue_days;
+    private Integer reloan_times;
     private Integer level;
-    private String level_name;
     private Date create_time;
+
 }

@@ -272,6 +272,11 @@ public class ApplyController {
         return ResponseUtil.failed();
     }
 
+    /**
+     * 还款
+     * @param params
+     * @return
+     */
     @PostMapping("/repay")
     public String repay(@Valid @RequestBody ApplyRepayParams params) {
         Result<TbApplyInfoBean> result = coreService.getApplyInfo(params.getApplyId());

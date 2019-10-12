@@ -8,7 +8,7 @@ import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.DecesionEngine;
 import com.sup.core.util.OverdueUtils;
-import com.sup.core.util.RiskVariableConstants;
+import com.sup.common.util.RiskVariableConstants;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

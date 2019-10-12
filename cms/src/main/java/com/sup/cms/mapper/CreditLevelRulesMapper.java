@@ -1,4 +1,4 @@
-package com.sup.core.mapper;
+package com.sup.cms.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.sup.common.bean.CreditLevelRuleBean;

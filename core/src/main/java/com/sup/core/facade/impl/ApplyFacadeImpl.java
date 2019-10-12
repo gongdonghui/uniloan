@@ -12,6 +12,7 @@ import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.ApplyMaterialInfoMapper;
 import com.sup.core.mapper.ProductInfoMapper;
 import com.sup.core.service.ApplyService;
+import com.sup.core.util.ToolUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,13 +56,15 @@ public class ApplyFacadeImpl implements ApplyFacade {
 
         List<TbApplyInfoBean> oldApplys = applyService.getApplyInprogress(applyInfoParam.getUser_id());
         if (oldApplys != null && oldApplys.size() > 0) {
-            return Result.fail("Duplicated Apply!");
+            // return Result.fail("Duplicated Apply!");
+            return ToolUtils.fail("AddApplyInfo_Duplicated");
         }
 
         TbProductInfoBean product = productInfoMapper.selectById(applyInfoParam.getProduct_id());
         if (product == null) {
             log.error("invalid product id = " + applyInfoParam.getProduct_id());
-            return Result.fail("Invalid product id!");
+            // return Result.fail("Invalid product id!");
+            return ToolUtils.fail("AddApplyInfo_InvalidProduct");
         }
         Date now = new Date();
         Date expireTime = DateUtil.getDate(now, APPLY_EXPIRE_DAYS);
@@ -85,7 +88,8 @@ public class ApplyFacadeImpl implements ApplyFacade {
 
         if (!applyService.addApplyInfo(applyInfoBean)) {
             log.error("addApplyInfo failed!");
-            return Result.fail("addApplyInfo failed!");
+            // return Result.fail("addApplyInfo failed!");
+            return ToolUtils.fail("AddApplyInfo_AddFailed");
         }
 
         log.info("new apply info, applyId = " + applyInfoBean.getId());
@@ -106,9 +110,11 @@ public class ApplyFacadeImpl implements ApplyFacade {
         }
 
         if (addSucc) {
-            return succ();
+            // return succ();
+            return ToolUtils.succ("");
         }
-        return Result.fail("Error in adding apply material!");
+        // return Result.fail("Error in adding apply material!");
+        return ToolUtils.fail("AddApplyInfo_AddMaterial");
     }
 
     @Override
@@ -119,6 +125,9 @@ public class ApplyFacadeImpl implements ApplyFacade {
     @Override
     public Result<TbApplyInfoBean> getApplyInfo(Integer applyId) {
         TbApplyInfoBean bean = applyInfoMapper.selectById(applyId);
+        if (bean == null) {
+            return Result.fail("Invalid applyId");
+        }
         return  Result.succ(bean);
     }
 }
