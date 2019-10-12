@@ -234,7 +234,8 @@ public class DetailsController {
         }
         ArrayList<byte[]> contents = new ArrayList<>();
         for (String key: keys) {
-            contents.add(ssdbClient.GetBytes(key));
+            byte[] val = ssdbClient.GetBytes(key);
+            contents.add(val);
         }
         return ResponseUtil.success(contents);
     }

@@ -1,4 +1,4 @@
-package com.sup.core.report;
+package com.sup.cms.facade;
 
 import com.sup.common.bean.OperationReportBean;
 import com.sup.common.param.OperationReportParam;

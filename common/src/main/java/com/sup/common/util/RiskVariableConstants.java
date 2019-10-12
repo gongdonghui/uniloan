@@ -1,4 +1,4 @@
-package com.sup.core.util;
+package com.sup.common.util;
 
 import java.util.ArrayList;
 import java.util.List;

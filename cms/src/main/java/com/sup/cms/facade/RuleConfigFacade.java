@@ -1,4 +1,4 @@
-package com.sup.core.facade;
+package com.sup.cms.facade;
 
 import com.sup.common.bean.RiskVariableBean;
 import com.sup.common.param.AssetLevelPraram;
@@ -6,9 +6,9 @@ import com.sup.common.param.CreditLevelParam;
 import com.sup.common.param.DelRuleParam;
 import com.sup.common.param.RiskRuleParams;
 import com.sup.common.util.Result;
-import com.sup.core.bean.AssetsLevelRuleBean;
-import com.sup.core.bean.CreditLevelRuleBean;
-import com.sup.core.bean.RiskRulesBean;
+import com.sup.common.bean.AssetsLevelRuleBean;
+import com.sup.common.bean.CreditLevelRuleBean;
+import com.sup.common.bean.RiskRulesBean;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;

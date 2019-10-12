@@ -14,8 +14,8 @@ import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
-import com.sup.core.bean.AssetsLevelRuleBean;
-import com.sup.core.bean.CreditLevelRuleBean;
+import com.sup.common.bean.AssetsLevelRuleBean;
+import com.sup.common.bean.CreditLevelRuleBean;
 import com.sup.core.bean.OverdueInfoBean;
 import com.sup.core.bean.RiskDecisionResultBean;
 import com.sup.core.mapper.*;
@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 

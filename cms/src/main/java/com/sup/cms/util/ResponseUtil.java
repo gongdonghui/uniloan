@@ -43,7 +43,11 @@ public class ResponseUtil {
         map.put("msg", msg);
         map.put("data", data);
         String result = GsonUtil.toJson(map);
-        log.info(result);
+        if (result.length() > 1024) {
+            log.info(result.substring(0, 1024) + " ...");
+        } else {
+            log.info(result);
+        }
         return result;
     }
 

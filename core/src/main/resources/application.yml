@@ -15,7 +15,6 @@ feign:
         connectTimeout: 20000
         readTimeout: 20000
 
-
 ##hystrix的超时时间
 #hystrix:
 #  command:
@@ -50,9 +49,14 @@ rocket:
     endpoint: 140.143.207.211:9976
     group: user_state_group
 
+
 spring:
+  messages:
+    basename: static/i18n/messages
+
   application:
     name: service-core
+
   datasource:
     dynamic:
       hikari:
