@@ -144,4 +144,8 @@ public interface CrazyJoinMapper extends BaseMapper {
             " ${conditions}" +
             " limit #{offset},#{rows}")
     List<CollectionArchivesGetListBean> collectionArchivesGetList(String conditions, Integer offset, Integer rows);
+
+    @Select("" +
+            "")
+    List<LoanInfoBean> getLoanInfoBean(String conditions, Integer offset, Integer rows);
 }

@@ -299,4 +299,15 @@ public class ApplyController {
         return ResponseUtil.success();
     }
 
+    /**
+     * 查询借款情况
+     * @param params
+     * @return
+     */
+    @PostMapping("/queryLoanInfo")
+    public String queryLoanInfo(@Valid @RequestBody ApplyQueryParams params) {
+        // TODO
+        return ResponseUtil.success();
+    }
+
 }
