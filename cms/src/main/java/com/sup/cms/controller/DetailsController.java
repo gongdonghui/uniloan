@@ -229,6 +229,7 @@ public class DetailsController {
     @GetMapping("/repay")
     public String repay(@RequestParam("applyId") String applyId) {
         DetailsRepayBean bean = crazyJoinMapper.detailsRepay(applyId);
+        bean.setList(crazyJoinMapper.detailsRepayList(applyId));
         return ResponseUtil.success(bean);
     }
 

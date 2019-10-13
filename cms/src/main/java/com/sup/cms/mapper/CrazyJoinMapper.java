@@ -226,5 +226,41 @@ public interface CrazyJoinMapper extends BaseMapper {
             "limit #{offset},#{rows}")
     List<AfterLoanOverdueGetListBean> afterLoanOverdueGetList(String toString, Integer offset, Integer rows);
 
+    @Select("select " +
+            "a.id as applyId," +
+            "e.name as productName," +
+            "c.name as name," +
+            "d.mobile as mobile," +
+            "a.grant_quota as loanAmount," +
+            "a.inhand_quota as actAmount," +
+            "0 as otherAmount," +
+            "a.period as period," +
+            "case " +
+            "when f.repay_status=2 then 1" +
+            "else 0 end alreadyRepay" +
+            "from tb_apply_info a " +
+            "left join tb_apply_material_info b on a.id=b.apply_id " +
+            "left join tb_user_citizen_identity_card_info c on b.info_id=c.info_id " +
+            "left join tb_user_regist_info d on d.id=a.user_id " +
+            "left join tb_product_info e on a.product_id=e.id " +
+            "left join tb_repay_plan f on a.id=f.apply_id " +
+            "where b.info_type=0 and f.is_overdue=1 and a.id=#{applyId}")
     DetailsRepayBean detailsRepay(String applyId);
+
+    @Select("select " +
+            "a.seq_no as seqNo," +
+            "a.need_total as shouldRepayAmount," +
+            "(a.need_total-a.act_total) as remainShouldRepayAmount," +
+            "(a.need_principal-a.act_principal) as remainPrincipal," +
+            "(a.need_interest-a.act_interest) as remainInterest," +
+            "a.act_total as actRepayAmount," +
+            "a.repay_end_date as shouldRepayDate," +
+            "a.repay_time as actRepayDate," +
+            "(a.need_penalty_interest-a.act_penalty_interest) as remainPenaltyInterestAmount," +
+            "(a.need_breach_fee-a.act_breach_fee) as remainBreachFeeAmount," +
+            "a.repay_status as status" +
+            "from " +
+            "tb_repay_plan a where a.apply_id=#{applyId}")
+    List<DetailsRepayListBean> detailsRepayList(String applyId);
+
 }
