@@ -565,7 +565,7 @@ CREATE TABLE `tb_core_risk_rules` (
   `is_in` int(11) DEFAULT NULL COMMENT '1 表示必须在名单中，0 表示必须不在名单中才能通过规则',
   `range_left` int(11) DEFAULT NULL COMMENT '数值范围的左侧的类型1表示大于，0表示大于等于',
   `range_right` int(11) DEFAULT NULL COMMENT '数值范围的左侧的类型1表示小于，0表示小于等于',
-  `variable_name` int(11) DEFAULT NULL COMMENT '变量名字',
+  `variable_name` varchar(255) DEFAULT NULL COMMENT '变量名字',
   `credit_level` int(11) DEFAULT NULL COMMENT '信用等级',
   `val_left` float DEFAULT NULL COMMENT '左值',
   `val_right` float DEFAULT NULL COMMENT '右值',
