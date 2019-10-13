@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.google.common.collect.ImmutableMap;
+import com.sup.backend.bean.AppTbUserBasicInfoBean;
+import com.sup.backend.bean.AppTbUserCitizenIdentityCardInfoBean;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
@@ -15,11 +17,13 @@ import com.sup.backend.service.RedisClient;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.*;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -79,11 +83,14 @@ public class CertController {
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = {"idcard/add", "idcard/update"}, produces = "application/json;charset=UTF-8")
-  public Object UpdateCIC(@LoginInfo LoginInfoCtx li, @RequestBody TbUserCitizenIdentityCardInfoBean bean) {
-    logger.info("----- recv bean: " + JSON.toJSONString(bean));
+  public Object UpdateCIC(@LoginInfo LoginInfoCtx li, @RequestBody @Valid AppTbUserCitizenIdentityCardInfoBean app_bean) {
+    logger.info("----- recv bean: " + JSON.toJSONString(app_bean));
     if (!CheckDuplicateSubmit("idcard", li.getUser_id())) {
       return ToolUtils.fail(1, "duplicate_submit");
     }
+
+    TbUserCitizenIdentityCardInfoBean bean = new TbUserCitizenIdentityCardInfoBean();
+    BeanUtils.copyProperties(app_bean, bean);
 
     if (bean.getInfo_id() == null) {
       bean.setInfo_id(ToolUtils.getToken());
@@ -134,11 +141,13 @@ public class CertController {
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = {"basic/add", "basic/update"}, produces = "application/json;charset=UTF-8")
-  public Object updateBasicInfo(@LoginInfo LoginInfoCtx li, @RequestBody TbUserBasicInfoBean bean) {
-    logger.info("----- recv bean: " + JSON.toJSONString(bean));
+  public Object updateBasicInfo(@LoginInfo LoginInfoCtx li, @RequestBody @Valid AppTbUserBasicInfoBean app_bean) {
+    logger.info("----- recv bean: " + JSON.toJSONString(app_bean));
     if (!CheckDuplicateSubmit("basic", li.getUser_id())) {
       return ToolUtils.fail(1, "duplicate_submit");
     }
+    TbUserBasicInfoBean bean = new TbUserBasicInfoBean();
+    BeanUtils.copyProperties(app_bean, bean);
 
     if (bean.getInfo_id() == null) {
       bean.setInfo_id(ToolUtils.getToken());
