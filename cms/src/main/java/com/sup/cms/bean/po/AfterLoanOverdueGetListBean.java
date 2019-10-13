@@ -6,27 +6,25 @@ import java.util.Date;
 
 /**
  * @Author: kouichi
- * @Date: 2019/10/13 18:49
+ * @Date: 2019/10/13 19:52
  */
 @Data
-public class LoanUnRepayInfoGetListBean {
+public class AfterLoanOverdueGetListBean {
     private Integer applyId;
-    private String mobile;
+    private String appName;
     private String productName;
     private String name;
+    private String mobile;
     private String cidNo;
     private Integer loanAmount;
     private Integer shouldRepayAmount;
-    /**
-     * 放款日期
-     */
+    private Integer overdueAmount;
     private Date loanDate;
-    /**
-     * 总到期日
-     */
     private Date endDate;
-    /**
-     * 期次
-     */
+    private Date shouldRepayDate;
     private Integer period;
+    /**
+     * 催收次数
+     */
+    private Integer collectionTimes;
 }

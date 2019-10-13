@@ -174,10 +174,56 @@ public interface CrazyJoinMapper extends BaseMapper {
             "left join tb_product_info e on a.product_id=e.id " +
             "left join tb_repay_plan f on a.id=f.apply_id " +
             "where (a.status=13 or a.status=14 or a.status=16) and b.info_type=0 " +
-            "${conditions}" +
+            "${conditions} " +
             "limit #{offset},#{rows}")
     List<LoanRepayInfoGetListBean> loanRepayInfoGetList(String toString, Integer offset, Integer rows);
 
-    @Select("")
+    @Select("select " +
+            "a.id as applyId," +
+            "d.mobile as mobile," +
+            "e.name as productName," +
+            "c.name as name," +
+            "c.cid_no as cidNo," +
+            "a.grant_quota as loanAmount," +
+            "f.need_total as shouldRepayAmount," +
+            "a.loan_time as loanDate," +
+            "f.repay_end_date as endDate," +
+            "f.seq_no as period," +
+            "from tb_apply_info a " +
+            "left join tb_apply_material_info b on a.id=b.apply_id " +
+            "left join tb_user_citizen_identity_card_info c on b.info_id=c.info_id " +
+            "left join tb_user_regist_info d on d.id=a.user_id " +
+            "left join tb_product_info e on a.product_id=e.id " +
+            "left join tb_repay_plan f on a.id=f.apply_id " +
+            "where a.status=12 and b.info_type=0" +
+            "${conditions} " +
+            "limit #{offset},#{rows}")
     List<LoanUnRepayInfoGetListBean> loanUnRepayInfoGetList(String toString, Integer offset, Integer rows);
+
+    @Select("select " +
+            "a.id as applyId," +
+            "g.APP_NAME as appName," +
+            "e.name as productName," +
+            "c.name as name," +
+            "d.mobile as mobile," +
+            "c.cid_no as cidNo," +
+            "a.grant_quota as loanAmount," +
+            "f.need_total as shouldRepayAmount," +
+            "(f.need_total-f.act_total) as overdueAmount," +
+            "a.loan_time as loanDate," +
+            "f.repay_end_date as endDate," +
+            "f.repay_time as shouldRepayDate," +
+            "f.seq_no as period" +
+            "from tb_apply_info a " +
+            "left join tb_apply_material_info b on a.id=b.apply_id " +
+            "left join tb_user_citizen_identity_card_info c on b.info_id=c.info_id " +
+            "left join tb_user_regist_info d on d.id=a.user_id " +
+            "left join tb_product_info e on a.product_id=e.id " +
+            "left join tb_repay_plan f on a.id=f.apply_id " +
+            "left join tb_app_version g on a.app_id=g.ID" +
+            "where b.info_type=0 and f.is_overdue=1" +
+            "{conditions} " +
+            "limit #{offset},#{rows}")
+    List<AfterLoanOverdueGetListBean> afterLoanOverdueGetList(String toString, Integer offset, Integer rows);
+
 }
