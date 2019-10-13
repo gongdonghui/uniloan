@@ -44,7 +44,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " limit #{offset},#{rows}")
     List<ApplyManagementGetListBean> applyManagementGetList(String conditions, Integer offset, Integer rows);
 
-//    @Select("select" +
+    //    @Select("select" +
 //            " a.status,a.id as applyId,a.create_time as createTIme,c.name as productName,a.apply_quota as applyQuota,a.rate as applyRate,a.fee_type as feeType,a.grant_quota as grantQuota,a.rate as rate,a.id as loanId,b.purpose as purpose,a.quota as quota,d.APP_NAME as appName,b.credit_level as creditLevel,e.name as channel" +
 //            " from tb_apply_info a left join tb_user_basic_info b on a.user_id=b.user_id left join tb_product_info c on a.product_id=c.id left join tb_app_version d on a.app_id=d.id left join tb_channel_info e on a.channel_id=e.id" +
 //            " where (select info_id from tb_apply_material_info where apply_id=#{applyId} and info_type=1) and a.id=#{applyId}")
@@ -148,4 +148,36 @@ public interface CrazyJoinMapper extends BaseMapper {
     @Select("" +
             "")
     List<LoanInfoBean> getLoanInfoBean(String conditions, Integer offset, Integer rows);
+
+    @Select("select " +
+            "a.id as applyId," +
+            "d.mobile as mobile," +
+            "e.name as productName," +
+            "c.name as name," +
+            "c.cid_no as cidNo," +
+            "case " +
+            "when a.status=16 then (f.need_total-f.act_total-f.reduction_fee)" +
+            "else 0 end writeOffAmount," +
+            "a.grant_quota as loanAmount," +
+            "f.need_total as shouldRepayAmount," +
+            "f.act_total as repayAmount," +
+            "a.loan_time as loanDate," +
+            "f.repay_end_date as endDate," +
+            "f.repay_time as repayDate," +
+            "f.update_time as updateTime," +
+            "f.seq_no as period," +
+            "f.seq_no as repayPeriod" +
+            "from tb_apply_info a " +
+            "left join tb_apply_material_info b on a.id=b.apply_id " +
+            "left join tb_user_citizen_identity_card_info c on b.info_id=c.info_id " +
+            "left join tb_user_regist_info d on d.id=a.user_id " +
+            "left join tb_product_info e on a.product_id=e.id " +
+            "left join tb_repay_plan f on a.id=f.apply_id " +
+            "where (a.status=13 or a.status=14 or a.status=16) and b.info_type=0 " +
+            "${conditions}" +
+            "limit #{offset},#{rows}")
+    List<LoanRepayInfoGetListBean> loanRepayInfoGetList(String toString, Integer offset, Integer rows);
+
+    @Select("")
+    List<LoanUnRepayInfoGetListBean> loanUnRepayInfoGetList(String toString, Integer offset, Integer rows);
 }
