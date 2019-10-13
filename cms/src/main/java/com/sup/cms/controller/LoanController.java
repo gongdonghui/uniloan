@@ -1,5 +1,6 @@
 package com.sup.cms.controller;
 
+import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.LoanRepayInfoGetListBean;
 import com.sup.cms.bean.po.LoanUnRepayInfoGetListBean;
 import com.sup.cms.bean.vo.LoanRepayInfoGetListParams;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 贷款管理下面的子页面
@@ -33,7 +35,10 @@ public class LoanController {
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<LoanRepayInfoGetListBean> l = crazyJoinMapper.loanRepayInfoGetList(sb.toString(), offset, rows);
-        return ResponseUtil.success(l);
+        Map m = Maps.newHashMap();
+        m.put("list", l);
+        m.put("total",  crazyJoinMapper.loanRepayInfoGetListForPaging(sb.toString()));
+        return ResponseUtil.success(m);
     }
 
     @PostMapping("/unRepayInfo/getList")
@@ -42,7 +47,10 @@ public class LoanController {
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<LoanUnRepayInfoGetListBean> l = crazyJoinMapper.loanUnRepayInfoGetList(sb.toString(), offset, rows);
-        return ResponseUtil.success(l);
+        Map m = Maps.newHashMap();
+        m.put("list", l);
+        m.put("total", crazyJoinMapper.loanUnRepayInfoGetListForPaging(sb.toString()));
+        return ResponseUtil.success(m);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.sup.cms.controller;
 
+import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.AfterLoanOverdueGetListBean;
 import com.sup.cms.bean.vo.AfterLoanOverdueGetListParams;
 import com.sup.cms.mapper.CrazyJoinMapper;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: kouichi
@@ -36,6 +38,9 @@ public class AfterLoanController {
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<AfterLoanOverdueGetListBean> l = crazyJoinMapper.afterLoanOverdueGetList(sb.toString(), offset, rows);
-        return ResponseUtil.success(l);
+        Map m = Maps.newHashMap();
+        m.put("total",crazyJoinMapper.afterLoanOverdueGetListForPaging(sb.toString()));
+        m.put("list",l);
+        return ResponseUtil.success(m);
     }
 }

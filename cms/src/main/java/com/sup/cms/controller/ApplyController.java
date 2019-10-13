@@ -1,6 +1,7 @@
 package com.sup.cms.controller;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.ApplyManagementGetListBean;
 import com.sup.cms.bean.po.ApplyOperationTaskBean;
 import com.sup.cms.bean.po.ApplyApprovalGetListBean;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 进件管理页面
@@ -69,8 +71,10 @@ public class ApplyController {
         Integer rows = params.getPageSize();
         List<ApplyApprovalGetListBean> list = crazyJoinMapper.applyApprovalGetList(sb.toString(), offset, rows);
         log.info(">>> condition: " + sb.toString());
-
-        return ResponseUtil.success(list);
+        Map m = Maps.newHashMap();
+        m.put("total",crazyJoinMapper.applyApprovalGetListForPaging(sb.toString()));
+        m.put("list",list);
+        return ResponseUtil.success(m);
     }
 
     /**
@@ -179,7 +183,10 @@ public class ApplyController {
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<ApplyManagementGetListBean> l = crazyJoinMapper.applyManagementGetList(sb.toString(), offset, rows);
-        return ResponseUtil.success(l);
+        Map m = Maps.newHashMap();
+        m.put("total",crazyJoinMapper.applyManagementGetListForPaging(sb.toString()));
+        m.put("list",l);
+        return ResponseUtil.success(m);
     }
 
     /**
@@ -212,8 +219,11 @@ public class ApplyController {
         Integer rows = params.getPageSize();
         List<ApplyApprovalGetListBean> list = crazyJoinMapper.applyApprovalGetList(sb.toString(), offset, rows);
         list.forEach(x -> x.setReAllocate(null == x.getOperatorId() ? 0 : 1));
+        Map m = Maps.newHashMap();
+        m.put("total",crazyJoinMapper.applyApprovalGetListForPaging(sb.toString()));
+        m.put("list",list);
         log.info(">>> condition: " + sb.toString());
-        return ResponseUtil.success(list);
+        return ResponseUtil.success(m);
     }
 
     /**

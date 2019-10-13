@@ -2,6 +2,7 @@ package com.sup.cms.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.*;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.*;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 // 逾期派单
 // ->查询关老师operation表，把逾期的记录显示出来
@@ -112,7 +114,10 @@ public class CollectionController {
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<CollectionAllocateGetListBean> l = crazyJoinMapper.collectionAllocateGetList(sb.toString(), offset, rows);
-        return ResponseUtil.success(l);
+        Map m = Maps.newHashMap();
+        m.put("total",crazyJoinMapper.collectionAllocateGetListForPaging(sb.toString()));
+        m.put("list",l);
+        return ResponseUtil.success(m);
     }
 
     /**
@@ -176,7 +181,10 @@ public class CollectionController {
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<CollectionAllocateGetListBean> l = crazyJoinMapper.collectionAllocateGetList(sb.toString(), offset, rows);
-        return ResponseUtil.success(l);
+        Map m = Maps.newHashMap();
+        m.put("total",crazyJoinMapper.collectionAllocateGetListForPaging(sb.toString()));
+        m.put("list",l);
+        return ResponseUtil.success(m);
     }
 
     /**
@@ -200,7 +208,10 @@ public class CollectionController {
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<CollectionArchivesGetListBean> l = crazyJoinMapper.collectionArchivesGetList(sb.toString(), offset, rows);
-        return ResponseUtil.success(l);
+        Map m = Maps.newHashMap();
+        m.put("total",crazyJoinMapper.collectionArchivesGetListForPaging(sb.toString()));
+        m.put("list",l);
+        return ResponseUtil.success(m);
     }
 
     /**

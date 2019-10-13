@@ -29,6 +29,17 @@ public interface CrazyJoinMapper extends BaseMapper {
             " limit #{offset},#{rows}")
     List<ApplyApprovalGetListBean> applyApprovalGetList(String conditions, Integer offset, Integer rows);
 
+    @Select("select count(a.id)" +
+            " from tb_operation_task a" +
+            " join tb_apply_info b on a.apply_id=b.id" +
+            " join tb_product_info c on b.product_id=c.id" +
+            " left join tb_apply_material_info d on b.id=d.apply_id" +
+            " left join tb_user_citizen_identity_card_info e on d.info_id=e.info_id" +
+            " join tb_user_regist_info f on b.user_id=f.id" +
+            " where d.info_type=0" +
+            " ${conditions}")
+    Integer applyApprovalGetListForPaging(String conditions);
+
     @Select("select " +
             "a.id as applyId,a.status as status,a.apply_quota as amount,1 as jieKuanQiXian,a.fee_type as huanKuanFangShi,'' as shangHuiMingCheng,a.create_time as dealDate,a.create_time as createTime,a.update_time as updateTime," +
             "b.name as productName," +
@@ -43,6 +54,16 @@ public interface CrazyJoinMapper extends BaseMapper {
             "${conditions}" +
             " limit #{offset},#{rows}")
     List<ApplyManagementGetListBean> applyManagementGetList(String conditions, Integer offset, Integer rows);
+
+    @Select("select count(a.id)" +
+            " from tb_apply_info a" +
+            " left join tb_product_info b on a.product_id=b.id" +
+            " left join tb_apply_material_info c on a.id=c.apply_id" +
+            " left join tb_user_citizen_identity_card_info d on c.info_id=d.info_id" +
+            " left join tb_app_version e on a.app_id=d.id" +
+            " where c.info_type=0" +
+            "${conditions}")
+    Integer applyManagementGetListForPaging(String conditions);
 
     //    @Select("select" +
 //            " a.status,a.id as applyId,a.create_time as createTIme,c.name as productName,a.apply_quota as applyQuota,a.rate as applyRate,a.fee_type as feeType,a.grant_quota as grantQuota,a.rate as rate,a.id as loanId,b.purpose as purpose,a.quota as quota,d.APP_NAME as appName,b.credit_level as creditLevel,e.name as channel" +
@@ -111,6 +132,19 @@ public interface CrazyJoinMapper extends BaseMapper {
             " limit #{offset},#{rows}")
     List<CollectionAllocateGetListBean> collectionAllocateGetList(String conditions, Integer offset, Integer rows);
 
+    @Select("select count(a.id)" +
+            " from tb_operation_task a " +
+            " left join tb_apply_info b on a.apply_id=b.id " +
+            " left join tb_product_info c on b.product_id=c.id " +
+            " left join tb_apply_material_info d on b.id=d.apply_id " +
+            " left join tb_user_citizen_identity_card_info e on d.info_id=e.info_id " +
+            " left join tb_repay_plan f on b.id=f.apply_id " +
+            " left join tb_user_regist_info g on b.user_id=g.id " +
+            " left join tb_repay_stat h on b.id=h.apply_id " +
+            " where a.task_type=3 and b.status!=16 and a.has_owner=0 and d.info_type=0 and f.seq_no=1 " +
+            " ${conditions}")
+    Integer collectionAllocateGetListForPaging(String conditions);
+
     @Select("select " +
             " a.id as id," +
             " b.id as applyId," +
@@ -145,6 +179,21 @@ public interface CrazyJoinMapper extends BaseMapper {
             " limit #{offset},#{rows}")
     List<CollectionArchivesGetListBean> collectionArchivesGetList(String conditions, Integer offset, Integer rows);
 
+    @Select("select count(a.id)" +
+            " from tb_operation_task a " +
+            " left join tb_apply_info b on a.apply_id=b.id " +
+            " left join tb_product_info c on b.product_id=c.id " +
+            " left join tb_apply_material_info d on b.id=d.apply_id " +
+            " left join tb_user_citizen_identity_card_info e on d.info_id=e.info_id " +
+            " left join tb_repay_plan f on b.id=f.apply_id " +
+            " left join tb_user_regist_info g on b.user_id=g.id " +
+            " left join tb_repay_stat h on b.id=h.apply_id " +
+            " left join tb_cms_auth_user i on i.id=a.operator_id " +
+            " left join tb_app_version j on j.id=b.app_id " +
+            " where a.task_type=3 and b.status!=16 and d.info_type=0 and f.seq_no=1" +
+            " ${conditions}")
+    Integer collectionArchivesGetListForPaging(String conditions);
+
     @Select("" +
             "")
     List<LoanInfoBean> getLoanInfoBean(String conditions, Integer offset, Integer rows);
@@ -176,7 +225,18 @@ public interface CrazyJoinMapper extends BaseMapper {
             "where (a.status=13 or a.status=14 or a.status=16) and b.info_type=0 " +
             "${conditions} " +
             "limit #{offset},#{rows}")
-    List<LoanRepayInfoGetListBean> loanRepayInfoGetList(String toString, Integer offset, Integer rows);
+    List<LoanRepayInfoGetListBean> loanRepayInfoGetList(String conditions, Integer offset, Integer rows);
+
+    @Select("select count(a.id) " +
+            "from tb_apply_info a " +
+            "left join tb_apply_material_info b on a.id=b.apply_id " +
+            "left join tb_user_citizen_identity_card_info c on b.info_id=c.info_id " +
+            "left join tb_user_regist_info d on d.id=a.user_id " +
+            "left join tb_product_info e on a.product_id=e.id " +
+            "left join tb_repay_plan f on a.id=f.apply_id " +
+            "where (a.status=13 or a.status=14 or a.status=16) and b.info_type=0 " +
+            "${conditions}")
+    Integer loanRepayInfoGetListForPaging(String conditions);
 
     @Select("select " +
             "a.id as applyId," +
@@ -198,7 +258,18 @@ public interface CrazyJoinMapper extends BaseMapper {
             "where a.status=12 and b.info_type=0" +
             "${conditions} " +
             "limit #{offset},#{rows}")
-    List<LoanUnRepayInfoGetListBean> loanUnRepayInfoGetList(String toString, Integer offset, Integer rows);
+    List<LoanUnRepayInfoGetListBean> loanUnRepayInfoGetList(String conditions, Integer offset, Integer rows);
+
+    @Select("select count(a.id) " +
+            "from tb_apply_info a " +
+            "left join tb_apply_material_info b on a.id=b.apply_id " +
+            "left join tb_user_citizen_identity_card_info c on b.info_id=c.info_id " +
+            "left join tb_user_regist_info d on d.id=a.user_id " +
+            "left join tb_product_info e on a.product_id=e.id " +
+            "left join tb_repay_plan f on a.id=f.apply_id " +
+            "where a.status=12 and b.info_type=0" +
+            "${conditions}")
+    Integer loanUnRepayInfoGetListForPaging(String conditions);
 
     @Select("select " +
             "a.id as applyId," +
@@ -224,7 +295,20 @@ public interface CrazyJoinMapper extends BaseMapper {
             "where b.info_type=0 and f.is_overdue=1" +
             "{conditions} " +
             "limit #{offset},#{rows}")
-    List<AfterLoanOverdueGetListBean> afterLoanOverdueGetList(String toString, Integer offset, Integer rows);
+    List<AfterLoanOverdueGetListBean> afterLoanOverdueGetList(String conditions, Integer offset, Integer rows);
+
+    @Select("select " +
+            "count(a.id) " +
+            "from tb_apply_info a " +
+            "left join tb_apply_material_info b on a.id=b.apply_id " +
+            "left join tb_user_citizen_identity_card_info c on b.info_id=c.info_id " +
+            "left join tb_user_regist_info d on d.id=a.user_id " +
+            "left join tb_product_info e on a.product_id=e.id " +
+            "left join tb_repay_plan f on a.id=f.apply_id " +
+            "left join tb_app_version g on a.app_id=g.ID" +
+            "where b.info_type=0 and f.is_overdue=1" +
+            "{conditions}")
+    Integer afterLoanOverdueGetListForPaging(String toString);
 
     @Select("select " +
             "a.id as applyId," +
@@ -262,5 +346,6 @@ public interface CrazyJoinMapper extends BaseMapper {
             "from " +
             "tb_repay_plan a where a.apply_id=#{applyId}")
     List<DetailsRepayListBean> detailsRepayList(String applyId);
+
 
 }
