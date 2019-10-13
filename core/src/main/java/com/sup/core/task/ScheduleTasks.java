@@ -452,10 +452,12 @@ public class ScheduleTasks {
                 }
                 maxOverdueDays = Math.max(maxOverdueDays, DateUtil.daysbetween(repayEndDate, overdueEndDate));
             }
-
+            if (planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_PART.getCode() ||
+                    planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
+                overdueRepayTimes += isOverdue && repayed ? 1 : 0;
+                normalRepayTimes += !isOverdue && repayed ? 1 : 0;
+            }
             overdueTimes += isOverdue ? 1 : 0;
-            overdueRepayTimes += isOverdue && repayed ? 1 : 0;
-            normalRepayTimes += !isOverdue && repayed ? 1 : 0;
             statBean.inc(planBean);
         }
 
