@@ -226,4 +226,5 @@ public interface CrazyJoinMapper extends BaseMapper {
             "limit #{offset},#{rows}")
     List<AfterLoanOverdueGetListBean> afterLoanOverdueGetList(String toString, Integer offset, Integer rows);
 
+    DetailsRepayBean detailsRepay(String applyId);
 }

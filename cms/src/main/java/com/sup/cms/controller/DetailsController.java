@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.GET;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -225,6 +226,11 @@ public class DetailsController {
         return ResponseUtil.success(m);
     }
 
+    @GetMapping("/repay")
+    public String repay(@RequestParam("applyId") String applyId) {
+        DetailsRepayBean bean = crazyJoinMapper.detailsRepay(applyId);
+        return ResponseUtil.success(bean);
+    }
 
     @ResponseBody
     @RequestMapping(value = "/image/get")
@@ -233,11 +239,12 @@ public class DetailsController {
             return ResponseUtil.failed("No keys!");
         }
         ArrayList<byte[]> contents = new ArrayList<>();
-        for (String key: keys) {
+        for (String key : keys) {
             byte[] val = ssdbClient.GetBytes(key);
             contents.add(val);
         }
         return ResponseUtil.success(contents);
     }
+
 
 }
