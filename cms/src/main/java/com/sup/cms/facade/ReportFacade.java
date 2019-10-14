@@ -1,5 +1,6 @@
 package com.sup.cms.facade;
 
+import com.sup.common.bean.CheckReportBean;
 import com.sup.common.bean.OperationReportBean;
 import com.sup.common.param.OperationReportParam;
 import com.sup.common.util.Result;
@@ -24,7 +25,7 @@ public interface ReportFacade {
 
     @ResponseBody
     @RequestMapping(value = "check", produces = "application/json;charset=UTF-8")
-    Result check(@RequestBody OperationReportParam param);
+    Result<List<CheckReportBean>> check(@RequestBody OperationReportParam param);
 
     @ResponseBody
     @RequestMapping(value = "collection", produces = "application/json;charset=UTF-8")

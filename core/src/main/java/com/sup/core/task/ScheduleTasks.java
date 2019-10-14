@@ -3,6 +3,7 @@ package com.sup.core.task;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.sup.cms.mapper.CheckReportMapper;
 import com.sup.common.bean.*;
 import com.sup.common.bean.paycenter.PayStatusInfo;
 import com.sup.common.bean.paycenter.RepayStatusInfo;
@@ -14,8 +15,7 @@ import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
-import com.sup.common.bean.AssetsLevelRuleBean;
-import com.sup.common.bean.CreditLevelRuleBean;
+import com.sup.core.bean.OperationTaskJoinBean;
 import com.sup.core.bean.OverdueInfoBean;
 import com.sup.core.bean.RiskDecisionResultBean;
 import com.sup.core.mapper.*;
@@ -87,6 +87,11 @@ public class ScheduleTasks {
     @Autowired
     private OperationReportMapper operationReportMapper;
 
+    @Autowired
+    private OperationTaskJoinMapper operationTaskJoinMapper;
+
+    @Autowired
+    private CheckReportMapper checkReportMapper;
 
     @Scheduled(cron = "0 */5 * * * ?")
     public void checkApplyInfo() {
@@ -326,7 +331,7 @@ public class ScheduleTasks {
                 bean.setIs_overdue(RepayPlanOverdueEnum.PLAN_OVER_DUE.getCode());
                 Float rate = productInfoBean.getOverdue_rate();
                 int overdueDays = DateUtil.daysbetween(repay_end_date, now);
-                Long new_penalty_interest = (long)(bean.getNeed_principal() * rate * overdueDays);
+                Long new_penalty_interest = (long) (bean.getNeed_principal() * rate * overdueDays);
                 Long ori_total = bean.getNeed_total();
                 Long ori_penalty_interest = bean.getNeed_penalty_interest();
                 Long new_total = ori_total + new_penalty_interest - ori_penalty_interest;
@@ -621,6 +626,11 @@ public class ScheduleTasks {
             operationReportBean.setRegister(register);
 
             this.operationReportMapper.insert(operationReportBean);
+
+            this.doCheckReportDaily(data_dt, current, OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode());
+            this.doCheckReportDaily(data_dt, current, OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode());
+
+
         } catch (Exception e) {
             log.error(e.getMessage());
         }
@@ -628,4 +638,33 @@ public class ScheduleTasks {
 
     }
 
+    private void doCheckReportDaily(Date data_dt, Date current, Integer taskType) {
+
+        List<OperationTaskJoinBean> operationTaskJoinBeanList = this.operationTaskJoinMapper.getOperationTaskJoinByTask(data_dt, current, taskType);
+        CheckReportBean checkReportBean = new CheckReportBean();
+        int total = operationTaskJoinBeanList.size();
+        checkReportBean.setTask_type(taskType);
+        checkReportBean.setData_dt(data_dt);
+        checkReportBean.setTotal(total);
+        Integer deny = 0, checked = 0, allocated = 0;
+
+        for (OperationTaskJoinBean joinBean : operationTaskJoinBeanList) {
+            if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode() || joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode()) {
+                ++deny;
+            }
+            if (joinBean.getTaskStatus() == OperationTaskStatusEnum.TASK_STATUS_DONE.getCode()) {
+                ++checked;
+            }
+            if (joinBean.getHasOwner() == 1) {
+                ++allocated;
+
+            }
+
+
+        }
+        checkReportBean.setDenyed(deny);
+        checkReportBean.setChecked(checked);
+        checkReportBean.setAllocated(allocated);
+        this.checkReportMapper.insert(checkReportBean);
+    }
 }

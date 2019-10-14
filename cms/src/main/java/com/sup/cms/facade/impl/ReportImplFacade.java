@@ -2,6 +2,8 @@ package com.sup.cms.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.cms.facade.ReportFacade;
+import com.sup.cms.mapper.CheckReportMapper;
+import com.sup.common.bean.CheckReportBean;
 import com.sup.common.bean.OperationReportBean;
 import com.sup.common.param.OperationReportParam;
 import com.sup.common.util.Result;
@@ -23,6 +25,9 @@ public class ReportImplFacade implements ReportFacade {
 
     @Autowired
     private OperationReportMapper operatioReportMapper;
+
+    @Autowired
+    private CheckReportMapper checkReportMapper;
 
 
     @Override
@@ -47,8 +52,15 @@ public class ReportImplFacade implements ReportFacade {
     }
 
     @Override
-    public Result check(OperationReportParam param) {
-        return null;
+    public Result<List<CheckReportBean>> check(OperationReportParam param) {
+        if (param == null) {
+            return Result.fail("input param is null");
+
+        }
+        List<CheckReportBean> ret = this.checkReportMapper.selectList(new QueryWrapper<CheckReportBean>().
+                ge("data_dt", param.getStart_date()).
+                le("data_dt", param.getEnd_date()));
+        return Result.succ(ret);
     }
 
     @Override
