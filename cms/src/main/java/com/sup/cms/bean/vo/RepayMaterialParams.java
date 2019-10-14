@@ -1,6 +1,7 @@
 package com.sup.cms.bean.vo;
 
 import lombok.Data;
+import lombok.NonNull;
 
 import java.util.Date;
 
@@ -15,7 +16,9 @@ import java.util.Date;
 @Data
 public class RepayMaterialParams {
 
+    @NonNull
     private String applyId;
 
+    @NonNull
     private String userId;
 }

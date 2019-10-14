@@ -328,7 +328,7 @@ public class ApplyController {
         List<TbManualRepayBean> repayBeans = manualRepayMapper.selectList(wrapper);
         if (repayBeans == null || repayBeans.size() == 0) {
             log.error("No material found for param:" + GsonUtil.toJson(params));
-            return ResponseUtil.failed();
+            return ResponseUtil.failed("No material found!");
         }
         return ResponseUtil.success(repayBeans);
     }
