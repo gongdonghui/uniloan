@@ -108,6 +108,8 @@ public class RuleConfigImplFacade implements RuleConfigFacade {
         riskRulesBean.setRange_right(param.getRange_right());
         riskRulesBean.setVal_left(param.getVal_left());
         riskRulesBean.setVal_right(param.getVal_right());
+        riskRulesBean.setCredit_level(param.getCredit_level());
+        riskRulesBean.setProduct_id(param.getProduct_id());
         riskRulesBean.setCreate_time(new  Date());
         this.riskRulesMapper.insert(riskRulesBean);
         return   Result.succ();

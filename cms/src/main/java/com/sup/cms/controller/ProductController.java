@@ -48,7 +48,7 @@ public class ProductController {
         qw.last("limit " + offset + "," + rows);
         List<ProductInfoBean> list = productInfoMapper.selectList(qw);
         result.put("list", list);
-        return ResponseUtil.success(m);
+        return ResponseUtil.success(result);
     }
 
     @PostMapping("/insert")

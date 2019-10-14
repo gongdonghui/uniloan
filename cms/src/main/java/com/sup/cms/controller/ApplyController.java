@@ -69,11 +69,12 @@ public class ApplyController {
         sb.append(" and a.status=0");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
-        List<ApplyApprovalGetListBean> list = crazyJoinMapper.applyApprovalGetList(sb.toString(), offset, rows);
         log.info(">>> condition: " + sb.toString());
+        List<ApplyApprovalGetListBean> list = crazyJoinMapper.applyApprovalGetList(sb.toString(), offset, rows);
+        Integer total = crazyJoinMapper.applyApprovalGetListForPaging(sb.toString());
         Map m = Maps.newHashMap();
-        m.put("total",crazyJoinMapper.applyApprovalGetListForPaging(sb.toString()));
-        m.put("list",list);
+        m.put("total", total);
+        m.put("list", list);
         return ResponseUtil.success(m);
     }
 
