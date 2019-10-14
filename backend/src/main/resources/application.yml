@@ -121,5 +121,5 @@ rocket:
     endpoint: 172.21.190.226:9976;172.21.190.225:9976
     group: app_backend
   producer:
-    endpoint: 172.21.190.226:9976;172.21.190.225.9976
+    endpoint: 172.21.190.226:9976;172.21.190.225:9976
     group: app_backend
