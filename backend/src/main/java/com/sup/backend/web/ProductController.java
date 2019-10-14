@@ -49,6 +49,7 @@ public class ProductController {
       api.setRate(bean.getRate());
       api.setStatus(bean.getCredit_level().equals(credit_level) ? 1: 0);
       api.setPeriod_type(bean.getPeriod_type());
+      api.setDesc(bean.getProduct_desc());
       api.setMaterial_needed(bean.getMaterial_needed());
       ret_beans.add(api);
     });

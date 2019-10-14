@@ -1,16 +1,20 @@
 package com.sup.cms.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.ApplyManagementGetListBean;
 import com.sup.cms.bean.po.ApplyOperationTaskBean;
 import com.sup.cms.bean.po.ApplyApprovalGetListBean;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.ApplyOperationTaskMapper;
 import com.sup.cms.mapper.CrazyJoinMapper;
+import com.sup.cms.mapper.TbManualRepayMapper;
 import com.sup.cms.util.DateUtil;
 import com.sup.cms.util.GsonUtil;
 import com.sup.cms.util.ResponseUtil;
 import com.sup.common.bean.TbApplyInfoBean;
+import com.sup.common.bean.TbManualRepayBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.param.ManualRepayParam;
 import com.sup.common.service.CoreService;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 进件管理页面
@@ -33,7 +38,8 @@ import java.util.List;
 @RestController
 @Slf4j
 public class ApplyController {
-
+    @Autowired
+    private TbManualRepayMapper manualRepayMapper;
     @Autowired
     private ApplyOperationTaskMapper applyOperationTaskMapper;
     @Autowired
@@ -67,10 +73,13 @@ public class ApplyController {
         sb.append(" and a.status=0");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
-        List<ApplyApprovalGetListBean> list = crazyJoinMapper.applyApprovalGetList(sb.toString(), offset, rows);
         log.info(">>> condition: " + sb.toString());
-
-        return ResponseUtil.success(list);
+        List<ApplyApprovalGetListBean> list = crazyJoinMapper.applyApprovalGetList(sb.toString(), offset, rows);
+        Integer total = crazyJoinMapper.applyApprovalGetListForPaging(sb.toString());
+        Map m = Maps.newHashMap();
+        m.put("total", total);
+        m.put("list", list);
+        return ResponseUtil.success(m);
     }
 
     /**
@@ -179,7 +188,10 @@ public class ApplyController {
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<ApplyManagementGetListBean> l = crazyJoinMapper.applyManagementGetList(sb.toString(), offset, rows);
-        return ResponseUtil.success(l);
+        Map m = Maps.newHashMap();
+        m.put("total",crazyJoinMapper.applyManagementGetListForPaging(sb.toString()));
+        m.put("list",l);
+        return ResponseUtil.success(m);
     }
 
     /**
@@ -212,8 +224,11 @@ public class ApplyController {
         Integer rows = params.getPageSize();
         List<ApplyApprovalGetListBean> list = crazyJoinMapper.applyApprovalGetList(sb.toString(), offset, rows);
         list.forEach(x -> x.setReAllocate(null == x.getOperatorId() ? 0 : 1));
+        Map m = Maps.newHashMap();
+        m.put("total",crazyJoinMapper.applyApprovalGetListForPaging(sb.toString()));
+        m.put("list",list);
         log.info(">>> condition: " + sb.toString());
-        return ResponseUtil.success(list);
+        return ResponseUtil.success(m);
     }
 
     /**
@@ -300,14 +315,22 @@ public class ApplyController {
     }
 
     /**
-     * 查询借款情况
+     * 获取手动还款凭证
      * @param params
      * @return
      */
-    @PostMapping("/queryLoanInfo")
-    public String queryLoanInfo(@Valid @RequestBody ApplyQueryParams params) {
+    @PostMapping("/repayMaterial/get")
+    public String getRepayMaterial(@Valid @RequestBody RepayMaterialParams params) {
         // TODO
-        return ResponseUtil.success();
+        QueryWrapper<TbManualRepayBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("apply_id", params.getApplyId());
+        wrapper.eq("user_id", params.getUserId());
+        List<TbManualRepayBean> repayBeans = manualRepayMapper.selectList(wrapper);
+        if (repayBeans == null || repayBeans.size() == 0) {
+            log.error("No material found for param:" + GsonUtil.toJson(params));
+            return ResponseUtil.failed("No material found!");
+        }
+        return ResponseUtil.success(repayBeans);
     }
 
 }

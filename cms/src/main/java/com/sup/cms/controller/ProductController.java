@@ -29,6 +29,7 @@ public class ProductController {
 
     @PostMapping("/getList")
     public String getList(@Valid @RequestBody ProductGetListParams params) {
+        Map result = Maps.newHashMap();
         QueryWrapper<ProductInfoBean> qw = new QueryWrapper<>();
         Map m = Maps.newHashMap();
         if (params.getName() != null) {
@@ -40,11 +41,14 @@ public class ProductController {
         if (m.size() > 0) {
             qw.allEq(m);
         }
+        result.put("total", productInfoMapper.selectCount(qw));
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
+
         qw.last("limit " + offset + "," + rows);
         List<ProductInfoBean> list = productInfoMapper.selectList(qw);
-        return ResponseUtil.success(list);
+        result.put("list", list);
+        return ResponseUtil.success(result);
     }
 
     @PostMapping("/insert")

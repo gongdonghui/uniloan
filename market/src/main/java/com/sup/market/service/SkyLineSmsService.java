@@ -26,6 +26,9 @@ public class   SkyLineSmsService {
   @Value("${sms.skyline.uri}")
   private String uri;
 
+  @Value("${sms.skyline.mock}")
+  private Boolean mock;
+
   @Value("${sms.skyline.account}")
   private String account;
 
@@ -44,6 +47,10 @@ public class   SkyLineSmsService {
   }
 
   public boolean send(List<String> mobiles, String content, String account, String password, String senderid) throws Exception {
+    if (mock) {
+      return true;
+    }
+
     Map<String, String> params = new HashMap<>();
     String time_str = (new SimpleDateFormat("yyyyMMddHHmmss")).format(new Date());
     StringBuffer sb = new StringBuffer();

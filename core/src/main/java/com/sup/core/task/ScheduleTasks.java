@@ -251,6 +251,10 @@ public class ScheduleTasks {
                 if (orderStatus == FunpayOrderUtil.Status.PROCESSING) {
                     continue;
                 }
+                TbRepayPlanBean repayPlanBean = repayPlanMapper.selectById(bean.getRepay_plan_id());
+                if (repayPlanBean == null) {
+                    log.error("Invalid repayPlanId, repayHistory bean = " + GsonUtil.toJson(bean));
+                }
                 Date repayTime = DateUtil.parse(rs.getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT);
                 if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
                     // 还款成功，更新还款计划
@@ -270,6 +274,12 @@ public class ScheduleTasks {
                     mqMessenger.sendRepayMessage(bean);
                     if (repayHistoryMapper.updateById(bean) <= 0) {
                         log.error("checkRepayResult: Failed to update for bean = " + GsonUtil.toJson(bean));
+                    }
+                    if (repayPlanBean != null) {
+                        repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_ERROR.getCode());
+                        if (repayPlanMapper.updateById(repayPlanBean) <= 0) {
+                            log.error("checkRepayResult: Failed to update repayPlan bean = " + GsonUtil.toJson(repayPlanBean));
+                        }
                     }
                 }
             }
