@@ -166,7 +166,7 @@ public class MqConsumerService {
           content = content.replace(String.format("${%s}", k), variable.get(k));
         }
         logger.info(String.format("sms|user_id=%d|content=%s|state=%s", msg.getUser_id(), content, msg.getState()));
-        //skyline_sms_service.SendSms(ImmutableList.of(msg.getMobile()), content);
+        skyline_sms_service.SendSms(ImmutableList.of(msg.getMobile()), content);
       } else if ("sms_vip".equals(market_way)) {
         String content = JSON.parseObject(bean.getMarket_ext()).getString("msg");
         Map<String, String> variable = JSON.parseObject(msg.getExt(), new TypeReference<Map<String, String>>(){});
@@ -174,7 +174,7 @@ public class MqConsumerService {
           content = content.replace(String.format("${%s}", k), variable.get(k));
         }
         logger.info(String.format("sms_vip|user_id=%d|content=%s|state=%s", msg.getUser_id(), content, msg.getState()));
-        //skyline_sms_service.SendSmsVip(ImmutableList.of(msg.getMobile()), content);
+        skyline_sms_service.SendSmsVip(ImmutableList.of(msg.getMobile()), content);
       }
     }
   }

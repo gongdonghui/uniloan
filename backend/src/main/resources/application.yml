@@ -1,5 +1,15 @@
 debug: false
 
+spring:
+  profiles:
+    active: test
+  messages:
+    basename: static/i18n/messages
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
 
 server:
   port: 10081
@@ -10,17 +20,6 @@ server:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
-
-ssdb:
-  host: 127.0.0.1
-  port: 13288
-  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
-  timeout: 300000
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://127.0.0.1:51666/eureka/
 
 feign:
   hystrix:
@@ -33,18 +32,9 @@ hystrix:
         isolation:
           strategy: SEMAPHORE
 
-rocket:
-  consumer:
-    endpoint: 127.0.0.1:9976
-    group: app_backend
-  producer:
-    endpoint: 127.0.0.1:9976
-    group: app_backend
-
+---
 spring:
-  messages:
-    basename: static/i18n/messages
-
+  profiles: test
   redis:
     database: 0
     host: 127.0.0.1
@@ -69,11 +59,67 @@ spring:
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
             max-lifetime: 300000
+ssdb:
+  host: 127.0.0.1
+  port: 13288
+  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
+  timeout: 300000
 
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 100MB
-      max-request-size: 100MB
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:51666/eureka/
 
+rocket:
+  consumer:
+    endpoint: 127.0.0.1:9976
+    group: app_backend
+  producer:
+    endpoint: 127.0.0.1:9976
+    group: app_backend
 
+---
+spring:
+  profiles: online
+  redis:
+    database: 0
+    host: 172.21.190.226
+    port: 7789
+    jedis:
+      pool:
+        max-active: 8
+    timeout: 60000
+    password: 13JPTmkZT5QmAV4s
+
+  datasource:
+    dynamic:
+      hikari:
+        connection-timeout: 3000
+
+      primary: online
+      datasource:
+        online:
+          username: dev_online
+          password: Dwl12#$%^
+          url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          driver-class-name: com.mysql.jdbc.Driver
+          hikari:
+            max-lifetime: 300000
+ssdb:
+  host: 172.21.190.226
+  port: 13288
+  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
+  timeout: 300000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://172.21.190.224:51666/eureka/
+
+rocket:
+  consumer:
+    endpoint: 172.21.190.226:9976;172.21.190.225:9976
+    group: app_backend
+  producer:
+    endpoint: 172.21.190.226:9976;172.21.190.225.9976
+    group: app_backend
