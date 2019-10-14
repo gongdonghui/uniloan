@@ -1,5 +1,6 @@
 package com.sup.cms.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.ApplyManagementGetListBean;
@@ -8,10 +9,12 @@ import com.sup.cms.bean.po.ApplyApprovalGetListBean;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.ApplyOperationTaskMapper;
 import com.sup.cms.mapper.CrazyJoinMapper;
+import com.sup.cms.mapper.TbManualRepayMapper;
 import com.sup.cms.util.DateUtil;
 import com.sup.cms.util.GsonUtil;
 import com.sup.cms.util.ResponseUtil;
 import com.sup.common.bean.TbApplyInfoBean;
+import com.sup.common.bean.TbManualRepayBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.param.ManualRepayParam;
 import com.sup.common.service.CoreService;
@@ -35,7 +38,8 @@ import java.util.Map;
 @RestController
 @Slf4j
 public class ApplyController {
-
+    @Autowired
+    private TbManualRepayMapper manualRepayMapper;
     @Autowired
     private ApplyOperationTaskMapper applyOperationTaskMapper;
     @Autowired
@@ -311,14 +315,22 @@ public class ApplyController {
     }
 
     /**
-     * 查询借款情况
+     * 获取手动还款凭证
      * @param params
      * @return
      */
-    @PostMapping("/queryLoanInfo")
-    public String queryLoanInfo(@Valid @RequestBody ApplyQueryParams params) {
+    @PostMapping("/repayMaterial/get")
+    public String getRepayMaterial(@Valid @RequestBody RepayMaterialParams params) {
         // TODO
-        return ResponseUtil.success();
+        QueryWrapper<TbManualRepayBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("apply_id", params.getApplyId());
+        wrapper.eq("user_id", params.getUserId());
+        List<TbManualRepayBean> repayBeans = manualRepayMapper.selectList(wrapper);
+        if (repayBeans == null || repayBeans.size() == 0) {
+            log.error("No material found for param:" + GsonUtil.toJson(params));
+            return ResponseUtil.failed();
+        }
+        return ResponseUtil.success(repayBeans);
     }
 
 }
