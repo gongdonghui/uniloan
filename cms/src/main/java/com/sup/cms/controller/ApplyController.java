@@ -16,6 +16,7 @@ import com.sup.cms.util.ResponseUtil;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbManualRepayBean;
 import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.param.ManualLoanParam;
 import com.sup.common.param.ManualRepayParam;
 import com.sup.common.service.CoreService;
 import com.sup.common.util.Result;
@@ -331,6 +332,16 @@ public class ApplyController {
             return ResponseUtil.failed("No material found!");
         }
         return ResponseUtil.success(repayBeans);
+    }
+
+    @PostMapping("/manualLoan")
+    public String manualLoan(@RequestBody @Valid ManualLoanParam params) {
+        Result result = coreService.manualLoan(params);
+        if (!result.isSucc()) {
+            log.error("Failed to manualLoan with param = " + GsonUtil.toJson(params));
+            return ResponseUtil.failed("");
+        }
+        return ResponseUtil.success();
     }
 
 }

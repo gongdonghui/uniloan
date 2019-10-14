@@ -46,17 +46,17 @@ mybatis-plus:
 
 rocket:
   producer:
-    endpoint: 140.143.207.211:9976
+    endpoint: 127.0.0.1:9976
+    #endpoint: 47.111.160.160:9976
+    #endpoint: 140.143.207.211:9976
     group: user_state_group
 
 
 spring:
   messages:
     basename: static/i18n/messages
-
   application:
     name: service-core
-
   datasource:
     dynamic:
       hikari:

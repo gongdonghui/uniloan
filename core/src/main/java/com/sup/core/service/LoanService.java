@@ -393,6 +393,7 @@ public class LoanService {
         applyInfoBean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
         applyInfoBean.setOperator_id(Integer.valueOf(param.getOperatorId()));
         applyInfoBean.setLoan_time(loanTime);
+        applyInfoBean.setTrade_number(param.getTradeNumber());
 
         return applyService.updateApplyInfo(applyInfoBean);
     }
@@ -498,12 +499,15 @@ public class LoanService {
         int interestTotal = (int) (loanAmount * productInfoBean.getRate() * applyPeriod);
 
         int quotaInhand = 0;
+        int preRepay = 0;   // 预扣款
         switch (feeType) {
             case LOAN_PRE_FEE:
                 quotaInhand = loanAmount - feeTotal;
+                preRepay = feeTotal;
                 break;
             case LOAN_PRE_FEE_PRE_INTEREST:
                 quotaInhand = loanAmount - feeTotal - interestTotal;
+                preRepay = feeTotal + interestTotal;
                 break;
             case LOAN_POST_FEE_POST_INTEREST:
                 quotaInhand = loanAmount;
@@ -516,7 +520,7 @@ public class LoanService {
         param.setApplyAmount(applyAmount);
         param.setApplyPeriod(applyPeriod);
         param.setInhandAmount(quotaInhand);
-        param.setTotalAmount(loanAmount + feeTotal + interestTotal);
+        param.setTotalAmount(loanAmount + feeTotal + interestTotal - preRepay);
         // log.info("Product bean: " + GsonUtil.toJson(productInfoBean));
         // log.info("Return bran: " + GsonUtil.toJson(param));
         return param;

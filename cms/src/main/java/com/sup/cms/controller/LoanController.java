@@ -7,6 +7,7 @@ import com.sup.cms.bean.vo.LoanRepayInfoGetListParams;
 import com.sup.cms.bean.vo.LoanUnRepayInfoGetListParams;
 import com.sup.cms.mapper.CrazyJoinMapper;
 import com.sup.cms.util.ResponseUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +24,7 @@ import java.util.Map;
  * @Author: kouichi
  * @Date: 2019/10/13 17:41
  */
+@Slf4j
 @RestController
 @RequestMapping("/loan")
 public class LoanController {
@@ -52,6 +54,7 @@ public class LoanController {
         m.put("total", crazyJoinMapper.loanUnRepayInfoGetListForPaging(sb.toString()));
         return ResponseUtil.success(m);
     }
+
 
 
 

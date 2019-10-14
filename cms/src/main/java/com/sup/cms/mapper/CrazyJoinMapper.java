@@ -42,10 +42,20 @@ public interface CrazyJoinMapper extends BaseMapper {
     Integer applyApprovalGetListForPaging(@Param(value="conditions") String conditions);
 
     @Select("select " +
-            "a.id as applyId,a.status as status,a.apply_quota as amount,1 as jieKuanQiXian,a.fee_type as huanKuanFangShi,'' as shangHuiMingCheng,a.create_time as dealDate,a.create_time as createTime,a.update_time as updateTime," +
-            "b.name as productName," +
-            "d.name as name," +
-            "e.APP_NAME as appName" +
+            "a.user_id as userId" +
+            ",a.id as applyId" +
+            ",a.status as status" +
+            ",a.apply_quota as amount" +
+            ",a.inhand_quota as inhandAmount" +
+            ",1 as jieKuanQiXian" +
+            ",a.fee_type as huanKuanFangShi" +
+            ",'' as shangHuiMingCheng" +
+            ",a.create_time as dealDate" +
+            ",a.create_time as createTime" +
+            ",a.update_time as updateTime" +
+            ",b.name as productName" +
+            ",d.name as name" +
+            ",e.APP_NAME as appName" +
             " from tb_apply_info a" +
             " left join tb_product_info b on a.product_id=b.id" +
             " left join tb_apply_material_info c on a.id=c.apply_id" +
