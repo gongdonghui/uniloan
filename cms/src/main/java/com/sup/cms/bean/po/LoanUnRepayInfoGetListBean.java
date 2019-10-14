@@ -11,6 +11,7 @@ import java.util.Date;
 @Data
 public class LoanUnRepayInfoGetListBean {
     private Integer applyId;
+    private Integer userId;
     private String mobile;
     private String productName;
     private String name;

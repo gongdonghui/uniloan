@@ -238,6 +238,7 @@ public interface CrazyJoinMapper extends BaseMapper {
 
     @Select("select " +
             " a.id as applyId," +
+            " a.user_id as userId," +
             " d.mobile as mobile," +
             " e.name as productName," +
             " c.name as name," +
@@ -345,5 +346,31 @@ public interface CrazyJoinMapper extends BaseMapper {
             " tb_repay_plan a where a.apply_id=#{applyId}")
     List<DetailsRepayListBean> detailsRepayList(@Param(value="applyId") String applyId);
 
+    @Select("select distinct " +
+            " uri.id as userId" +
+            " ,uri.name as name" +
+            " ,uri.mobile as mobile" +
+            " ,cid.cid_no as cidNo" +
+            " ,uri.create_time as registDate" +
+            " from tb_user_regist_info uri" +
+            " left join (" +
+            "    select distinct user_id, cid_no" +
+            "    from tb_user_citizen_identity_card_info" +
+            " ) cid on uri.id = cid.user_id" +
+            " where uri.type = 0" +
+            " ${conditions} " +
+            " limit #{offset},#{rows}")
+    List<CustomerInfoBean> getCustomers(String conditions, Integer offset, Integer rows);
+
+    @Select("select " +
+            " count(distinct uri.id)" +
+            " from tb_user_regist_info uri" +
+            " left join (" +
+            "    select distinct user_id, cid_no" +
+            "    from tb_user_citizen_identity_card_info" +
+            " ) cid on uri.id = cid.user_id" +
+            " where uri.type = 0" +
+            " ${conditions} ")
+    Integer getCustomersCount(@Param(value = "conditions") String conditions);
 
 }

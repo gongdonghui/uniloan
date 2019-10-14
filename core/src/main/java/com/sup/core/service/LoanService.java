@@ -453,8 +453,8 @@ public class LoanService {
 
         // 更新还款计划
         // TODO: 根据plan_id查找当期还款计划
-        // TbRepayPlanBean repayPlanBean = repayPlanMapper.getByApplyId(repayHistoryBean.getApply_id());
-        TbRepayPlanBean repayPlanBean = repayPlanMapper.selectById(repayHistoryBean.getRepay_plan_id());
+        TbRepayPlanBean repayPlanBean = repayPlanMapper.getByApplyId(repayHistoryBean.getApply_id());
+        // TbRepayPlanBean repayPlanBean = repayPlanMapper.selectById(repayHistoryBean.getRepay_plan_id());
         if (repayPlanBean == null) {
             log.error("Invalid apply id! bean = " + GsonUtil.toJson(repayHistoryBean));
             return Result.fail("Invalid apply id!");
