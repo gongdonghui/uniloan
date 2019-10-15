@@ -184,6 +184,7 @@ public class LoanService {
                 return Result.fail("Failed to get repay info!");
             }
             RepayVO r = result.getData();
+            log.info(">>>> repay return: " + GsonUtil.toJson(r));
             repayHistoryBean.setRepay_code(r.getCode());
             repayHistoryBean.setRepay_location(r.getShopLink());
             repayHistoryBean.setTrade_number(r.getTradeNo());
@@ -275,9 +276,10 @@ public class LoanService {
         if (repayStatBean.getAct_total().longValue() + repayStatBean.getReduction_fee() >= repayStatBean.getNeed_total().longValue()) {
             applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
             mqMessenger.applyStatusChange(applyInfoBean);
-            applyInfoMapper.updateById(applyInfoBean);
+        } else {
+            applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
         }
-
+        applyInfoMapper.updateById(applyInfoBean);
         return Result.succ();
     }
 

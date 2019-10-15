@@ -19,6 +19,16 @@ ssdb:
   timeout: 300000
 
 
+#ribbon的超时时间
+ribbon:
+  #请求处理的超时时间
+  ReadTimeout: 60000
+  #请求连接的超时时间
+  ConnectTimeout: 60000
+  eureka:
+    enable: true
+
+
 ---
 spring:
   profiles: dev

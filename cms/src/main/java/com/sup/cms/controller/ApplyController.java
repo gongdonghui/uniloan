@@ -336,6 +336,7 @@ public class ApplyController {
 
     @PostMapping("/manualLoan")
     public String manualLoan(@RequestBody @Valid ManualLoanParam params) {
+        log.info("manual loan, params = " + GsonUtil.toJson(params));
         Result result = coreService.manualLoan(params);
         if (!result.isSucc()) {
             log.error("Failed to manualLoan with param = " + GsonUtil.toJson(params));
