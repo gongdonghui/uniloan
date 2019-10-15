@@ -94,6 +94,8 @@ public class ApplyService {
                 , ApplyStatusEnum.APPLY_AUTO_LOANING
                 , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED
                 , ApplyStatusEnum.APPLY_LOAN_SUCC
+                , ApplyStatusEnum.APPLY_REPAY_PART
+                , ApplyStatusEnum.APPLY_OVERDUE
                 );
         return applyInfoMapper.selectList(wrapper);
     }
