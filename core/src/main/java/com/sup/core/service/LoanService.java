@@ -153,8 +153,14 @@ public class LoanService {
         QueryWrapper<TbRepayHistoryBean> historyWrapper = new QueryWrapper<>();
         historyWrapper.eq("repay_status", RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
         historyWrapper.ge("expire_time", now);
+        historyWrapper.orderByDesc("id");   // create_time
 
-        TbRepayHistoryBean repayHistoryBean = repayHistoryMapper.selectOne(historyWrapper);
+        List<TbRepayHistoryBean> repayHistoryBeans = repayHistoryMapper.selectList(historyWrapper);
+        TbRepayHistoryBean repayHistoryBean = null;
+        if (repayHistoryBeans != null && repayHistoryBeans.size() > 0) {
+            repayHistoryBean = repayHistoryBeans.get(0);
+        }
+        // TbRepayHistoryBean repayHistoryBean = repayHistoryMapper.selectOne(historyWrapper);
         if (repayHistoryBean != null) {
             RepayVO r = new RepayVO();
             r.setCode(repayHistoryBean.getRepay_code());
