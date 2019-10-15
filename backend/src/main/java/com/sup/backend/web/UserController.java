@@ -48,8 +48,6 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping(value = "/user")
 public class UserController {
   public static Logger logger = Logger.getLogger(UserController.class);
-  @Value("upload_path")
-  private String upload_path;
   @Autowired
   RedisClient rc;
   @Autowired
@@ -82,7 +80,7 @@ public class UserController {
 
     mqProducerService.sendMessage(msg);
     // save to redis to avoid duplicating sending message
-    rc.Set(verify_key, verify_code, 5l, TimeUnit.MINUTES);
+    rc.Set(verify_key, verify_code, 1l, TimeUnit.MINUTES);
     return ToolUtils.succ("succ");
   }
 
@@ -95,7 +93,12 @@ public class UserController {
       return ToolUtils.fail("error_verify_code");
     }
 
-    TbUserRegistInfoBean regist_info = tb_user_regist_info_mapper.selectOne(new QueryWrapper<TbUserRegistInfoBean>().eq("mobile", mobile));
+    String login_flag = String.format("login|%s", mobile);
+    if (!rc.SetEx(login_flag, "ok", 5l, TimeUnit.SECONDS)) {
+      return ToolUtils.fail(1, "duplicate_submit");
+    }
+
+    TbUserRegistInfoBean regist_info = tb_user_regist_info_mapper.selectOne(new QueryWrapper<TbUserRegistInfoBean>().eq("mobile", mobile).last("limit 1"));
     if (regist_info == null) {
       regist_info = new TbUserRegistInfoBean();
       regist_info.setMobile(mobile);
@@ -107,6 +110,7 @@ public class UserController {
     String token = ToolUtils.getToken();
     LoginInfoCtx li = new LoginInfoCtx(regist_info.getId(), ToolUtils.NormTime(new Date()));
     rc.Set(token, li.toString(), 30l, TimeUnit.DAYS);
+    rc.Delete(login_flag);
     return ToolUtils.succ(token, "login_succ");
   }
 
