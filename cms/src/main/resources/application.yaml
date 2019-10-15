@@ -12,8 +12,8 @@ mybatis-plus:
     map-underscore-to-camel-case: false
 
 ssdb:
-  #host: 127.0.0.1
-  host: 47.111.160.160
+  host: 127.0.0.1
+  #host: 47.111.160.160
   port: 13288
   auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
   timeout: 300000
@@ -54,7 +54,8 @@ spring:
     logAbandoned: true
     filters: mergeStat
   redis:
-    host: 140.143.207.211
+    #host: 140.143.207.211
+    host: 127.0.0.1
     port: 6388
     password: 13JPTmkZT5QmAV4s
 eureka:

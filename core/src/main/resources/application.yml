@@ -55,8 +55,10 @@ rocket:
 spring:
   messages:
     basename: static/i18n/messages
+
   application:
     name: service-core
+
   datasource:
     dynamic:
       hikari:
