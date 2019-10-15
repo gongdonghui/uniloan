@@ -106,12 +106,12 @@ public class ApplyController {
   public Object GetHistoryApply(@LoginInfo LoginInfoCtx li) {
     QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time");
     List<TbApplyInfoBean> applies = apply_info_mapper.selectList(query);
-    if (applies.isEmpty() || applies.size() < 2) {
+    if (applies.isEmpty()) {
       return ToolUtils.succ(null);
     }
 
     List<AppApplyOverView> ret_ovs = new ArrayList<>();
-    for (int i = 1; i < applies.size(); ++i) {
+    for (int i = 0; i < applies.size(); ++i) {
       TbApplyInfoBean bean = applies.get(i);
       AppApplyOverView ov = new AppApplyOverView();
       String lang = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("lang");

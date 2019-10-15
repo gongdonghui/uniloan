@@ -23,8 +23,6 @@ public class LoginInfoArgumentResolver implements HandlerMethodArgumentResolver 
   @Override
   public boolean supportsParameter(MethodParameter methodParameter) {
     AnnotatedElement annotatedElement = methodParameter.getAnnotatedElement();
-    Annotation[] annotations = annotatedElement.getAnnotations();
-    logger.info(annotations.toString());
     return methodParameter.hasParameterAnnotation(LoginInfo.class);
   }
 
