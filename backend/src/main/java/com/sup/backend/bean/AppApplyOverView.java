@@ -16,6 +16,7 @@ import lombok.experimental.Accessors;
 public class AppApplyOverView {
   private Integer apply_id;    // 订单号
   private String status;
+  private Boolean need_to_repay;
   private String amount;
   private String period;
   private String rate;

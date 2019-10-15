@@ -68,7 +68,12 @@ public class RepayController {
     ri.setName(name);
     ri.setPhone(phone);
     ri.setUserId(li.getUser_id().toString());
-    return core.getRepayInfo(ri);
+    try {
+      return core.getRepayInfo(ri);
+    } catch (Exception e) {
+      logger.error(ToolUtils.GetTrace(e));
+      return ToolUtils.fail("rpc_call_exception");
+    }
   }
 
   @LoginRequired
@@ -93,12 +98,6 @@ public class RepayController {
     mb.setUpdate_time(new Date());
     tb_manual_repay_mapper.insert(mb);
     return ToolUtils.succ("succ");
-  }
-
-  @ResponseBody
-  @RequestMapping(value = "callBack", produces = "application/json;charset=UTF-8")
-  public Object repayCallBack(String userId, String applyId) {
-    return null;
   }
 }
 

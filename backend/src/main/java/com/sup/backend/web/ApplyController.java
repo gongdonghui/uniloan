@@ -78,6 +78,10 @@ public class ApplyController {
     //System.out.println("json_obj => " + JSON.toJSONString(trans));
   }
 
+  private Boolean NeedToRepay(Integer code) {
+    return (code.equals(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()) || code.equals(ApplyStatusEnum.APPLY_REPAY_PART.getCode()));
+  }
+
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "get_current_apply", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -92,6 +96,7 @@ public class ApplyController {
     AppApplyOverView ov = new AppApplyOverView();
     String lang = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("lang");
     ov.setStatus(trans.GetTrans("apply_status", bean.getStatus().toString(), lang));
+    ov.setNeed_to_repay(NeedToRepay(bean.getStatus()));
     ov.setAmount(bean.getApply_quota().toString());
     ov.setApply_id(bean.getId());
     ov.setRate(bean.getRate().toString());
@@ -116,6 +121,7 @@ public class ApplyController {
       AppApplyOverView ov = new AppApplyOverView();
       String lang = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("lang");
       ov.setStatus(trans.GetTrans("apply_status", bean.getStatus().toString(), lang));
+      ov.setNeed_to_repay(NeedToRepay(bean.getStatus()));
       ov.setAmount(bean.getApply_quota().toString());
       ov.setApply_id(bean.getId());
       ov.setRate(bean.getRate().toString());
@@ -176,6 +182,7 @@ public class ApplyController {
       AppApplyOverView ov = new AppApplyOverView();
       String lang = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("lang");
       ov.setStatus(trans.GetTrans("apply_status", bean.getStatus().toString(), lang));
+      ov.setNeed_to_repay(NeedToRepay(bean.getStatus()));
       ov.setAmount(bean.getApply_quota().toString());
       ov.setApply_id(bean.getId());
       ov.setRate(bean.getRate().toString());
@@ -243,7 +250,12 @@ public class ApplyController {
     aip.setProduct_id(order_detail.getProduct_id());
     aip.setPeriod(order_detail.getPeriod());
     aip.setInfoIdMap(order_detail.getMaterial_ids());
-    return core.addApplyInfo(aip);
+    try {
+      return core.addApplyInfo(aip);
+    } catch (Exception e) {
+      logger.error(ToolUtils.GetTrace(e));
+      return ToolUtils.fail("rpc_call_exception");
+    }
   }
 }
 
