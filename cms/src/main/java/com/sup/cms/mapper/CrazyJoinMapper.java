@@ -206,7 +206,7 @@ public interface CrazyJoinMapper extends BaseMapper {
     Integer collectionArchivesGetListForPaging(@Param(value="conditions") String conditions);
 
 
-    @Select("select union" +
+    @Select("select distinct" +
             " a.id as applyId," +
             " a.user_id as userId," +
             " d.mobile as mobile," +
@@ -238,7 +238,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " limit #{offset},#{rows}")
     List<LoanRepayInfoGetListBean> loanRepayInfoGetList(String conditions, Integer offset, Integer rows);
 
-    @Select("select count(a.id) " +
+    @Select("select count(distinct a.id) " +
             " from tb_apply_info a " +
             " left join tb_apply_material_info b on a.id=b.apply_id " +
             " left join tb_user_citizen_identity_card_info c on b.info_id=c.info_id " +
