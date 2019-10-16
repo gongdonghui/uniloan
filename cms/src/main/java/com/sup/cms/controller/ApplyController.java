@@ -368,6 +368,7 @@ public class ApplyController {
             }
         }
         // 更新还款资料状态
+        Date now = new Date();
         for (int i = 0; i < ids.size(); ++i) {
             Integer id = ids.get(i);
             QueryWrapper<TbManualRepayBean> wrapper = new QueryWrapper<>();
@@ -385,6 +386,7 @@ public class ApplyController {
             } else {    // 还款失败
                 bean.setStatus(2);
             }
+            bean.setUpdate_time(now);
             if (manualRepayMapper.updateById(bean) <= 0) {
                 log.error("Failed to update bean=" + GsonUtil.toJson(bean));
             }
