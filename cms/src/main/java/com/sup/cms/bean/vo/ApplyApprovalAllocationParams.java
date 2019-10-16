@@ -21,6 +21,11 @@ public class ApplyApprovalAllocationParams {
     @NotNull
     private Integer id;
     /**
+     *
+     */
+    @NotNull
+    private Integer applyId;
+    /**
      * 领任务或者被指派任务 填这个参数
      */
     @NotNull
