@@ -16,7 +16,6 @@ public class LoanRepayInfoGetListBean {
     private String productName;
     private String name;
     private String cidNo;
-    private String tradeNo;     // 手动还款时的流水号
     private Integer writeOffAmount;
     /**
      * 放款金额

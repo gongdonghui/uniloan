@@ -414,6 +414,7 @@ public class ApplyController {
         QueryWrapper<TbManualRepayBean> wrapper = new QueryWrapper<>();
         wrapper.eq("apply_id", params.getApplyId());
         wrapper.eq("user_id", params.getUserId());
+        wrapper.eq("status", 0);    // 还款资料待处理
         List<TbManualRepayBean> repayBeans = manualRepayMapper.selectList(wrapper);
         if (repayBeans == null || repayBeans.size() == 0) {
             log.error("No material found for param:" + GsonUtil.toJson(params));

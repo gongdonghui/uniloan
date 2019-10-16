@@ -206,14 +206,13 @@ public interface CrazyJoinMapper extends BaseMapper {
     Integer collectionArchivesGetListForPaging(@Param(value="conditions") String conditions);
 
 
-    @Select("select " +
+    @Select("select union" +
             " a.id as applyId," +
             " a.user_id as userId," +
             " d.mobile as mobile," +
             " e.name as productName," +
             " c.name as name," +
             " c.cid_no as cidNo," +
-            " g.trade_no as tradeNo," +
             " case " +
             " when a.status=16 then (f.need_total-f.act_total-f.reduction_fee)" +
             " else 0 end writeOffAmount," +
