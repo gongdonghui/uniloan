@@ -348,6 +348,49 @@ public class ApplyController {
         if (applyInfoBean == null) {
             return ResponseUtil.failed("Invalid applyId!");
         }
+        boolean confirm = params.getConfirm().equals(1);
+        List<Integer> ids = params.getRepayInfoIds();
+        List<String> tradeNos = params.getTradeNos();
+
+        if (confirm && (ids == null || tradeNos == null || ids.size() != tradeNos.size())) {
+            log.error("Invalid params:" + GsonUtil.toJson(params));
+            return ResponseUtil.failed("Invalid params.");
+        }
+
+        if (confirm) {  // 验证流水号是否重复
+            QueryWrapper<TbManualRepayBean> wrapper = new QueryWrapper<>();
+            wrapper.eq("status", 1);      // 还款成功
+            wrapper.in("trade_no", tradeNos);   // 待检测流水号
+            List<TbManualRepayBean> beans = manualRepayMapper.selectList(wrapper);
+            if (beans != null && beans.size() > 0) {
+                log.error("Duplicated trade no, params = " + GsonUtil.toJson(params));
+                return ResponseUtil.failed("Duplicated trade no.");
+            }
+        }
+        // 更新还款资料状态
+        for (int i = 0; i < ids.size(); ++i) {
+            Integer id = ids.get(i);
+            QueryWrapper<TbManualRepayBean> wrapper = new QueryWrapper<>();
+            wrapper.eq("apply_id", params.getApplyId());
+            wrapper.eq("user_id", params.getUserId());
+            wrapper.eq("id", id);
+            wrapper.eq("status", 0);    // 还款资料待处理
+            TbManualRepayBean bean = manualRepayMapper.selectOne(wrapper);
+            if (bean == null) {
+                continue;
+            }
+            if (confirm) {  // 还款确认
+                bean.setStatus(1);
+                bean.setTrade_no(tradeNos.get(i));
+            } else {    // 还款失败
+                bean.setStatus(2);
+            }
+            if (manualRepayMapper.updateById(bean) <= 0) {
+                log.error("Failed to update bean=" + GsonUtil.toJson(bean));
+            }
+        }
+
+        // 更新还款计划、还款状态等
         ManualRepayParam repayParam = new ManualRepayParam();
         repayParam.setAmount(params.getRepayAmount());
         repayParam.setApplyId(String.valueOf(params.getApplyId()));

@@ -31,9 +31,17 @@ public class LoanController {
     @Autowired
     private CrazyJoinMapper crazyJoinMapper;
 
+    /**
+     * 获取还款列表，包含已还款、还款待确认的申请
+     * @param params
+     * @return
+     */
     @PostMapping("/repayInfo/getList")
     public String repayInfoGetList(@RequestBody @Valid LoanRepayInfoGetListParams params) {
         StringBuilder sb = new StringBuilder();
+        if (params.getRepayNeedConfirm() != null && params.getRepayNeedConfirm().equals(1)) {
+            sb.append(" and g.status=0");
+        }
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<LoanRepayInfoGetListBean> l = crazyJoinMapper.loanRepayInfoGetList(sb.toString(), offset, rows);
@@ -43,6 +51,11 @@ public class LoanController {
         return ResponseUtil.success(m);
     }
 
+    /**
+     * 获取未还款列表
+     * @param params
+     * @return
+     */
     @PostMapping("/unRepayInfo/getList")
     public String unRepayInfoGetList(@RequestBody @Valid LoanUnRepayInfoGetListParams params) {
         StringBuilder sb = new StringBuilder();

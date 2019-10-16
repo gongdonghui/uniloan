@@ -25,6 +25,13 @@ public class LoanRepayInfoGetListParams {
      */
     private Integer status;
 
+    /**
+     * 手动还款待确认
+     * 0 无手动还款
+     * 1 已手动还款，待确认
+     */
+    private Integer repayNeedConfirm;
+
     @Min(0)
     private Integer page;
     @Min(0)

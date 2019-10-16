@@ -11,10 +11,12 @@ import java.util.Date;
 @Data
 public class LoanRepayInfoGetListBean {
     private Integer applyId;
+    private Integer userId;
     private String mobile;
     private String productName;
     private String name;
     private String cidNo;
+    private String tradeNo;     // 手动还款时的流水号
     private Integer writeOffAmount;
     /**
      * 放款金额
@@ -22,6 +24,13 @@ public class LoanRepayInfoGetListBean {
     private Integer loanAmount;
     private Integer shouldRepayAmount;
     private Integer repayAmount;
+
+    /**
+     * 手动还款待确认
+     * 0 无手动还款
+     * 1 已手动还款，待确认
+     */
+    private Integer repayNeedConfirm;
     /**
      * 实放时间
      */
