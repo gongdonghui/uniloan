@@ -59,6 +59,12 @@ public class ApplyController {
 
   private LangUtil trans;
 
+  private Set<Integer> repay_status = new HashSet<Integer>(){{
+    add(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
+    add(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
+    add(ApplyStatusEnum.APPLY_OVERDUE.getCode());
+  }};
+
   private String LoadResourceFile(String path) throws Exception {
     ClassPathResource resource = new ClassPathResource(path);
     InputStream inputStream = resource.getInputStream();
@@ -79,7 +85,7 @@ public class ApplyController {
   }
 
   private Boolean NeedToRepay(Integer code) {
-    return (code.equals(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()) || code.equals(ApplyStatusEnum.APPLY_REPAY_PART.getCode()));
+    return repay_status.contains(code);
   }
 
   @LoginRequired
@@ -204,13 +210,8 @@ public class ApplyController {
     List<TbApplyInfoBean> beans = apply_info_mapper.selectList(query);
     List<AppApplyInfo> ret_app_beans = new ArrayList<>();
 
-    Set<Integer> repay_status = new HashSet<Integer>(){{
-      add(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
-      add(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
-    }};
-
     for (TbApplyInfoBean bean : beans) {
-      if (!repay_status.contains(bean.getStatus())) {
+      if (!NeedToRepay(bean.getStatus())) {
         continue;
       }
 
