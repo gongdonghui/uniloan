@@ -139,6 +139,19 @@ public class MqConsumerService {
     logger.info(String.format("[recv_msg]:[%s|%s|%s]", topic, tag, JSON.toJSONString(msg)));
     List<TbMarketPlanBean> beans = tb_market_plan_mapper.selectList(new QueryWrapper<TbMarketPlanBean>().eq("topic", topic).eq("tag", tag).eq("status", 1).orderByAsc("priority"));
     if (beans.isEmpty()) {
+      logger.info(String.format("no_plan_for: [%s][%s]", topic, tag));
+      return;
+    }
+
+    if (StringUtils.isEmpty(msg.getMobile()) && msg.getUser_id() != null) {
+      TbUserRegistInfoBean reg_info_bean = tb_user_regist_info_mapper.selectById(msg.getUser_id());
+      if (reg_info_bean != null) {
+        msg.setMobile(reg_info_bean.getMobile());
+      }
+    }
+
+    if (StringUtils.isEmpty(msg.getMobile())) {
+      logger.error(String.format("parse_user_phone_error: %s", JSON.toJSONString(msg)));
       return;
     }
 
@@ -149,13 +162,9 @@ public class MqConsumerService {
       }
 
       long fresh = System.currentTimeMillis() - ToolUtils.NormTime(msg.getCreate_time()).getTime();
-      if (fresh > 5*60*1000l) {
+      if (fresh > 30*60*1000l) {
         logger.warn(String.format("expire_msg: %s", JSON.toJSONString(msg)));
         continue;
-      }
-
-      if (StringUtils.isEmpty(msg.getMobile())) {
-        msg.setMobile(tb_user_regist_info_mapper.selectById(msg.getUser_id()).getMobile());
       }
 
       String market_way = bean.getMarket_way();
