@@ -203,8 +203,14 @@ public class ApplyController {
     QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id());
     List<TbApplyInfoBean> beans = apply_info_mapper.selectList(query);
     List<AppApplyInfo> ret_app_beans = new ArrayList<>();
+
+    Set<Integer> repay_status = new HashSet<Integer>(){{
+      add(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
+      add(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
+    }};
+
     for (TbApplyInfoBean bean : beans) {
-      if (!bean.getStatus().equals(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode())) {
+      if (!repay_status.contains(bean.getStatus())) {
         continue;
       }
 
