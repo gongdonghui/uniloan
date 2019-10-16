@@ -27,7 +27,7 @@ public class OperationReportBean {
     private Integer repay_actual;
     private Double forate; //  first overdue  rate;
     private Integer register;
-    private Integer dowload;
+    private Integer download;
     private Integer channel_id;
     private Date create_time;
 }
