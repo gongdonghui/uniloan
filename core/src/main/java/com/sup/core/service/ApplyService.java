@@ -86,16 +86,16 @@ public class ApplyService {
     public List<TbApplyInfoBean> getApplyInprogress(Integer userId) {
         QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
-        wrapper.in("status", ApplyStatusEnum.APPLY_INIT
-                , ApplyStatusEnum.APPLY_AUTO_PASS
-                , ApplyStatusEnum.APPLY_FIRST_PASS
-                , ApplyStatusEnum.APPLY_SECOND_PASS
-                , ApplyStatusEnum.APPLY_FINAL_PASS
-                , ApplyStatusEnum.APPLY_AUTO_LOANING
-                , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED
-                , ApplyStatusEnum.APPLY_LOAN_SUCC
-                , ApplyStatusEnum.APPLY_REPAY_PART
-                , ApplyStatusEnum.APPLY_OVERDUE
+        wrapper.in("status", ApplyStatusEnum.APPLY_INIT.getCode()
+                , ApplyStatusEnum.APPLY_AUTO_PASS.getCode()
+                , ApplyStatusEnum.APPLY_FIRST_PASS.getCode()
+                , ApplyStatusEnum.APPLY_SECOND_PASS.getCode()
+                , ApplyStatusEnum.APPLY_FINAL_PASS.getCode()
+                , ApplyStatusEnum.APPLY_AUTO_LOANING.getCode()
+                , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode()
+                , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
+                , ApplyStatusEnum.APPLY_REPAY_PART.getCode()
+                , ApplyStatusEnum.APPLY_OVERDUE.getCode()
                 );
         return applyInfoMapper.selectList(wrapper);
     }
