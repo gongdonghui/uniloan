@@ -153,8 +153,14 @@ public class LoanService {
         QueryWrapper<TbRepayHistoryBean> historyWrapper = new QueryWrapper<>();
         historyWrapper.eq("repay_status", RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
         historyWrapper.ge("expire_time", now);
+        historyWrapper.orderByDesc("id");   // create_time
 
-        TbRepayHistoryBean repayHistoryBean = repayHistoryMapper.selectOne(historyWrapper);
+        List<TbRepayHistoryBean> repayHistoryBeans = repayHistoryMapper.selectList(historyWrapper);
+        TbRepayHistoryBean repayHistoryBean = null;
+        if (repayHistoryBeans != null && repayHistoryBeans.size() > 0) {
+            repayHistoryBean = repayHistoryBeans.get(0);
+        }
+        // TbRepayHistoryBean repayHistoryBean = repayHistoryMapper.selectOne(historyWrapper);
         if (repayHistoryBean != null) {
             RepayVO r = new RepayVO();
             r.setCode(repayHistoryBean.getRepay_code());
@@ -184,6 +190,7 @@ public class LoanService {
                 return Result.fail("Failed to get repay info!");
             }
             RepayVO r = result.getData();
+            log.info(">>>> repay return: " + GsonUtil.toJson(r));
             repayHistoryBean.setRepay_code(r.getCode());
             repayHistoryBean.setRepay_location(r.getShopLink());
             repayHistoryBean.setTrade_number(r.getTradeNo());
@@ -275,9 +282,10 @@ public class LoanService {
         if (repayStatBean.getAct_total().longValue() + repayStatBean.getReduction_fee() >= repayStatBean.getNeed_total().longValue()) {
             applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
             mqMessenger.applyStatusChange(applyInfoBean);
-            applyInfoMapper.updateById(applyInfoBean);
+        } else {
+            applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
         }
-
+        applyInfoMapper.updateById(applyInfoBean);
         return Result.succ();
     }
 
@@ -393,6 +401,7 @@ public class LoanService {
         applyInfoBean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
         applyInfoBean.setOperator_id(Integer.valueOf(param.getOperatorId()));
         applyInfoBean.setLoan_time(loanTime);
+        applyInfoBean.setTrade_number(param.getTradeNumber());
 
         return applyService.updateApplyInfo(applyInfoBean);
     }
@@ -498,12 +507,15 @@ public class LoanService {
         int interestTotal = (int) (loanAmount * productInfoBean.getRate() * applyPeriod);
 
         int quotaInhand = 0;
+        int preRepay = 0;   // 预扣款
         switch (feeType) {
             case LOAN_PRE_FEE:
                 quotaInhand = loanAmount - feeTotal;
+                preRepay = feeTotal;
                 break;
             case LOAN_PRE_FEE_PRE_INTEREST:
                 quotaInhand = loanAmount - feeTotal - interestTotal;
+                preRepay = feeTotal + interestTotal;
                 break;
             case LOAN_POST_FEE_POST_INTEREST:
                 quotaInhand = loanAmount;
@@ -516,7 +528,7 @@ public class LoanService {
         param.setApplyAmount(applyAmount);
         param.setApplyPeriod(applyPeriod);
         param.setInhandAmount(quotaInhand);
-        param.setTotalAmount(loanAmount + feeTotal + interestTotal);
+        param.setTotalAmount(loanAmount + feeTotal + interestTotal - preRepay);
         // log.info("Product bean: " + GsonUtil.toJson(productInfoBean));
         // log.info("Return bran: " + GsonUtil.toJson(param));
         return param;

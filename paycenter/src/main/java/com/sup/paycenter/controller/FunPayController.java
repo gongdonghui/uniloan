@@ -186,7 +186,7 @@ public class FunPayController {
         m.put("orderNo", repayInfo.getOrderNo());
         //还款码有效期为T+7
         DateTime dt = new DateTime();
-        dt.plusDays(7);
+        dt = dt.plusDays(7);
         m.put("expireDate", DateUtil.format(dt.toDate(), DateUtil.NO_SPLIT_FORMAT));
         m.put("returnUrl", "https://d45582e9.ngrok.io/repayCallBack");
         m.put("purchaseType", "2");

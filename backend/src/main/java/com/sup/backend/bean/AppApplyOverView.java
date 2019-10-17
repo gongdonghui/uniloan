@@ -15,7 +15,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class AppApplyOverView {
   private Integer apply_id;    // 订单号
-  private Integer status;
+  private String status;
+  private Boolean need_to_repay;
   private String amount;
   private String period;
   private String rate;

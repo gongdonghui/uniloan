@@ -16,6 +16,9 @@ import com.sup.cms.util.ResponseUtil;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbManualRepayBean;
 import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.loan.OperationTaskStatusEnum;
+import com.sup.common.loan.OperationTaskTypeEnum;
+import com.sup.common.param.ManualLoanParam;
 import com.sup.common.param.ManualRepayParam;
 import com.sup.common.service.CoreService;
 import com.sup.common.util.Result;
@@ -66,11 +69,19 @@ public class ApplyController {
         sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile=\"" + params.getMobile() + "\"" : "");
         //单子是否已领 不管是指派的还是自己领的
-        sb.append(" and a.has_owner=" + params.getType1());
+        if (params.getType1() == 0) {
+            // 未指派、未领取
+            //sb.append(" and a.has_owner=0 and a.operator_id is null");
+            sb.append(" and a.has_owner=0");
+        } else {
+            // 当前操作人的待审核列表
+            sb.append(" and a.has_owner=1 and a.operator_id=" + params.getOperatorId());
+        }
         //单子状态 是初审还是终审呢
-        sb.append(" and a.task_type=" + (params.getType2() == 0 ? "0" : "2"));
+        int task_type = params.getType2() == 0 ? OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode() : OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode();
+        sb.append(" and a.task_type=" + task_type);
         //审核状态 是审了还是没审呢
-        sb.append(" and a.status=0");
+        sb.append(" and a.status=" + OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         log.info(">>> condition: " + sb.toString());
@@ -99,9 +110,16 @@ public class ApplyController {
         if (bean.getHasOwner().equals(1)) {
             return ResponseUtil.failed("该任务已被认领，操作失败");
         }
-        //如果是终审 查询一下和信审是否为同一个人 同一个人直接拒绝
-        if (params.getType() == 1 && params.getOperatorId().equals(bean.getOperatorId())) {
-            return ResponseUtil.failed("终审和信审的审核人不能为同一人，操作失败");
+        if (params.getType() == 1) {
+            //如果是终审 查询一下和信审是否为同一个人 同一个人直接拒绝
+            QueryWrapper<ApplyOperationTaskBean> wrapper = new QueryWrapper<>();
+            wrapper.eq("operator_id", params.getOperatorId());
+            wrapper.eq("apply_id", params.getApplyId());
+            wrapper.eq("status", OperationTaskStatusEnum.TASK_STATUS_DONE.getCode());
+            List<ApplyOperationTaskBean> beans = applyOperationTaskMapper.selectList(wrapper);
+            if (beans != null && beans.size() > 0) {
+                return ResponseUtil.failed("终审和信审的审核人不能为同一人，操作失败");
+            }
         }
         bean.setOperatorId(params.getOperatorId());
         if (params.getDistributorId() != null) {
@@ -146,22 +164,50 @@ public class ApplyController {
         // TbApplyInfoBean apply = new TbApplyInfoBean();
         // apply.setId(params.getApplyId());
 
+        apply.setOperator_id(params.getOperatorId());
+        apply.setComment(params.getComment());
         apply.setUpdate_time(new Date());
         //如果是取消的话 直接设置取消状态
-        if (params.getType().equals(2)) {
-            apply.setStatus(9);
-        } else {
-            //区分信审和终审来分别设定状态
-            if (params.getType2().equals(0)) {
-                apply.setStatus(params.getType().equals(1) ? 2 : 6);
-            } else {
-                if (params.getGrantQuota() == null || params.getGrantQuota() < 0) {
-                    log.error("Invalid grant quota!");
+        ApplyStatusEnum applyStatus = null;
+        switch (params.getType()) {
+            case 2:     // cancel
+                applyStatus = ApplyStatusEnum.APPLY_CANCEL;
+                break;
+            case 1:     // pass
+                if (params.getGrantQuota() != null && params.getGrantQuota() > 0) {
+                    assert params.getType2() == 1;
+                    apply.setGrant_quota(params.getGrantQuota());
                 }
-                apply.setGrant_quota(params.getGrantQuota());
-                apply.setStatus(params.getType().equals(1) ? 4 : 8);
-            }
+                applyStatus = params.getType2().equals(0) ? ApplyStatusEnum.APPLY_FIRST_PASS : ApplyStatusEnum.APPLY_FINAL_PASS;
+                break;
+            case 0:     // deny
+                applyStatus = params.getType2().equals(0) ? ApplyStatusEnum.APPLY_FIRST_DENY : ApplyStatusEnum.APPLY_FINAL_DENY;
+                break;
+            default:
+                log.error("Invalid type! param = " + GsonUtil.toJson(params));
+                break;
         }
+        if (applyStatus != null) {
+            apply.setStatus(applyStatus.getCode());
+        }
+//        if (params.getType().equals(2)) {
+//            apply.setStatus(9);
+//        } else {
+//            //区分信审和终审来分别设定状态
+//            if (params.getType2().equals(0)) {
+//                //apply.setStatus(params.getType().equals(1) ? 2 : 6);
+//                apply.setStatus(params.getType().equals(1) ? ApplyStatusEnum.APPLY_FIRST_PASS.getCode() : ApplyStatusEnum.APPLY_FIRST_DENY.getCode());
+//            } else {
+//                if (params.getGrantQuota() != null && params.getGrantQuota() > 0) {
+//                    apply.setGrant_quota(params.getGrantQuota());
+//                } else {
+//                    log.error("Invalid grant quota!");
+//                }
+//                // apply.setStatus(params.getType().equals(1) ? 4 : 8);
+//                apply.setStatus(params.getType().equals(1) ? ApplyStatusEnum.APPLY_FINAL_PASS.getCode() : ApplyStatusEnum.APPLY_FINAL_DENY.getCode());
+//            }
+//        }
+
         if (coreService.updateApplyInfo(apply).getStatus() == 0) {
             return ResponseUtil.success();
         } else {
@@ -302,6 +348,51 @@ public class ApplyController {
         if (applyInfoBean == null) {
             return ResponseUtil.failed("Invalid applyId!");
         }
+        boolean confirm = params.getConfirm().equals(1);
+        List<Integer> ids = params.getRepayInfoIds();
+        List<String> tradeNos = params.getTradeNos();
+
+        if (confirm && (ids == null || tradeNos == null || ids.size() != tradeNos.size())) {
+            log.error("Invalid params:" + GsonUtil.toJson(params));
+            return ResponseUtil.failed("Invalid params.");
+        }
+
+        if (confirm) {  // 验证流水号是否重复
+            QueryWrapper<TbManualRepayBean> wrapper = new QueryWrapper<>();
+            wrapper.eq("status", 1);      // 还款成功
+            wrapper.in("trade_no", tradeNos);   // 待检测流水号
+            List<TbManualRepayBean> beans = manualRepayMapper.selectList(wrapper);
+            if (beans != null && beans.size() > 0) {
+                log.error("Duplicated trade no, params = " + GsonUtil.toJson(params));
+                return ResponseUtil.failed("Duplicated trade no.");
+            }
+        }
+        // 更新还款资料状态
+        Date now = new Date();
+        for (int i = 0; i < ids.size(); ++i) {
+            Integer id = ids.get(i);
+            QueryWrapper<TbManualRepayBean> wrapper = new QueryWrapper<>();
+            wrapper.eq("apply_id", params.getApplyId());
+            wrapper.eq("user_id", params.getUserId());
+            wrapper.eq("id", id);
+            wrapper.eq("status", 0);    // 还款资料待处理
+            TbManualRepayBean bean = manualRepayMapper.selectOne(wrapper);
+            if (bean == null) {
+                continue;
+            }
+            if (confirm) {  // 还款确认
+                bean.setStatus(1);
+                bean.setTrade_no(tradeNos.get(i));
+            } else {    // 还款失败
+                bean.setStatus(2);
+            }
+            bean.setUpdate_time(now);
+            if (manualRepayMapper.updateById(bean) <= 0) {
+                log.error("Failed to update bean=" + GsonUtil.toJson(bean));
+            }
+        }
+
+        // 更新还款计划、还款状态等
         ManualRepayParam repayParam = new ManualRepayParam();
         repayParam.setAmount(params.getRepayAmount());
         repayParam.setApplyId(String.valueOf(params.getApplyId()));
@@ -325,12 +416,24 @@ public class ApplyController {
         QueryWrapper<TbManualRepayBean> wrapper = new QueryWrapper<>();
         wrapper.eq("apply_id", params.getApplyId());
         wrapper.eq("user_id", params.getUserId());
+        wrapper.eq("status", 0);    // 还款资料待处理
         List<TbManualRepayBean> repayBeans = manualRepayMapper.selectList(wrapper);
         if (repayBeans == null || repayBeans.size() == 0) {
             log.error("No material found for param:" + GsonUtil.toJson(params));
             return ResponseUtil.failed("No material found!");
         }
         return ResponseUtil.success(repayBeans);
+    }
+
+    @PostMapping("/manualLoan")
+    public String manualLoan(@RequestBody @Valid ManualLoanParam params) {
+        log.info("manual loan, params = " + GsonUtil.toJson(params));
+        Result result = coreService.manualLoan(params);
+        if (!result.isSucc()) {
+            log.error("Failed to manualLoan with param = " + GsonUtil.toJson(params));
+            return ResponseUtil.failed("");
+        }
+        return ResponseUtil.success();
     }
 
 }

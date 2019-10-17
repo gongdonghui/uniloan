@@ -11,6 +11,21 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
+feign:
+  hystrix:
+    enabled: false
+  client:
+    config:
+      default:
+        connect-timeout: 10000
+        read-timeout: 10000
+
+ribbon:
+  ReadTimeout: 30000
+  ConnectTimeout: 30000
+  eureka:
+    enable: true
+
 server:
   port: 10081
   tomcat:
@@ -20,10 +35,6 @@ server:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
-
-feign:
-  hystrix:
-    enabled: false
 
 hystrix:
   command:

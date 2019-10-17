@@ -55,7 +55,7 @@ public class MqConsumerService {
       if (!new_subs.containsKey(topic)) {
         new_subs.put(topic, new HashSet<>());
       }
-      new_subs.get(topic).add(tag);
+      new_subs.get(topic).add("*");
     }
 
     if (new_subs.isEmpty()) {

@@ -251,11 +251,20 @@ public class ScheduleTasks {
                 if (orderStatus == FunpayOrderUtil.Status.PROCESSING) {
                     continue;
                 }
+                log.info(">>>> repayStatus return: " + GsonUtil.toJson(rs));
                 TbRepayPlanBean repayPlanBean = repayPlanMapper.selectById(bean.getRepay_plan_id());
                 if (repayPlanBean == null) {
                     log.error("Invalid repayPlanId, repayHistory bean = " + GsonUtil.toJson(bean));
                 }
-                Date repayTime = DateUtil.parse(rs.getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT);
+
+                Date repayTime = new Date();
+                String rsTime = rs.getPurchaseTime();
+                if (rsTime.indexOf('-') >= 0 && rsTime.indexOf(':') >= 0) {
+                    repayTime = DateUtil.parse(rsTime, DateUtil.DEFAULT_DATETIME_FORMAT);
+                } else if (rsTime.indexOf('-') < 0 && rsTime.indexOf(':') < 0) {
+                    repayTime = DateUtil.parse(rsTime, DateUtil.NO_SPLIT_FORMAT);
+                }
+
                 if (orderStatus == FunpayOrderUtil.Status.SUCCESS) {
                     // 还款成功，更新还款计划
                     Long repayAmount = Long.valueOf(rs.getAmount());

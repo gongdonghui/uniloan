@@ -17,6 +17,7 @@ import com.sup.common.bean.TbAppSdkLocationInfoBean;
 import com.sup.common.bean.TbUserRegistInfoBean;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -45,16 +46,16 @@ public class SdkController {
   TbAppSdkAppListInfoMapper  tb_app_sdk_app_list_info_mapper;
 
   @ResponseBody
-  @RequestMapping(value = "loc/get", produces = "application/json;charset=UTF-8")
+  @RequestMapping(value = "loc/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object QueryLocation(@RequestParam("mobile") String mobile) {
-    QueryWrapper<TbAppSdkLocationInfoBean> query = new QueryWrapper<TbAppSdkLocationInfoBean>().eq("mobile", mobile).orderByDesc("create_time").last("limit 1");
+    QueryWrapper<TbAppSdkLocationInfoBean> query = new QueryWrapper<TbAppSdkLocationInfoBean>().eq("mobile", mobile).orderByDesc("id").last("limit 1");
     TbAppSdkLocationInfoBean bean = tb_app_sdk_location_mapper.selectOne(query);
     return ToolUtils.succ(bean);
   }
 
   @LoginRequired
   @ResponseBody
-  @RequestMapping(value = "loc/new", produces = "application/json;charset=UTF-8")
+  @RequestMapping(value = "loc/new", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object NewLocation(@LoginInfo LoginInfoCtx li, @RequestBody TbAppSdkLocationInfoBean bean) {
     TbUserRegistInfoBean reg_bean = tb_user_regist_mapper.selectById(li.getUser_id());
     bean.setMobile(reg_bean.getMobile());
@@ -66,26 +67,21 @@ public class SdkController {
   }
 
   @ResponseBody
-  @RequestMapping(value = "contact/get", produces = "application/json;charset=UTF-8")
+  @RequestMapping(value = "contact/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object QueryContract(@RequestParam("mobile") String mobile) {
-    QueryWrapper<TbAppSdkContractInfoBean> query = new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).orderByDesc("create_time");
-    List<TbAppSdkContractInfoBean> beans = tb_app_sdk_contract_mapper.selectList(query);
     List<TbAppSdkContractInfoBean> result = new ArrayList<>();
-    if (!beans.isEmpty()) {
-      Date latest_dt = beans.get(0).getCreate_time();
-      for (TbAppSdkContractInfoBean bean : beans) {
-        if (!bean.getCreate_time().equals(latest_dt)) {
-          break;
-        }
-        result.add(bean);
-      }
+    TbAppSdkContractInfoBean first_bean = tb_app_sdk_contract_mapper.selectOne(new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).orderByDesc("id").last("limit 1"));
+    if (first_bean == null) {
+      return ToolUtils.succ(result);
     }
-    return ToolUtils.succ(result);
+    QueryWrapper<TbAppSdkContractInfoBean> query = new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).eq("create_time", first_bean.getCreate_time());
+    List<TbAppSdkContractInfoBean> beans = tb_app_sdk_contract_mapper.selectList(query);
+    return ToolUtils.succ(beans);
   }
 
   @LoginRequired
   @ResponseBody
-  @RequestMapping(value = "contact/new", produces = "application/json;charset=UTF-8")
+  @RequestMapping(value = "contact/new", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object NewContract(@LoginInfo LoginInfoCtx li, @RequestBody AppSdkContactInfo sdk_contacts) {
     // reorder to our-format !!
     if (sdk_contacts == null || sdk_contacts.getContacts() == null || sdk_contacts.getContacts().isEmpty()) {
@@ -112,28 +108,22 @@ public class SdkController {
     return ToolUtils.succ(null);
   }
 
-
   @ResponseBody
-  @RequestMapping(value = "applist/get", produces = "application/json;charset=UTF-8")
+  @RequestMapping(value = "applist/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object QueryApplist(@RequestParam("mobile") String mobile) {
-    QueryWrapper<TbAppSdkAppListInfoBean> query = new QueryWrapper<TbAppSdkAppListInfoBean>().eq("mobile", mobile).orderByDesc("create_time");
-    List<TbAppSdkAppListInfoBean> beans = tb_app_sdk_app_list_info_mapper.selectList(query);
     List<TbAppSdkAppListInfoBean> result = new ArrayList<>();
-    if (!beans.isEmpty()) {
-      Date latest_dt = beans.get(0).getCreate_time();
-      for (TbAppSdkAppListInfoBean bean : beans) {
-        if (!bean.getCreate_time().equals(latest_dt)) {
-          break;
-        }
-        result.add(bean);
-      }
+    TbAppSdkAppListInfoBean first_bean = tb_app_sdk_app_list_info_mapper.selectOne(new QueryWrapper<TbAppSdkAppListInfoBean>().eq("mobile", mobile).orderByDesc("id").last("limit 1"));
+    if (first_bean == null) {
+      return ToolUtils.succ(result);
     }
-    return ToolUtils.succ(result);
+    QueryWrapper<TbAppSdkAppListInfoBean> query = new QueryWrapper<TbAppSdkAppListInfoBean>().eq("mobile", mobile).eq("create_time", first_bean.getCreate_time());
+    List<TbAppSdkAppListInfoBean> beans = tb_app_sdk_app_list_info_mapper.selectList(query);
+    return ToolUtils.succ(beans);
   }
 
   @LoginRequired
   @ResponseBody
-  @RequestMapping(value = "applist/new", produces = "application/json;charset=UTF-8")
+  @RequestMapping(value = "applist/new", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object NewApplist(@LoginInfo LoginInfoCtx li, @RequestBody AppSdkAppListInfo app_list_info) {
     // reorder to our-format !!
     if (app_list_info == null || app_list_info.getApps() == null || app_list_info.getApps().isEmpty()) {
@@ -159,5 +149,6 @@ public class SdkController {
     });
     return ToolUtils.succ(null);
   }
+
 }
 

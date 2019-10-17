@@ -1,6 +1,7 @@
 package com.sup.backend.web;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.backend.bean.AppApplyInfo;
 import com.sup.backend.bean.AppApplyOverView;
@@ -12,6 +13,7 @@ import com.sup.backend.mapper.TbApplyInfoMapper;
 import com.sup.backend.mapper.TbApplyMaterialInfoMapper;
 import com.sup.backend.mapper.TbRepayPlanMapper;
 import com.sup.backend.mapper.TbRepayStatMapper;
+import com.sup.backend.util.LangUtil;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
@@ -20,11 +22,20 @@ import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.param.ApplyInfoParam;
 import com.sup.common.service.CoreService;
+import org.apache.ibatis.annotations.Lang;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /**
@@ -46,6 +57,87 @@ public class ApplyController {
   @Autowired
   private CoreService core;
 
+  private LangUtil trans;
+
+  private Set<Integer> repay_status = new HashSet<Integer>(){{
+    add(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
+    add(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
+    add(ApplyStatusEnum.APPLY_OVERDUE.getCode());
+  }};
+
+  private String LoadResourceFile(String path) throws Exception {
+    ClassPathResource resource = new ClassPathResource(path);
+    InputStream inputStream = resource.getInputStream();
+    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+    String line;
+    StringBuffer sb = new StringBuffer();
+    while ((line = br.readLine()) != null) {
+      sb.append(line);
+    }
+    br.close();
+    return sb.toString();
+  }
+
+  @PostConstruct
+  public void Init() throws Exception {
+    trans = LangUtil.of(JSON.parseObject(LoadResourceFile("app.dict")));
+    //System.out.println("json_obj => " + JSON.toJSONString(trans));
+  }
+
+  private Boolean NeedToRepay(Integer code) {
+    return repay_status.contains(code);
+  }
+
+  @LoginRequired
+  @ResponseBody
+  @RequestMapping(value = "get_current_apply", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Object GetCurrentApply(@LoginInfo LoginInfoCtx li) {
+    QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time");
+    List<TbApplyInfoBean> applies = apply_info_mapper.selectList(query);
+    if (applies.isEmpty()) {
+      return ToolUtils.succ(null);
+    }
+
+    TbApplyInfoBean bean = applies.get(0);
+    AppApplyOverView ov = new AppApplyOverView();
+    String lang = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("lang");
+    ov.setStatus(trans.GetTrans("apply_status", bean.getStatus().toString(), lang));
+    ov.setNeed_to_repay(NeedToRepay(bean.getStatus()));
+    ov.setAmount(bean.getApply_quota().toString());
+    ov.setApply_id(bean.getId());
+    ov.setRate(bean.getRate().toString());
+    ov.setPeriod(bean.getPeriod().toString());
+    ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()).substring(0, 10));
+    return ToolUtils.succ(ov);
+  }
+
+  @LoginRequired
+  @ResponseBody
+  @RequestMapping(value = "get_history_apply", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Object GetHistoryApply(@LoginInfo LoginInfoCtx li) {
+    QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time");
+    List<TbApplyInfoBean> applies = apply_info_mapper.selectList(query);
+    if (applies.isEmpty()) {
+      return ToolUtils.succ(null);
+    }
+
+    List<AppApplyOverView> ret_ovs = new ArrayList<>();
+    for (int i = 0; i < applies.size(); ++i) {
+      TbApplyInfoBean bean = applies.get(i);
+      AppApplyOverView ov = new AppApplyOverView();
+      String lang = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("lang");
+      ov.setStatus(trans.GetTrans("apply_status", bean.getStatus().toString(), lang));
+      ov.setNeed_to_repay(NeedToRepay(bean.getStatus()));
+      ov.setAmount(bean.getApply_quota().toString());
+      ov.setApply_id(bean.getId());
+      ov.setRate(bean.getRate().toString());
+      ov.setPeriod(bean.getPeriod().toString());
+      ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()).substring(0, 10));
+      ret_ovs.add(ov);
+    }
+    return ToolUtils.succ(ret_ovs);
+  }
+
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "list_pending_applies", produces = "application/json;charset=UTF-8")
@@ -66,7 +158,7 @@ public class ApplyController {
         continue;
       }
       AppApplyOverView ov = new AppApplyOverView();
-      ov.setStatus(bean.getStatus());
+      ov.setStatus(bean.getStatus().toString());
       ov.setAmount(bean.getApply_quota().toString());
       ov.setApply_id(bean.getId());
       ov.setRate(bean.getRate().toString());
@@ -94,14 +186,16 @@ public class ApplyController {
       }
       TbRepayStatBean stat_bean = tb_repay_stat_mapper.selectOne(new QueryWrapper<TbRepayStatBean>().eq("apply_id", bean.getId()).last("limit 1"));
       AppApplyOverView ov = new AppApplyOverView();
-      ov.setStatus(bean.getStatus());
+      String lang = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("lang");
+      ov.setStatus(trans.GetTrans("apply_status", bean.getStatus().toString(), lang));
+      ov.setNeed_to_repay(NeedToRepay(bean.getStatus()));
       ov.setAmount(bean.getApply_quota().toString());
       ov.setApply_id(bean.getId());
       ov.setRate(bean.getRate().toString());
       ov.setPeriod(bean.getPeriod().toString());
       ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()).substring(0, 10));
       ov.setJieqing_amount(stat_bean.getNeed_total().toString());
-      ov.setJieqing_date(ToolUtils.NormTime(bean.getUpdate_time()).substring(1, 10));
+      ov.setJieqing_date(ToolUtils.NormTime(bean.getUpdate_time()).substring(0, 10));
       ret_app_beans.add(ov);
     }
     System.out.println(JSON.toJSONString(ret_app_beans));
@@ -115,8 +209,9 @@ public class ApplyController {
     QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id());
     List<TbApplyInfoBean> beans = apply_info_mapper.selectList(query);
     List<AppApplyInfo> ret_app_beans = new ArrayList<>();
+
     for (TbApplyInfoBean bean : beans) {
-      if (!bean.getStatus().equals(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode())) {
+      if (!NeedToRepay(bean.getStatus())) {
         continue;
       }
 
@@ -162,7 +257,12 @@ public class ApplyController {
     aip.setProduct_id(order_detail.getProduct_id());
     aip.setPeriod(order_detail.getPeriod());
     aip.setInfoIdMap(order_detail.getMaterial_ids());
-    return core.addApplyInfo(aip);
+    try {
+      return core.addApplyInfo(aip);
+    } catch (Exception e) {
+      logger.error(ToolUtils.GetTrace(e));
+      return ToolUtils.fail("rpc_call_exception");
+    }
   }
 }
 

@@ -35,7 +35,7 @@ public class CustomerController {
     public String getCustomers(@RequestBody @Valid CustomerGetListParams params) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and uri.name like %" + params.getName() + "%" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and uri.name like \"%" + params.getName() + "%\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and cid.cid_no=\"" + params.getCidNo() + "\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and uri.mobile=\"" + params.getMobile() + "\"" : "");
 

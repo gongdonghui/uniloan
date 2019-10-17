@@ -6,6 +6,7 @@ import com.sup.common.bean.TbApplyMaterialInfoBean;
 import com.sup.common.bean.TbProductInfoBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.DateUtil;
+import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
 import com.sup.core.facade.ApplyFacade;
 import com.sup.core.mapper.ApplyInfoMapper;
@@ -53,7 +54,7 @@ public class ApplyFacadeImpl implements ApplyFacade {
     @Override
     public Result addApplyInfo(ApplyInfoParam applyInfoParam) {
         // 检测是否重复提交
-
+        // log.info("addApplyInfo: param = " + GsonUtil.toJson(applyInfoParam));
         List<TbApplyInfoBean> oldApplys = applyService.getApplyInprogress(applyInfoParam.getUser_id());
         if (oldApplys != null && oldApplys.size() > 0) {
             // return Result.fail("Duplicated Apply!");

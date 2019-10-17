@@ -13,6 +13,7 @@ import java.util.Date;
 @Data
 public class ApplyApprovalGetListParams {
     private Integer applyId;
+    private Integer operatorId;     // 操作人ID
     private String name;
     private String creditLevel;
     private String cidNo;
