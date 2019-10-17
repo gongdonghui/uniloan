@@ -284,7 +284,10 @@ public class LoanService {
             applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
             mqMessenger.applyStatusChange(applyInfoBean);
         } else {
-            applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
+            if (applyInfoBean.getStatus() != ApplyStatusEnum.APPLY_OVERDUE.getCode()) {
+                // 非逾期状态下，更新为未还清；逾期未还清仍为逾期状态
+                applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
+            }
         }
         applyInfoBean.setUpdate_time(new Date());
         applyInfoMapper.updateById(applyInfoBean);

@@ -359,6 +359,14 @@ public class ScheduleTasks {
                 if (!r.isSucc()) {
                     log.error("Failed to update");
                 }
+                // update apply_info
+                TbApplyInfoBean applyInfoBean = applyInfoMapper.selectById(bean.getApply_id());
+                if (applyInfoBean == null || applyInfoBean.getStatus() == ApplyStatusEnum.APPLY_OVERDUE.getCode()) {
+                    continue;
+                }
+                applyInfoBean.setStatus(ApplyStatusEnum.APPLY_OVERDUE.getCode());
+                applyInfoBean.setUpdate_time(now);
+                applyInfoMapper.updateById(applyInfoBean);
             }
         }
     }
