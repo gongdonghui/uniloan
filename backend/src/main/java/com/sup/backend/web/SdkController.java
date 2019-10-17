@@ -86,6 +86,7 @@ public class SdkController {
     }
     QueryWrapper<TbAppSdkContractInfoBean> query = new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).eq("create_time", first_bean.getCreate_time()).orderByAsc("id");
     result = tb_app_sdk_contract_mapper.selectList(query);
+    result.forEach(v -> v.setSignature(v.calcSignature()));
     return result;
   }
 
@@ -102,7 +103,7 @@ public class SdkController {
   @RequestMapping(value = "contact/new", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object NewContract(@LoginInfo LoginInfoCtx li, @RequestBody AppSdkContactInfo sdk_contacts) {
     // reorder to our-format !!
-    if (sdk_contacts == null || sdk_contacts.getContacts() == null || sdk_contacts.getContacts().isEmpty()) {
+    if (sdk_contacts == null || StringUtils.isEmpty(sdk_contacts.getDevice_id()) || sdk_contacts.getContacts() == null || sdk_contacts.getContacts().isEmpty()) {
       return ToolUtils.fail(1, "no_valid_items");
     }
     List<TbAppSdkContractInfoBean> beans = new ArrayList<>();
@@ -118,6 +119,7 @@ public class SdkController {
       }
       bean.setContract_info(String.join(",", item.getMobiles()));
       bean.setContract_memo("");
+      bean.setSignature(bean.calcSignature());
       beans.add(bean);
     }
 
@@ -133,6 +135,7 @@ public class SdkController {
     }
     QueryWrapper<TbAppSdkAppListInfoBean> query = new QueryWrapper<TbAppSdkAppListInfoBean>().eq("mobile", mobile).eq("create_time", first_bean.getCreate_time()).orderByAsc("id");
     result = tb_app_sdk_app_list_info_mapper.selectList(query);
+    result.forEach(v -> v.setSignature(v.calcSignature()));
     return result;
   }
 
@@ -147,7 +150,7 @@ public class SdkController {
   @RequestMapping(value = "applist/new", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object NewApplist(@LoginInfo LoginInfoCtx li, @RequestBody AppSdkAppListInfo app_list_info) {
     // reorder to our-format !!
-    if (app_list_info == null || app_list_info.getApps() == null || app_list_info.getApps().isEmpty()) {
+    if (app_list_info == null || StringUtils.isEmpty(app_list_info.getDevice_id()) || app_list_info.getApps() == null || app_list_info.getApps().isEmpty()) {
       return ToolUtils.fail(1, "no_valid_items");
     }
 
@@ -158,6 +161,7 @@ public class SdkController {
       bean.setDevice_id(app_list_info.getDevice_id());
       bean.setApk_name(item.getApk_name());
       bean.setApk_label(item.getApk_label());
+      bean.setSignature(bean.calcSignature());
       beans.add(bean);
     }
 

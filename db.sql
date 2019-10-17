@@ -522,6 +522,7 @@ CREATE TABLE `tb_app_sdk_location_info` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
   PRIMARY KEY (`id`),
+  KEY `idx_create_time` (`create_time`),
   KEY `idx_mobile` (`mobile`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -536,6 +537,7 @@ CREATE TABLE `tb_app_sdk_contract_info` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
   PRIMARY KEY (`id`),
+  KEY `idx_create_time` (`create_time`),
   KEY `idx_mobile` (`mobile`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -550,6 +552,7 @@ CREATE TABLE `tb_app_sdk_applist_info` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
   PRIMARY KEY (`id`),
+  KEY `idx_create_time` (`create_time`),
   KEY `idx_mobile` (`mobile`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

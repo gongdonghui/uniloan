@@ -32,53 +32,53 @@ public class BackgroundService {
 
   @Async
   public void InsertContactAsync(String mobile, List<TbAppSdkContractInfoBean> beans, List<TbAppSdkContractInfoBean> exists) {
-    Collections.sort(beans, (x, y) -> x.getContract_info().compareTo(y.getContract_info()));
-    logger.info(String.format("\n [new]: %s \n [exist]:%s ", JSON.toJSONStringWithDateFormat(beans, ToolUtils.DEFAULT_DATE_FORMAT), JSON.toJSONStringWithDateFormat(exists, ToolUtils.DEFAULT_DATE_FORMAT)));
+    Collections.sort(beans, (x, y) -> x.getSignature().compareTo(y.getSignature()));
     if (exists != null && (!exists.isEmpty()) && exists.size() == beans.size()) {
       boolean dup = true;
       for (int i = 0; i < beans.size(); ++i) {
-        if (!beans.get(i).Signature().equals(exists.get(i).Signature())) {
+        if (!beans.get(i).getSignature().equals(exists.get(i).getSignature())) {
           dup = false;
+          logger.info(String.format("[diff_item]:[%s] => [%s]", JSON.toJSONStringWithDateFormat(beans.get(i), ToolUtils.DEFAULT_DATE_FORMAT), JSON.toJSONStringWithDateFormat(exists.get(i), ToolUtils.DEFAULT_DATE_FORMAT)));
           break;
         }
       }
       if (dup == true) {
-        logger.info("dup_records ..");
         return;
       }
     }
-    logger.info("new_records ..");
+
     Date dt = new Date();
     beans.forEach(bean -> {
       bean.setCreate_time(dt);
       bean.setUpdate_time(dt);
       tb_app_sdk_contract_mapper.insert(bean);
     });
+    logger.info(String.format("[new_contact]: mobile [%s] len [%d], sig [%s]", mobile, beans.size(), ToolUtils.NormTime(dt)));
   }
 
   @Async
   public void InsertApplistsync(String mobile, List<TbAppSdkAppListInfoBean> beans, List<TbAppSdkAppListInfoBean> exists) {
-    Collections.sort(beans, (x, y) -> x.getApk_name().compareTo(y.getApk_name()));
-    logger.info(String.format("\n [new]: %s \n [exist]:%s ", JSON.toJSONStringWithDateFormat(beans, ToolUtils.DEFAULT_DATE_FORMAT), JSON.toJSONStringWithDateFormat(exists, ToolUtils.DEFAULT_DATE_FORMAT)));
+    exists.forEach(v -> v.setSignature(v.calcSignature()));
+    Collections.sort(beans, (x, y) -> x.getSignature().compareTo(y.getSignature()));
     if (exists != null && (!exists.isEmpty()) && exists.size() == beans.size()) {
       boolean dup = true;
       for (int i = 0; i < beans.size(); ++i) {
-        if (!beans.get(i).Signature().equals(exists.get(i).Signature())) {
+        if (!beans.get(i).getSignature().equals(exists.get(i).getSignature())) {
           dup = false;
+          logger.info(String.format("[diff_item]:[%s] => [%s]", JSON.toJSONStringWithDateFormat(beans.get(i), ToolUtils.DEFAULT_DATE_FORMAT), JSON.toJSONStringWithDateFormat(exists.get(i), ToolUtils.DEFAULT_DATE_FORMAT)));
           break;
         }
       }
       if (dup == true) {
-        logger.info("dup_records ..");
         return;
       }
     }
-    logger.info("new_records ..");
     Date dt = new Date();
     beans.forEach(bean -> {
       bean.setCreate_time(dt);
       bean.setUpdate_time(dt);
       tb_app_sdk_app_list_info_mapper.insert(bean);
     });
+    logger.info(String.format("[new_applist]: mobile [%s] len [%d], sig [%s]", mobile, beans.size(), ToolUtils.NormTime(dt)));
   }
 }

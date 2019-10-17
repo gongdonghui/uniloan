@@ -1,6 +1,7 @@
 package com.sup.common.bean;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -27,8 +28,9 @@ public class TbAppSdkContractInfoBean {
   private String contract_memo;
   private Date create_time;
   private Date update_time;
-
-  public String Signature() {
-    return String.format("%s|%s|%s|%s", device_id == null ? "": device_id, contract_name == null ? "": contract_name, contract_info == null ? "" : contract_info, contract_memo == null ? "" : contract_memo);
+  @TableField(exist = false)
+  private String signature;
+  public String calcSignature() {
+    return String.format("[%s|%s|%s|%s|%s]", mobile == null? "": mobile, device_id == null ? "": device_id, contract_name == null ? "": contract_name, contract_info == null ? "" : contract_info, contract_memo == null ? "" : contract_memo);
   }
 }

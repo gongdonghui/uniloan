@@ -1,6 +1,7 @@
 package com.sup.common.bean;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -26,8 +27,9 @@ public class TbAppSdkAppListInfoBean {
   private String apk_label;
   private Date create_time;
   private Date update_time;
-
-  public String Signature() {
-    return String.format("%s|%s|%s", device_id == null ? "": device_id, apk_name == null ? "": apk_name, apk_label == null? "": apk_label);
+  @TableField(exist = false)
+  private String signature;
+  public String calcSignature() {
+    return String.format("[%s|%s|%s|%s]", mobile == null? "": mobile, device_id == null ? "": device_id, apk_name == null ? "": apk_name, apk_label == null? "": apk_label);
   }
 }
