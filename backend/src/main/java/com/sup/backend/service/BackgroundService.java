@@ -32,6 +32,7 @@ public class BackgroundService {
 
   @Async
   public void InsertContactAsync(String mobile, List<TbAppSdkContractInfoBean> beans, List<TbAppSdkContractInfoBean> exists) {
+    logger.info(String.format("[%s] ------ new: %d, old: %d ------", mobile, beans.size(), exists.size()));
     Collections.sort(beans, (x, y) -> x.getSignature().compareTo(y.getSignature()));
     if (exists != null && (!exists.isEmpty()) && exists.size() == beans.size()) {
       boolean dup = true;
@@ -58,6 +59,7 @@ public class BackgroundService {
 
   @Async
   public void InsertApplistsync(String mobile, List<TbAppSdkAppListInfoBean> beans, List<TbAppSdkAppListInfoBean> exists) {
+    logger.info(String.format("[%s] ------ new: %d, old: %d ------", mobile, beans.size(), exists.size()));
     exists.forEach(v -> v.setSignature(v.calcSignature()));
     Collections.sort(beans, (x, y) -> x.getSignature().compareTo(y.getSignature()));
     if (exists != null && (!exists.isEmpty()) && exists.size() == beans.size()) {
