@@ -26,4 +26,8 @@ public class TbAppSdkAppListInfoBean {
   private String apk_label;
   private Date create_time;
   private Date update_time;
+
+  public String Signature() {
+    return String.format("%s|%s|%s", device_id == null ? "": device_id, apk_name == null ? "": apk_name, apk_label == null? "": apk_label);
+  }
 }

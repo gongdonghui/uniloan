@@ -27,4 +27,8 @@ public class TbAppSdkContractInfoBean {
   private String contract_memo;
   private Date create_time;
   private Date update_time;
+
+  public String Signature() {
+    return String.format("%s|%s|%s|%s", device_id == null ? "": device_id, contract_name == null ? "": contract_name, contract_info == null ? "" : contract_info, contract_memo == null ? "" : contract_memo);
+  }
 }
