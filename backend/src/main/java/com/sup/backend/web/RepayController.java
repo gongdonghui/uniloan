@@ -8,6 +8,7 @@ import com.sup.backend.bean.AppApplyInfo;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.mapper.TbManualRepayMapper;
 import com.sup.backend.mapper.TbRepayPlanMapper;
+import com.sup.backend.service.RedisClient;
 import com.sup.common.bean.TbManualRepayBean;
 import com.sup.common.bean.TbMarketPlanBean;
 import com.sup.common.bean.TbRepayPlanBean;
@@ -31,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by xidongzhou1 on 2019/9/5.
@@ -51,6 +53,9 @@ public class RepayController {
 
   @Autowired
   private CoreService core;
+
+  @Autowired
+  RedisClient rc;
 
   @LoginRequired
   @ResponseBody
@@ -80,6 +85,11 @@ public class RepayController {
   @ResponseBody
   @RequestMapping(value = "manual_repay", produces = "application/json;charset=UTF-8")
   public Object ManualRepay(@RequestBody AppApplyInfo apply, @LoginInfo LoginInfoCtx li) {
+    String manual_repay_flag = String.format("manual_repay|%d", li.getUser_id());
+    if (!rc.SetEx(manual_repay_flag, "ok", 3l, TimeUnit.SECONDS)) {
+      return ToolUtils.fail(1, "duplicate_submit");
+    }
+
     TbRepayPlanBean repay_plan_bean = tb_repay_plan_mapper.selectById(apply.getPlan_id());
     TbManualRepayBean mb = new TbManualRepayBean();
     mb.setPlan_id(repay_plan_bean.getId());
@@ -97,6 +107,7 @@ public class RepayController {
     mb.setCreate_time(new Date());
     mb.setUpdate_time(new Date());
     tb_manual_repay_mapper.insert(mb);
+    rc.Delete(manual_repay_flag);
     return ToolUtils.succ("succ");
   }
 }
