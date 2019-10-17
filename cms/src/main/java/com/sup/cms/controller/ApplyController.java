@@ -9,12 +9,14 @@ import com.sup.cms.bean.po.ApplyApprovalGetListBean;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.ApplyOperationTaskMapper;
 import com.sup.cms.mapper.CrazyJoinMapper;
+import com.sup.cms.mapper.TbApplyInfoMapper;
 import com.sup.cms.mapper.TbManualRepayMapper;
 import com.sup.cms.util.DateUtil;
 import com.sup.cms.util.GsonUtil;
 import com.sup.cms.util.ResponseUtil;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbManualRepayBean;
+import com.sup.common.bean.TbOperationTaskBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.OperationTaskStatusEnum;
 import com.sup.common.loan.OperationTaskTypeEnum;
@@ -49,6 +51,9 @@ public class ApplyController {
     private CrazyJoinMapper crazyJoinMapper;
     @Autowired
     private CoreService coreService;
+
+    @Autowired
+    private TbApplyInfoMapper applyInfoMapper;
 
     /**
      * 信审或者终审的待指派或者待领取-列表
@@ -390,6 +395,10 @@ public class ApplyController {
             if (manualRepayMapper.updateById(bean) <= 0) {
                 log.error("Failed to update bean=" + GsonUtil.toJson(bean));
             }
+        }
+
+        if (!confirm) { // 还款失败无需更新还款计划等
+            return ResponseUtil.success();
         }
 
         // 更新还款计划、还款状态等

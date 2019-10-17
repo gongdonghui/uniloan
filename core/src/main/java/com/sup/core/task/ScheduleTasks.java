@@ -106,7 +106,9 @@ public class ScheduleTasks {
             param.setProductId(String.valueOf(bean.getProduct_id()));
             param.setUserId(String.valueOf(bean.getUser_id()));
             // 2. 自动审查
+            // log.info(">>>> start apply rules...");
             RiskDecisionResultBean result = decisionEngine.applyRules(param);
+            // log.info(">>>> RiskDecisionResultBean = " + GsonUtil.toJson(result));
             if (result == null) {
                 // Exception??
                 log.error("DecisionEngine return null for param = " + GsonUtil.toJson(param));
@@ -357,6 +359,14 @@ public class ScheduleTasks {
                 if (!r.isSucc()) {
                     log.error("Failed to update");
                 }
+                // update apply_info
+                TbApplyInfoBean applyInfoBean = applyInfoMapper.selectById(bean.getApply_id());
+                if (applyInfoBean == null || applyInfoBean.getStatus() == ApplyStatusEnum.APPLY_OVERDUE.getCode()) {
+                    continue;
+                }
+                applyInfoBean.setStatus(ApplyStatusEnum.APPLY_OVERDUE.getCode());
+                applyInfoBean.setUpdate_time(now);
+                applyInfoMapper.updateById(applyInfoBean);
             }
         }
     }
@@ -384,6 +394,7 @@ public class ScheduleTasks {
         Integer total = repayPlanMapper.selectCount(wrapper);
         Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
         log.info("Total repayPlan num: " + total);
+        log.info("Total repayStat num: " + repayStatMap.size());
         for (int i = 1; i <= pageCount; ++i) {
             // 2. 获取还款计划
             Page<TbRepayPlanBean> page = new Page<>(i, QUERY_PAGE_NUM, false);
