@@ -189,7 +189,7 @@ public class ApplyController {
       ov.setPeriod(bean.getPeriod().toString());
       ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()).substring(0, 10));
       ov.setJieqing_amount(stat_bean.getNeed_total().toString());
-      ov.setJieqing_date(ToolUtils.NormTime(bean.getUpdate_time()).substring(1, 10));
+      ov.setJieqing_date(ToolUtils.NormTime(bean.getUpdate_time()).substring(0, 10));
       ret_app_beans.add(ov);
     }
     System.out.println(JSON.toJSONString(ret_app_beans));
