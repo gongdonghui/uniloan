@@ -364,6 +364,8 @@ public class ScheduleTasks {
                 if (applyInfoBean == null || applyInfoBean.getStatus() == ApplyStatusEnum.APPLY_OVERDUE.getCode()) {
                     continue;
                 }
+                // 发送MQ消息
+                mqMessenger.applyStatusChange(applyInfoBean);
                 applyInfoBean.setStatus(ApplyStatusEnum.APPLY_OVERDUE.getCode());
                 applyInfoBean.setUpdate_time(now);
                 applyInfoMapper.updateById(applyInfoBean);
