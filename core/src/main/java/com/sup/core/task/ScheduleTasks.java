@@ -339,7 +339,8 @@ public class ScheduleTasks {
 //                // 最后还款日期为：截止日期+宽限期
 //                Date repay_end_date = DateUtil.getDate(bean.getRepay_end_date(), productInfoBean.getGrace_period());
                 Date repay_end_date = bean.getRepay_end_date();
-                boolean isLate = DateUtil.compareDate(repay_end_date, now) < 0;
+                // boolean isLate = DateUtil.compareDate(repay_end_date, now) < 0;
+                boolean isLate = DateUtil.compareDay(repay_end_date, now) < 0;
                 log.info("repay_end_date=" + repay_end_date + ", isLate=" + isLate);
                 if (!isOverdue && !isLate) {
                     continue;
