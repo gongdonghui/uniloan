@@ -142,7 +142,7 @@ public class ApplyController {
   @ResponseBody
   @RequestMapping(value = "list_pending_applies", produces = "application/json;charset=UTF-8")
   public Object listPending(@LoginInfo LoginInfoCtx li) {
-    QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id());
+    QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time");
     List<TbApplyInfoBean> beans = apply_info_mapper.selectList(query);
     Set<Integer> pending_status = new HashSet<Integer>(){{
       add(ApplyStatusEnum.APPLY_INIT.getCode());
@@ -174,7 +174,7 @@ public class ApplyController {
   @ResponseBody
   @RequestMapping(value = "list_complete_applies", produces = "application/json;charset=UTF-8")
   public Object listComplete(@LoginInfo LoginInfoCtx li) {
-    QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id());
+    QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time");
     List<TbApplyInfoBean> beans = apply_info_mapper.selectList(query);
     Set<Integer> pending_status = new HashSet<Integer>(){{
       add(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
@@ -206,7 +206,7 @@ public class ApplyController {
   @ResponseBody
   @RequestMapping(value = "list_repay_applies", produces = "application/json;charset=UTF-8")
   public Object listRepay(@LoginInfo LoginInfoCtx li) {
-    QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id());
+    QueryWrapper<TbApplyInfoBean> query = new QueryWrapper<TbApplyInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time");
     List<TbApplyInfoBean> beans = apply_info_mapper.selectList(query);
     List<AppApplyInfo> ret_app_beans = new ArrayList<>();
 
