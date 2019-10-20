@@ -88,6 +88,9 @@ public class ScheduleTasks {
     private OperationReportMapper operationReportMapper;
 
     @Autowired
+    private OperationTaskMapper operationTaskMapper;
+
+    @Autowired
     private OperationTaskJoinMapper operationTaskJoinMapper;
 
     @Autowired
@@ -577,19 +580,36 @@ public class ScheduleTasks {
             TbRepayPlanBean repayPlanBean = this.repayPlanMapper.selectOne(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", tbApplyInfoBean.getId()));
             Date replay_end = repayPlanBean.getRepay_end_date();
             int days = DateUtil.daysbetween(replay_end, date);
+            Integer assetLevel = tbApplyInfoBean.getAsset_level();
 
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
                 if (days >= assetsLevelRuleBean.getBetween_paydays()) {
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
+                    tbApplyInfoBean.setUpdate_time(date);
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
+                    if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
+                        // assert level changed
+                        QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
+                        wrapper.eq("apply_id", tbApplyInfoBean.getId());
+                        wrapper.eq("task_type", OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+                        wrapper.eq("status", OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
+                        wrapper.eq("has_owner", 1);
+                        TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
+                        if (taskBean != null) {
+                            // reset the task
+                            taskBean.setOperator_id(null);
+                            taskBean.setDistributor_id(null);
+                            taskBean.setHas_owner(0);
+                            taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_CANCEL.getCode());
+                            taskBean.setComment("asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
+                            taskBean.setUpdate_time(date);
+                            operationTaskMapper.updateById(taskBean);
+                        }
+                    }
                     break;
                 }
-
-
             }
         }
-
-
     }
 
     @Scheduled(cron = "0 4 * * * ?")   //T+1
