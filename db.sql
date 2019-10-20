@@ -701,3 +701,41 @@ CREATE TABLE IF NOT EXISTS `tb_repay_history` (
   KEY `idx_repay_time` (`repay_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+DROP TABLE IF EXISTS tb_report_operation_daily;
+CREATE TABLE `tb_report_operation_daily` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `data_dt` date DEFAULT NULL COMMENT '报表日期',
+  `apply` int(11) DEFAULT NULL COMMENT '申请数量',
+  `apply_cust` int(11) DEFAULT NULL COMMENT '申请用户数',
+  `auto_pass` int(11) DEFAULT NULL COMMENT '自动审核通过',
+  `auto_deny` int(11) DEFAULT NULL COMMENT '自动审核拒绝',
+  `manual_pass` int(11) DEFAULT NULL COMMENT '人工审核通过',
+  `manual_deny` int(11) DEFAULT NULL COMMENT '人工审核拒绝',
+  `pay` int(11) DEFAULT NULL COMMENT '放款笔数',
+  `pay_amt` int(11) DEFAULT NULL COMMENT '放款额度',
+  `first_overdue` int(11) DEFAULT NULL COMMENT '首逾订单数',
+  `repay` int(11) DEFAULT NULL COMMENT '应还款',
+  `repay_actual` int(11) DEFAULT NULL COMMENT '实际还款',
+  `register` int(11) DEFAULT NULL COMMENT '注册',
+  `download` int(11) DEFAULT NULL COMMENT '下载',
+  `channel_id` int(11) DEFAULT NULL COMMENT '渠道号',
+  `create_time` datetime DEFAULT NULL,
+  `forate` double DEFAULT NULL COMMENT '首逾率',
+  PRIMARY KEY (`id`),
+  KEY `channel_id` (`channel_id`),
+  KEY `data_dt` (`data_dt`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_report_check_daily;
+CREATE TABLE `tb_report_check_daily` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `date_dt` date DEFAULT NULL,
+  `task_type` int(11) DEFAULT NULL,
+  `total` int(11) DEFAULT NULL,
+  `allocated` int(11) DEFAULT NULL,
+  `checked` int(11) DEFAULT NULL,
+  `denyed` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `date_dt` (`date_dt`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -17,7 +17,7 @@ import java.util.Date;
 @TableName("tb_report_check_daily")
 public class CheckReportBean {
     @TableId(type = IdType.AUTO)
-    private Integer id;         // apply_id
+    private Integer id;
     private Date data_dt;
     private Integer task_type;
     private Integer total;

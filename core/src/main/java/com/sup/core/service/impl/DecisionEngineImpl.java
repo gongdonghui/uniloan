@@ -215,7 +215,10 @@ public class DecisionEngineImpl implements DecesionEngine {
 
             }
         }
-        List<TbAppSdkContractInfoBean> contractInfoBeans = this.tbAppSdkContractInfoMapper.selectList(new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", user_mobile));
+
+
+
+        List<TbAppSdkContractInfoBean> contractInfoBeans = this.queryLatestContact(user_mobile);
         int size_of_contract = contractInfoBeans.size();
         riskBean.put(RiskVariableConstants.NUM_OF_CONTRACT, Double.valueOf(size_of_contract));
         // log.info(">>>> prepareRiskVariables.contractInfoBeans...");
@@ -243,6 +246,18 @@ public class DecisionEngineImpl implements DecesionEngine {
 
     }
 
+
+    private List<TbAppSdkContractInfoBean> queryLatestContact(String mobile) {
+        List<TbAppSdkContractInfoBean> result = new ArrayList<>();
+        TbAppSdkContractInfoBean first_bean = tb_app_sdk_contract_mapper.selectOne(new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).orderByDesc("id").last("limit 1"));
+        if (first_bean == null) {
+            return result;
+        }
+        QueryWrapper<TbAppSdkContractInfoBean> query = new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).eq("create_time", first_bean.getCreate_time()).orderByAsc("id");
+        result = tb_app_sdk_contract_mapper.selectList(query);
+        result.forEach(v -> v.setSignature(v.calcSignature()));
+        return result;
+    }
 
     private boolean serializeDecesionResult(RiskDecisionResultBean result, List<RiskDecisionResultDetailBean> detailBeans) {
 
