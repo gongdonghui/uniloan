@@ -300,4 +300,38 @@ public class DateUtil {
         return days;
 
     }
+
+    /**
+     * 比较两个日期，仅比较年月日，忽略时分秒
+     * -1 d1早于d2
+     * 0 d1=d2
+     * 1 d1晚于d2
+     *
+     * @param d1
+     * @param d2
+     * @return
+     */
+    public static int compareDay(Date d1, Date d2) {
+        if (d1 == null && d2 == null) {
+            return 0;
+        } else if (d1 == null) {
+            return -1;
+        } else if (d2 == null) {
+            return 1;
+        }
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(d1);
+        cal1.set(Calendar.HOUR_OF_DAY, 0);
+        cal1.set(Calendar.MINUTE, 0);
+        cal1.set(Calendar.SECOND, 0);
+        cal1.set(Calendar.MILLISECOND, 0);
+
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(d2);
+        cal2.set(Calendar.HOUR_OF_DAY, 0);
+        cal2.set(Calendar.MINUTE, 0);
+        cal2.set(Calendar.SECOND, 0);
+
+        return cal1.compareTo(cal2);
+    }
 }

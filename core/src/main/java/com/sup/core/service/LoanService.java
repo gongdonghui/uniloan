@@ -111,15 +111,14 @@ public class LoanService {
             payInfo.setRemark(applyId);
 
             try {
-                for (int i = 0; i < AUTO_LOAN_RETRY_TIMES; i++) {
-                    Result<PayVO> result = funpayService.pay(payInfo);
-                    if (result != null && result.isSucc()) {
-                        loanSucc = true;
-                        applyInfoBean.setTrade_number(result.getData().getTradeNo());
-                        break;
-                    }
-                    Thread.sleep(1000);
+                // for (int i = 0; i < AUTO_LOAN_RETRY_TIMES; i++) {
+                Result<PayVO> result = funpayService.pay(payInfo);
+                if (result != null && result.isSucc()) {
+                    loanSucc = true;
+                    applyInfoBean.setTrade_number(result.getData().getTradeNo());
                 }
+                //    Thread.sleep(1000);
+                //}
             }catch (Exception e) {
                 e.printStackTrace();
                 log.error(e.getMessage());
@@ -151,6 +150,8 @@ public class LoanService {
         Date now = new Date();
         // 检查还款记录表，还款处理中的记录
         QueryWrapper<TbRepayHistoryBean> historyWrapper = new QueryWrapper<>();
+        historyWrapper.eq("apply_id", repayPlanBean.getApply_id());
+        historyWrapper.eq("repay_plan_id", repayPlanBean.getId());
         historyWrapper.eq("repay_status", RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
         historyWrapper.ge("expire_time", now);
         historyWrapper.orderByDesc("id");   // create_time
@@ -283,8 +284,12 @@ public class LoanService {
             applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
             mqMessenger.applyStatusChange(applyInfoBean);
         } else {
-            applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
+            if (applyInfoBean.getStatus() != ApplyStatusEnum.APPLY_OVERDUE.getCode()) {
+                // 非逾期状态下，更新为未还清；逾期未还清仍为逾期状态
+                applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
+            }
         }
+        applyInfoBean.setUpdate_time(new Date());
         applyInfoMapper.updateById(applyInfoBean);
         return Result.succ();
     }

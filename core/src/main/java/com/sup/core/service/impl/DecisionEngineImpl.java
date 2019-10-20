@@ -149,7 +149,7 @@ public class DecisionEngineImpl implements DecesionEngine {
 
 
         }
-
+        // log.info(">>>> prepareRiskVariables.basic_info_id...");
         if (!basic_info_id.isEmpty()) {
             TbUserBasicInfoBean userBasicInfoBean = userBasicInfoMapper.selectOne(new QueryWrapper<TbUserBasicInfoBean>().eq("info_id", basic_info_id));
             if (userBasicInfoBean != null) {
@@ -175,6 +175,7 @@ public class DecisionEngineImpl implements DecesionEngine {
                 riskBean.put(RiskVariableConstants.LATEST_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getLatest_days()));
             }
         }
+        // log.info(">>>> prepareRiskVariables.bank_info_id...");
         if (!bank_info_id.isEmpty()) {
             TbUserBankAccountInfoBean userBankInfoBean = this.userBankInfoMapper.selectOne(new QueryWrapper<TbUserBankAccountInfoBean>().eq("info_id", bank_info_id).orderByDesc("create_time"));
             if (userBankInfoBean != null) {
@@ -192,6 +193,7 @@ public class DecisionEngineImpl implements DecesionEngine {
             }
         }
 
+        // log.info(">>>> prepareRiskVariables.eme_info_id...");
         if (!eme_info_id.isEmpty()) {
 
             List<UserEmergencyContactInfoBean> emeList = this.userEmergencyContactInfoMapper.selectList(new QueryWrapper<UserEmergencyContactInfoBean>().eq("info_id", eme_info_id));
@@ -216,7 +218,9 @@ public class DecisionEngineImpl implements DecesionEngine {
         List<TbAppSdkContractInfoBean> contractInfoBeans = this.tbAppSdkContractInfoMapper.selectList(new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", user_mobile));
         int size_of_contract = contractInfoBeans.size();
         riskBean.put(RiskVariableConstants.NUM_OF_CONTRACT, Double.valueOf(size_of_contract));
+        // log.info(">>>> prepareRiskVariables.contractInfoBeans...");
         if (!contractInfoBeans.isEmpty()) {
+            // log.info(">>>> prepareRiskVariables.contractInfoBeans.size=" + contractInfoBeans.size());
             int max_overdue_times = 0;
             int max_apply_times = 0;
             for (TbAppSdkContractInfoBean appSdkContractInfoBean : contractInfoBeans) {
@@ -263,6 +267,7 @@ public class DecisionEngineImpl implements DecesionEngine {
         if (user_mobile.isEmpty()) return null;
         //user  register mobie  is empty
 
+        // log.info(">>>> prepareRiskVariables...");
         Map<String, Double> riskBean = prepareRiskVariables(param.getUserId(), param.getApplyId(), user_mobile);
 
         RiskDecisionResultBean result = new RiskDecisionResultBean();
@@ -279,7 +284,7 @@ public class DecisionEngineImpl implements DecesionEngine {
 
             if (rule.getHit_type() == 1) {   //必须通过类
 
-
+                // log.info(">>>> applySingleRule...");
                 boolean ret = applySingleRule(rule, user_mobile, riskBean);
 
                 decisionResultBean.setRule_status(ret ? 1 : 0);
@@ -297,6 +302,7 @@ public class DecisionEngineImpl implements DecesionEngine {
             detailBeanList.add(decisionResultBean);
 
         }
+        // log.info(">>>> serializeDecesionResult...");
         serializeDecesionResult(result, detailBeanList);
         return result;
 
