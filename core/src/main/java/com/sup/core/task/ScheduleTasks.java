@@ -15,9 +15,7 @@ import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
-import com.sup.core.bean.OperationTaskJoinBean;
-import com.sup.core.bean.OverdueInfoBean;
-import com.sup.core.bean.RiskDecisionResultBean;
+import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.ApplyService;
@@ -95,6 +93,9 @@ public class ScheduleTasks {
 
     @Autowired
     private CheckReportMapper checkReportMapper;
+
+    @Autowired
+    private CollectionReportMapper collectionReportMapper;
 
     @Scheduled(cron = "0 */5 * * * ?")
     public void checkApplyInfo() {
@@ -712,12 +713,44 @@ public class ScheduleTasks {
                 ++allocated;
 
             }
-
-
         }
         checkReportBean.setDenyed(deny);
         checkReportBean.setChecked(checked);
         checkReportBean.setAllocated(allocated);
         this.checkReportMapper.insert(checkReportBean);
+    }
+
+    private void doOperationReportDaily(Date data_dt, Date current) {
+        List<CollectionStatBean> collectionStatBeans = this.operationTaskJoinMapper.getCollectionStats(current, OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+        Integer in_apply = collectionStatBeans.size();
+        Long in_amt = 0L;
+        for (CollectionStatBean collectionStatBean : collectionStatBeans) {
+            in_amt += collectionStatBean.getTotal();
+        }
+
+        List<CollectionRepayBean> collectionRepayBeans = this.operationTaskJoinMapper.getCollectionRepay(data_dt, current);
+
+        Integer tracked = collectionRepayBeans.size();
+        Long repay_amt = 0L;
+        Integer repay_apply = 0;
+        for (CollectionRepayBean collectionRepayBean : collectionRepayBeans) {
+            Long amt = collectionRepayBean.getRepay_amt();
+            if (amt > 0) {
+                repay_apply++;
+                repay_amt+=amt;
+            }
+        }
+
+        CollectionReportBean collectionReportBean = new CollectionReportBean();
+        collectionReportBean.setData_dt(data_dt);
+        collectionReportBean.setIn_apply(in_apply);
+        collectionReportBean.setIn_amt(in_amt);
+        collectionReportBean.setRepay_apply(repay_apply);
+        collectionReportBean.setRepay_amt(repay_amt);
+        collectionReportBean.setTracked_apply(tracked);
+
+        this.collectionReportMapper.insert(collectionReportBean);
+
+
     }
 }

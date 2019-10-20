@@ -249,12 +249,12 @@ public class DecisionEngineImpl implements DecesionEngine {
 
     private List<TbAppSdkContractInfoBean> queryLatestContact(String mobile) {
         List<TbAppSdkContractInfoBean> result = new ArrayList<>();
-        TbAppSdkContractInfoBean first_bean = tb_app_sdk_contract_mapper.selectOne(new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).orderByDesc("id").last("limit 1"));
+        TbAppSdkContractInfoBean first_bean = this.tbAppSdkContractInfoMapper.selectOne(new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).orderByDesc("id").last("limit 1"));
         if (first_bean == null) {
             return result;
         }
         QueryWrapper<TbAppSdkContractInfoBean> query = new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).eq("create_time", first_bean.getCreate_time()).orderByAsc("id");
-        result = tb_app_sdk_contract_mapper.selectList(query);
+        result = this.tbAppSdkContractInfoMapper.selectList(query);
         result.forEach(v -> v.setSignature(v.calcSignature()));
         return result;
     }

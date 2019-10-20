@@ -9,9 +9,9 @@ import lombok.Data;
  */
 @Data
 public class OperationTaskJoinBean {
-    private Integer id;
     private Integer applyId;
     private Integer applyStatus;
+    private Integer id;
     private Integer taskStatus;
     private Integer hasOwner;
     private Integer createTime;
