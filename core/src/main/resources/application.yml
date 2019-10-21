@@ -151,7 +151,7 @@ ssdb:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://172.21.190.224:51666/eureka/
+      defaultZone: http://172.21.190.226:51666/eureka/
 
 rocket:
   producer:

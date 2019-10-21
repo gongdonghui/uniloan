@@ -1,29 +1,30 @@
 spring:
   profiles:
-    active: dev
+    active: test
 server:
   port: 8090
-mybatis:
-  configuration:
-    map-underscore-to-camel-case: false
+  tomcat:
+    max-threads: 10
+  connection-timeout: 180000
+#mybatis:
+#  configuration:
+#    map-underscore-to-camel-case: false
 
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
 
-ssdb:
-  host: 127.0.0.1
-  #host: 47.111.160.160
-  port: 13288
-  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
-  timeout: 300000
+feign:
+  hystrix:
+    enabled: false
+  client:
+    config:
+      default:
+        connect-timeout: 10000
+        read-timeout: 10000
 
-
-#ribbon的超时时间
 ribbon:
-  #请求处理的超时时间
   ReadTimeout: 60000
-  #请求连接的超时时间
   ConnectTimeout: 60000
   eureka:
     enable: true
@@ -31,7 +32,7 @@ ribbon:
 
 ---
 spring:
-  profiles: dev
+  profiles: test
   datasource:
     name: mydb
     type: com.alibaba.druid.pool.DruidDataSource
@@ -58,6 +59,14 @@ spring:
     host: 127.0.0.1
     port: 6388
     password: 13JPTmkZT5QmAV4s
+
+ssdb:
+  host: 127.0.0.1
+  #host: 47.111.160.160
+  port: 13288
+  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
+  timeout: 300000
+
 eureka:
   client:
     serviceUrl:
@@ -66,7 +75,7 @@ eureka:
 
 ---
 spring:
-  profiles: prod
+  profiles: online
   datasource:
     name: mydb
     type: com.alibaba.druid.pool.DruidDataSource
@@ -92,7 +101,14 @@ spring:
     host: 127.0.0.1
     port: 6379
     password: 13JPTmkZT5QmAV4s
+
+ssdb:
+  host: 172.21.190.226
+  port: 13288
+  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
+  timeout: 300000
+
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://192.168.78.32:51666/eureka/
+      defaultZone: http://172.21.190.226:51666/eureka/
