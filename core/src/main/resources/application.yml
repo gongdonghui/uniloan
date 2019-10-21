@@ -1,36 +1,29 @@
-debug:
-  true
+debug: false
 
-eureka:
-  client:
-    serviceUrl:
-      #defaultZone: http://192.168.78.32:51666/eureka/
-      defaultZone: http://127.0.0.1:51666/eureka/
-      #defaultZone: http://140.143.207.211:51666/eureka/
+spring:
+  profiles:
+    active: test
+  application:
+    name: service-core
+  messages:
+    basename: static/i18n/messages
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
 
 feign:
+  hystrix:
+    enabled: false
   client:
     config:
       default:
         connectTimeout: 20000
         readTimeout: 20000
 
-##hystrix的超时时间
-#hystrix:
-#  command:
-#    default:
-#      execution:
-#        timeout:
-#          enabled: true
-#        isolation:
-#          thread:
-#            timeoutInMilliseconds: 30000
-
-#ribbon的超时时间
 ribbon:
-  #请求处理的超时时间
   ReadTimeout: 60000
-  #请求连接的超时时间
   ConnectTimeout: 60000
   eureka:
     enable: true
@@ -39,25 +32,58 @@ server:
   port: 10083
   tomcat:
     max-threads: 10
+  connection-timeout: 180000
 
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
 
-rocket:
-  producer:
-    endpoint: 127.0.0.1:9976
-    #endpoint: 47.111.160.160:9976
-    #endpoint: 140.143.207.211:9976
-    group: user_state_group
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE
+
+apply:
+  expire-days: 7
+
+loan:
+  auto-loan-retry-times: 3
+
+query:
+  page-num: 500
 
 
+
+#eureka:
+#  client:
+#    serviceUrl:
+#      #defaultZone: http://192.168.78.32:51666/eureka/
+#      defaultZone: http://127.0.0.1:51666/eureka/
+#      #defaultZone: http://140.143.207.211:51666/eureka/
+#
+#rocket:
+#  producer:
+#    endpoint: 127.0.0.1:9976
+#    #endpoint: 47.111.160.160:9976
+#    #endpoint: 140.143.207.211:9976
+#    group: user_state_group
+
+
+
+---
 spring:
-  messages:
-    basename: static/i18n/messages
-
-  application:
-    name: service-core
+  profiles: test
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 7789
+    jedis:
+      pool:
+        max-active: 8
+    timeout: 60000
+    password: 13JPTmkZT5QmAV4s
 
   datasource:
     dynamic:
@@ -72,7 +98,98 @@ spring:
           url: 'jdbc:mysql://140.143.207.211:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
-            max-lifetime: 600000
+            max-lifetime: 300000
+ssdb:
+  host: 127.0.0.1
+  port: 13288
+  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
+  timeout: 300000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:51666/eureka/
+
+rocket:
+  producer:
+    endpoint: 127.0.0.1:9976
+    group: user_state_group
+
+---
+spring:
+  profiles: online
+  redis:
+    database: 0
+    host: 172.21.190.226
+    port: 7789
+    jedis:
+      pool:
+        max-active: 8
+    timeout: 60000
+    password: 13JPTmkZT5QmAV4s
+
+  datasource:
+    dynamic:
+      hikari:
+        connection-timeout: 3000
+
+      primary: online
+      datasource:
+        online:
+          username: dev_online
+          password: Dwl12#$%^
+          url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          driver-class-name: com.mysql.jdbc.Driver
+          hikari:
+            max-lifetime: 300000
+ssdb:
+  host: 172.21.190.226
+  port: 13288
+  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
+  timeout: 300000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://172.21.190.224:51666/eureka/
+
+rocket:
+  producer:
+    endpoint: 172.21.190.226:9976;172.21.190.225:9976
+    group: user_state_group
+
+
+
+
+
+
+
+
+
+
+
+
+#spring:
+#  messages:
+#    basename: static/i18n/messages
+#
+#  application:
+#    name: service-core
+#
+#  datasource:
+#    dynamic:
+#      hikari:
+#        connection-timeout: 3000
+#
+#      primary: test
+#      datasource:
+#        test:
+#          username: uniloan_test
+#          password: 13JPTmkZT5QmAV4s
+#          url: 'jdbc:mysql://140.143.207.211:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+#          driver-class-name: com.mysql.jdbc.Driver
+#          hikari:
+#            max-lifetime: 600000
 
 #        online:
 #          username: dev
@@ -80,12 +197,5 @@ spring:
 #          url: 'jdbc:mysql://47.92.200.47:3306/test_uniloan?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
 #          driver-class-name: com.mysql.jdbc.Driver
 
-apply:
-  expire-days: 7
 
-loan:
-  auto-loan-retry-times: 3
-
-query:
-  page-num: 500
 

@@ -3,7 +3,6 @@ package com.sup.core.task;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.sup.cms.mapper.CheckReportMapper;
 import com.sup.common.bean.*;
 import com.sup.common.bean.paycenter.PayStatusInfo;
 import com.sup.common.bean.paycenter.RepayStatusInfo;
