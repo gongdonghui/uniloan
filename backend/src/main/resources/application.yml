@@ -117,7 +117,7 @@ spring:
           hikari:
             max-lifetime: 300000
 ssdb:
-  host: 172.21.190.226
+  host: uniloan04
   port: 13288
   auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
   timeout: 300000
@@ -129,8 +129,8 @@ eureka:
 
 rocket:
   consumer:
-    endpoint: 172.21.190.226:9976;172.21.190.225:9976
+    endpoint: uniloan03:9976;uniloan04:9976
     group: app_backend
   producer:
-    endpoint: 172.21.190.226:9976;172.21.190.225:9976
+    endpoint: uniloan03:9976;uniloan04:9976
     group: app_backend

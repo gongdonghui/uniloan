@@ -64,26 +64,26 @@ spring:
       hikari:
         connection-timeout: 3000
 
-      primary: test
+      primary: online
       datasource:
-        test:
-          username: uniloan_test
-          password: 13JPTmkZT5QmAV4s
-          url: 'jdbc:mysql://140.143.207.211:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+        online:
+          username: dev_online
+          password: Dwl12#$%^
+          url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
-            max-lifetime: 600000
+            max-lifetime: 300000
 
 ontime-delivery:
   redisson:
-    host: 172.21.190.226
+    host: uniloan04
     port: 6388
     auth: 13JPTmkZT5QmAV4s
 
 rocket:
   consumer:
-    endpoint: 172.21.190.226:9976;172.21.190.225:9976
+    endpoint: uniloan03:9976;uniloan04:9976
     group: market
   producer:
-    endpoint: 172.21.190.226:9976;172.21.190.225:9976
+    endpoint: uniloan03:9976;uniloan04:9976
     group: market
