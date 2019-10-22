@@ -2,7 +2,7 @@ debug: false
 
 spring:
   profiles:
-    active: test
+    active: online
   messages:
     basename: static/i18n/messages
   servlet:
@@ -125,7 +125,7 @@ ssdb:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://172.21.190.226:51666/eureka/
+      defaultZone: http://uniloan04:51666/eureka/
 
 rocket:
   consumer:
