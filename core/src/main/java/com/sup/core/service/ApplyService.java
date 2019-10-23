@@ -126,29 +126,13 @@ public class ApplyService {
                 bean.setCreate_time(now);
                 break;
             case APPLY_AUTO_PASS:   // 自动审核通过，添加初审任务
-                taskBean = new TbOperationTaskBean();
-                taskBean.setApply_id(bean.getId());
-                taskBean.setTask_type(OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode());
-                taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
-                taskBean.setCreate_time(now);
-                taskBean.setUpdate_time(now);
-                if (operationTaskMapper.insert(taskBean) <= 0) {
-                    log.error("Failed to add operation task, bean = " + GsonUtil.toJson(taskBean));
-                }
+                addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_FIRST_AUDIT, "");
                 break;
             case APPLY_FIRST_PASS:  // 初审通过，添加终审任务
-                taskBean = new TbOperationTaskBean();
-                taskBean.setApply_id(bean.getId());
-                taskBean.setTask_type(OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode());
-                taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
-                taskBean.setCreate_time(now);
-                taskBean.setUpdate_time(now);
-                if (operationTaskMapper.insert(taskBean) <= 0) {
-                    log.error("Failed to add operation task, bean = " + GsonUtil.toJson(taskBean));
-                }
+                addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_FINAL_AUDIT, "");
                 break;
-//            case APPLY_SECOND_PASS: // 暂不使用
-//                break;
+            case APPLY_SECOND_PASS: // 暂不使用
+                break;
             case APPLY_FINAL_PASS:  // 终审通过，更新到手金额
                 LoanCalculatorParam param = loanService.calcLoanAmount(bean);
                 if (param == null) {
@@ -168,17 +152,27 @@ public class ApplyService {
                 }
                 break;
             case APPLY_OVERDUE:     // 逾期，添加逾期任务
-                taskBean = new TbOperationTaskBean();
-                taskBean.setApply_id(bean.getId());
-                taskBean.setTask_type(OperationTaskTypeEnum.TASK_OVERDUE.getCode());
-                taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
-                taskBean.setCreate_time(now);
-                taskBean.setUpdate_time(now);
-                if (operationTaskMapper.insert(taskBean) <= 0) {
-                    log.error("Failed to add operation task, bean = " + GsonUtil.toJson(taskBean));
+                addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_OVERDUE, "");
+                break;
+            case APPLY_REPAY_ALL:   // 已还清
+                // 对逾期已还清的任务，将状态置为完成
+                QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
+                wrapper.eq("apply_id", bean.getId());
+                wrapper.eq("task_type", OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+                wrapper.eq("status", OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
+                wrapper.eq("has_owner", 1);
+                wrapper.ge("expire_time", now);
+                taskBean = operationTaskMapper.selectOne(wrapper);
+                if (taskBean != null) {
+                    taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_DONE.getCode());
+                    taskBean.setComment("repay all");
+                    taskBean.setUpdate_time(now);
+                    operationTaskMapper.updateById(taskBean);
                 }
                 break;
             case APPLY_WRITE_OFF:   // 还款计划也更新为核销
+                // 回收逾期任务
+                cancelOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_OVERDUE, "write off");
                 loanService.writeOffRepayPlan(bean.getId());
                 break;
             default:
@@ -197,6 +191,33 @@ public class ApplyService {
             return Result.fail("insert into ApplyInfoHistory failed! bean = " + GsonUtil.toJson(applyInfoHistoryBean));
         }
         return Result.succ();
+    }
+
+    public void addOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {
+        Date now = new Date();
+        TbOperationTaskBean taskBean = new TbOperationTaskBean();
+        taskBean.setApply_id(applyId);
+        taskBean.setTask_type(taskType.getCode());
+        taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
+        taskBean.setComment(comment);
+        taskBean.setCreate_time(now);
+        taskBean.setUpdate_time(now);
+        operationTaskMapper.insert(taskBean);
+    }
+
+    public void cancelOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {
+        QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("apply_id", applyId);
+        wrapper.eq("task_type", taskType.getCode());
+        wrapper.eq("status", OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
+        wrapper.eq("has_owner", 1);
+        TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
+        if (taskBean != null) {
+            taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_CANCEL.getCode());
+            taskBean.setComment(comment);
+            taskBean.setUpdate_time(new Date());
+            operationTaskMapper.updateById(taskBean);
+        }
     }
 
 //    protected void sendMessage(TbApplyInfoBean bean) throws Exception {

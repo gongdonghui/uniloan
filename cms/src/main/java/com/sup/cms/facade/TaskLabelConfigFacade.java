@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping(value = "/taskLabel")
 public interface TaskLabelConfigFacade {
     @ResponseBody
-    @RequestMapping(value = "addlabel", produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "addLabel", produces = "application/json;charset=UTF-8")
     Result addLabel(@RequestBody TaskLabelParam param);
     @ResponseBody
     @RequestMapping(value = "getLabel", produces = "application/json;charset=UTF-8")
