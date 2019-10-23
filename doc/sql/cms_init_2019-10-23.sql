@@ -7,7 +7,7 @@
 #
 # Host: 140.143.207.211 (MySQL 5.6.45)
 # Database: test
-# Generation Time: 2019-10-23 08:35:40 +0000
+# Generation Time: 2019-10-23 09:07:21 +0000
 # ************************************************************
 
 
@@ -18,6 +18,25 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+
+# Dump of table tb_cms_assign_history
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `tb_cms_assign_history`;
+
+CREATE TABLE `tb_cms_assign_history` (
+  `ID` int(11) NOT NULL COMMENT '主键',
+  `ORDER_ID` int(11) DEFAULT NULL COMMENT '订单号',
+  `ASSIGNMENT_NAME` varchar(255) DEFAULT NULL COMMENT '任务名称',
+  `RESULT` int(11) DEFAULT NULL COMMENT '执行结果',
+  `CUSTOMER_NAME` varchar(255) DEFAULT NULL COMMENT '客户名称',
+  `APPROVER` varchar(255) DEFAULT NULL COMMENT '审批人',
+  `CREATE_TIME` datetime DEFAULT NULL,
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 
 # Dump of table tb_cms_auth_resource
@@ -200,6 +219,174 @@ VALUES
 
 /*!40000 ALTER TABLE `tb_cms_auth_user_role` ENABLE KEYS */;
 UNLOCK TABLES;
+
+
+# Dump of table tb_cms_collection_allocate_record
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `tb_cms_collection_allocate_record`;
+
+CREATE TABLE `tb_cms_collection_allocate_record` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `apply_id` int(11) DEFAULT NULL COMMENT '进件id',
+  `action_time` datetime DEFAULT NULL COMMENT '指派时间',
+  `collector_id` int(11) DEFAULT NULL COMMENT '催收人id',
+  `distributor_id` int(11) DEFAULT NULL COMMENT '指派人id',
+  `collector_name` varchar(255) DEFAULT NULL COMMENT '催收人姓名',
+  `distributor_name` varchar(255) DEFAULT NULL COMMENT '指派人姓名',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `tb_cms_collection_allocate_record` WRITE;
+/*!40000 ALTER TABLE `tb_cms_collection_allocate_record` DISABLE KEYS */;
+
+INSERT INTO `tb_cms_collection_allocate_record` (`id`, `apply_id`, `action_time`, `collector_id`, `distributor_id`, `collector_name`, `distributor_name`, `create_time`)
+VALUES
+	(1,4,'2019-10-11 02:40:25',2,1,'测试用户','管理员','2019-10-11 02:40:25'),
+	(2,4,'2019-10-11 03:17:15',1,1,'管理员','管理员',NULL);
+
+/*!40000 ALTER TABLE `tb_cms_collection_allocate_record` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table tb_cms_collection_record
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `tb_cms_collection_record`;
+
+CREATE TABLE `tb_cms_collection_record` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
+  `mobile` varchar(20) DEFAULT NULL COMMENT '催收电话',
+  `status` varchar(255) DEFAULT NULL COMMENT '催收状态',
+  `alert_date` datetime DEFAULT NULL COMMENT '提醒日期',
+  `comment` varchar(255) DEFAULT NULL COMMENT '催收备注',
+  `apply_id` int(40) DEFAULT NULL COMMENT '进件id',
+  `periods` varchar(255) DEFAULT NULL COMMENT '期次 预留',
+  `operator_id` int(40) DEFAULT NULL COMMENT '催收人id',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `tb_cms_collection_record` WRITE;
+/*!40000 ALTER TABLE `tb_cms_collection_record` DISABLE KEYS */;
+
+INSERT INTO `tb_cms_collection_record` (`id`, `mobile`, `status`, `alert_date`, `comment`, `apply_id`, `periods`, `operator_id`, `create_time`)
+VALUES
+	(1,'18611111111','0','2019-10-10 19:00:00','测试备注',4,NULL,1,NULL);
+
+/*!40000 ALTER TABLE `tb_cms_collection_record` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table tb_cms_customer_info
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `tb_cms_customer_info`;
+
+CREATE TABLE `tb_cms_customer_info` (
+  `ID` int(11) NOT NULL COMMENT '主键',
+  `NAME` varchar(255) DEFAULT NULL COMMENT '姓名',
+  `ID_NUMBER` varchar(20) DEFAULT NULL COMMENT '身份证',
+  `PHONE_NUMBER` int(11) DEFAULT NULL COMMENT '手机号',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '注册时间',
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table tb_cms_input_manage
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `tb_cms_input_manage`;
+
+CREATE TABLE `tb_cms_input_manage` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `ORDER_ID` int(11) DEFAULT NULL COMMENT '订单号',
+  `STATUS` int(11) DEFAULT NULL COMMENT '进件状态',
+  `CUSTOMER_NAME` varchar(255) DEFAULT NULL COMMENT '客户姓名',
+  `PRODUCT_NAME` varchar(255) DEFAULT NULL COMMENT '产品名称',
+  `APPLICATIONS_AMOUNT` int(11) DEFAULT NULL COMMENT '申请金额',
+  `LOAN_TIME` datetime DEFAULT NULL COMMENT '借款期限',
+  `REPAYMENT_TYPE` int(11) DEFAULT NULL COMMENT '还款方式',
+  `BUSINESS_NAME` varchar(255) DEFAULT NULL COMMENT '商户名称',
+  `APP_NAME` varchar(255) DEFAULT NULL COMMENT 'app名称',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '进件日期',
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table tb_cms_plan_manage
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `tb_cms_plan_manage`;
+
+CREATE TABLE `tb_cms_plan_manage` (
+  `ID` int(11) NOT NULL COMMENT '主键',
+  `PLAN_NAME` varchar(255) DEFAULT NULL COMMENT '计划名称',
+  `SAMPLING_NUMBER` int(11) DEFAULT NULL COMMENT '抽检数量',
+  `COMPLETION_RATE` varchar(255) DEFAULT NULL COMMENT '完成率',
+  `ABNORMAL_RATE` varchar(255) DEFAULT NULL COMMENT '异常率',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
+  `END_TIME` datetime DEFAULT NULL COMMENT '结束时间',
+  `STATUS` int(11) DEFAULT NULL COMMENT '状态',
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table tb_cms_sampling_history
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `tb_cms_sampling_history`;
+
+CREATE TABLE `tb_cms_sampling_history` (
+  `ID` int(11) NOT NULL COMMENT '主键',
+  `TASK_ID` int(11) DEFAULT NULL COMMENT '任务ID',
+  `ORDER_ID` int(11) DEFAULT NULL COMMENT '订单号',
+  `CUSTOMER_NAME` varchar(255) DEFAULT NULL COMMENT '客户姓名',
+  `PHONE_NUMBER` int(11) DEFAULT NULL COMMENT '手机号',
+  `SOURCE` varchar(255) DEFAULT NULL COMMENT '资产方',
+  `PRODUCT_NAME` varchar(255) DEFAULT NULL COMMENT '产品',
+  `MONEY` int(11) DEFAULT NULL COMMENT '金额',
+  `LOAN_TIME` datetime DEFAULT NULL COMMENT '放款日期',
+  `PLAN_NAME` varchar(255) DEFAULT NULL COMMENT '计划名称',
+  `SAMPLING_OPINION` varchar(255) DEFAULT NULL COMMENT '抽检意见',
+  `SAMPLING_TIME` datetime DEFAULT NULL COMMENT '抽检时间',
+  `REMARKS` varchar(255) DEFAULT NULL COMMENT '备注',
+  `CREATE_TIME` datetime DEFAULT NULL,
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table tb_cms_task_manage
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `tb_cms_task_manage`;
+
+CREATE TABLE `tb_cms_task_manage` (
+  `ID` int(11) NOT NULL COMMENT '主键',
+  `TASK_ID` int(11) DEFAULT NULL COMMENT '任务编号',
+  `ORDER_ID` int(11) DEFAULT NULL COMMENT '订单编号',
+  `CUSTOMER_NAME` varchar(255) DEFAULT NULL COMMENT '客户姓名',
+  `PHONE_NUMBER` int(11) DEFAULT NULL COMMENT '手机号',
+  `SOURCE` varchar(255) DEFAULT NULL COMMENT '资产方',
+  `PRODUCT_NAME` varchar(255) DEFAULT NULL COMMENT '产品',
+  `MONEY` int(11) DEFAULT NULL COMMENT '金额',
+  `LOAN_TIME` datetime DEFAULT NULL COMMENT '放款日期',
+  `SAMPLING_TYPE` int(11) DEFAULT NULL COMMENT '抽检类型',
+  `PLAN_NAME` varchar(255) DEFAULT NULL COMMENT '计划名称',
+  `CREATE_TIME` datetime DEFAULT NULL COMMENT '认领时间',
+  `MODIFY_TIME` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 
 
