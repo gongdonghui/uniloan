@@ -79,9 +79,9 @@ spring:
   datasource:
     name: mydb
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://1.1.1.1:3306/xxx?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
-    username: root
-    password: root
+              url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+    username: dev_online
+    password: Dwl12#$%^
     driver-class-name: com.mysql.cj.jdbc.Driver
     initialSize: 1
     maxActive: 100
@@ -98,8 +98,13 @@ spring:
     logAbandoned: true
     filters: mergeStat
   redis:
-    host: 127.0.0.1
-    port: 6379
+    database: 0
+    host: 172.21.190.226
+    port: 7789
+    jedis:
+      pool:
+        max-active: 8
+    timeout: 60000
     password: 13JPTmkZT5QmAV4s
 
 ssdb:
