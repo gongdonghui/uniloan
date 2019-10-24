@@ -39,8 +39,8 @@ public class CustomerController {
         sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and cid.cid_no=\"" + params.getCidNo() + "\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and uri.mobile=\"" + params.getMobile() + "\"" : "");
 
-        sb.append(params.getRegistStartDate() != null ? " and uri.create_time >= " + DateUtil.formatDateTime(params.getRegistStartDate())  : "");
-        sb.append(params.getRegistEndDate() != null ? " and uri.create_time <= " + DateUtil.formatDateTime(params.getRegistEndDate())  : "");
+        sb.append(params.getRegistStartDate() != null ? " and uri.create_time >= \"" + DateUtil.formatDateTime(params.getRegistStartDate()) + "\"" : "");
+        sb.append(params.getRegistEndDate() != null ? " and uri.create_time <= \"" + DateUtil.formatDateTime(params.getRegistEndDate()) + "\"" : "");
 
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();

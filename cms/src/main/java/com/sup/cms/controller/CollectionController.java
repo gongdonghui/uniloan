@@ -105,8 +105,8 @@ public class CollectionController {
     @PostMapping("/allocate/getList")
     public String allocateGetList(@Valid @RequestBody CollectionAllocateGetListParams params) {
         StringBuilder sb = new StringBuilder();
-        sb.append(null != params.getProductId() ? " and c.id=\"" + params.getProductId() + "\"" : "");
-        sb.append(null != params.getApplyId() ? " and b.id=\"" + params.getApplyId() + "\"" : "");
+        sb.append(null != params.getProductId() ? " and c.id=" + params.getProductId() : "");
+        sb.append(null != params.getApplyId() ? " and b.id=" + params.getApplyId() : "");
         sb.append(null != params.getOverdueDays() ? " and h.overdue_days_max=\"" + params.getOverdueDays() + "\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
@@ -174,7 +174,7 @@ public class CollectionController {
         sb.append(null != params.getLastCollectionDateEnd() ? " and a.update_time<=\"" + params.getLastCollectionDateEnd() + "\"" : "");
         sb.append(null != params.getShouldRepayDateStart() ? " and f.repay_end_date>=\"" + params.getShouldRepayDateStart() + "\"" : "");
         sb.append(null != params.getShouldRepayDateEnd() ? " and f.repay_end_date<=\"" + params.getShouldRepayDateEnd() + "\"" : "");
-        sb.append(null != params.getApplyId() ? " and b.id=\"" + params.getApplyId() + "\"" : "");
+        sb.append(null != params.getApplyId() ? " and b.id=" + params.getApplyId() : "");
         sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
@@ -196,11 +196,11 @@ public class CollectionController {
     @PostMapping("/archives/getList")
     public String archivesGetList(@Valid @RequestBody CollectionArchivesGetListParams params) {
         StringBuilder sb = new StringBuilder();
-        sb.append(null != params.getApplyId() ? " and b.id=\"" + params.getApplyId() + "\"" : "");
+        sb.append(null != params.getApplyId() ? " and b.id=" + params.getApplyId() : "");
         sb.append(null != params.getShouldRepayDateStart() ? " and f.repay_end_date>=\"" + params.getShouldRepayDateStart() + "\"" : "");
         sb.append(null != params.getShouldRepayDateEnd() ? " and f.repay_end_date<=\"" + params.getShouldRepayDateEnd() + "\"" : "");
-        sb.append(null != params.getOperatorId() ? " and i.id<=\"" + params.getOperatorId() + "\"" : "");
-        sb.append(null != params.getOperatorStatus() ? " and i.is_valid<=\"" + params.getOperatorStatus() + "\"" : "");
+        sb.append(null != params.getOperatorId() ? " and i.id=" + params.getOperatorId() : "");
+        sb.append(null != params.getOperatorStatus() ? " and i.is_valid=" + params.getOperatorStatus() : "");
         sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");

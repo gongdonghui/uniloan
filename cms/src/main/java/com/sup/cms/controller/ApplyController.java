@@ -66,7 +66,7 @@ public class ApplyController {
     public String getList1(@Valid @RequestBody ApplyApprovalGetListParams params) {
         StringBuilder sb = new StringBuilder();
         //下面这部分内容为前端查询时的参数
-        sb.append(null != params.getApplyId() ? " and a.apply_id=\"" + params.getApplyId() + "\"" : "");
+        sb.append(null != params.getApplyId() ? " and a.apply_id=" + params.getApplyId() : "");
         sb.append(null != params.getStartTime() ? " and b.create_time>=\"" + DateUtil.formatDateTime(params.getStartTime()) + "\"" : "");
         sb.append(null != params.getEndTime() ? " and b.create_time<=\"" + DateUtil.formatDateTime(params.getEndTime()) + "\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
