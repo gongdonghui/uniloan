@@ -190,6 +190,10 @@ public class DetailsController {
         qw.eq("apply_id", applyId);
         qw.eq("info_type", 4);
         TbApplyMaterialInfoBean bank = applyMaterialInfoMapper.selectOne(qw);
+        if (bank == null) {
+            log.error("No bank info found for applyId:" + applyId);
+            return ResponseUtil.failed("No bank info found!");
+        }
         QueryWrapper<TbUserBankAccountInfoBean> bankQw = new QueryWrapper<>();
         bankQw.eq("info_id", bank.getInfo_id());
         TbUserBankAccountInfoBean bankBean = userBankAccountInfoMapper.selectOne(bankQw);
@@ -229,7 +233,9 @@ public class DetailsController {
     @GetMapping("/repay")
     public String repay(@RequestParam("applyId") String applyId) {
         DetailsRepayBean bean = crazyJoinMapper.detailsRepay(applyId);
-        bean.setList(crazyJoinMapper.detailsRepayList(applyId));
+        if (bean != null) {
+            bean.setList(crazyJoinMapper.detailsRepayList(applyId));
+        }
         return ResponseUtil.success(bean);
     }
 
