@@ -49,13 +49,13 @@ public class AuthorityInterceptor extends HandlerInterceptorAdapter {
     Method method = handlerMethod.getMethod();
     LoginRequired methodAnnotation = method.getAnnotation(LoginRequired.class);
 
-    Map<String, String> head_map = new HashMap<>();
-    Enumeration<String> head_vars = request.getHeaderNames();
-    while (head_vars.hasMoreElements()) {
-      String key = head_vars.nextElement();
-      head_map.put(key, request.getHeader(key));
-      logger.info(String.format("[%s]: header: [%s] = [%s]", request.getRequestURI(), key, request.getHeader(key)));
-    }
+//    Map<String, String> head_map = new HashMap<>();
+//    Enumeration<String> head_vars = request.getHeaderNames();
+//    while (head_vars.hasMoreElements()) {
+//      String key = head_vars.nextElement();
+//      head_map.put(key, request.getHeader(key));
+//      logger.info(String.format("[%s]: header: [%s] = [%s]", request.getRequestURI(), key, request.getHeader(key)));
+//    }
 
     if (methodAnnotation != null) {
       String token = request.getHeader("token");

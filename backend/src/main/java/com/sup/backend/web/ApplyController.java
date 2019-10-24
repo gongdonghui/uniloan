@@ -251,8 +251,8 @@ public class ApplyController {
     logger.info("apply_obj: " + JSON.toJSONString(order_detail));
     ApplyInfoParam aip = new ApplyInfoParam();
     aip.setUser_id(li.getUser_id());
-    aip.setApp_id(Integer.parseInt(req.getHeader("app_id")));
-    aip.setChannel_id(Integer.parseInt(req.getHeader("channel_id")));
+    aip.setApp_id(Integer.parseInt(req.getHeader("app-id")));
+    aip.setChannel_id(Integer.parseInt(req.getHeader("channel-id")));
     aip.setApply_quota(order_detail.getQuota());
     aip.setProduct_id(order_detail.getProduct_id());
     aip.setPeriod(order_detail.getPeriod());
