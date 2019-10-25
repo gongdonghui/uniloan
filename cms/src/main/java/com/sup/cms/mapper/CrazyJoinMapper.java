@@ -343,7 +343,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_user_regist_info d on d.id=a.user_id " +
             " left join tb_product_info e on a.product_id=e.id " +
             " left join tb_repay_plan f on a.id=f.apply_id " +
-            " where b.info_type=0 and f.is_overdue=1 and a.id=#{applyId}")
+            " where b.info_type=0 and a.id=#{applyId}")
     DetailsRepayBean detailsRepay(@Param(value="applyId") String applyId);
 
     @Select("select " +

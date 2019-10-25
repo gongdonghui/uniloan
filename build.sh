@@ -7,7 +7,7 @@ LOG() {
 
 
 LOG "start to pull code from git..."
-git pull
+#git pull
 
 LOG "start to build..."
 mvn clean package -Dmaven.test.skip=true 

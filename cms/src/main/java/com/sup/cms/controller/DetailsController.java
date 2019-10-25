@@ -3,6 +3,7 @@ package com.sup.cms.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.sup.cms.util.GsonUtil;
 import com.sup.cms.bean.po.*;
 import com.sup.cms.mapper.*;
 import com.sup.cms.util.ResponseUtil;
@@ -233,6 +234,7 @@ public class DetailsController {
     @GetMapping("/repay")
     public String repay(@RequestParam("applyId") String applyId) {
         DetailsRepayBean bean = crazyJoinMapper.detailsRepay(applyId);
+        log.info(">>> applyId = " + applyId + ", repay bean:" + GsonUtil.toJson(bean));
         if (bean != null) {
             bean.setList(crazyJoinMapper.detailsRepayList(applyId));
         }
