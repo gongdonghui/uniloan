@@ -17,15 +17,15 @@ import java.util.Date;
 public class CollectionReportBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private Date data_dt;
-    private Integer in_apply;
-    private Long in_amt;
-    private Long repay_amt;
-    private Integer repay_apply;
-    private Integer ptp_apply;
-    private Integer tracked_apply;
-    private Double repay_amt_rate;
-    private Double repay_apply_rate;
+    private Date data_dt;   //日期
+    private Integer in_apply;   // 在库合同数
+    private Long in_amt;  //在库金额
+    private Long repay_amt;   //当日 还款金额
+    private Integer repay_apply;   //当日还款合同数
+    private Integer ptp_apply;   //ptp合同数
+    private Integer tracked_apply;     //跟进合同数
+    private Double repay_amt_rate;     //还款金额占比
+    private Double repay_apply_rate;   //还款申请占比
 
 
 }

@@ -18,12 +18,12 @@ import java.util.Date;
 public class CheckReportBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private Date data_dt;
-    private Integer task_type;
-    private Integer total;
-    private Integer allocated;
-    private Integer checked;
-    private Integer denyed;
+    private Date data_dt;  //日期
+    private Integer task_type;   //任务类型
+    private Integer total;      //总单数
+    private Integer allocated;   //分配单数
+    private Integer checked;     //已审单数
+    private Integer denyed;     //拒绝单数
 
 
 }

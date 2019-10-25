@@ -3,11 +3,13 @@ package com.sup.cms.facade.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.cms.facade.ReportFacade;
 import com.sup.cms.mapper.CheckReportMapper;
+import com.sup.cms.mapper.CollectionReportMapper;
+import com.sup.cms.mapper.OperationReportMapper;
 import com.sup.common.bean.CheckReportBean;
+import com.sup.common.bean.CollectionReportBean;
 import com.sup.common.bean.OperationReportBean;
 import com.sup.common.param.OperationReportParam;
 import com.sup.common.util.Result;
-import com.sup.cms.mapper.OperationReportMapper;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +30,9 @@ public class ReportImplFacade implements ReportFacade {
 
     @Autowired
     private CheckReportMapper checkReportMapper;
+
+    @Autowired
+    private CollectionReportMapper collectionReportMapper;
 
 
     @Override
@@ -64,7 +69,15 @@ public class ReportImplFacade implements ReportFacade {
     }
 
     @Override
-    public Result collection(OperationReportParam param) {
-        return null;
+    public Result<List<CollectionReportBean>> collection(OperationReportParam param) {
+        if (param == null) {
+            return Result.fail("input param is null");
+
+        }
+        List<CollectionReportBean> ret = this.collectionReportMapper.selectList(new QueryWrapper<CollectionReportBean>().
+                ge("data_dt", param.getStart_date()).
+                le("data_dt", param.getEnd_date()));
+
+        return Result.succ(ret);
     }
 }
