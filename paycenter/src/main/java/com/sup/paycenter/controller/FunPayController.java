@@ -43,6 +43,10 @@ public class FunPayController {
     private String version;
     @Value("${paycenter.feeId}")
     private String feeId;
+    @Value("${pacenter.payReturnUrl}")
+    private String payReturnUrl;
+    @Value("${paycenter.repayReturnUrl}")
+    private String repayReturnUrl;
 
     @Value("${paycenter.url}")
     private String funPayUrl;
@@ -140,11 +144,10 @@ public class FunPayController {
         m.put("businessID", businessId);
         m.put("clientID", payInfo.getUserId());
         m.put("timestamp", System.currentTimeMillis() + "");
-        //todo  单位转换
         m.put("amount", payInfo.getAmount() + "");
         m.put("currency", "VND");
         m.put("orderNo", payInfo.getApplyId());
-        m.put("returnUrl", "https://d45582e9.ngrok.io/payCallBack");
+        m.put("returnUrl", payReturnUrl);
         m.put("accountName", payInfo.getAccountName());
         m.put("accountNo", payInfo.getAccountNo());
         m.put("accountType", payInfo.getAccountType() + "");
@@ -180,7 +183,6 @@ public class FunPayController {
         m.put("timestamp", System.currentTimeMillis() + "");
         m.put("version", version);
         m.put("clientID", repayInfo.getUserId());
-        //todo 单位转换
         m.put("amount", repayInfo.getAmount() + "");
         m.put("name", "testpay");
         m.put("orderNo", repayInfo.getOrderNo());
@@ -188,7 +190,7 @@ public class FunPayController {
         DateTime dt = new DateTime();
         dt = dt.plusDays(7);
         m.put("expireDate", DateUtil.format(dt.toDate(), DateUtil.NO_SPLIT_FORMAT));
-        m.put("returnUrl", "https://d45582e9.ngrok.io/repayCallBack");
+        m.put("returnUrl", repayReturnUrl);
         m.put("purchaseType", "2");
         m.put("phoneNumber", repayInfo.getPhone());
         m.put("userName", repayInfo.getName());
