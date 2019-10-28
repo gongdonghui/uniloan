@@ -11,6 +11,9 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
+login:
+  fake_verify_code: true
+
 repay:
   accountno: 315832828
   bankaccount: 'CÔNG TY TNHH ĐÔNG NAM PRIMA'

@@ -56,6 +56,8 @@ public class UserController {
   MqProducerService mqProducerService;
   @Autowired
   SSDBClient ssdb;
+  @Value("${login.fake_verify_code}")
+  boolean fake_verify_code;
 
   @ResponseBody
   @RequestMapping(value = "issue_verify_code", produces = "application/json;charset=UTF-8")
@@ -67,7 +69,9 @@ public class UserController {
     }
 
     String verify_code = String.valueOf(RandomUtils.nextInt(1000, 9999));
-    verify_code = "1234";
+    if (fake_verify_code) {
+      verify_code = "1234";
+    }
 
     // send to queue to send to user ....
     UserStateMessage usm = new UserStateMessage();
