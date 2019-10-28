@@ -11,6 +11,11 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
+repay:
+  accountno: 315832828
+  bankaccount: 'CÔNG TY TNHH ĐÔNG NAM PRIMA'
+  bankbranch: 'NGÂN HÀNG Á CHÂU – CHI NHÁNH BẾN THÀNH'
+
 feign:
   hystrix:
     enabled: false

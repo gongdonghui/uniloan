@@ -25,6 +25,7 @@ import com.sup.common.service.CoreService;
 import org.apache.ibatis.annotations.Lang;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -56,6 +57,12 @@ public class ApplyController {
   TbRepayStatMapper tb_repay_stat_mapper;
   @Autowired
   private CoreService core;
+  @Value("${repay.accountno}")
+  private String repay_account_no;
+  @Value("${repay.bankaccount}")
+  private String repay_account;
+  @Value("${repay.bankbranch}")
+  private String repay_bank_branch;
 
   private LangUtil trans;
 
@@ -226,7 +233,9 @@ public class ApplyController {
           Long curr_need = plan.getNeed_total() - plan.getAct_total() - plan.getReduction_fee();
           ai.setCurr_amount_to_be_repaid(curr_need.toString());
           ai.setTotal_amount_to_be_repaid(plan.getNeed_total().toString());
-          ai.setDest_account_no("");
+          ai.setDest_bank_branch(repay_bank_branch);
+          ai.setDest_account(repay_account);
+          ai.setDest_account_no(repay_account_no);
           ai.setContract_amount(bean.getApply_quota());
           ai.setTotal_period(bean.getPeriod().toString());
           ai.setIs_overdue(plan.getRepay_end_date().getTime() < System.currentTimeMillis() ? 1: 0);
