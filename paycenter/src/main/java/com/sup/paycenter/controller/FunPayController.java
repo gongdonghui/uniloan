@@ -275,6 +275,10 @@ public class FunPayController {
 
     @PostMapping(value = "payCallBack")
     public String payCallBack(@RequestBody ReturnBean<TransferMoneyBean> bean) {
+        if (bean == null || bean.getResult() == null) {
+            log.error("payCallBack: param is null!");
+            return "";
+        }
         log.info("payCallBack:::params=" + bean);
         FunpayCallBackParam f = new FunpayCallBackParam();
         f.setAmount(bean.getResult().getAmount());
@@ -288,6 +292,10 @@ public class FunPayController {
 
     @PostMapping(value = "repayCallBack")
     public String repayCallBack(@RequestBody ReturnBean<OfflinePayBean> bean) {
+        if (bean == null || bean.getResult() == null) {
+            log.error("repayCallBack: param is null!");
+            return "";
+        }
         log.info("repayCallBack:::params=" + bean);
         FunpayCallBackParam f = new FunpayCallBackParam();
         f.setAmount(bean.getResult().getAmount());
