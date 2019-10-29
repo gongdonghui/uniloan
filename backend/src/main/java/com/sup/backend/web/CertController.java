@@ -320,7 +320,6 @@ public class CertController {
   @ResponseBody
   @RequestMapping(value = {"bank/add", "bank/update"}, produces = "application/json;charset=UTF-8")
   public Object updateEmergencyContact(@LoginInfo LoginInfoCtx li, @RequestBody TbUserBankAccountInfoBean bean) {
-    bean.setAccount_type(1);
     logger.info("----- recv bean: " + JSON.toJSONString(bean));
     if (!CheckDuplicateSubmit("bank", li.getUser_id())) {
       return ToolUtils.fail(1, "duplicate_submit");

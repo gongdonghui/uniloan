@@ -64,6 +64,12 @@
     "zh": ["每月不到300万越南盾", "从300万越南盾/月到600万越南盾/月", "从600万越南盾/月到1200万越南盾/月", "超过1200万越南盾/月"],
     "vi": ["Hằng tháng không đến 3 triệu đồng", "Từ 3-6 triệu đồng/tháng", "6-12 triệu đồng/tháng", "Trên 12 triệu đồng/tháng"]
   },
+  "general_bankno_type": {
+    "id": [0, 1],
+    "en": ["account_no", "card_no"],
+    "vi": ["Số tài khoản ngân hàng", "Số thẻ ngân hàng"],
+    "zh": ["银行账号", "银行卡号"]
+  },
   "general_bank": {
       "id": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,3483,3487,3489,3490,3492,3493],
       "en": ["ABBank","ACB","Agribank","Viet Capital Bank","Bao Viet Bank","BIDV","Dong A Bank","Eximbank","GPBank","HDBank","Hongleong Bank Vietnam","Indovina Bank","Kien Long Bank","LienVietPostBank","Maritime","MB Bank","NCB","OCB","Oceanbank","PGBank","PVcomBank","Sacombank","SaiGon Bank","SCB","SeABank","SHB","Shinhan Bank Viet Nam","Techcombank","TPBank","UOB","Vietcombank","VIB","Public Bank Viet Nam","Viet A Bank","Vietbank","Vietinbank","VPBank","VRB","Wooribank","Bac A Bank","Namabank","CIMB","VPD","Industrial Bank of Korea - Ha Noi Branch","IBK"],
