@@ -43,7 +43,7 @@ public class FunPayController {
     private String version;
     @Value("${paycenter.feeId}")
     private String feeId;
-    @Value("${pacenter.payReturnUrl}")
+    @Value("${paycenter.payReturnUrl}")
     private String payReturnUrl;
     @Value("${paycenter.repayReturnUrl}")
     private String repayReturnUrl;
