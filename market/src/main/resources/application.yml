@@ -16,7 +16,7 @@ mybatis-plus:
 
 sms:
   skyline:
-    mock: true
+    mock: false
     uri: http://sms.skylinelabs.cc:20003/sendsmsV2
     account: cs_wmve6s
     password: 6RWTB71n
