@@ -9,12 +9,13 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by xidongzhou1 on 2019/9/5.
@@ -41,9 +42,34 @@ public class   SkyLineSmsService {
   @Value("${sms.skyline.vip-password}")
   private String vip_password;
 
+  @Value("${sms.skyline.area-code}")
+  private String area_code;
+
+  @Value("${sms.skyline.pattern}")
+  private String pattern_str;
+
+  public static Pattern pat = null;
 
   public String genSign(String account, String password, String time_str) {
     return ToolUtils.Md5Sum(String.format("%s%s%s", account, password, time_str));
+  }
+
+  public String toAreaNumber(String mobile) {
+    if (pat == null) {
+      synchronized (SkyLineSmsService.class) {
+        if (pat == null) {
+          System.out.println("pattern_str: " + pattern_str);
+          pat = Pattern.compile(pattern_str);
+        }
+      }
+    }
+
+    Matcher m = pat.matcher(mobile);
+    if (!m.find()) {
+      return mobile;
+    }
+
+    return String.format("%s%s", area_code, m.group(m.groupCount()));
   }
 
   public boolean send(List<String> mobiles, String content, String account, String password, String senderid) throws Exception {
@@ -51,13 +77,15 @@ public class   SkyLineSmsService {
       return true;
     }
 
+    List<String> norm_numbers = mobiles.stream().map(x -> toAreaNumber(x)).collect(Collectors.toList());
+
     Map<String, String> params = new HashMap<>();
     String time_str = (new SimpleDateFormat("yyyyMMddHHmmss")).format(new Date());
     StringBuffer sb = new StringBuffer();
     sb.append(uri)
       .append("?account=").append(account)
       .append("&sign=").append(genSign(account, password, time_str))
-      .append("&numbers=").append(String.join(",", mobiles))
+      .append("&numbers=").append(String.join(",", norm_numbers))
       .append("&datetime=").append(time_str)
       .append("&content=").append(URLEncoder.encode(content, "UTF-8"));
     if (StringUtils.isNotEmpty(senderid)) {

@@ -17,6 +17,8 @@ mybatis-plus:
 sms:
   skyline:
     mock: false
+    pattern: '^\+?(0|84|084)?(\d+)$'
+    area-code: 84
     uri: http://sms.skylinelabs.cc:20003/sendsmsV2
     account: cs_wmve6s
     password: 6RWTB71n
