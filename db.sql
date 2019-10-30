@@ -739,3 +739,20 @@ CREATE TABLE `tb_report_check_daily` (
   PRIMARY KEY (`id`),
   KEY `date_dt` (`date_dt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tb_report_collection_daily;
+CREATE TABLE `tb_report_collection_daily` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `data_dt` date DEFAULT NULL COMMENT '日期',
+  `in_apply` int(11) DEFAULT 0 COMMENT '在库合同数',
+  `in_amt` BIGINT(12) DEFAULT 0 COMMENT '在库金额',
+  `repay_amt` BIGINT(12) DEFAULT 0 COMMENT '当日还款金额',
+  `repay_apply` INT(11) DEFAULT 0 COMMENT '当日还款合同数',
+  `ptp_apply` INT(11) DEFAULT 0 COMMENT 'ptp合同数',
+  `tracked_apply` INT(11) DEFAULT 0 COMMENT '跟进合同数',
+  `repay_amt_rate` double DEFAULT 0 COMMENT '还款金额占比',
+  `repay_apply_rate` double DEFAULT 0 COMMENT '还款申请占比',
+  PRIMARY KEY (`id`),
+  KEY `data_dt` (`data_dt`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
