@@ -263,16 +263,18 @@ public class LoanService {
             return Result.fail("");
         }
 
-        if (!bean.getRepay_status().equals(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode())) {
-            // 该计划未还清，无需更新ApplyInfo
-            return Result.succ();
-        }
-
         // update ApplyInfo
         TbApplyInfoBean applyInfoBean = applyInfoMapper.selectById(bean.getApply_id());
         if (applyInfoBean == null) {
             log.error("Invalid applyId! bean = " + GsonUtil.toJson(bean));
             return Result.succ();
+        }
+
+        if (applyInfoBean.getStatus() == ApplyStatusEnum.APPLY_REPAY_PART.getCode()) {
+            if (!bean.getRepay_status().equals(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode())) {
+                // 该计划未还清，无需更新ApplyInfo
+                return Result.succ();
+            }
         }
 
         List<TbRepayPlanBean> planBeans = repayPlanMapper.selectList(
@@ -648,11 +650,11 @@ public class LoanService {
         repayPlanBean.setNeed_principal(Long.valueOf(principalToRepay));
         repayPlanBean.setNeed_interest(Long.valueOf(interestTotal));
         repayPlanBean.setNeed_management_fee(Long.valueOf(feeTotal));
-        repayPlanBean.setNeed_total(Long.valueOf(total));
+        repayPlanBean.setNeed_total(Long.valueOf(totalToRepay));
         // 实际已还款项，含已扣除费用（服务费、利息等）
         repayPlanBean.setAct_interest(Long.valueOf(interestTotal - interestToRepay));
         repayPlanBean.setAct_management_fee(Long.valueOf(feeTotal - feeToRepay));
-        repayPlanBean.setAct_total(Long.valueOf(total - totalToRepay));
+        repayPlanBean.setAct_total(Long.valueOf(0));
         repayPlanBean.setCreate_time(now);
         repayPlanBean.setUpdate_time(now);
 

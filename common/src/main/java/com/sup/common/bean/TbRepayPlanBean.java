@@ -77,13 +77,14 @@ public class TbRepayPlanBean {
 
         synchronized (this) {
             Long gap = 0L;
+            Long remain = actRepayAmount;
             for (int i = 0; i < needAmounts.length; ++i) {
-                if (actRepayAmount <= 0) {
+                if (remain <= 0) {
                     break;
                 }
                 gap = needAmounts[i] - actAmounts[i];   // fill the gap
-                actAmounts[i] = Math.min(actAmounts[i] + actRepayAmount, needAmounts[i]);
-                actRepayAmount -= gap;
+                actAmounts[i] = Math.min(actAmounts[i] + remain, needAmounts[i]);
+                remain -= gap;
             }
             act_principal = actAmounts[0];
             act_interest  = actAmounts[1];
@@ -93,10 +94,7 @@ public class TbRepayPlanBean {
             act_breach_fee = actAmounts[5];
             act_other = actAmounts[6];
 
-            act_total = 0L;
-            for (int i = 0; i < actAmounts.length; ++i) {
-                act_total += actAmounts[i];
-            }
+            act_total += actRepayAmount;
         }
     }
 }
