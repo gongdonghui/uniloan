@@ -228,7 +228,7 @@ public class ScheduleTasks {
     public void checkRepayResult() {
         // 检查还款明细
         QueryWrapper<TbRepayHistoryBean> historyWrapper = new QueryWrapper<>();
-        historyWrapper.eq("repay_status", RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
+        historyWrapper.eq("repay_status", RepayHistoryStatusEnum.REPAY_STATUS_PROCESSING.getCode());
         Integer total = repayHistoryMapper.selectCount(historyWrapper);
         Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
         RepayStatusInfo rsi = new RepayStatusInfo();
@@ -284,7 +284,7 @@ public class ScheduleTasks {
                     log.error("Auto repay failed for bean = " + GsonUtil.toJson(bean) +
                             ", reason: " + FunpayOrderUtil.getMessage(status)
                     );
-                    bean.setRepay_status(RepayStatusEnum.REPAY_STATUS_FAILED.getCode());
+                    bean.setRepay_status(RepayHistoryStatusEnum.REPAY_STATUS_FAILED.getCode());
                     mqMessenger.sendRepayMessage(bean);
                     if (repayHistoryMapper.updateById(bean) <= 0) {
                         log.error("checkRepayResult: Failed to update for bean = " + GsonUtil.toJson(bean));

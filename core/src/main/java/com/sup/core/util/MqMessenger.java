@@ -5,15 +5,13 @@ import com.google.common.collect.ImmutableMap;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayHistoryBean;
 import com.sup.common.loan.ApplyStatusEnum;
-import com.sup.common.loan.RepayPlanStatusEnum;
-import com.sup.common.loan.RepayStatusEnum;
+import com.sup.common.loan.RepayHistoryStatusEnum;
 import com.sup.common.mq.MqTag;
 import com.sup.common.mq.MqTopic;
 import com.sup.common.mq.UserStateMessage;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.core.service.MqProducerService;
-import lombok.Data;
 import lombok.extern.log4j.Log4j;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +65,7 @@ public class MqMessenger {
      */
     public void sendRepayMessage(TbRepayHistoryBean repayHistoryBean) {
         try {
-            RepayStatusEnum status = RepayStatusEnum.getStatusByCode(repayHistoryBean.getRepay_status());
+            RepayHistoryStatusEnum status = RepayHistoryStatusEnum.getStatusByCode(repayHistoryBean.getRepay_status());
             String state_desc = status.getCodeDesc();
             UserStateMessage message = new UserStateMessage();
             message.setUser_id(repayHistoryBean.getUser_id());
@@ -82,9 +80,9 @@ public class MqMessenger {
                     )));
             log.info("bean: " + GsonUtil.toJson(repayHistoryBean));
             log.info("MQ message: " + GsonUtil.toJson(message));
-            if (status == RepayStatusEnum.REPAY_STATUS_SUCCEED) {
+            if (status == RepayHistoryStatusEnum.REPAY_STATUS_SUCCEED) {
                 mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, MqTag.REPAY_SUCC_NOTIFY, "", GsonUtil.toJson(message).getBytes()));
-            } else if (status == RepayStatusEnum.REPAY_STATUS_FAILED) {
+            } else if (status == RepayHistoryStatusEnum.REPAY_STATUS_FAILED) {
                 mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, MqTag.REPAY_FAIL_NOTIFY, "", GsonUtil.toJson(message).getBytes()));
             }
         }catch (Exception e) {

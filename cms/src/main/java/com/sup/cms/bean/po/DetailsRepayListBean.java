@@ -10,6 +10,7 @@ import java.util.Date;
  */
 @Data
 public class DetailsRepayListBean {
+    private Integer planId;     // 还款计划id
     private Integer seqNo;
     private Integer shouldRepayAmount;
     private Integer remainShouldRepayAmount;

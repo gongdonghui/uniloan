@@ -1,16 +1,17 @@
 package com.sup.common.loan;
 
-public enum RepayStatusEnum {
-  // 还款状态 0:处理中 1:还款成功 2:还款失败
+public enum RepayHistoryStatusEnum {
+  // 还款状态 0:处理中 1:还款成功 2:还款失败 3:费用减免
 
   REPAY_STATUS_PROCESSING(0, "处理中"),
   REPAY_STATUS_SUCCEED(1, "还款成功"),
-  REPAY_STATUS_FAILED(2, "还款失败");
+  REPAY_STATUS_FAILED(2, "还款失败"),
+  REPAY_STATUS_REDUCTION(3, "费用减免");
 
   private int code;
   private String codeDesc;
 
-  RepayStatusEnum(int code, String desc) {
+  RepayHistoryStatusEnum(int code, String desc) {
     this.code = code;
     this.codeDesc = desc;
   }
@@ -20,8 +21,8 @@ public enum RepayStatusEnum {
   public String getCodeDesc() {
     return this.codeDesc;
   }
-  public static RepayStatusEnum getStatusByCode(int code) {
-    for (RepayStatusEnum responseCode : RepayStatusEnum.values()) {
+  public static RepayHistoryStatusEnum getStatusByCode(int code) {
+    for (RepayHistoryStatusEnum responseCode : RepayHistoryStatusEnum.values()) {
       if (responseCode.getCode() == code) {
         return responseCode;
       }

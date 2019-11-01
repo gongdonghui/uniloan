@@ -3,10 +3,7 @@ package com.sup.core.facade;
 import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.RepayVO;
-import com.sup.common.param.FunpayCallBackParam;
-import com.sup.common.param.LoanCalculatorParam;
-import com.sup.common.param.ManualLoanParam;
-import com.sup.common.param.ManualRepayParam;
+import com.sup.common.param.*;
 import com.sup.common.util.Result;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -106,5 +103,15 @@ public interface LoanFacade {
     @ResponseBody
     @RequestMapping(value = "repayCallBack", produces = "application/json;charset=UTF-8")
     Result repayCallBack(@RequestBody FunpayCallBackParam param);
+
+    /**
+     * 减免费用
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "reduction", produces = "application/json;charset=UTF-8")
+    Result reduction(@RequestBody ReductionParam param);
+
 
 }
