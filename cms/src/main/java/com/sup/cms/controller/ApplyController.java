@@ -22,6 +22,7 @@ import com.sup.common.loan.OperationTaskStatusEnum;
 import com.sup.common.loan.OperationTaskTypeEnum;
 import com.sup.common.param.ManualLoanParam;
 import com.sup.common.param.ManualRepayParam;
+import com.sup.common.param.ReductionParam;
 import com.sup.common.service.CoreService;
 import com.sup.common.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -441,6 +442,23 @@ public class ApplyController {
         if (!result.isSucc()) {
             log.error("Failed to manualLoan with param = " + GsonUtil.toJson(params));
             return ResponseUtil.failed("");
+        }
+        return ResponseUtil.success();
+    }
+
+
+    /**
+     * 减免费用
+     * @param param
+     * @return
+     */
+    @PostMapping("/reduction")
+    public String reduction(@RequestBody @Valid ReductionParam param) {
+        Result ret = coreService.reduction(param);
+        log.info("reduction, param = " + GsonUtil.toJson(param));
+        if (!ret.isSucc()) {
+            log.error("reduction failed, param = " + GsonUtil.toJson(param));
+            return ResponseUtil.failed();
         }
         return ResponseUtil.success();
     }

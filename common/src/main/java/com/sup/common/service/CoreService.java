@@ -109,4 +109,13 @@ public interface CoreService {
     @RequestMapping(value = "/loan/repayCallBack", produces = "application/json;charset=UTF-8")
     Result repayCallBack(@RequestBody FunpayCallBackParam param);
 
+    /**
+     * 减免费用
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/loan/reduction", produces = "application/json;charset=UTF-8")
+    Result reduction(@RequestBody ReductionParam param);
+
 }

@@ -334,6 +334,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " a.inhand_quota as actAmount," +
             " 0 as otherAmount," +
             " a.period as period," +
+            " count(distinct f.id) as terms," +
             " case " +
             " when f.repay_status=2 then 1" +
             " else 0 end alreadyRepay" +
@@ -347,6 +348,7 @@ public interface CrazyJoinMapper extends BaseMapper {
     DetailsRepayBean detailsRepay(@Param(value="applyId") String applyId);
 
     @Select("select " +
+            "a.id as planId," +
             " a.seq_no as seqNo," +
             " a.need_total as shouldRepayAmount," +
             " (a.need_total-a.act_total) as remainShouldRepayAmount," +

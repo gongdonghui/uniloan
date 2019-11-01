@@ -21,6 +21,8 @@ public class DetailsRepayBean {
      * 期限  1日/期, 共1期  后面的共1期是固定的 我回传 x日
      */
     private String period;
+    // 总期数
+    private Integer terms;
     private Integer alreadyRepay;
 
     /**
