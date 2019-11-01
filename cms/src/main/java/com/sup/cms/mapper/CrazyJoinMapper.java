@@ -217,8 +217,16 @@ public interface CrazyJoinMapper extends BaseMapper {
             " when a.status=16 then (f.need_total-f.act_total-f.reduction_fee)" +
             " else 0 end writeOffAmount," +
             " a.grant_quota as loanAmount," +
-            " f.need_total as shouldRepayAmount," +
-            " f.act_total as repayAmount," +
+
+            " case" +
+            "  when e.fee_type=0 then (f.need_total-f.need_management_fee)" +
+            "  when e.fee_type=1 then (f.need_total-f.need_interest)" +
+            "  else f.need_total end as shouldRepayAmount," +
+            " case" +
+            "  when e.fee_type=0 then (f.act_total-f.act_management_fee)" +
+            "  when e.fee_type=1 then (f.act_total-f.act_interest)" +
+            "  else f.act_total end as repayAmount," +
+
             " case when g.status = 0 then 1 else 0 end as repayNeedConfirm," +
             " a.loan_time as loanDate," +
             " f.repay_end_date as endDate," +
@@ -258,7 +266,10 @@ public interface CrazyJoinMapper extends BaseMapper {
             " c.name as name," +
             " c.cid_no as cidNo," +
             " a.grant_quota as loanAmount," +
-            " f.need_total as shouldRepayAmount," +
+            " case" +
+            "  when e.fee_type=0 then (f.need_total-f.need_management_fee)" +
+            "  when e.fee_type=1 then (f.need_total-f.need_interest)" +
+            "  else f.need_total end as shouldRepayAmount," +
             " a.loan_time as loanDate," +
             " f.repay_end_date as endDate," +
             " f.seq_no as period" +
@@ -350,18 +361,27 @@ public interface CrazyJoinMapper extends BaseMapper {
     @Select("select " +
             "a.id as planId," +
             " a.seq_no as seqNo," +
-            " a.need_total as shouldRepayAmount," +
+
+            " case" +
+            "  when c.fee_type=0 then (a.need_total-a.need_management_fee)" +
+            "  when c.fee_type=1 then (a.need_total-a.need_interest)" +
+            "  else a.need_total end as shouldRepayAmount," +
             " (a.need_total-a.act_total) as remainShouldRepayAmount," +
             " (a.need_principal-a.act_principal) as remainPrincipal," +
             " (a.need_interest-a.act_interest) as remainInterest," +
-            " a.act_total as actRepayAmount," +
+            " case" +
+            "  when c.fee_type=0 then (a.act_total-a.act_management_fee)" +
+            "  when c.fee_type=1 then (a.act_total-a.act_interest)" +
+            "  else a.act_total end as actRepayAmount," +
             " a.repay_end_date as shouldRepayDate," +
             " a.repay_time as actRepayDate," +
             " (a.need_penalty_interest-a.act_penalty_interest) as remainPenaltyInterestAmount," +
             " (a.need_breach_fee-a.act_breach_fee) as remainBreachFeeAmount," +
             " a.repay_status as status" +
             " from " +
-            " tb_repay_plan a where a.apply_id=#{applyId}")
+            "(select * from tb_repay_plan where apply_id=#{applyId}) a" +
+            " left join tb_apply_info b on a.apply_id=b.id" +
+            " left join tb_product_info c on b.product_id=c.id")
     List<DetailsRepayListBean> detailsRepayList(@Param(value="applyId") String applyId);
 
     @Select("select distinct " +

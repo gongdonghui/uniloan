@@ -546,7 +546,7 @@ public class LoanService {
 
         // 获取对应的还款计划，判断是否未还清
         QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
-        wrapper.ne("repay_status", RepayPlanStatusEnum.PLAN_PAID_ALL.getCode());
+        // wrapper.ne("repay_status", RepayPlanStatusEnum.PLAN_PAID_ALL.getCode());
         // wrapper.ne("repay_status", RepayPlanStatusEnum.PLAN_PAID_WRITE_OFF.getCode());
         wrapper.eq("id", param.getPlanId());
         wrapper.eq("apply_id", param.getApplyId());
@@ -555,6 +555,10 @@ public class LoanService {
         if (repayPlanBean == null) {
             log.error("Invalid param: " + GsonUtil.toJson(param));
             return Result.fail("Invalid param.");
+        }
+        if (repayPlanBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
+            log.info("Loan already paid off. bean = " + GsonUtil.toJson(repayPlanBean));
+            return Result.fail("Loan already paid off.");
         }
         Long needTotal = repayPlanBean.getNeed_total();
         Long actTotal = repayPlanBean.getAct_total();
