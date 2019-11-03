@@ -20,7 +20,9 @@ public class RiskVariableConstants {
     public static final String NUM_OF_IDS_FOR_PIN = "no_of_ids_for_pin";
     public static final String NUM_OF_OVERDUE_TIMES_IN_EMMERGENCY_CONTRACT = "overdue_of_emergency_contract";
     public static final String NUM_OF_APPLY_TIMES_IN_EMMERGENCY_CONTRACT = "apply_of_emergency_contract";
-    public static final String BLACKLIST= "blacklist_general";
+    public static final String BLACKLIST_JR= "blacklist_jirong";
+    public static final String BLACKLIST_XT= "blacklist_xingtan";
+    public static final String USER_ID= "user_identity";
 
     public static List<String> getVariableList() {
         List<String> list = new ArrayList<>();
@@ -35,7 +37,8 @@ public class RiskVariableConstants {
         list.add(NUM_OF_IDS_FOR_PIN);
         list.add(NUM_OF_OVERDUE_TIMES_IN_EMMERGENCY_CONTRACT);
         list.add(NUM_OF_APPLY_TIMES_IN_EMMERGENCY_CONTRACT);
-        list.add(BLACKLIST);
+        list.add(BLACKLIST_JR);
+        list.add(BLACKLIST_XT);
         return list;
 
     }
