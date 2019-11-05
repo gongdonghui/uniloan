@@ -92,6 +92,7 @@ public class ThirdPartyService {
                         + ", response: " + GsonUtil.toJson(response));
                 return false;
             }
+            log.info("Query jirong response: " + response);
             String ret = jsonObject.getString("hitResult").toUpperCase();
             boolean isBlack = false;
 
@@ -176,6 +177,7 @@ public class ThirdPartyService {
                         + ", response: " + GsonUtil.toJson(response));
                 return false;
             }
+            log.info("Query xingtan response: " + response);
             boolean isBlack = false;
             JSONArray detailList = jsonObject.getJSONArray("reportDetailList");
             for (int i = 0; i < detailList.size(); ++i) {
