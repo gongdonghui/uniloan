@@ -51,31 +51,39 @@ public class ThirdPartyService {
     @Autowired
     private BlackListMapper blackListMapper;
 
+    class JirongPhoneParam {
+        String countryCode;
+        String areaCode;
+        String number;
+        public JirongPhoneParam(String cc, String ac, String nb) {
+            this.countryCode = cc;
+            this.areaCode = ac;
+            this.number = nb;
+        }
+    }
 
     public boolean checkBlackListInJirong(String id, String name, String phone, String apply_id) {
         if (Strings.isNullOrEmpty(id + name + phone)) {
             log.error("Param is null!");
             return false;
         }
-        BlackListBean blackListBean = hitLocalBlackList(id, name, phone);
-        boolean needUpdate = false;
-        if (blackListBean != null) {
-            needUpdate = true;
-            if (blackListBean.getStatus() == BlackListStatusEnum.BL_BLACK.getCode()) {
-                return true;
-            }
-        } else {
-            blackListBean = new BlackListBean();
+        if (hitLocalBlackList(id, name, phone)) {
+            return true;
         }
 
         Map<String, String> params = new HashMap<String, String>();
         params.put("token", jirongToken);
         params.put("secretKey", jirongSecretKey);
         params.put("idNumber", id);
-        params.put("name", name);
-        params.put("countryCode", jirongCountryCode);
-        params.put("number", phone);
-        params.put("areaCode", "");
+        if (!Strings.isNullOrEmpty(name)) {
+            params.put("name", name.toUpperCase());
+        }
+        if (!Strings.isNullOrEmpty(phone)) {
+            params.put("phoneNumber", GsonUtil.toJson(new JirongPhoneParam(jirongCountryCode, "", phone)));
+        }
+        // params.put("countryCode", jirongCountryCode);
+        // params.put("number", phone);
+        // params.put("areaCode", "");
         try {
             String response = null;
             JSONObject jsonObject = null;
@@ -95,12 +103,12 @@ public class ThirdPartyService {
             log.info("Query jirong response: " + response);
             String ret = jsonObject.getString("hitResult").toUpperCase();
             boolean isBlack = false;
-
+            BlackListBean blackListBean = new BlackListBean();
             if (!Strings.isNullOrEmpty(apply_id)) {
                 blackListBean.setApply_id(Integer.valueOf(apply_id));
             }
             blackListBean.setCid_no(id);
-            blackListBean.setName(name);
+            blackListBean.setName(name.toUpperCase());
             blackListBean.setMobile(phone);
             if (ret.equals("PASS")) {
                 blackListBean.setStatus(BlackListStatusEnum.BL_NORMAL.getCode());
@@ -113,9 +121,7 @@ public class ThirdPartyService {
             blackListBean.setPlatform("JIRONG");
             blackListBean.setOrigin_message(response);
             blackListBean.setCreate_time(new Date());
-            if (needUpdate) {
-                this.blackListMapper.updateById(blackListBean);
-            } else {
+            if (isBlack) {
                 this.blackListMapper.insert(blackListBean);
             }
             return isBlack;
@@ -132,15 +138,8 @@ public class ThirdPartyService {
             log.error("Param is null!");
             return false;
         }
-        BlackListBean blackListBean = hitLocalBlackList(id, name, phone);
-        boolean needUpdate = false;
-        if (blackListBean != null) {
-            needUpdate = true;
-            if (blackListBean.getStatus() == BlackListStatusEnum.BL_BLACK.getCode()) {
-                return true;
-            }
-        } else {
-            blackListBean = new BlackListBean();
+        if (hitLocalBlackList(id, name, phone)) {
+            return true;
         }
 
         Map<String, String> headerParams = new HashMap<String, String>();
@@ -188,19 +187,18 @@ public class ThirdPartyService {
                 }
             }
 
+            BlackListBean blackListBean = new BlackListBean();
             if (!Strings.isNullOrEmpty(apply_id)) {
                 blackListBean.setApply_id(Integer.valueOf(apply_id));
             }
             blackListBean.setCid_no(id);
-            blackListBean.setName(name);
+            blackListBean.setName(name.toUpperCase());
             blackListBean.setMobile(phone);
             blackListBean.setStatus(isBlack ? BlackListStatusEnum.BL_BLACK.getCode() : BlackListStatusEnum.BL_NORMAL.getCode());
             blackListBean.setPlatform("XINGTAN");
             blackListBean.setOrigin_message(response);
             blackListBean.setCreate_time(new Date());
-            if (needUpdate) {
-                this.blackListMapper.updateById(blackListBean);
-            } else {
+            if (isBlack) {
                 this.blackListMapper.insert(blackListBean);
             }
             return isBlack;
@@ -211,19 +209,21 @@ public class ThirdPartyService {
     }
 
 
-    private BlackListBean hitLocalBlackList(String cid, String name, String mobile) {
+    private boolean hitLocalBlackList(String cid, String name, String mobile) {
         QueryWrapper<BlackListBean> wrapper = new QueryWrapper<>();
+        // TODO: using or ??
         if (!Strings.isNullOrEmpty(cid)) {
-            wrapper.eq("cid_no", cid);
+            wrapper.or().eq("cid_no", cid);
         }
         if (!Strings.isNullOrEmpty(name)) {
-            wrapper.eq("name", name);
+            wrapper.or().eq("name", name.toUpperCase());
         }
         if (!Strings.isNullOrEmpty(mobile)) {
-            wrapper.eq("mobile", mobile);
+            wrapper.or().eq("mobile", mobile);
         }
         wrapper.ge("expire_time", new Date());
         wrapper.eq("status", BlackListStatusEnum.BL_BLACK.getCode());
-        return blackListMapper.selectOne(wrapper);
+        List<BlackListBean> beans = blackListMapper.selectList(wrapper);
+        return beans != null && beans.size() > 0;
     }
 }
