@@ -24,7 +24,7 @@ public class AppProductInfo {
   private String name;
   private String desc;
   private Integer status;
-  private Float   rate;
+  private String   rate;
   private Integer min_quota;
   private Integer max_quota;
   private Integer min_period;
