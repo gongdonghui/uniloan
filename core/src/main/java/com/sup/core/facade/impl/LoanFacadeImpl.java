@@ -13,10 +13,7 @@ import com.sup.common.bean.paycenter.vo.PayVO;
 import com.sup.common.bean.paycenter.vo.RepayStatusVO;
 import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.*;
-import com.sup.common.param.FunpayCallBackParam;
-import com.sup.common.param.LoanCalculatorParam;
-import com.sup.common.param.ManualLoanParam;
-import com.sup.common.param.ManualRepayParam;
+import com.sup.common.param.*;
 import com.sup.common.service.PayCenterService;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
@@ -161,4 +158,14 @@ public class LoanFacadeImpl implements LoanFacade {
         return loanService.manualRepay(param);
     }
 
+    /**
+     * 减免费用
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public Result reduction(ReductionParam param) {
+        return loanService.reduction(param);
+    }
 }

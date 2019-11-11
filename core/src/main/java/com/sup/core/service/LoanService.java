@@ -7,10 +7,7 @@ import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.PayVO;
 import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.*;
-import com.sup.common.param.FunpayCallBackParam;
-import com.sup.common.param.LoanCalculatorParam;
-import com.sup.common.param.ManualLoanParam;
-import com.sup.common.param.ManualRepayParam;
+import com.sup.common.param.*;
 import com.sup.common.service.PayCenterService;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
@@ -152,7 +149,7 @@ public class LoanService {
         QueryWrapper<TbRepayHistoryBean> historyWrapper = new QueryWrapper<>();
         historyWrapper.eq("apply_id", repayPlanBean.getApply_id());
         historyWrapper.eq("repay_plan_id", repayPlanBean.getId());
-        historyWrapper.eq("repay_status", RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
+        historyWrapper.eq("repay_status", RepayHistoryStatusEnum.REPAY_STATUS_PROCESSING.getCode());
         historyWrapper.ge("expire_time", now);
         historyWrapper.orderByDesc("id");   // create_time
 
@@ -196,7 +193,7 @@ public class LoanService {
             repayHistoryBean.setRepay_location(r.getShopLink());
             repayHistoryBean.setTrade_number(r.getTradeNo());
             repayHistoryBean.setExpire_time(DateUtil.parseDateTime(r.getExpireDate()));
-            repayHistoryBean.setRepay_status(RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
+            repayHistoryBean.setRepay_status(RepayHistoryStatusEnum.REPAY_STATUS_PROCESSING.getCode());
 
             if (repayHistoryMapper.updateById(repayHistoryBean) <= 0) {
                 log.error("Failed to update repayHistory bean = " + GsonUtil.toJson(repayHistoryBean));
@@ -272,6 +269,14 @@ public class LoanService {
             log.error("Invalid applyId! bean = " + GsonUtil.toJson(bean));
             return Result.succ();
         }
+
+        if (applyInfoBean.getStatus() == ApplyStatusEnum.APPLY_REPAY_PART.getCode()) {
+            if (!bean.getRepay_status().equals(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode())) {
+                // 该计划未还清，无需更新ApplyInfo
+                return Result.succ();
+            }
+        }
+
         List<TbRepayPlanBean> planBeans = repayPlanMapper.selectList(
                 new QueryWrapper<TbRepayPlanBean>().eq("apply_id", bean.getApply_id())
         );
@@ -280,7 +285,7 @@ public class LoanService {
         for (TbRepayPlanBean planBean : planBeans) {
             repayStatBean.inc(planBean);
         }
-        if (repayStatBean.getAct_total().longValue() + repayStatBean.getReduction_fee() >= repayStatBean.getNeed_total().longValue()) {
+        if (repayStatBean.getAct_total() + repayStatBean.getReduction_fee() >= repayStatBean.getNeed_total()) {
             applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
             mqMessenger.applyStatusChange(applyInfoBean);
         } else {
@@ -378,7 +383,7 @@ public class LoanService {
         }
         if (orderStatus == FunpayOrderUtil.Status.ERROR) {
             // 还款失败
-            repayHistoryBean.setRepay_status(RepayStatusEnum.REPAY_STATUS_FAILED.getCode());
+            repayHistoryBean.setRepay_status(RepayHistoryStatusEnum.REPAY_STATUS_FAILED.getCode());
             repayHistoryMapper.updateById(repayHistoryBean);
             mqMessenger.sendRepayMessage(repayHistoryBean);
             return Result.fail("Repay failed!");
@@ -425,7 +430,7 @@ public class LoanService {
         repayHistoryBean.setOperator_id(Integer.valueOf(param.getOperatorId()));
         repayHistoryBean.setRepay_amount(Long.valueOf(param.getAmount()));
         repayHistoryBean.setRepay_time(repayTime);
-        repayHistoryBean.setRepay_status(RepayStatusEnum.REPAY_STATUS_PROCESSING.getCode());
+        repayHistoryBean.setRepay_status(RepayHistoryStatusEnum.REPAY_STATUS_PROCESSING.getCode());
         repayHistoryBean.setCreate_time(now);
         repayHistoryBean.setUpdate_time(now);
         if (repayHistoryMapper.insert(repayHistoryBean) <= 0) {
@@ -457,7 +462,7 @@ public class LoanService {
             repayTime = new Date();
         }
         // 更新还款记录
-        repayHistoryBean.setRepay_status(RepayStatusEnum.REPAY_STATUS_SUCCEED.getCode());
+        repayHistoryBean.setRepay_status(RepayHistoryStatusEnum.REPAY_STATUS_SUCCEED.getCode());
         repayHistoryBean.setRepay_amount(repayAmount);
         repayHistoryBean.setRepay_time(repayTime);
         repayHistoryBean.setUpdate_time(new Date());
@@ -539,6 +544,56 @@ public class LoanService {
         return param;
     }
 
+    public Result reduction(ReductionParam param) {
+
+        // 获取对应的还款计划，判断是否未还清
+        QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
+        // wrapper.ne("repay_status", RepayPlanStatusEnum.PLAN_PAID_ALL.getCode());
+        // wrapper.ne("repay_status", RepayPlanStatusEnum.PLAN_PAID_WRITE_OFF.getCode());
+        wrapper.eq("id", param.getPlanId());
+        wrapper.eq("apply_id", param.getApplyId());
+
+        TbRepayPlanBean repayPlanBean = repayPlanMapper.selectOne(wrapper);
+        if (repayPlanBean == null) {
+            log.error("Invalid param: " + GsonUtil.toJson(param));
+            return Result.fail("Invalid param.");
+        }
+        if (repayPlanBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
+            log.info("Loan already paid off. bean = " + GsonUtil.toJson(repayPlanBean));
+            return Result.fail("Loan already paid off.");
+        }
+        Long needTotal = repayPlanBean.getNeed_total();
+        Long actTotal = repayPlanBean.getAct_total();
+        Long actReductionFee = repayPlanBean.getReduction_fee();
+        if (param.getAmount() <= 0 || needTotal - actTotal < param.getAmount()) {
+            log.error("Invalid reduction amount, param = " + GsonUtil.toJson(param));
+            return Result.fail("Invalid amount!");
+        }
+        // 增加减免金额，更新还款计划，记录费用减免
+        Date now = new Date();
+        TbRepayHistoryBean historyBean = new TbRepayHistoryBean();
+        historyBean.setUser_id(repayPlanBean.getUser_id());
+        historyBean.setApply_id(repayPlanBean.getApply_id());
+        historyBean.setRepay_plan_id(param.getPlanId());
+        historyBean.setRepay_status(RepayHistoryStatusEnum.REPAY_STATUS_REDUCTION.getCode());
+        historyBean.setRepay_amount(Long.valueOf(param.getAmount()));
+        historyBean.setOperator_id(param.getOperatorId());
+        historyBean.setComment(param.getComment());
+        historyBean.setCreate_time(now);
+        historyBean.setUpdate_time(now);
+        repayHistoryMapper.insert(historyBean);
+
+        actTotal += param.getAmount();
+        actReductionFee += param.getAmount();
+        if (actTotal >= repayPlanBean.getNeed_total()) {
+            repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode());
+        }
+        repayPlanBean.setReduction_fee(actReductionFee);
+        repayPlanBean.setUpdate_time(now);
+
+        return updateRepayPlan(repayPlanBean);
+    }
+
 
     protected List<TbRepayPlanBean> genRepayPlan(TbApplyInfoBean bean) {
 
@@ -595,11 +650,11 @@ public class LoanService {
         repayPlanBean.setNeed_principal(Long.valueOf(principalToRepay));
         repayPlanBean.setNeed_interest(Long.valueOf(interestTotal));
         repayPlanBean.setNeed_management_fee(Long.valueOf(feeTotal));
-        repayPlanBean.setNeed_total(Long.valueOf(total));
+        repayPlanBean.setNeed_total(Long.valueOf(totalToRepay));
         // 实际已还款项，含已扣除费用（服务费、利息等）
         repayPlanBean.setAct_interest(Long.valueOf(interestTotal - interestToRepay));
         repayPlanBean.setAct_management_fee(Long.valueOf(feeTotal - feeToRepay));
-        repayPlanBean.setAct_total(Long.valueOf(total - totalToRepay));
+        repayPlanBean.setAct_total(Long.valueOf(0));
         repayPlanBean.setCreate_time(now);
         repayPlanBean.setUpdate_time(now);
 

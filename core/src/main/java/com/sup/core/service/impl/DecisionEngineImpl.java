@@ -7,6 +7,7 @@ import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.DecesionEngine;
+import com.sup.core.service.ThirdPartyService;
 import com.sup.core.util.OverdueUtils;
 import com.sup.common.util.RiskVariableConstants;
 import lombok.extern.log4j.Log4j;
@@ -56,15 +57,32 @@ public class DecisionEngineImpl implements DecesionEngine {
     @Autowired
     private ApplyMaterialInfoMapper applyMaterialInfoMapper;
 
+    @Autowired
+    private ThirdPartyService thirdPartyService;
 
-    private boolean applySingleRule(RiskRulesBean rule, String mobile, Map<String, Double> riskBean) {
+    @Autowired
+    private UserIdCardInfoMapper userIdCardInfoMapper;
+
+
+    private boolean applySingleRule(RiskRulesBean rule, String mobile, String cid, String applyId, Map<String, Double> riskBean) {
 
 
         String variable_name = rule.getVariable_name();
+        log.info("apply rule for:" + variable_name);
         if (rule.getValue_type() == 1) {  //名单类
-            String key = variable_name + mobile;
-            boolean exist = redisClient.Exist(key);
-            return exist && rule.getIs_in() == 1;   //is_in:1 表示在名单 （白名单），0  表示不能在名单（黑名单）
+            if (variable_name.equals(RiskVariableConstants.BLACKLIST_JR)) {
+                boolean exists = this.thirdPartyService.callJirong(cid, "", mobile, applyId);
+                return !exists;   // 黑名单命中 表示规则不通过
+            } else if (variable_name.equals(RiskVariableConstants.BLACKLIST_XT)) {
+                //TODO  CALL  XT BLACKLIST
+                return true;
+
+            } else {
+                //String key = variable_name + mobile;
+                //boolean exist = redisClient.Exist(key);
+                //return exist && rule.getIs_in() == 1;   //is_in:1 表示在名单 （白名单），0  表示不能在名单（黑名单）
+                return true;
+            }
 
 
         } else {   //数值类变量
@@ -84,7 +102,7 @@ public class DecisionEngineImpl implements DecesionEngine {
                 }
                 return ret && ret_right;
             } else {
-                return false;   //不存在变量时，规则不通过
+                return true;   //不存在变量时，规则通过
             }
         }
     }
@@ -111,7 +129,7 @@ public class DecisionEngineImpl implements DecesionEngine {
     }
 
 
-    private Map<String, Double> prepareRiskVariables(String userId, String apply_id, String user_mobile) {
+    private Map<String, Double> prepareRiskVariables(String userId, String user_mobile, String basic_info_id, String bank_info_id, String eme_info_id) {
 
 
         Map<String, Double> riskBean = new HashMap<>();
@@ -127,28 +145,7 @@ public class DecisionEngineImpl implements DecesionEngine {
         riskBean.put(RiskVariableConstants.NUM_OF_OVDUE_IN_CONTRACT, Double.valueOf(0));
         riskBean.put(RiskVariableConstants.NUM_OF_CONTRACT, Double.valueOf(0));
 
-        List<TbApplyMaterialInfoBean> applyMaterialInfoBeans = this.applyMaterialInfoMapper.selectList(new QueryWrapper<TbApplyMaterialInfoBean>().eq("apply_id", Integer.parseInt(apply_id)));
-        String basic_info_id = "", eme_info_id = "", bank_info_id = "";
 
-        //0|身份证信息  1|基本信息 2|紧急联系人 3|职业信息 4|银行卡信息
-        for (TbApplyMaterialInfoBean materialInfoBean : applyMaterialInfoBeans) {
-            int infoType = materialInfoBean.getInfo_type();
-            switch (infoType) {
-
-                case 1:
-                    basic_info_id = materialInfoBean.getInfo_id();
-                    break;
-                case 2:
-                    eme_info_id = materialInfoBean.getInfo_id();
-                    break;
-                case 4:
-                    bank_info_id = materialInfoBean.getInfo_id();
-                    break;
-
-            }
-
-
-        }
         // log.info(">>>> prepareRiskVariables.basic_info_id...");
         if (!basic_info_id.isEmpty()) {
             TbUserBasicInfoBean userBasicInfoBean = userBasicInfoMapper.selectOne(new QueryWrapper<TbUserBasicInfoBean>().eq("info_id", basic_info_id));
@@ -217,7 +214,6 @@ public class DecisionEngineImpl implements DecesionEngine {
         }
 
 
-
         List<TbAppSdkContractInfoBean> contractInfoBeans = this.queryLatestContact(user_mobile);
         int size_of_contract = contractInfoBeans.size();
         riskBean.put(RiskVariableConstants.NUM_OF_CONTRACT, Double.valueOf(size_of_contract));
@@ -272,18 +268,68 @@ public class DecisionEngineImpl implements DecesionEngine {
 
     }
 
+    private String getUserIdentity(String id_info_id) {
+        if (!id_info_id.isEmpty()) {
+            UserIdCardInfoBean userIdCardInfoBean = this.userIdCardInfoMapper.selectOne(new QueryWrapper<UserIdCardInfoBean>().eq("info_id", id_info_id));
+            if (this.userIdCardInfoMapper != null) {
+                String cid = userIdCardInfoBean.getCid_no();
+                return cid;
+            }
+
+        }
+        return "";
+    }
+
 
     @Override
     public RiskDecisionResultBean applyRules(AutoDecisionParam param) {
         TbUserRegistInfoBean userRegistInfoBean = this.tbUserRegistInfoMapper.selectById(Integer.parseInt(param.getUserId()));
-        if (userRegistInfoBean == null) return null;
+        if (userRegistInfoBean == null) {
+            log.info("user register info is null ");
+            return null;
+        }
         //user id  not exist
         String user_mobile = userRegistInfoBean.getMobile();
-        if (user_mobile.isEmpty()) return null;
+        if (user_mobile.isEmpty()) {
+            log.info("user mobile is empty");
+            return null;
+        }
         //user  register mobie  is empty
 
         // log.info(">>>> prepareRiskVariables...");
-        Map<String, Double> riskBean = prepareRiskVariables(param.getUserId(), param.getApplyId(), user_mobile);
+
+        List<TbApplyMaterialInfoBean> applyMaterialInfoBeans = this.applyMaterialInfoMapper.
+                selectList(new QueryWrapper<TbApplyMaterialInfoBean>().eq("apply_id", Integer.parseInt(param.getApplyId())));
+        String basic_info_id = "", eme_info_id = "", bank_info_id = "", id_info_id = "";
+
+        //0|身份证信息  1|基本信息 2|紧急联系人 3|职业信息 4|银行卡信息
+        for (TbApplyMaterialInfoBean materialInfoBean : applyMaterialInfoBeans) {
+            int infoType = materialInfoBean.getInfo_type();
+            switch (infoType) {
+                case 0:
+                    id_info_id = materialInfoBean.getInfo_id();
+                    break;
+                case 1:
+                    basic_info_id = materialInfoBean.getInfo_id();
+                    break;
+                case 2:
+                    eme_info_id = materialInfoBean.getInfo_id();
+                    break;
+                case 4:
+                    bank_info_id = materialInfoBean.getInfo_id();
+                    break;
+
+            }
+
+        }
+
+        Map<String, Double> riskBean = prepareRiskVariables(param.getUserId(), user_mobile, basic_info_id, bank_info_id, eme_info_id);
+
+        String cid = this.getUserIdentity(id_info_id);
+        if (cid.isEmpty()) {
+            log.info("cid is null");
+            return null;
+        }
 
         RiskDecisionResultBean result = new RiskDecisionResultBean();
         result.setRet(0);
@@ -300,8 +346,8 @@ public class DecisionEngineImpl implements DecesionEngine {
             if (rule.getHit_type() == 1) {   //必须通过类
 
                 // log.info(">>>> applySingleRule...");
-                boolean ret = applySingleRule(rule, user_mobile, riskBean);
-
+                boolean ret = applySingleRule(rule, user_mobile, cid, param.getApplyId(), riskBean);
+                log.info("apply rule  for:" + rule.getVariable_name() + ", ret:" + ret);
                 decisionResultBean.setRule_status(ret ? 1 : 0);
                 if (!ret) {
                     int code = rule.getId();
@@ -311,7 +357,7 @@ public class DecisionEngineImpl implements DecesionEngine {
 
             } else if (rule.getHit_type() == 0) {  //提示类
 
-                boolean ret = applySingleRule(rule, user_mobile, riskBean);
+                boolean ret = applySingleRule(rule, user_mobile, cid, param.getApplyId(), riskBean);
                 decisionResultBean.setRule_status(ret ? 1 : 0);
             }
             detailBeanList.add(decisionResultBean);

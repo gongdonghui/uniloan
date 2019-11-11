@@ -30,11 +30,12 @@ public class TbRepayHistoryBean {
 
     private Long repay_amount;
     private Integer operator_id = 0;
-    private Integer repay_status;   // 还款状态 0:处理中 1:还款成功 2:还款失败
+    private Integer repay_status;   // 还款状态 0:处理中 1:还款成功 2:还款失败 3:费用减免
 
     private String  repay_code;     // 自动还款交易码
     private String  repay_location; // 自动还款地址
     private String  trade_number;   // 自动还款流水号
+    private String  comment;
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date expire_time;

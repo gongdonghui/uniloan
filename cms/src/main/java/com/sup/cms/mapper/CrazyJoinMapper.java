@@ -334,6 +334,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " a.inhand_quota as actAmount," +
             " 0 as otherAmount," +
             " a.period as period," +
+            " count(distinct f.id) as terms," +
             " case " +
             " when f.repay_status=2 then 1" +
             " else 0 end alreadyRepay" +
@@ -347,9 +348,10 @@ public interface CrazyJoinMapper extends BaseMapper {
     DetailsRepayBean detailsRepay(@Param(value="applyId") String applyId);
 
     @Select("select " +
+            "a.id as planId," +
             " a.seq_no as seqNo," +
             " a.need_total as shouldRepayAmount," +
-            " (a.need_total-a.act_total) as remainShouldRepayAmount," +
+            " (a.need_total-a.act_total-a.reduction_fee) as remainShouldRepayAmount," +
             " (a.need_principal-a.act_principal) as remainPrincipal," +
             " (a.need_interest-a.act_interest) as remainInterest," +
             " a.act_total as actRepayAmount," +
@@ -359,7 +361,9 @@ public interface CrazyJoinMapper extends BaseMapper {
             " (a.need_breach_fee-a.act_breach_fee) as remainBreachFeeAmount," +
             " a.repay_status as status" +
             " from " +
-            " tb_repay_plan a where a.apply_id=#{applyId}")
+            "(select * from tb_repay_plan where apply_id=#{applyId}) a" +
+            " left join tb_apply_info b on a.apply_id=b.id" +
+            " left join tb_product_info c on b.product_id=c.id")
     List<DetailsRepayListBean> detailsRepayList(@Param(value="applyId") String applyId);
 
     @Select("select distinct " +
