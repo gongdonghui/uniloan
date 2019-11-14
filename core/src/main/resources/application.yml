@@ -163,7 +163,7 @@ rocket:
 
 thirdparty:
    jirong:
-      url: "https://api.geerongcloud.com/credit/v2/blacklist";
+      url: "https://api.geerongcloud.com/credit/v2/blacklist"
       token:
       secretKey:
 
