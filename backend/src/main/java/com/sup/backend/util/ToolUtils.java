@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -26,6 +27,11 @@ public class ToolUtils {
   public static String getToken() {
     UUID uuid = UUID.randomUUID();
     return uuid.toString().replace("-", "");
+  }
+
+  public static String formatRate(Float rate) {
+    DecimalFormat df = new DecimalFormat("0.00%");
+    return df.format(rate);
   }
 
   public static String NormTime(Date d) {
