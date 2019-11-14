@@ -183,9 +183,10 @@ thirdparty:
     secretKey: 9437f92c2f774ceb95ea591fc10209e8
     countryCode: 84
   xingtan:
-    accessKey:
-    accessSecret:
-    token:
+    accessKey: b7354a93ba194e9c8dbab5b6ef3d62d0
+    accessSecret: 2BD2397E05F491DB49FCAD6CE65E76386684C54FCFC98DEFBEBE924EBC5F44A6
+    #sha256: a3467f397bcabcbc4f0dea3be1334fef3b368d933cdb631946eca53f332bd5ce
+    token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJiNzM1NGE5M2JhMTk0ZTljOGRiYWI1YjZlZjNkNjJkMCIsImV4cCI6MTg4OTA5MDg3Niwib3duZXJJZCI6MTE5NDU2NzAzNzEzNzk4MTQ0MX0.iX3tKj2DDgLsziTI26tuA8-pkORNjVYEekYUgwFsxVCFxmc-8PnI0-Aj86G6W_G3DB7V8GjRlGZJ_8ovWpXT8g
     blacklist:
       url: "https://rest.star-detector.vn.starwin.tech/single-pre-rc-report/prc-blacklist"
 
