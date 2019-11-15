@@ -179,8 +179,8 @@ thirdparty:
   jirong:
     blacklist:
       url: "https://api.geerongcloud.com/credit/v2/blacklist"
-    token: testUser
-    secretKey: 9437f92c2f774ceb95ea591fc10209e8
+    token: 735506dbda0040bab7d473f7027cd6fd
+    secretKey: 5967f91866e8452eb12dfd07bad43b76
     countryCode: 84
   xingtan:
     accessKey: b7354a93ba194e9c8dbab5b6ef3d62d0
