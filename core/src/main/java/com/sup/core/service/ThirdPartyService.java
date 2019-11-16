@@ -212,17 +212,22 @@ public class ThirdPartyService {
     private boolean hitLocalBlackList(String cid, String name, String mobile) {
         QueryWrapper<BlackListBean> wrapper = new QueryWrapper<>();
         // TODO: using or ??
-        if (!Strings.isNullOrEmpty(cid)) {
-            wrapper.or().eq("cid_no", cid);
-        }
-        if (!Strings.isNullOrEmpty(name)) {
-            wrapper.or().eq("name", name.toUpperCase());
-        }
-        if (!Strings.isNullOrEmpty(mobile)) {
-            wrapper.or().eq("mobile", mobile);
-        }
+//        if (!Strings.isNullOrEmpty(cid)) {
+//            wrapper.or().eq("cid_no", cid);
+//        }
+//        if (!Strings.isNullOrEmpty(name)) {
+//            wrapper.or().eq("name", name.toUpperCase());
+//        }
+//        if (!Strings.isNullOrEmpty(mobile)) {
+//            wrapper.or().eq("mobile", mobile);
+//        }
         wrapper.ge("expire_time", new Date());
         wrapper.eq("status", BlackListStatusEnum.BL_BLACK.getCode());
+        wrapper.and(
+          w -> w.or().eq("cid_no", cid == null ? "" : cid)
+                  .or().eq("name", name == null ? "" : name.toUpperCase())
+                  .or().eq("mobile", mobile == null ? "" : mobile)
+        );
         List<BlackListBean> beans = blackListMapper.selectList(wrapper);
         return beans != null && beans.size() > 0;
     }
