@@ -215,8 +215,8 @@ public class DetailsController {
      */
     @GetMapping("/riskDecision")
     public String riskDecision(@RequestParam("applyId") Integer applyId) {
-        DetailsRiskDecisionBean b = crazyJoinMapper.detailsRiskDecision(applyId);
-        return ResponseUtil.success(b);
+        List<DetailsRiskDecisionBean> beanList = crazyJoinMapper.detailsRiskDecision(applyId);
+        return ResponseUtil.success(beanList);
     }
 
     /**

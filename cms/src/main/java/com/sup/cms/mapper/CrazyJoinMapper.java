@@ -110,7 +110,7 @@ public interface CrazyJoinMapper extends BaseMapper {
 
     @Select("select a.rule_status as ruleStatus,a.rule_hit_type as ruleHitType,b.variable_name as variableName from tb_core_risk_decesion_result_detail a left join tb_core_risk_rules b on a.rule_id=b.id" +
             " where a.apply_id=#{applyId}")
-    DetailsRiskDecisionBean detailsRiskDecision(@Param(value="applyId") Integer applyId);
+    List<DetailsRiskDecisionBean> detailsRiskDecision(@Param(value="applyId") Integer applyId);
 
     @Select("select " +
             " a.id as id," +
