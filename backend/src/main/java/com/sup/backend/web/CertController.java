@@ -201,12 +201,20 @@ public class CertController {
         break;
       }
     }
+    Date new_create_time = new Date();
     final String the_info_id = info_id;
-    beans.forEach(bean -> {bean.setInfo_id(the_info_id);});
+    beans.forEach(bean -> {
+      bean.setInfo_id(the_info_id);
+      if (bean.getUser_id() == null) {
+        bean.setUser_id(li.getUser_id());
+      }
+      if (bean.getCreate_time() == null) {
+        bean.setCreate_time(new_create_time);
+      }
+    });
 
     List<Map> rets = new ArrayList<>();
     String new_info_id = ToolUtils.getToken();
-    Date new_create_time = new Date();
     beans.forEach(bean -> {
       if (bean.getInfo_id() == null) {
         bean.setUser_id(li.getUser_id());
