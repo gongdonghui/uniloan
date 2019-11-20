@@ -757,3 +757,25 @@ CREATE TABLE `tb_report_collection_daily` (
   KEY `data_dt` (`data_dt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+DROP TABLE IF EXISTS tb_blacklist;
+CREATE TABLE `tb_blacklist` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `cid_no` varchar(64) DEFAULT NULL COMMENT '身份证号',
+  `name` varchar(32) DEFAULT NULL COMMENT '姓名',
+  `mobile` varchar(32) DEFAULT NULL COMMENT '手机号',
+  `apply_id` int(10) DEFAULT NULL,
+  `status` int(4) NOT NULL DEFAULT '0' COMMENT '0:正常，1:灰名单, 2:黑名单',
+  `reason` varchar(256) DEFAULT NULL COMMENT '非正常的原因',
+  `platform` varchar(64) DEFAULT NULL COMMENT '第三方平台标识',
+  `origin_message` text COMMENT '三方服务返回的原始信息',
+  `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '操作截止时间',
+  `create_time` datetime NOT NULL COMMENT '记录创建时间',
+  PRIMARY KEY (`id`),
+  KEY `cid_no` (`cid_no`),
+  KEY `name` (`name`),
+  KEY `mobile` (`mobile`),
+  KEY `apply_id` (`apply_id`),
+  KEY `status` (`status`),
+  KEY `platform` (`platform`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

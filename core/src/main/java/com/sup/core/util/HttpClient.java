@@ -115,6 +115,24 @@ public class HttpClient {
     return response_future.get().getResponseBody();
   }
 
+  public static String httpPostWithParams(String url, Map<String, String> params, Map<String, String> headerParams) throws ExecutionException, InterruptedException {
+    BoundRequestBuilder builer = client.preparePost(url);
+    if (headerParams == null) {
+      builer.addHeader("Content-Type", "application/json");
+    } else {
+      headerParams.forEach((k, v) -> {
+        builer.addHeader(k, v);
+      });
+    }
+    if (params != null) {
+      params.forEach((k, v) -> {
+        builer.addQueryParam(k, v);
+      });
+    }
+    Future<Response> response_future = builer.execute();
+    return response_future.get().getResponseBody();
+  }
+
   public static <T>  void httpPostJsonAsync(String url, String post_body, AsyncCompletionHandler<T> handler) {
     BoundRequestBuilder builder = client.preparePost(url).addHeader("Content-Type", "application/json").setBody(post_body);
     builder.execute(handler);

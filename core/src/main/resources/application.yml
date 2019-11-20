@@ -115,6 +115,22 @@ rocket:
     endpoint: 127.0.0.1:9976
     group: user_state_group
 
+thirdparty:
+  max-retry: 3
+  jirong:
+    blacklist:
+      url: "https://api.geerongcloud.com/credit/v2/blacklist"
+    token: testUser
+    secretKey: 9437f92c2f774ceb95ea591fc10209e8
+    countryCode: 84
+  xingtan:
+    accessKey: 92d08e368374414bb5848134000460f5
+    accessSecret: ABD5691CE596186FE2FDCE8ABE37CBE0996240CE88E580D8EE20F37FC303B14A
+    token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5MmQwOGUzNjgzNzQ0MTRiYjU4NDgxMzQwMDA0NjBmNSIsImV4cCI6MTg4MTkyMDg1Niwib3duZXJJZCI6Mn0.bBaUZuNyRygPJxVs5kHUyk-dBPz1P9Gg20rB1VoD7LBNVhuEFNFVExUcI4nDFuGqSl3QOvceAcv3Wm1YFTmoWA
+    blacklist:
+      url: "http://47.75.14.45/single-pre-rc-report/prc-blacklist"
+
+
 ---
 spring:
   profiles: online
@@ -158,14 +174,21 @@ rocket:
     endpoint: 172.21.190.226:9976;172.21.190.225:9976
     group: user_state_group
 
-
-
-
 thirdparty:
-   jirong:
-      url: "https://api.geerongcloud.com/credit/v2/blacklist";
-      token:
-      secretKey:
+  max-retry: 3
+  jirong:
+    blacklist:
+      url: "https://api.geerongcloud.com/credit/v2/blacklist"
+    token: 735506dbda0040bab7d473f7027cd6fd
+    secretKey: 5967f91866e8452eb12dfd07bad43b76
+    countryCode: 84
+  xingtan:
+    accessKey: b7354a93ba194e9c8dbab5b6ef3d62d0
+    accessSecret: 2BD2397E05F491DB49FCAD6CE65E76386684C54FCFC98DEFBEBE924EBC5F44A6
+    #sha256: a3467f397bcabcbc4f0dea3be1334fef3b368d933cdb631946eca53f332bd5ce
+    token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJiNzM1NGE5M2JhMTk0ZTljOGRiYWI1YjZlZjNkNjJkMCIsImV4cCI6MTg4OTA5MDg3Niwib3duZXJJZCI6MTE5NDU2NzAzNzEzNzk4MTQ0MX0.iX3tKj2DDgLsziTI26tuA8-pkORNjVYEekYUgwFsxVCFxmc-8PnI0-Aj86G6W_G3DB7V8GjRlGZJ_8ovWpXT8g
+    blacklist:
+      url: "https://rest.star-detector.vn.starwin.tech/single-pre-rc-report/prc-blacklist"
 
 
 
