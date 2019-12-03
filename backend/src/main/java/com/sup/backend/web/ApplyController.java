@@ -112,7 +112,7 @@ public class ApplyController {
     ov.setNeed_to_repay(NeedToRepay(bean.getStatus()));
     ov.setAmount(bean.getApply_quota().toString());
     ov.setApply_id(bean.getId());
-    ov.setRate(bean.getRate().toString());
+    ov.setRate(ToolUtils.formatRate(bean.getRate()));
     ov.setPeriod(bean.getPeriod().toString());
     ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()).substring(0, 10));
     return ToolUtils.succ(ov);
@@ -137,7 +137,7 @@ public class ApplyController {
       ov.setNeed_to_repay(NeedToRepay(bean.getStatus()));
       ov.setAmount(bean.getApply_quota().toString());
       ov.setApply_id(bean.getId());
-      ov.setRate(bean.getRate().toString());
+      ov.setRate(ToolUtils.formatRate(bean.getRate()));
       ov.setPeriod(bean.getPeriod().toString());
       ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()).substring(0, 10));
       ret_ovs.add(ov);
@@ -168,7 +168,7 @@ public class ApplyController {
       ov.setStatus(bean.getStatus().toString());
       ov.setAmount(bean.getApply_quota().toString());
       ov.setApply_id(bean.getId());
-      ov.setRate(bean.getRate().toString());
+      ov.setRate(ToolUtils.formatRate(bean.getRate()));
       ov.setPeriod(bean.getPeriod().toString());
       ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()).substring(0, 10));
       ret_app_beans.add(ov);
@@ -198,7 +198,7 @@ public class ApplyController {
       ov.setNeed_to_repay(NeedToRepay(bean.getStatus()));
       ov.setAmount(bean.getApply_quota().toString());
       ov.setApply_id(bean.getId());
-      ov.setRate(bean.getRate().toString());
+      ov.setRate(ToolUtils.formatRate(bean.getRate()));
       ov.setPeriod(bean.getPeriod().toString());
       ov.setApply_time(ToolUtils.NormTime(bean.getCreate_time()).substring(0, 10));
       ov.setJieqing_amount(stat_bean.getNeed_total().toString());
@@ -241,7 +241,7 @@ public class ApplyController {
           ai.setIs_overdue(plan.getRepay_end_date().getTime() < System.currentTimeMillis() ? 1: 0);
           ai.setApply_id(bean.getId());
           ai.setPlan_id(plan.getId());
-          ai.setRate(bean.getRate().toString());
+          ai.setRate(ToolUtils.formatRate(bean.getRate()));
           ai.setTerm("1");
           ai.setTotal_terms("1");
           ai.setLatest_repay_date(ToolUtils.NormTime(plan.getRepay_end_date()).substring(0, 10));

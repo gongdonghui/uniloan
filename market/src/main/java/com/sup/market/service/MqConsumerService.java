@@ -169,7 +169,7 @@ public class MqConsumerService {
 
       String market_way = bean.getMarket_way();
       if ("sms".equals(market_way)) {
-        String content = JSON.parseObject(bean.getMarket_ext()).getString("msg");
+        String content = JSON.parseObject(bean.getMarket_ext()).getString("msg_vi");
         Map<String, String> variable = JSON.parseObject(msg.getExt(), new TypeReference<Map<String, String>>(){});
         for (String k : variable.keySet()) {
           content = content.replace(String.format("${%s}", k), variable.get(k));
@@ -177,7 +177,7 @@ public class MqConsumerService {
         logger.info(String.format("sms|user_id=%d|content=%s|state=%s", msg.getUser_id(), content, msg.getState()));
         skyline_sms_service.SendSms(ImmutableList.of(msg.getMobile()), content);
       } else if ("sms_vip".equals(market_way)) {
-        String content = JSON.parseObject(bean.getMarket_ext()).getString("msg");
+        String content = JSON.parseObject(bean.getMarket_ext()).getString("msg_vi");
         Map<String, String> variable = JSON.parseObject(msg.getExt(), new TypeReference<Map<String, String>>(){});
         for (String k : variable.keySet()) {
           content = content.replace(String.format("${%s}", k), variable.get(k));
