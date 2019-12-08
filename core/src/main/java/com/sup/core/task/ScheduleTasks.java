@@ -678,13 +678,13 @@ public class ScheduleTasks {
 
     }
 
-    private void doCheckReportDaily(Date data_dt, Date current, Integer taskType) {
+    private void doCheckReportDaily(Date date_dt, Date current, Integer taskType) {
 
-        List<OperationTaskJoinBean> operationTaskJoinBeanList = this.operationTaskJoinMapper.getOperationTaskJoinByTask(data_dt, current, taskType);
+        List<OperationTaskJoinBean> operationTaskJoinBeanList = this.operationTaskJoinMapper.getOperationTaskJoinByTask(date_dt, current, taskType);
         CheckReportBean checkReportBean = new CheckReportBean();
         int total = operationTaskJoinBeanList.size();
         checkReportBean.setTask_type(taskType);
-        checkReportBean.setData_dt(data_dt);
+        checkReportBean.setDate_dt(date_dt);
         checkReportBean.setTotal(total);
         Integer deny = 0, checked = 0, allocated = 0;
 
