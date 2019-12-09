@@ -18,7 +18,7 @@ import java.util.Date;
 public class CheckReportBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private Date date_dt;  //日期
+    private Date data_dt;  //日期
     private Integer task_type;   //任务类型
     private Integer total;      //总单数
     private Integer allocated;   //分配单数

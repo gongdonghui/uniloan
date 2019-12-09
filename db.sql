@@ -731,7 +731,7 @@ CREATE TABLE `tb_report_operation_daily` (
 DROP TABLE IF EXISTS tb_report_check_daily;
 CREATE TABLE `tb_report_check_daily` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `date_dt` date DEFAULT NULL,
+  `data_dt` date DEFAULT NULL,
   `task_type` int(11) DEFAULT NULL,
   `total` int(11) DEFAULT NULL,
   `allocated` int(11) DEFAULT NULL,
