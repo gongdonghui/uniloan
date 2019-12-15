@@ -405,6 +405,7 @@ CREATE TABLE `tb_user_basic_info` (
   `purpose` tinyint(4) NOT NULL DEFAULT '0' COMMENT '用途 0|旅游  1|买车',
   `purpose_other` varchar(128) NOT NULL DEFAULT '' COMMENT '用途其他 如果需要用户填写',
   `zalo_id` varchar(64) NOT NULL DEFAULT '' COMMENT 'zalo id',
+  `facebook_link` varchar(256) default NULL COMMENT 'facebook_link',
   `age` tinyint(4) NOT NULL DEFAULT '0' COMMENT '年龄',
   `longitude` float DEFAULT NULL COMMENT '经度',
   `latitude` float DEFAULT NULL COMMENT '纬度',

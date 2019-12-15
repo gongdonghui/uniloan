@@ -34,6 +34,7 @@ public class AppTbUserBasicInfoBean {
   private Integer purpose;
   private String purpose_other;
   private String zalo_id;
+  private String facebook_link;
   private Integer age;
   private Date create_time;
   private Date expire_time;
