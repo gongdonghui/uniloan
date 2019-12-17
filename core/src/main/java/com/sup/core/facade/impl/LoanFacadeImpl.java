@@ -3,6 +3,7 @@ package com.sup.core.facade.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.Gson;
 import com.sup.common.bean.*;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.PayStatusInfo;
@@ -61,6 +62,7 @@ public class LoanFacadeImpl implements LoanFacade {
      */
     @Override
     public Result calculator(LoanCalculatorParam param) {
+        log.info("calculator param:" + GsonUtil.toJson(param));
         Integer productId = param.getProductId();
         Integer applyAmount = param.getApplyAmount();
         Integer applyPeriod = param.getApplyPeriod();
@@ -68,6 +70,7 @@ public class LoanFacadeImpl implements LoanFacade {
         if (param == null) {
             return Result.fail("System error!");
         }
+        log.info("calculator result:" + GsonUtil.toJson(param));
         return Result.succ(param);
     }
 //
