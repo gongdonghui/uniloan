@@ -20,6 +20,7 @@ import java.util.Date;
 public class TbAppSdkLocationInfoBean {
   @TableId(type = IdType.AUTO)
   private Integer id;
+  private String info_id;
   private String apply_long;
   private String apply_lat;
   private String device_id;

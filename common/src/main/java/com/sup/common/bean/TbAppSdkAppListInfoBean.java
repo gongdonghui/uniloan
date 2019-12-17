@@ -22,9 +22,11 @@ public class TbAppSdkAppListInfoBean {
   @TableId(type = IdType.AUTO)
   private Integer id;
   private String device_id;
+  private String info_id;
   private String mobile;
   private String apk_name;
   private String apk_label;
+  private Date install_time;
   private Date create_time;
   private Date update_time;
   @TableField(exist = false)

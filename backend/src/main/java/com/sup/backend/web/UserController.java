@@ -117,7 +117,7 @@ public class UserController {
     }
 
     String token = ToolUtils.getToken();
-    LoginInfoCtx li = new LoginInfoCtx(regist_info.getId(), ToolUtils.NormTime(new Date()));
+    LoginInfoCtx li = new LoginInfoCtx(regist_info.getId(), ToolUtils.NormTime(new Date()), regist_info.getMobile());
     rc.Set(token, li.toString(), 30l, TimeUnit.DAYS);
     rc.Delete(login_flag);
     return ToolUtils.succ(token, "login_succ");

@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class LoginInfoCtx {
   private Integer user_id;
   private String login_time;
+  private String mobile;
 
   public String toString() {
     return JSON.toJSONString(this);

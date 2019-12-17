@@ -26,6 +26,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -57,8 +58,8 @@ public class SdkController {
 
   @ResponseBody
   @RequestMapping(value = "loc/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  public Object QueryLocation(@RequestParam("mobile") String mobile) {
-    QueryWrapper<TbAppSdkLocationInfoBean> query = new QueryWrapper<TbAppSdkLocationInfoBean>().eq("mobile", mobile).orderByDesc("id").last("limit 1");
+  public Object QueryLocation(@RequestParam("info_id") String info_id) {
+    QueryWrapper<TbAppSdkLocationInfoBean> query = new QueryWrapper<TbAppSdkLocationInfoBean>().eq("info_id", info_id).orderByDesc("id").last("limit 1");
     TbAppSdkLocationInfoBean bean = tb_app_sdk_location_mapper.selectOne(query);
     return ToolUtils.succ(bean);
   }
@@ -74,26 +75,16 @@ public class SdkController {
     Date dt = new Date();
     bean.setCreate_time(dt);
     bean.setUpdate_time(dt);
-    tb_app_sdk_location_mapper.insert(bean);
+    bean.setInfo_id("");
+    background_service.InsertLocationAsync(bean.getMobile(), bean);
     return ToolUtils.succ(null);
-  }
-
-  private List<TbAppSdkContractInfoBean> QueryLatestContact(String mobile) {
-    List<TbAppSdkContractInfoBean> result = new ArrayList<>();
-    TbAppSdkContractInfoBean first_bean = tb_app_sdk_contract_mapper.selectOne(new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).orderByDesc("id").last("limit 1"));
-    if (first_bean == null) {
-      return result;
-    }
-    QueryWrapper<TbAppSdkContractInfoBean> query = new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).eq("create_time", first_bean.getCreate_time()).orderByAsc("id");
-    result = tb_app_sdk_contract_mapper.selectList(query);
-    result.forEach(v -> v.setSignature(v.calcSignature()));
-    return result;
   }
 
   @ResponseBody
   @RequestMapping(value = "contact/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  public Object QueryContract(@RequestParam("mobile") String mobile) {
-    return ToolUtils.succ(QueryLatestContact(mobile));
+  public Object QueryContract(@RequestParam("info_id") String info_id) {
+    QueryWrapper<TbAppSdkContractInfoBean> query = new QueryWrapper<TbAppSdkContractInfoBean>().eq("info_id", info_id).orderByDesc("id");
+    return ToolUtils.succ(tb_app_sdk_contract_mapper.selectList(query));
   }
 
 
@@ -107,42 +98,35 @@ public class SdkController {
       return ToolUtils.fail(1, "no_valid_items");
     }
     List<TbAppSdkContractInfoBean> beans = new ArrayList<>();
+    Date dt = new Date();
     for (AppSdkContactInfo.SingleItem item : sdk_contacts.getContacts()) {
       TbAppSdkContractInfoBean bean = new TbAppSdkContractInfoBean();
       bean.setMobile(sdk_contacts.getMobile());
       bean.setDevice_id(sdk_contacts.getDevice_id());
       bean.setContract_name(item.getName());
+      bean.setInfo_id("");
       if (item.getMobiles() == null) {
         item.setMobiles(new ArrayList<>());
       } else {
         Collections.sort(item.getMobiles());
       }
+      bean.setCreate_time(dt);
+      bean.setUpdate_time(dt);
       bean.setContract_info(String.join(",", item.getMobiles()));
       bean.setContract_memo("");
       bean.setSignature(bean.calcSignature());
       beans.add(bean);
     }
 
-    background_service.InsertContactAsync(sdk_contacts.getMobile(), beans, QueryLatestContact(sdk_contacts.getMobile()));
+    background_service.InsertContactAsync(sdk_contacts.getMobile(), beans);
     return ToolUtils.succ(null);
-  }
-
-  private List<TbAppSdkAppListInfoBean> QueryLatestAppList(String mobile) {
-    List<TbAppSdkAppListInfoBean> result = new ArrayList<>();
-    TbAppSdkAppListInfoBean first_bean = tb_app_sdk_app_list_info_mapper.selectOne(new QueryWrapper<TbAppSdkAppListInfoBean>().eq("mobile", mobile).orderByDesc("id").last("limit 1"));
-    if (first_bean == null) {
-      return result;
-    }
-    QueryWrapper<TbAppSdkAppListInfoBean> query = new QueryWrapper<TbAppSdkAppListInfoBean>().eq("mobile", mobile).eq("create_time", first_bean.getCreate_time()).orderByAsc("id");
-    result = tb_app_sdk_app_list_info_mapper.selectList(query);
-    result.forEach(v -> v.setSignature(v.calcSignature()));
-    return result;
   }
 
   @ResponseBody
   @RequestMapping(value = "applist/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  public Object QueryApplist(@RequestParam("mobile") String mobile) {
-    return ToolUtils.succ(QueryLatestAppList(mobile));
+  public Object QueryApplist(@RequestParam("info_id") String info_id) {
+    QueryWrapper<TbAppSdkAppListInfoBean> query = new QueryWrapper<TbAppSdkAppListInfoBean>().eq("info_id", info_id).orderByDesc("id");
+    return ToolUtils.succ(tb_app_sdk_app_list_info_mapper.selectList(query));
   }
 
   @LoginRequired
@@ -155,17 +139,22 @@ public class SdkController {
     }
 
     List<TbAppSdkAppListInfoBean> beans = new ArrayList<>();
+    Date dt = new Date();
     for (AppSdkAppListInfo.SingleItem item : app_list_info.getApps()) {
       TbAppSdkAppListInfoBean bean = new TbAppSdkAppListInfoBean();
+      bean.setInfo_id("");
       bean.setMobile(app_list_info.getMobile());
       bean.setDevice_id(app_list_info.getDevice_id());
       bean.setApk_name(item.getApk_name());
+      bean.setInstall_time(ToolUtils.NormTime(item.getInstall_time()));
       bean.setApk_label(item.getApk_label());
       bean.setSignature(bean.calcSignature());
+      bean.setCreate_time(dt);
+      bean.setUpdate_time(dt);
       beans.add(bean);
     }
 
-    background_service.InsertApplistsync(app_list_info.getMobile(), beans, QueryLatestAppList(app_list_info.getMobile()));
+    background_service.InsertApplistsync(app_list_info.getMobile(), beans);
     return ToolUtils.succ(null);
   }
 

@@ -34,6 +34,16 @@ public class ToolUtils {
     return df.format(rate);
   }
 
+  public static Date NormTime(String p) {
+    synchronized (sdf) {
+      try {
+        return sdf.parse(p);
+      } catch (Exception e) {
+        return null;
+      }
+    }
+  }
+
   public static String NormTime(Date d) {
     synchronized (sdf) {
       if (d != null) {

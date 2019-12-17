@@ -21,6 +21,7 @@ import java.util.Date;
 public class TbAppSdkContractInfoBean {
   @TableId(type = IdType.AUTO)
   private Integer id;
+  private String info_id;
   private String device_id;
   private String mobile;
   private String contract_name;

@@ -7,7 +7,10 @@ public enum ApplyMaterialTypeEnum {
     APPLY_MATERIAL_BASIC(1, "基本信息"),
     APPLY_MATERIAL_CONTACT(2, "紧急联系人"),
     APPLY_MATERIAL_EMPLOYMENT(3, "职业信息"),
-    APPLY_MATERIAL_BANK(4, "银行卡信息");
+    APPLY_MATERIAL_BANK(4, "银行卡信息"),
+    APPLY_MATERIAL_SDK_LOCATION_INFO(5, "SDK location"),
+    APPLY_MATERIAL_SDK_CONTACT_LIST(6, "SDK contact"),
+    APPLY_MATERIAL_SDK_APP_LIST(7, "SDK_applist");
 
     private int code;
     private String codeDesc;
