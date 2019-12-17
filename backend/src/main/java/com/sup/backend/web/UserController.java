@@ -23,6 +23,7 @@ import com.sup.common.mq.MqTag;
 import com.sup.common.mq.MqTopic;
 import com.sup.common.mq.UserStateMessage;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
@@ -90,7 +92,7 @@ public class UserController {
 
   @ResponseBody
   @RequestMapping(value = "login", produces = "application/json;charset=UTF-8")
-  public Object Login(@RequestParam(value="mobile") String mobile, @RequestParam(value="verify_code") String verify_code) {
+  public Object Login(@RequestParam(value="mobile") String mobile, @RequestParam(value="verify_code") String verify_code, HttpServletRequest req) {
     String verify_key = String.format("verify_%s", mobile);
     String verify_ans = rc.Get(verify_key);
     if (verify_ans == null || (!verify_ans.equals(verify_code))) {
@@ -106,6 +108,9 @@ public class UserController {
     if (regist_info == null) {
       regist_info = new TbUserRegistInfoBean();
       regist_info.setMobile(mobile);
+      if (StringUtils.isNotEmpty(req.getHeader("channel-id"))) {
+        regist_info.setChannel_id(Integer.parseInt(req.getHeader("channel-id")));
+      }
       regist_info.setCreate_time(new Date());
       tb_user_regist_info_mapper.insert(regist_info);
       logger.info(String.format("---new_user: %s ---", JSON.toJSONString(regist_info)));

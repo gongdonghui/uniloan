@@ -23,4 +23,5 @@ public class TbUserRegistInfoBean {
     private String name;
     private Date create_time;
     private Integer credit_level;
+    private Integer channel_id;
 }
