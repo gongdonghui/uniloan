@@ -516,6 +516,7 @@ CREATE TABLE if NOT EXISTS `tb_user_sns_info` (
 DROP TABLE IF EXISTS tb_app_sdk_location_info;
 CREATE TABLE `tb_app_sdk_location_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `info_id` varchar(32) NOT NULL DEFAULT '' COMMENT '资料标识id',
   `apply_long` varchar(32) DEFAULT NULL COMMENT 'gps经度',
   `apply_lat` varchar(32) DEFAULT NULL COMMENT 'gps纬度',
   `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
@@ -524,12 +525,14 @@ CREATE TABLE `tb_app_sdk_location_info` (
   `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
   PRIMARY KEY (`id`),
   KEY `idx_create_time` (`create_time`),
-  KEY `idx_mobile` (`mobile`)
+  KEY `idx_mobile` (`mobile`),
+  KEY `idx_info_id` (`info_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_app_sdk_contract_info;
 CREATE TABLE `tb_app_sdk_contract_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `info_id` varchar(32) NOT NULL DEFAULT '' COMMENT '资料标识id',
   `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
   `mobile` varchar(255) DEFAULT NULL COMMENT '手机号',
   `contract_name` varchar(255) DEFAULT NULL COMMENT '通讯录姓名',
@@ -539,22 +542,26 @@ CREATE TABLE `tb_app_sdk_contract_info` (
   `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
   PRIMARY KEY (`id`),
   KEY `idx_create_time` (`create_time`),
-  KEY `idx_mobile` (`mobile`)
+  KEY `idx_mobile` (`mobile`),
+  KEY `idx_info_id` (`info_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 DROP TABLE IF EXISTS tb_app_sdk_applist_info;
 CREATE TABLE `tb_app_sdk_applist_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `info_id` varchar(32) NOT NULL DEFAULT '' COMMENT '资料标识id',
   `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
   `mobile` varchar(255) DEFAULT NULL COMMENT '手机号',
   `apk_name` varchar(255) DEFAULT NULL COMMENT 'app包名',
   `apk_label` varchar(255) DEFAULT NULL COMMENT 'applabel信息',
+  `install_time` datetime DEFAULT NULL COMMENT '安装时间',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '客户端上传时间',
   PRIMARY KEY (`id`),
   KEY `idx_create_time` (`create_time`),
-  KEY `idx_mobile` (`mobile`)
+  KEY `idx_mobile` (`mobile`),
+  KEY `idx_info_id` (`info_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

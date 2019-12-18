@@ -1,6 +1,7 @@
 package com.sup.backend.service;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.backend.mapper.TbAppSdkAppListInfoMapper;
 import com.sup.backend.mapper.TbAppSdkContractInfoMapper;
 import com.sup.backend.mapper.TbAppSdkLocationInfoMapper;
@@ -8,11 +9,15 @@ import com.sup.backend.mapper.TbUserRegistInfoMapper;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.TbAppSdkAppListInfoBean;
 import com.sup.common.bean.TbAppSdkContractInfoBean;
+import com.sup.common.bean.TbAppSdkLocationInfoBean;
 import org.apache.log4j.Logger;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -30,57 +35,53 @@ public class BackgroundService {
   @Autowired
   TbAppSdkAppListInfoMapper tb_app_sdk_app_list_info_mapper;
 
-  @Async
-  public void InsertContactAsync(String mobile, List<TbAppSdkContractInfoBean> beans, List<TbAppSdkContractInfoBean> exists) {
-    logger.info(String.format("[%s] ------ new: %d, old: %d ------", mobile, beans.size(), exists.size()));
-    Collections.sort(beans, (x, y) -> x.getSignature().compareTo(y.getSignature()));
-    if (exists != null && (!exists.isEmpty()) && exists.size() == beans.size()) {
-      boolean dup = true;
-      for (int i = 0; i < beans.size(); ++i) {
-        if (!beans.get(i).getSignature().equals(exists.get(i).getSignature())) {
-          dup = false;
-          logger.info(String.format("[diff_item]:[%s] => [%s]", JSON.toJSONStringWithDateFormat(beans.get(i), ToolUtils.DEFAULT_DATE_FORMAT), JSON.toJSONStringWithDateFormat(exists.get(i), ToolUtils.DEFAULT_DATE_FORMAT)));
-          break;
-        }
-      }
-      if (dup == true) {
-        return;
-      }
-    }
+  @Autowired
+  TbAppSdkLocationInfoMapper tb_app_sdk_location_info_mapper;
 
-    Date dt = new Date();
-    beans.forEach(bean -> {
-      bean.setCreate_time(dt);
-      bean.setUpdate_time(dt);
-      tb_app_sdk_contract_mapper.insert(bean);
-    });
-    logger.info(String.format("[new_contact]: mobile [%s] len [%d], sig [%s]", mobile, beans.size(), ToolUtils.NormTime(dt)));
+  @Autowired
+  RedissonClient red_client;
+
+  @Async
+  public void InsertLocationAsync(String mobile, TbAppSdkLocationInfoBean bean) {
+    RLock lock = red_client.getLock(mobile);
+    try {
+      lock.lock();
+      QueryWrapper<TbAppSdkLocationInfoBean> query = new QueryWrapper<TbAppSdkLocationInfoBean>().eq("mobile", mobile).eq("info_id", "");
+      List<TbAppSdkLocationInfoBean> exists = tb_app_sdk_location_info_mapper.selectList(query);
+      exists.forEach(b -> tb_app_sdk_location_info_mapper.deleteById(b.getId()));
+      tb_app_sdk_location_info_mapper.insert(bean);
+    } finally {
+      lock.unlock();
+    }
   }
 
   @Async
-  public void InsertApplistsync(String mobile, List<TbAppSdkAppListInfoBean> beans, List<TbAppSdkAppListInfoBean> exists) {
-    logger.info(String.format("[%s] ------ new: %d, old: %d ------", mobile, beans.size(), exists.size()));
-    exists.forEach(v -> v.setSignature(v.calcSignature()));
-    Collections.sort(beans, (x, y) -> x.getSignature().compareTo(y.getSignature()));
-    if (exists != null && (!exists.isEmpty()) && exists.size() == beans.size()) {
-      boolean dup = true;
-      for (int i = 0; i < beans.size(); ++i) {
-        if (!beans.get(i).getSignature().equals(exists.get(i).getSignature())) {
-          dup = false;
-          logger.info(String.format("[diff_item]:[%s] => [%s]", JSON.toJSONStringWithDateFormat(beans.get(i), ToolUtils.DEFAULT_DATE_FORMAT), JSON.toJSONStringWithDateFormat(exists.get(i), ToolUtils.DEFAULT_DATE_FORMAT)));
-          break;
-        }
-      }
-      if (dup == true) {
-        return;
-      }
+  public void InsertContactAsync(String mobile, List<TbAppSdkContractInfoBean> beans) {
+    RLock lock = red_client.getLock(mobile);
+    try {
+      lock.lock();
+      QueryWrapper<TbAppSdkContractInfoBean> query = new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).eq("info_id", "");
+      List<TbAppSdkContractInfoBean> exists = tb_app_sdk_contract_mapper.selectList(query);
+      logger.info(String.format("[%s] ------ new: %d, old: %d ------", mobile, beans.size(), exists.size()));
+      exists.forEach(bean -> tb_app_sdk_contract_mapper.deleteById(bean.getId()));
+      beans.forEach(bean -> tb_app_sdk_contract_mapper.insert(bean));
+    } finally {
+      lock.unlock();
     }
-    Date dt = new Date();
-    beans.forEach(bean -> {
-      bean.setCreate_time(dt);
-      bean.setUpdate_time(dt);
-      tb_app_sdk_app_list_info_mapper.insert(bean);
-    });
-    logger.info(String.format("[new_applist]: mobile [%s] len [%d], sig [%s]", mobile, beans.size(), ToolUtils.NormTime(dt)));
+  }
+
+  @Async
+  public void InsertApplistsync(String mobile, List<TbAppSdkAppListInfoBean> beans) {
+    RLock lock = red_client.getLock(mobile);
+    try {
+      lock.lock();
+      QueryWrapper<TbAppSdkAppListInfoBean> query = new QueryWrapper<TbAppSdkAppListInfoBean>().eq("mobile", mobile).eq("info_id", "");
+      List<TbAppSdkAppListInfoBean> exists = tb_app_sdk_app_list_info_mapper.selectList(query);
+      logger.info(String.format("[%s] ------ new: %d, old: %d ------", mobile, beans.size(), exists.size()));
+      exists.forEach(bean -> tb_app_sdk_app_list_info_mapper.deleteById(bean.getId()));
+      beans.forEach(bean -> tb_app_sdk_app_list_info_mapper.insert(bean));
+    } finally {
+      lock.unlock();
+    }
   }
 }

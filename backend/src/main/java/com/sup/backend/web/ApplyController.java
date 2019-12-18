@@ -3,27 +3,28 @@ package com.sup.backend.web;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.netflix.discovery.converters.Auto;
 import com.sup.backend.bean.AppApplyInfo;
 import com.sup.backend.bean.AppApplyOverView;
 import com.sup.backend.bean.AppSubmitOrder;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
-import com.sup.backend.mapper.TbApplyInfoMapper;
-import com.sup.backend.mapper.TbApplyMaterialInfoMapper;
-import com.sup.backend.mapper.TbRepayPlanMapper;
-import com.sup.backend.mapper.TbRepayStatMapper;
+import com.sup.backend.mapper.*;
 import com.sup.backend.util.LangUtil;
 import com.sup.backend.util.ToolUtils;
-import com.sup.common.bean.TbApplyInfoBean;
-import com.sup.common.bean.TbRepayPlanBean;
-import com.sup.common.bean.TbRepayStatBean;
+import com.sup.common.bean.*;
+import com.sup.common.loan.ApplyMaterialTypeEnum;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.param.ApplyInfoParam;
 import com.sup.common.service.CoreService;
+import net.bytebuddy.asm.Advice;
 import org.apache.ibatis.annotations.Lang;
 import org.apache.log4j.Logger;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -55,6 +56,15 @@ public class ApplyController {
   TbRepayPlanMapper tb_repay_plan_mapper;
   @Autowired
   TbRepayStatMapper tb_repay_stat_mapper;
+  @Autowired
+  TbAppSdkLocationInfoMapper tb_app_sdk_location_info_mapper;
+  @Autowired
+  TbAppSdkContractInfoMapper tb_app_sdk_contact_info_mapper;
+  @Autowired
+  TbAppSdkAppListInfoMapper tb_app_sdk_applist_info_mapper;
+  @Autowired
+  RedissonClient red_client;
+
   @Autowired
   private CoreService core;
   @Value("${repay.accountno}")
@@ -253,6 +263,35 @@ public class ApplyController {
     return ToolUtils.succ(ret_app_beans);
   }
 
+  private Set<Integer> UpdateInfoId(String mobile, String old_id, String info_id) {
+    Set<Integer> r = new HashSet<>();
+    UpdateWrapper<TbAppSdkLocationInfoBean> upd_wrapper1 = new UpdateWrapper<>();
+    upd_wrapper1.eq("mobile", mobile);
+    upd_wrapper1.eq("info_id", old_id);
+    upd_wrapper1.set("info_id", info_id);
+    if (tb_app_sdk_location_info_mapper.update(null, upd_wrapper1) > 0) {
+      r.add(ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_LOCATION_INFO.getCode());
+    }
+
+    UpdateWrapper<TbAppSdkContractInfoBean> upd_wrapper2 = new UpdateWrapper<>();
+    upd_wrapper2.eq("mobile", mobile);
+    upd_wrapper2.eq("info_id", old_id);
+    upd_wrapper2.set("info_id", info_id);
+    if (tb_app_sdk_contact_info_mapper.update(null, upd_wrapper2) > 0) {
+      r.add(ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_CONTACT_LIST.getCode());
+    }
+
+    UpdateWrapper<TbAppSdkAppListInfoBean> upd_wrapper3 = new UpdateWrapper<>();
+    upd_wrapper3.eq("mobile", mobile);
+    upd_wrapper3.eq("info_id", old_id);
+    upd_wrapper3.set("info_id", info_id);
+    if (tb_app_sdk_applist_info_mapper.update(null, upd_wrapper3) > 0) {
+      r.add(ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_APP_LIST.getCode());
+    }
+
+    return r;
+  }
+
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "new", produces = "application/json;charset=UTF-8")
@@ -266,11 +305,27 @@ public class ApplyController {
     aip.setProduct_id(order_detail.getProduct_id());
     aip.setPeriod(order_detail.getPeriod());
     aip.setInfoIdMap(order_detail.getMaterial_ids());
+
+    String mobile = li.getMobile();
+    String info_id = ToolUtils.getToken();
+    RLock lock = red_client.getLock(mobile);
     try {
-      return core.addApplyInfo(aip);
+      // fetch sdk info now !!
+      lock.lock();
+      Set<Integer> affect_items = UpdateInfoId(mobile, "", info_id);
+      affect_items.forEach(v -> aip.getInfoIdMap().put(v, info_id));
+      com.sup.common.util.Result r = core.addApplyInfo(aip);
+      if (!r.isSucc()) {
+        throw new Exception("new_apply_call_fail");
+      }
+      return r;
     } catch (Exception e) {
+      // need to restore !!
+      UpdateInfoId(mobile, info_id, "");
       logger.error(ToolUtils.GetTrace(e));
       return ToolUtils.fail("rpc_call_exception");
+    } finally {
+      lock.unlock();
     }
   }
 }
