@@ -9,10 +9,13 @@ import com.sup.cms.bean.vo.LoanUnRepayInfoGetListParams;
 import com.sup.cms.mapper.CrazyJoinMapper;
 import com.sup.cms.mapper.TbAppSdkAppListInfoMapper;
 import com.sup.cms.mapper.TbAppSdkContractInfoMapper;
+import com.sup.cms.mapper.TbApplyMaterialInfoMapper;
 import com.sup.cms.util.ResponseUtil;
 import com.sup.cms.util.ToolUtils;
 import com.sup.common.bean.TbAppSdkAppListInfoBean;
 import com.sup.common.bean.TbAppSdkContractInfoBean;
+import com.sup.common.bean.TbApplyMaterialInfoBean;
+import com.sup.common.loan.ApplyMaterialTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -40,38 +43,53 @@ public class SDKController {
     @Autowired
     TbAppSdkAppListInfoMapper tb_app_sdk_app_list_info_mapper;
 
+    @Autowired
+    TbApplyMaterialInfoMapper tbApplyMaterialInfoMapper;
+
     @ResponseBody
     @RequestMapping(value = "/contact/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public Object QueryContract(@RequestParam("mobile") String mobile) {
-        return ToolUtils.succ(QueryLatestContact(mobile));
+    public Object QueryContract(@RequestParam("apply_id") Integer apply_id) {
+        return ToolUtils.succ(getContact(apply_id));
     }
 
     @ResponseBody
     @RequestMapping(value = "/applist/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public Object QueryApplist(@RequestParam("mobile") String mobile) {
-        return ToolUtils.succ(QueryLatestAppList(mobile));
+    public Object QueryApplist(@RequestParam("apply_id") Integer apply_id) {
+        return ToolUtils.succ(getAppList(apply_id));
     }
 
-    private List<TbAppSdkContractInfoBean> QueryLatestContact(String mobile) {
+    private List<TbAppSdkContractInfoBean> getContact(Integer apply_id) {
         List<TbAppSdkContractInfoBean> result = new ArrayList<>();
-        TbAppSdkContractInfoBean first_bean = tb_app_sdk_contract_mapper.selectOne(new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).orderByDesc("id").last("limit 1"));
-        if (first_bean == null) {
+        QueryWrapper<TbApplyMaterialInfoBean> wrapper = new QueryWrapper();
+        wrapper.eq("apply_id", apply_id);
+        wrapper.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_CONTACT_LIST);
+
+        TbApplyMaterialInfoBean infoBean = tbApplyMaterialInfoMapper.selectOne(wrapper);
+        if (infoBean == null) {
             return result;
         }
-        QueryWrapper<TbAppSdkContractInfoBean> query = new QueryWrapper<TbAppSdkContractInfoBean>().eq("mobile", mobile).eq("create_time", first_bean.getCreate_time()).orderByAsc("id");
-        result = tb_app_sdk_contract_mapper.selectList(query);
+        String infoId = infoBean.getInfo_id();
+        QueryWrapper<TbAppSdkContractInfoBean> contractWrapper = new QueryWrapper<>();
+        contractWrapper.eq("info_id", infoId);
+        result = tb_app_sdk_contract_mapper.selectList(contractWrapper);
         result.forEach(v -> v.setSignature(v.calcSignature()));
         return result;
     }
 
-    private List<TbAppSdkAppListInfoBean> QueryLatestAppList(String mobile) {
+    private List<TbAppSdkAppListInfoBean> getAppList(Integer apply_id) {
         List<TbAppSdkAppListInfoBean> result = new ArrayList<>();
-        TbAppSdkAppListInfoBean first_bean = tb_app_sdk_app_list_info_mapper.selectOne(new QueryWrapper<TbAppSdkAppListInfoBean>().eq("mobile", mobile).orderByDesc("id").last("limit 1"));
-        if (first_bean == null) {
+        QueryWrapper<TbApplyMaterialInfoBean> wrapper = new QueryWrapper();
+        wrapper.eq("apply_id", apply_id);
+        wrapper.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_APP_LIST);
+
+        TbApplyMaterialInfoBean infoBean = tbApplyMaterialInfoMapper.selectOne(wrapper);
+        if (infoBean == null) {
             return result;
         }
-        QueryWrapper<TbAppSdkAppListInfoBean> query = new QueryWrapper<TbAppSdkAppListInfoBean>().eq("mobile", mobile).eq("create_time", first_bean.getCreate_time()).orderByAsc("id");
-        result = tb_app_sdk_app_list_info_mapper.selectList(query);
+        String infoId = infoBean.getInfo_id();
+        QueryWrapper<TbAppSdkAppListInfoBean> contractWrapper = new QueryWrapper<>();
+        contractWrapper.eq("info_id", infoId);
+        result = tb_app_sdk_app_list_info_mapper.selectList(contractWrapper);
         result.forEach(v -> v.setSignature(v.calcSignature()));
         return result;
     }
