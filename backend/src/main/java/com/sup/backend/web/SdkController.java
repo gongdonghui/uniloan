@@ -18,12 +18,12 @@ import com.sup.common.bean.TbAppSdkAppListInfoBean;
 import com.sup.common.bean.TbAppSdkContractInfoBean;
 import com.sup.common.bean.TbAppSdkLocationInfoBean;
 import com.sup.common.bean.TbUserRegistInfoBean;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.xml.crypto.Data;
@@ -59,9 +59,13 @@ public class SdkController {
   @ResponseBody
   @RequestMapping(value = "loc/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object QueryLocation(@RequestParam("info_id") String info_id) {
-    QueryWrapper<TbAppSdkLocationInfoBean> query = new QueryWrapper<TbAppSdkLocationInfoBean>().eq("info_id", info_id).orderByDesc("id").last("limit 1");
-    TbAppSdkLocationInfoBean bean = tb_app_sdk_location_mapper.selectOne(query);
-    return ToolUtils.succ(bean);
+    if (StringUtils.isNotEmpty(info_id)) {
+      QueryWrapper<TbAppSdkLocationInfoBean> query = new QueryWrapper<TbAppSdkLocationInfoBean>().eq("info_id", info_id).orderByDesc("id").last("limit 1");
+      TbAppSdkLocationInfoBean bean = tb_app_sdk_location_mapper.selectOne(query);
+      return ToolUtils.succ(bean);
+    } else {
+      return ToolUtils.succ(null);
+    }
   }
 
   @LoginRequired
@@ -83,11 +87,13 @@ public class SdkController {
   @ResponseBody
   @RequestMapping(value = "contact/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object QueryContract(@RequestParam("info_id") String info_id) {
-    QueryWrapper<TbAppSdkContractInfoBean> query = new QueryWrapper<TbAppSdkContractInfoBean>().eq("info_id", info_id).orderByDesc("id");
-    return ToolUtils.succ(tb_app_sdk_contract_mapper.selectList(query));
+    if (StringUtils.isNotEmpty(info_id)) {
+      QueryWrapper<TbAppSdkContractInfoBean> query = new QueryWrapper<TbAppSdkContractInfoBean>().eq("info_id", info_id).orderByDesc("id");
+      return ToolUtils.succ(tb_app_sdk_contract_mapper.selectList(query));
+    } else {
+      return ToolUtils.succ(null);
+    }
   }
-
-
 
   @LoginRequired
   @ResponseBody
@@ -125,8 +131,12 @@ public class SdkController {
   @ResponseBody
   @RequestMapping(value = "applist/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object QueryApplist(@RequestParam("info_id") String info_id) {
-    QueryWrapper<TbAppSdkAppListInfoBean> query = new QueryWrapper<TbAppSdkAppListInfoBean>().eq("info_id", info_id).orderByDesc("id");
-    return ToolUtils.succ(tb_app_sdk_app_list_info_mapper.selectList(query));
+    if (StringUtils.isNotEmpty(info_id)) {
+      QueryWrapper<TbAppSdkAppListInfoBean> query = new QueryWrapper<TbAppSdkAppListInfoBean>().eq("info_id", info_id).orderByDesc("id");
+      return ToolUtils.succ(tb_app_sdk_app_list_info_mapper.selectList(query));
+    } else {
+      return ToolUtils.succ(null);
+    }
   }
 
   @LoginRequired

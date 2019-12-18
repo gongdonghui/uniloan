@@ -263,6 +263,35 @@ public class ApplyController {
     return ToolUtils.succ(ret_app_beans);
   }
 
+  private Set<Integer> UpdateInfoId(String mobile, String old_id, String info_id) {
+    Set<Integer> r = new HashSet<>();
+    UpdateWrapper<TbAppSdkLocationInfoBean> upd_wrapper1 = new UpdateWrapper<>();
+    upd_wrapper1.eq("mobile", mobile);
+    upd_wrapper1.eq("info_id", old_id);
+    upd_wrapper1.set("info_id", info_id);
+    if (tb_app_sdk_location_info_mapper.update(null, upd_wrapper1) > 0) {
+      r.add(ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_LOCATION_INFO.getCode());
+    }
+
+    UpdateWrapper<TbAppSdkContractInfoBean> upd_wrapper2 = new UpdateWrapper<>();
+    upd_wrapper2.eq("mobile", mobile);
+    upd_wrapper2.eq("info_id", old_id);
+    upd_wrapper2.set("info_id", info_id);
+    if (tb_app_sdk_contact_info_mapper.update(null, upd_wrapper2) > 0) {
+      r.add(ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_CONTACT_LIST.getCode());
+    }
+
+    UpdateWrapper<TbAppSdkAppListInfoBean> upd_wrapper3 = new UpdateWrapper<>();
+    upd_wrapper3.eq("mobile", mobile);
+    upd_wrapper3.eq("info_id", old_id);
+    upd_wrapper3.set("info_id", info_id);
+    if (tb_app_sdk_applist_info_mapper.update(null, upd_wrapper3) > 0) {
+      r.add(ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_APP_LIST.getCode());
+    }
+
+    return r;
+  }
+
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "new", produces = "application/json;charset=UTF-8")
@@ -283,44 +312,20 @@ public class ApplyController {
     try {
       // fetch sdk info now !!
       lock.lock();
-      if (true) {
-        UpdateWrapper<TbAppSdkLocationInfoBean> upd_wrapper = new UpdateWrapper<>();
-        upd_wrapper.eq("mobile", mobile);
-        upd_wrapper.eq("info_id", "");
-        upd_wrapper.set("info_id", info_id);
-        if (tb_app_sdk_location_info_mapper.update(null, upd_wrapper) > 0) {
-          aip.getInfoIdMap().put(ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_LOCATION_INFO.getCode(), info_id);
-        }
+      Set<Integer> affect_items = UpdateInfoId(mobile, "", info_id);
+      affect_items.forEach(v -> aip.getInfoIdMap().put(v, info_id));
+      com.sup.common.util.Result r = core.addApplyInfo(aip);
+      if (!r.isSucc()) {
+        throw new Exception("new_apply_call_fail");
       }
-
-      if (true) {
-        UpdateWrapper<TbAppSdkContractInfoBean> upd_wrapper = new UpdateWrapper<>();
-        upd_wrapper.eq("mobile", mobile);
-        upd_wrapper.eq("info_id", "");
-        upd_wrapper.set("info_id", info_id);
-        if (tb_app_sdk_contact_info_mapper.update(null, upd_wrapper) > 0) {
-          aip.getInfoIdMap().put(ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_CONTACT_LIST.getCode(), info_id);
-        }
-      }
-
-      if (true) {
-        UpdateWrapper<TbAppSdkAppListInfoBean> upd_wrapper = new UpdateWrapper<>();
-        upd_wrapper.eq("mobile", mobile);
-        upd_wrapper.eq("info_id", "");
-        upd_wrapper.set("info_id", info_id);
-        if (tb_app_sdk_applist_info_mapper.update(null, upd_wrapper) > 0) {
-          aip.getInfoIdMap().put(ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_APP_LIST.getCode(), info_id);
-        }
-      }
-    } finally {
-      lock.unlock();
-    }
-
-    try {
-      return core.addApplyInfo(aip);
+      return r;
     } catch (Exception e) {
+      // need to restore !!
+      UpdateInfoId(mobile, info_id, "");
       logger.error(ToolUtils.GetTrace(e));
       return ToolUtils.fail("rpc_call_exception");
+    } finally {
+      lock.unlock();
     }
   }
 }
