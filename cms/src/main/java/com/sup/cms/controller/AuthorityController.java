@@ -50,7 +50,7 @@ public class AuthorityController {
     @Autowired
     private AuthResourceBeanMapper resourceBeanMapper;
 
-    private final String REDIS_CMS_PRE = "CMS-";
+    private final String REDIS_CMS_PRE = "CMS-";    // 注意跟 WebAppConfig.java 中的保持一致
 
     @GetMapping("/user/doLogin")
     public String doLogin(@RequestParam("userName") String userName, @RequestParam("password") String password) {
