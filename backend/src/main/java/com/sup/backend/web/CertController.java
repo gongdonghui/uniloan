@@ -194,6 +194,10 @@ public class CertController {
       return ToolUtils.fail(1, "duplicate_submit");
     }
 
+    if (beans == null || beans.size() < 2) {
+      return ToolUtils.fail(1, "param_check_fail");
+    }
+
     String info_id = null;
     for (TbUserEmergencyContactBean bean : beans) {
       if (bean.getInfo_id() != null) {
