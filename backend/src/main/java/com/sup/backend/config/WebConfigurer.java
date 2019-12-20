@@ -23,6 +23,8 @@ public class WebConfigurer implements WebMvcConfigurer {
     InterceptorRegistration inter = registry.addInterceptor(AuthorityInterceptor());
     inter.addPathPatterns("/**");
     inter.excludePathPatterns("/user/login**");
+    inter.excludePathPatterns("/file/upload**");
+    inter.excludePathPatterns("/file/image/get**");
   }
 
   @Override
