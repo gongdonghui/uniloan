@@ -29,6 +29,10 @@ ribbon:
   eureka:
     enable: true
 
+cache:
+  redis:
+    key-pre: CMS-
+
 
 ---
 spring:
