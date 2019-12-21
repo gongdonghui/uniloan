@@ -10,7 +10,8 @@ public enum ApplyMaterialTypeEnum {
     APPLY_MATERIAL_BANK(4, "银行卡信息"),
     APPLY_MATERIAL_SDK_LOCATION_INFO(5, "SDK location"),
     APPLY_MATERIAL_SDK_CONTACT_LIST(6, "SDK contact"),
-    APPLY_MATERIAL_SDK_APP_LIST(7, "SDK applist");
+    APPLY_MATERIAL_SDK_APP_LIST(7, "SDK applist"),
+    APPLY_MATERIAL_DOCUMENTARY_IMAGE(8, "用户证明图片，必须有");
 
     private int code;
     private String codeDesc;
