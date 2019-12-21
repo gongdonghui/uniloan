@@ -794,6 +794,7 @@ CREATE TABLE if NOT EXISTS `tb_operation_log` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `apply_id` int(10) NOT NULL COMMENT '进件申请id',
   `operator_id` int(11) NOT NULL COMMENT '操作者id',
+  `operator_name` varchar(256) NOT NULL DEFAULT '' COMMENT '操作者姓名',
   `operation_type` tinyint(4) NOT NULL COMMENT '操作类型，0:初审，1:复审，2:终审，3:催收',
   `comment` varchar(256) NOT NULL DEFAULT '' COMMENT '备注',
   `create_time` datetime NOT NULL COMMENT '记录创建时间',
