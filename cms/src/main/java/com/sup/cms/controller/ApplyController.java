@@ -472,18 +472,28 @@ public class ApplyController {
     @PostMapping("/image/add")
     public String addImage(@RequestBody @Valid ApplyImageParams param) {
         log.info("addImage: param=" + GsonUtil.toJson(param));
-        String oldInfoId = param.getInfoId();
-        // 1. infoId not null, delete the old images
-        if (!Strings.isNullOrEmpty(oldInfoId)) {
-            QueryWrapper<TbUserDocumentaryImageBean> wrapper = new QueryWrapper<>();
-            wrapper.eq("info_id", oldInfoId);
-            documentaryImageMapper.delete(wrapper);
+        QueryWrapper<TbApplyMaterialInfoBean> qw = new QueryWrapper<>();
+        qw.eq("apply_id", param.getApplyId());
+        qw.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_DOCUMENTARY_IMAGE.getCode());
+        qw.orderByDesc("create_time");
+        qw.last("limit 1");
+
+        TbApplyMaterialInfoBean infoBean = applyMaterialInfoMapper.selectOne(qw);
+        String infoId = null;
+        if (infoBean == null) {
+            infoId = ToolUtils.getToken();
+            infoBean = new TbApplyMaterialInfoBean();
+            infoBean.setApply_id(param.getApplyId());
+            infoBean.setInfo_type(ApplyMaterialTypeEnum.APPLY_MATERIAL_DOCUMENTARY_IMAGE.getCode());
+            infoBean.setInfo_id(infoId);
+            infoBean.setCreate_time(new Date());
+            applyMaterialInfoMapper.insert(infoBean);
+        } else {
+            infoId = infoBean.getInfo_id();
         }
 
-        // 2. generate infoId, insert images
-        String newInfoId = ToolUtils.getToken();
         TbUserDocumentaryImageBean imageBean = new TbUserDocumentaryImageBean();
-        imageBean.setInfo_id(newInfoId);
+        imageBean.setInfo_id(infoId);
         imageBean.setUser_id(param.getUserId());
         imageBean.setImage_category(DocumentaryImageCategoryEnum.EXTEND.getCode());
         imageBean.setUpload_user(param.getOperatorId());
@@ -492,27 +502,16 @@ public class ApplyController {
             imageBean.setId(null);
             imageBean.setImage_object(entry.getKey());
             imageBean.setImage_key(entry.getValue());
-            documentaryImageMapper.insert(imageBean);
-        }
-
-        // 3. update or insert infoId
-        QueryWrapper<TbApplyMaterialInfoBean> qw = new QueryWrapper<>();
-        qw.eq("apply_id", param.getApplyId());
-        qw.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_DOCUMENTARY_IMAGE.getCode());
-        qw.orderByDesc("create_time");
-        qw.last("limit 1");
-
-        TbApplyMaterialInfoBean infoBean = applyMaterialInfoMapper.selectOne(qw);
-        if (infoBean == null) {
-            infoBean = new TbApplyMaterialInfoBean();
-            infoBean.setApply_id(param.getApplyId());
-            infoBean.setInfo_type(ApplyMaterialTypeEnum.APPLY_MATERIAL_DOCUMENTARY_IMAGE.getCode());
-            infoBean.setInfo_id(newInfoId);
-            infoBean.setCreate_time(new Date());
-            applyMaterialInfoMapper.insert(infoBean);
-        } else {
-            infoBean.setInfo_id(newInfoId);
-            applyMaterialInfoMapper.updateById(infoBean);
+            QueryWrapper<TbUserDocumentaryImageBean> wrapper = new QueryWrapper<>();
+            wrapper.eq("info_id", infoId);
+            wrapper.eq("image_object", entry.getKey());
+            TbUserDocumentaryImageBean bean = documentaryImageMapper.selectOne(wrapper);
+            if (bean == null) {
+                documentaryImageMapper.insert(imageBean);
+            } else {
+                bean.setImage_key(entry.getValue());
+                documentaryImageMapper.updateById(bean);
+            }
         }
 
         return ResponseUtil.success();
