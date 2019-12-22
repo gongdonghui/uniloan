@@ -7,19 +7,13 @@ import com.sup.cms.bean.po.ApplyManagementGetListBean;
 import com.sup.cms.bean.po.ApplyOperationTaskBean;
 import com.sup.cms.bean.po.ApplyApprovalGetListBean;
 import com.sup.cms.bean.vo.*;
-import com.sup.cms.mapper.ApplyOperationTaskMapper;
-import com.sup.cms.mapper.CrazyJoinMapper;
-import com.sup.cms.mapper.TbApplyInfoMapper;
-import com.sup.cms.mapper.TbManualRepayMapper;
+import com.sup.cms.mapper.*;
 import com.sup.cms.util.DateUtil;
 import com.sup.cms.util.GsonUtil;
 import com.sup.cms.util.ResponseUtil;
-import com.sup.common.bean.TbApplyInfoBean;
-import com.sup.common.bean.TbManualRepayBean;
-import com.sup.common.bean.TbOperationTaskBean;
-import com.sup.common.loan.ApplyStatusEnum;
-import com.sup.common.loan.OperationTaskStatusEnum;
-import com.sup.common.loan.OperationTaskTypeEnum;
+import com.sup.cms.util.ToolUtils;
+import com.sup.common.bean.*;
+import com.sup.common.loan.*;
 import com.sup.common.param.ManualLoanParam;
 import com.sup.common.param.ManualRepayParam;
 import com.sup.common.param.ReductionParam;
@@ -31,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +50,12 @@ public class ApplyController {
 
     @Autowired
     private TbApplyInfoMapper applyInfoMapper;
+
+    @Autowired
+    private TbUserDocumentaryImageMapper documentaryImageMapper;
+
+    @Autowired
+    private TbApplyMaterialInfoMapper applyMaterialInfoMapper;
 
     /**
      * 信审或者终审的待指派或者待领取-列表
@@ -463,4 +464,92 @@ public class ApplyController {
         return ResponseUtil.success();
     }
 
+    /**
+     * 信审人员补录用户相关照片
+     * @param param
+     * @return
+     */
+    @PostMapping("/image/add")
+    public String addImage(@RequestBody @Valid ApplyImageParams param) {
+        log.info("addImage: param=" + GsonUtil.toJson(param));
+        String oldInfoId = param.getInfoId();
+        // 1. infoId not null, delete the old images
+        if (!Strings.isNullOrEmpty(oldInfoId)) {
+            QueryWrapper<TbUserDocumentaryImageBean> wrapper = new QueryWrapper<>();
+            wrapper.eq("info_id", oldInfoId);
+            documentaryImageMapper.delete(wrapper);
+        }
+
+        // 2. generate infoId, insert images
+        String newInfoId = ToolUtils.getToken();
+        TbUserDocumentaryImageBean imageBean = new TbUserDocumentaryImageBean();
+        imageBean.setInfo_id(newInfoId);
+        imageBean.setUser_id(param.getUserId());
+        imageBean.setImage_category(DocumentaryImageCategoryEnum.EXTEND.getCode());
+        imageBean.setUpload_user(param.getOperatorId());
+        imageBean.setCreate_time(new Date());
+        for (Map.Entry<Integer, String> entry : param.getImageKeys().entrySet()) {
+            imageBean.setId(null);
+            imageBean.setImage_object(entry.getKey());
+            imageBean.setImage_key(entry.getValue());
+            documentaryImageMapper.insert(imageBean);
+        }
+
+        // 3. update or insert infoId
+        QueryWrapper<TbApplyMaterialInfoBean> qw = new QueryWrapper<>();
+        qw.eq("apply_id", param.getApplyId());
+        qw.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_DOCUMENTARY_IMAGE.getCode());
+        qw.orderByDesc("create_time");
+        qw.last("limit 1");
+
+        TbApplyMaterialInfoBean infoBean = applyMaterialInfoMapper.selectOne(qw);
+        if (infoBean == null) {
+            infoBean = new TbApplyMaterialInfoBean();
+            infoBean.setApply_id(param.getApplyId());
+            infoBean.setInfo_type(ApplyMaterialTypeEnum.APPLY_MATERIAL_DOCUMENTARY_IMAGE.getCode());
+            infoBean.setInfo_id(newInfoId);
+            infoBean.setCreate_time(new Date());
+            applyMaterialInfoMapper.insert(infoBean);
+        } else {
+            infoBean.setInfo_id(newInfoId);
+            applyMaterialInfoMapper.updateById(infoBean);
+        }
+
+        return ResponseUtil.success();
+    }
+
+    @PostMapping("/image/getList")
+    public String getImageList(@RequestParam("applyId") Integer applyId) {
+        Map result = Maps.newHashMap();
+
+        // 1. get infoId
+        QueryWrapper<TbApplyMaterialInfoBean> qw = new QueryWrapper<>();
+        qw.eq("apply_id", applyId);
+        qw.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_DOCUMENTARY_IMAGE.getCode());
+        qw.orderByDesc("create_time");
+        qw.last("limit 1");
+
+        TbApplyMaterialInfoBean infoBean = applyMaterialInfoMapper.selectOne(qw);
+        if (infoBean == null) {
+            log.info("No info_id found for applyId=" + applyId);
+            return ResponseUtil.success(result);
+        }
+        String infoId = infoBean.getInfo_id();
+        // 2. get image keys
+        QueryWrapper<TbUserDocumentaryImageBean> imageWrapper = new QueryWrapper<>();
+        imageWrapper.eq("info_id", infoId);
+        List<TbUserDocumentaryImageBean> imageBeans = documentaryImageMapper.selectList(imageWrapper);
+        if (imageBeans == null || imageBeans.size() == 0) {
+            log.info("No images for applyId=" + applyId + ", info_id=" + infoId);
+            return ResponseUtil.success(result);
+        }
+        Map<Integer, String> imageKeys = new HashMap<>();
+        for (TbUserDocumentaryImageBean bean : imageBeans) {
+            imageKeys.put(bean.getImage_object(), bean.getImage_key());
+        }
+        result.put("infoId", infoId);
+        result.put("imageKeys", imageKeys);
+        return ResponseUtil.success(result);
+    }
 }
+
