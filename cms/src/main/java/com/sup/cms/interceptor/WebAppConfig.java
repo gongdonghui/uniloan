@@ -44,9 +44,9 @@ public class WebAppConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         //注册自定义拦截器，添加拦截路径和排除拦截路径
-        registry.addInterceptor(bizInterceptor())
-                .addPathPatterns("/**")
-                .excludePathPatterns("/auth/user/doLogin", "/auth/user/logout");
+//        registry.addInterceptor(bizInterceptor())
+//                .addPathPatterns("/**")
+//                .excludePathPatterns("/auth/user/doLogin", "/auth/user/logout");
     }
 
     public class BizInterceptor implements HandlerInterceptor {
