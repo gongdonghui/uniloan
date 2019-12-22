@@ -21,6 +21,10 @@ public class DetailsApplyInfoBean {
      */
     private Integer applyId;
     /**
+     * 申请用户id
+     */
+    private Integer userId;
+    /**
      * 申请时间
      */
     private Date createTime;
