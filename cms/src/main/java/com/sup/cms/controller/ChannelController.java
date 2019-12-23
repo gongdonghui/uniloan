@@ -123,7 +123,7 @@ public class ChannelController {
     }
 
     @PostMapping("/getProduct")
-    public String getProduct(@Valid @RequestBody Integer channelId) {
+    public String getProduct(@RequestParam("channelId") Integer channelId) {
         log.info("getProduct channelId:" + channelId);
         QueryWrapper<TbChannelProductBean> wrapper = new QueryWrapper<>();
         wrapper.eq("channel_id", channelId);
