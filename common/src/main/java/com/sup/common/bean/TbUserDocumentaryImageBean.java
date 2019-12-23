@@ -27,7 +27,7 @@ public class TbUserDocumentaryImageBean {
   private Integer image_object;
   private String image_rel_id;
   private Integer upload_type;
-  private String upload_user;
+  private Integer upload_user;
   private String ext;
   private Date create_time;
   private Date expire_time;
