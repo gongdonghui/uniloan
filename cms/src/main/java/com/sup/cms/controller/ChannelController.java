@@ -5,12 +5,16 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.ProductInfoBean;
 import com.sup.cms.bean.vo.ChannelInfoGetListParams;
+import com.sup.cms.bean.vo.ChannelProductParams;
 import com.sup.cms.bean.vo.ProductGetListParams;
 import com.sup.cms.mapper.ProductInfoMapper;
 import com.sup.cms.mapper.TbChannelInfoMapper;
 import com.sup.cms.mapper.TbChannelProductMapper;
+import com.sup.cms.util.GsonUtil;
 import com.sup.cms.util.ResponseUtil;
 import com.sup.common.bean.TbChannelInfoBean;
+import com.sup.common.bean.TbChannelProductBean;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +29,7 @@ import java.util.Map;
  * @Author: kouichi
  * @Date: 2019/9/18 16:33
  */
+@Log4j
 @RequestMapping("/channel")
 @RestController
 public class ChannelController {
@@ -88,4 +93,32 @@ public class ChannelController {
         }
     }
 
+    @PostMapping("/addProduct")
+    public String addProduct(@Valid @RequestBody ChannelProductParams param) {
+        log.info("addProduct param:" + GsonUtil.toJson(param));
+        TbChannelProductBean bean = new TbChannelProductBean();
+        bean.setChannel_id(param.getChannelId());
+        bean.setCreate_time(new Date());
+        for (Integer productId: param.getProductIdList()) {
+            bean.setId(null);
+            bean.setProduct_id(productId);
+            if (channelProductMapper.insert(bean) <= 0) {
+                log.error("failed to addProduct, bean=" + GsonUtil.toJson(bean));
+                return ResponseUtil.failed();
+            }
+        }
+        return ResponseUtil.success();
+    }
+
+    @PostMapping("/deleteProduct")
+    public String deleteProduct(@Valid @RequestBody ChannelProductParams param) {
+        log.info("deleteProduct param:" + GsonUtil.toJson(param));
+        for (Integer productId: param.getProductIdList()) {
+            QueryWrapper<TbChannelProductBean> wrapper = new QueryWrapper<>();
+            wrapper.eq("channel_id", param.getChannelId());
+            wrapper.eq("product_id", productId);
+            channelProductMapper.delete(wrapper);
+        }
+        return ResponseUtil.success();
+    }
 }
