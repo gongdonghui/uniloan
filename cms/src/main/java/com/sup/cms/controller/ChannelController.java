@@ -56,8 +56,8 @@ public class ChannelController {
             qw.allEq(m);
         }
         result.put("total", channelInfoMapper.selectCount(qw));
-        Integer offset = (params.getPage() - 1) * params.getPageSize();
-        Integer rows = params.getPageSize();
+        Integer offset = Math.max((params.getPage() - 1) * params.getPageSize(), 0);
+        Integer rows = Math.max(params.getPageSize(), 1);
 
         qw.last("limit " + offset + "," + rows);
         List<TbChannelInfoBean> list = channelInfoMapper.selectList(qw);
@@ -120,5 +120,15 @@ public class ChannelController {
             channelProductMapper.delete(wrapper);
         }
         return ResponseUtil.success();
+    }
+
+    @PostMapping("/getProduct")
+    public String getProduct(@Valid @RequestBody Integer channelId) {
+        log.info("getProduct channelId:" + channelId);
+        QueryWrapper<TbChannelProductBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("channel_id", channelId);
+        List<TbChannelProductBean> productBeans = channelProductMapper.selectList(wrapper);
+
+        return ResponseUtil.success(productBeans);
     }
 }
