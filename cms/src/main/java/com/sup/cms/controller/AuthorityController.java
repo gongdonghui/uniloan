@@ -219,6 +219,7 @@ public class AuthorityController {
     public String roleModify(@RequestBody @Valid AuthModifyRoleParams params) {
         AuthRoleBean roleBean = new AuthRoleBean();
         roleBean.setId(params.getRoleId());
+        roleBean.setName(params.getName());
         roleBean.setComment(params.getComment());
         if (roleBeanMapper.updateById(roleBean) <= 0) {
             return ResponseUtil.failed();

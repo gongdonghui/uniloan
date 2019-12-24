@@ -14,6 +14,9 @@ import java.util.List;
 public class AuthModifyRoleParams {
     @NotNull
     private Integer roleId;
+
+    @NotNull
+    private String  name;  // role name
     @NotBlank
     private String comment;
     /**
