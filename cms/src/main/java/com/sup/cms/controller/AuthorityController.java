@@ -221,6 +221,7 @@ public class AuthorityController {
         roleBean.setId(params.getRoleId());
         roleBean.setName(params.getName());
         roleBean.setComment(params.getComment());
+        roleBean.setUpdateTime(new Date());
         if (roleBeanMapper.updateById(roleBean) <= 0) {
             return ResponseUtil.failed();
         }
