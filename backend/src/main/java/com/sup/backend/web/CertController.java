@@ -7,8 +7,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
+import com.sun.org.apache.regexp.internal.RE;
 import com.sup.backend.bean.AppTbUserBasicInfoBean;
 import com.sup.backend.bean.AppTbUserCitizenIdentityCardInfoBean;
+import com.sup.backend.bean.AppVoucherImages;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
@@ -16,21 +19,24 @@ import com.sup.backend.mapper.*;
 import com.sup.backend.service.RedisClient;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.*;
+import com.sup.common.loan.DocumentaryImageCategoryEnum;
+import com.sup.common.loan.DocumentaryImageObjectEnum;
+import com.sup.common.loan.DocumentaryImageUploadTypeEnum;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static com.sup.common.loan.DocumentaryImageObjectEnum.DRIVER_LICENSE;
+import static com.sup.common.loan.DocumentaryImageObjectEnum.SOCIAL_CARD;
 
 /**
  * Created by xidongzhou1 on 2019/9/5.
@@ -56,6 +62,8 @@ public class CertController {
   TbUserBankAccountInfoMapper tb_user_bank_account_mapper;
   @Autowired
   TbApplyMaterialInfoMapper tb_apply_info_material_mapper;
+  @Autowired
+  TbUserDocumentaryImageMapper tb_user_documentary_image_mapper;
 
 
   private boolean CheckDuplicateSubmit(String uri, Integer user_id) {
@@ -78,6 +86,97 @@ public class CertController {
       2.2.1   expire > now, copy return the copy_one !!
       2.2.2   expire < now, return null !!
    */
+  private TbUserDocumentaryImageBean GetImageRepository(String info_id, Integer user_id, Integer object, Integer upload_type) {
+    QueryWrapper query = new QueryWrapper<TbUserDocumentaryImageBean>()
+        .eq("user_id", user_id)
+        .eq("info_id", info_id)
+        .eq("upload_type", upload_type)
+        .eq("image_object", object)
+        .last("limit 1");
+    return tb_user_documentary_image_mapper.selectOne(query);
+  }
+
+  private Integer UpdateImageRepository(Integer user_id, String image_key, Integer category, Integer object, Integer upload_type, String rel_id) {
+    if (StringUtils.isEmpty(image_key)) {
+      return null;
+    }
+
+    TbUserDocumentaryImageBean user_img = new TbUserDocumentaryImageBean();
+    user_img.setCreate_time(new Date());
+    user_img.setImage_category(category);
+    user_img.setImage_object(object);
+    user_img.setImage_key(image_key);
+    user_img.setInfo_id("");
+    user_img.setUpload_type(upload_type);
+    user_img.setUpload_user(user_id);
+    user_img.setImage_rel_id(rel_id);
+    user_img.setUser_id(user_id);
+
+    QueryWrapper query = new QueryWrapper<TbUserDocumentaryImageBean>()
+        .eq("user_id", user_img.getUser_id())
+        .eq("info_id", user_img.getInfo_id())
+        .eq("upload_type", user_img.getUpload_type())
+        .eq("image_object", user_img.getImage_object())
+        .last("limit 1");
+    TbUserDocumentaryImageBean old_image_bean = tb_user_documentary_image_mapper.selectOne(query);
+    if (old_image_bean == null) {
+      tb_user_documentary_image_mapper.insert(user_img);
+    } else {
+      user_img.setId(old_image_bean.getId());
+      tb_user_documentary_image_mapper.updateById(user_img);
+    }
+    return user_img.getId();
+  }
+
+  @LoginRequired
+  @ResponseBody
+  @RequestMapping(value = {"voucher/add", "voucher/update"},  produces = "application/json;charset=UTF-8")
+  public Object UpdateVaucher(@LoginInfo LoginInfoCtx li, @RequestBody List<AppVoucherImages> images) {
+    logger.info("------ recv bean : " + JSON.toJSON(images));
+    // check parameters !!
+    long ok_cnt = images.stream().filter(x -> StringUtils.isNotEmpty(x.getImage_key())).filter(x -> DocumentaryImageObjectEnum.getStatusByCode(x.getImage_object()) != null).count();
+    long org_cnt = images.size();
+    if (ok_cnt != org_cnt) {
+      return ToolUtils.fail("parameer error");
+    }
+
+    List<Map> result = new ArrayList<>();
+    images.forEach(v -> {
+      if (v.getId() != null) {
+        UpdateWrapper<TbUserDocumentaryImageBean> upd_wrapper = new UpdateWrapper<>();
+        upd_wrapper.eq("id", v.getId());
+        upd_wrapper.set("image_key", v.getImage_key());
+        tb_user_documentary_image_mapper.update(null, upd_wrapper);
+        result.add(ImmutableMap.of("id", v.getId(), "info_id", ""));
+      } else {
+        Integer id = UpdateImageRepository(li.getUser_id(),
+            v.getImage_key(),
+            DocumentaryImageCategoryEnum.NORMAL.getCode(),
+            v.getImage_object(),
+            DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode(),
+            "");
+        result.add(ImmutableMap.of("id", id, "info_id", ""));
+      }
+    });
+    logger.info("------ return bean : " + JSON.toJSON(result));
+    return result;
+  }
+
+  @LoginRequired
+  @ResponseBody
+  @RequestMapping(value = "voucher/get", produces = "application/json;charset=UTF-8")
+  public Object GetVaucher(@LoginInfo LoginInfoCtx li) {
+    DocumentaryImageObjectEnum[] targets = new DocumentaryImageObjectEnum[]{
+        DRIVER_LICENSE,
+        SOCIAL_CARD,
+    };
+    List<AppVoucherImages> result = Arrays.stream(targets)
+        .map(x -> GetImageRepository("", li.getUser_id(), x.getCode(), DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode()))
+        .filter(v -> v != null)
+        .map(v -> new AppVoucherImages().setId(v.getId()).setImage_key(v.getImage_key()).setImage_object(v.getImage_object()))
+        .collect(Collectors.toList());
+    return ToolUtils.succ(result);
+  }
 
   // add/update/get user IDCard info
   @LoginRequired
@@ -97,6 +196,29 @@ public class CertController {
       bean.setUser_id(li.getUser_id());
       bean.setCreate_time(new Date());
     }
+
+    // save to documentary !!
+    UpdateImageRepository(li.getUser_id(),
+        bean.getPic_1(),
+        DocumentaryImageCategoryEnum.NORMAL.getCode(),
+        DocumentaryImageObjectEnum.IDC_HEAD.getCode(),
+        DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode(),
+        bean.getInfo_id());
+
+    UpdateImageRepository(li.getUser_id(),
+        bean.getPic_2(),
+        DocumentaryImageCategoryEnum.NORMAL.getCode(),
+        DocumentaryImageObjectEnum.IDC_TAIL.getCode(),
+        DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode(),
+        bean.getInfo_id());
+
+    UpdateImageRepository(li.getUser_id(),
+        bean.getPic_3(),
+        DocumentaryImageCategoryEnum.NORMAL.getCode(),
+        DocumentaryImageObjectEnum.OWNER_WITH_IDC.getCode(),
+        DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode(),
+        bean.getInfo_id());
+
     if (bean.getId() == null) {
       tb_user_citizen_identity_card_info_mapper.insert(bean);
     } else {
@@ -294,6 +416,14 @@ public class CertController {
       bean.setUser_id(li.getUser_id());
       bean.setCreate_time(new Date());
     }
+
+    UpdateImageRepository(li.getUser_id(),
+        bean.getWork_pic(),
+        DocumentaryImageCategoryEnum.NORMAL.getCode(),
+        DocumentaryImageObjectEnum.WORK_ENV.getCode(),
+        DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode(),
+        bean.getInfo_id());
+
     if (bean.getId() == null) {
       tb_user_employment_info_mapper.insert(bean);
     } else {

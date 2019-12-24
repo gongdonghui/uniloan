@@ -63,6 +63,8 @@ public class ApplyController {
   @Autowired
   TbAppSdkAppListInfoMapper tb_app_sdk_applist_info_mapper;
   @Autowired
+  TbUserDocumentaryImageMapper tb_user_documentary_image_mapper;
+  @Autowired
   RedissonClient red_client;
 
   @Autowired
@@ -263,6 +265,14 @@ public class ApplyController {
     return ToolUtils.succ(ret_app_beans);
   }
 
+  private void UpdateImageInfoId(Integer user_id, String old_id, String info_id) {
+    UpdateWrapper<TbUserDocumentaryImageBean> upd_wrapper = new UpdateWrapper<>();
+    upd_wrapper.eq("user_id", user_id);
+    upd_wrapper.eq("info_id", old_id);
+    upd_wrapper.set("info_id", info_id);
+    tb_user_documentary_image_mapper.update(null, upd_wrapper);
+  }
+
   private Set<Integer> UpdateInfoId(String mobile, String old_id, String info_id) {
     Set<Integer> r = new HashSet<>();
     UpdateWrapper<TbAppSdkLocationInfoBean> upd_wrapper1 = new UpdateWrapper<>();
@@ -312,6 +322,8 @@ public class ApplyController {
     try {
       // fetch sdk info now !!
       lock.lock();
+      UpdateImageInfoId(li.getUser_id(), "", info_id);
+      aip.getInfoIdMap().put(ApplyMaterialTypeEnum.APPLY_MATERIAL_DOCUMENTARY_IMAGE.getCode(), info_id);
       Set<Integer> affect_items = UpdateInfoId(mobile, "", info_id);
       affect_items.forEach(v -> aip.getInfoIdMap().put(v, info_id));
       com.sup.common.util.Result r = core.addApplyInfo(aip);
@@ -322,6 +334,7 @@ public class ApplyController {
     } catch (Exception e) {
       // need to restore !!
       UpdateInfoId(mobile, info_id, "");
+      UpdateImageInfoId(li.getUser_id(), info_id, "");
       logger.error(ToolUtils.GetTrace(e));
       return ToolUtils.fail("rpc_call_exception");
     } finally {
