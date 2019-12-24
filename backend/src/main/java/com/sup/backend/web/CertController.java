@@ -19,6 +19,7 @@ import com.sup.backend.mapper.*;
 import com.sup.backend.service.RedisClient;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.*;
+import com.sup.common.loan.ApplyMaterialTypeEnum;
 import com.sup.common.loan.DocumentaryImageCategoryEnum;
 import com.sup.common.loan.DocumentaryImageObjectEnum;
 import com.sup.common.loan.DocumentaryImageUploadTypeEnum;
@@ -35,8 +36,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.sup.common.loan.DocumentaryImageObjectEnum.DRIVER_LICENSE;
-import static com.sup.common.loan.DocumentaryImageObjectEnum.SOCIAL_CARD;
+import static com.sup.common.loan.DocumentaryImageObjectEnum.*;
 
 /**
  * Created by xidongzhou1 on 2019/9/5.
@@ -86,11 +86,10 @@ public class CertController {
       2.2.1   expire > now, copy return the copy_one !!
       2.2.2   expire < now, return null !!
    */
-  private TbUserDocumentaryImageBean GetImageRepository(String info_id, Integer user_id, Integer object, Integer upload_type) {
+  private TbUserDocumentaryImageBean GetImageRepository(String info_id, Integer user_id, Integer object) {
     QueryWrapper query = new QueryWrapper<TbUserDocumentaryImageBean>()
         .eq("user_id", user_id)
         .eq("info_id", info_id)
-        .eq("upload_type", upload_type)
         .eq("image_object", object)
         .last("limit 1");
     return tb_user_documentary_image_mapper.selectOne(query);
@@ -165,16 +164,36 @@ public class CertController {
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "voucher/get", produces = "application/json;charset=UTF-8")
-  public Object GetVaucher(@LoginInfo LoginInfoCtx li) {
+  public Object GetVaucher(@LoginInfo LoginInfoCtx li,Integer apply_id) {
     DocumentaryImageObjectEnum[] targets = new DocumentaryImageObjectEnum[]{
-        DRIVER_LICENSE,
-        SOCIAL_CARD,
+      IDC_HEAD,
+      IDC_TAIL,
+      OWNER_WITH_IDC,
+      WORK_ENV,
+      DRIVER_LICENSE,
+      SOCIAL_CARD,
+      REPAY_RECORED,
+      OTHERS
     };
+
+    String info_id = "";
+    if (apply_id != null) {
+      QueryWrapper<TbApplyMaterialInfoBean> mat_query = new QueryWrapper<TbApplyMaterialInfoBean>().eq("apply_id", apply_id).eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_DOCUMENTARY_IMAGE).last("limit 1");
+      TbApplyMaterialInfoBean mat_bean = tb_apply_info_material_mapper.selectOne(mat_query);
+      if (mat_bean != null) {
+        info_id = mat_bean.getInfo_id();
+      }
+    }
+
+    final String f_info_id = info_id;
     List<AppVoucherImages> result = Arrays.stream(targets)
-        .map(x -> GetImageRepository("", li.getUser_id(), x.getCode(), DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode()))
+        .map(x -> GetImageRepository(f_info_id, li.getUser_id(), x.getCode()))
         .filter(v -> v != null)
         .map(v -> new AppVoucherImages().setId(v.getId()).setImage_key(v.getImage_key()).setImage_object(v.getImage_object()))
         .collect(Collectors.toList());
+    if (apply_id != null) {
+      result.forEach(v -> v.setApply_id(apply_id));
+    }
     return ToolUtils.succ(result);
   }
 
@@ -201,14 +220,14 @@ public class CertController {
     UpdateImageRepository(li.getUser_id(),
         bean.getPic_1(),
         DocumentaryImageCategoryEnum.NORMAL.getCode(),
-        DocumentaryImageObjectEnum.IDC_HEAD.getCode(),
+        IDC_HEAD.getCode(),
         DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode(),
         bean.getInfo_id());
 
     UpdateImageRepository(li.getUser_id(),
         bean.getPic_2(),
         DocumentaryImageCategoryEnum.NORMAL.getCode(),
-        DocumentaryImageObjectEnum.IDC_TAIL.getCode(),
+        IDC_TAIL.getCode(),
         DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode(),
         bean.getInfo_id());
 
