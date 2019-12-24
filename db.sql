@@ -787,3 +787,41 @@ CREATE TABLE `tb_blacklist` (
   KEY `status` (`status`),
   KEY `platform` (`platform`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+DROP TABLE tb_operation_log;
+CREATE TABLE if NOT EXISTS `tb_operation_log` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `apply_id` int(10) NOT NULL COMMENT '进件申请id',
+  `operator_id` int(11) NOT NULL COMMENT '操作者id',
+  `operator_name` varchar(256) NOT NULL DEFAULT '' COMMENT '操作者姓名',
+  `operation_type` tinyint(4) NOT NULL COMMENT '操作类型，0:初审，1:复审，2:终审，3:催收',
+  `comment` varchar(256) NOT NULL DEFAULT '' COMMENT '备注',
+  `create_time` datetime NOT NULL COMMENT '记录创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_apply_id` (`apply_id`),
+  KEY `idx_operator_id` (`operator_id`),
+  KEY `idx_task_type` (`operation_type`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE tb_user_documentary_image;
+CREATE TABLE IF NOT EXISTS `tb_user_documentary_image` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `info_id` varchar(32) NOT NULL COMMENT '资料标识id， 通过 apply id 找到此id',
+  `user_id` int(10) NOT NULL COMMENT '关联用户id',
+  `image_key` varchar(32) NOT NULL COMMENT '表示 ssdb 存储路径',
+  `image_category` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0| 常规 1|补充凭证 2|还款',
+  `image_object` int(11) NOT NULL COMMENT '0| 身份证正面 1| 身份证反面  2|手持身份证 3|工作环境 4|驾驶证 5|医保证 6|还款记录 7|其他',
+  `image_rel_id` varchar(32) NOT NULL DEFAULT '' COMMENT '用户图片关联反查，例如：还款图片可以表示是第几期',
+  `upload_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0|用户正常提交 1|信审人员补充提交 2|用户后提交',
+  `upload_user` int(10) DEFAULT NULL COMMENT '上传者id，为空表示用户自己提交，否则为信审人员，备忘一下',
+  `ext` varchar(256) DEFAULT '' COMMENT '扩展使用，json 字段，不能索引，根据类型自行扩展',
+  `create_time` datetime NOT NULL,
+  `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '有效期',
+  PRIMARY KEY (`id`),
+  KEY `idx_info_id` (`info_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_create_time` (`create_time`),
+  KEY `upload_user` (`upload_user`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
