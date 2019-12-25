@@ -11,7 +11,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class AppVoucherImages {
+public class AppVoucherImage {
   private Integer id;
   private String info_id;
   private Integer apply_id;

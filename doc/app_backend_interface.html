@@ -16,10 +16,39 @@
 
 
 
- 添加凭证图片：
- /cert/vocher/add
- 参数：
- 
+ 获取凭证图片：
+ uri: /cert/vocher/get 
+ type: kv 
+ param: apply_id  // 可不传，表示用户在申请前暂存的凭证图片
+ return: 
+ [{
+ private Integer id;
+ private String info_id;
+ private Integer apply_id;
+ private String image_key;     //  必有
+ private Integer image_object; //  必有
+ }]
+ 说明： applyid 不传，表示取用户暂存的图片。applyid 传了，表示取用户申请时提交的图片
+
+
+
+
+ save凭证图片：
+ uri: /cert/vocher/add   or /cert/vocher/update 
+ param: json
+ [{
+  private Integer id;           // 如果是从 /cert/vocher/get 接口得到的话，回传即可 
+  private String info_id;       // 如果是从 /cert/vocher/get 接口得到的话，回传即可 
+  private Integer apply_id;     // 如果是从 /cert/vocher/get 接口得到的话，回传即可 
+  private String image_key;     //  必有
+  private Integer image_object; //  必有
+  }]
+return:   [{"info_id": "xxxx", "id": 12332}]  // 依次跟上面的参数的对应
+说明：一般总是要先用 get 接口，再用 add 接口。
+如果是在原有的基础上修改图片，只要修改 image_key 字段即可，别的字段回传 
+如果增加的话， 必须设置 image_key, image_object 字段。 
+             如果是用户在提交申请之后，用户又想添加的话，必须设置 apply_id 字段 
+
 
 
 
