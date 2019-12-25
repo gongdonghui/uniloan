@@ -21,6 +21,7 @@ import java.util.Date;
 public class TbChannelInfoBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
+    private Integer channelId;  // 自定义渠道id
     private String  name;   // 渠道名称
     private String  type;   // 渠道类型
     private Integer status; // 渠道状态, 0:offline 1:online
