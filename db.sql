@@ -121,7 +121,8 @@ CREATE TABLE if NOT EXISTS `tb_apply_material_info` (
 -- Create syntax for TABLE 'tb_channel_info'
 DROP TABLE tb_channel_info;
 CREATE TABLE if NOT EXISTS `tb_channel_info` (
-  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '渠道id',
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '',
+  `channelId` int(11) NOT NULL COMMENT '自定义渠道id',
   `type` varchar(32) NOT NULL DEFAULT '' COMMENT '渠道类型',
   `name` varchar(32) NOT NULL DEFAULT '' COMMENT '渠道名称',
   `status` int(10) NOT NULL DEFAULT 0 COMMENT '渠道状态, 0:offline 1:online',
