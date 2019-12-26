@@ -203,7 +203,12 @@ public class ScheduleTasks {
                         bean.setInhand_quota(amount);
                     }
                     // 更新放款时间
-                    Date loanTime = DateUtil.parse(ps.getSendTime(), DateUtil.NO_SPLIT_FORMAT);
+                    Date loanTime = null;
+                    if (ps.getSendTime().indexOf("-") > 0) {
+                        loanTime = DateUtil.parse(ps.getSendTime(), DateUtil.DEFAULT_DATETIME_FORMAT);
+                    } else {
+                        loanTime = DateUtil.parse(ps.getSendTime(), DateUtil.NO_SPLIT_FORMAT);
+                    }
                     bean.setLoan_time(loanTime);
                     bean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
                 } else {
