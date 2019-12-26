@@ -540,7 +540,7 @@ public class LoanService {
         param.setInhandAmount(quotaInhand);
         param.setTotalAmount(loanAmount + feeTotal + interestTotal - preRepay);
         // log.info("Product bean: " + GsonUtil.toJson(productInfoBean));
-        // log.info("Return bran: " + GsonUtil.toJson(param));
+        log.info("Return param: " + GsonUtil.toJson(param));
         return param;
     }
 
