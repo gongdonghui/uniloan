@@ -303,7 +303,7 @@ public class ScheduleTasks {
     /**
      * 每天查询逾期情况，并更新相应款项
      */
-    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 0 1 * * ?")
     // @Scheduled(cron = "0 1 * * * ?")
     public void checkOverdue() {
         // 1. 获取所有产品信息（逾期日费率）
@@ -385,7 +385,7 @@ public class ScheduleTasks {
     /**
      * 每天更新还款统计表
      */
-    @Scheduled(cron = "0 */10 * * * ?")
+    @Scheduled(cron = "0 30 0 * * ?")
     // @Scheduled(cron = "30 0 * * * ?")
     public void statRepayInfo() {
         // TODO: 处理过程有待优化，仅处理还款中的数据
@@ -515,7 +515,7 @@ public class ScheduleTasks {
     /**
      * 每天更新用户的信用等级
      */
-    @Scheduled(cron = "0 2 * * * ?")
+    @Scheduled(cron = "0 0 2 * * ?")
     public void updateCreditLevel() {
         //TODO   improve by use  new  cleard user;
         List<CreditLevelRuleBean> creditLevelRuleBeans = this.creditLevelRulesMapper.selectList(new QueryWrapper<CreditLevelRuleBean>().orderByDesc("level"));
@@ -559,7 +559,7 @@ public class ScheduleTasks {
     /**
      * 每天更新资产等级，
      */
-    @Scheduled(cron = "0 3 * * * ?")
+    @Scheduled(cron = "0 0 3 * * ?")
     public void updateAssertLevel() {
 
         List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
@@ -599,7 +599,7 @@ public class ScheduleTasks {
         }
     }
 
-    @Scheduled(cron = "0 */5 * * * ?")   //T+1
+    @Scheduled(cron = "0 30 1 * * ?")   //T+1
     public void dailyReport() {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  //昨天
