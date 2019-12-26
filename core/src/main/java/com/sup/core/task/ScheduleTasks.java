@@ -599,7 +599,7 @@ public class ScheduleTasks {
         }
     }
 
-    @Scheduled(cron = "0 4 * * * ?")   //T+1
+    @Scheduled(cron = "0 */5 * * * ?")   //T+1
     public void dailyReport() {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  //昨天
@@ -664,6 +664,7 @@ public class ScheduleTasks {
             operationReportBean.setRepay_actual(repay_actual);
             operationReportBean.setFirst_overdue(first_ovedue);
             operationReportBean.setRegister(register);
+            operationReportBean.setCreate_time(new Date());
 
             this.operationReportMapper.insert(operationReportBean);
 
