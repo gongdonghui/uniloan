@@ -181,6 +181,7 @@ public class ApplyController {
                 applyStatus = ApplyStatusEnum.APPLY_CANCEL;
                 break;
             case 1:     // pass
+                log.info("param = " + GsonUtil.toJson(params));
                 if (params.getGrantQuota() != null && params.getGrantQuota() > 0) {
                     assert params.getType2() == 1;
                     apply.setGrant_quota(params.getGrantQuota());
