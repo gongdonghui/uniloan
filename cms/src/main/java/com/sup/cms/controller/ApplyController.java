@@ -238,6 +238,7 @@ public class ApplyController {
         sb.append(null != params.getApplyId() ? " and a.id=\"" + params.getApplyId() + "\"" : "");
         sb.append(null != params.getName() ? " and d.name=\"" + params.getApplyId() + "\"" : "");
         sb.append(null != params.getCidNo() ? " and d.cid_no=\"" + params.getApplyId() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile=\"" + params.getMobile() + "\"" : "");
         sb.append(null != params.getAppName() ? " and e.app_name=\"" + params.getApplyId() + "\"" : "");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();

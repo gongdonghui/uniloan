@@ -61,6 +61,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_apply_material_info c on a.id=c.apply_id" +
             " left join tb_user_citizen_identity_card_info d on c.info_id=d.info_id" +
             " left join tb_app_version e on a.app_id=d.id" +
+            " left join tb_user_regist_info as f on a.user_id=f.id" +
             " where c.info_type=0" +
             " ${conditions}" +
             " limit #{offset},#{rows}")
