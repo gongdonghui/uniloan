@@ -264,7 +264,7 @@ public class CertController {
       "",
         bean.getPic_3(),
         DocumentaryImageCategoryEnum.NORMAL.getCode(),
-        DocumentaryImageObjectEnum.OWNER_WITH_IDC.getCode(),
+        OWNER_WITH_IDC.getCode(),
         DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode(),
         bean.getInfo_id());
 
@@ -325,6 +325,32 @@ public class CertController {
       bean.setUser_id(li.getUser_id());
       bean.setCreate_time(new Date());
     }
+
+    // save to documentary !!
+    UpdateImageRepository(li.getUser_id(),
+        "",
+        bean.getMedical_insurance_pic(),
+        DocumentaryImageCategoryEnum.NORMAL.getCode(),
+        SOCIAL_CARD.getCode(),
+        DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode(),
+        bean.getInfo_id());
+
+    UpdateImageRepository(li.getUser_id(),
+        "",
+        bean.getRefund_proof_pic(),
+        DocumentaryImageCategoryEnum.NORMAL.getCode(),
+        REPAY_RECORED.getCode(),
+        DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode(),
+        bean.getInfo_id());
+
+    UpdateImageRepository(li.getUser_id(),
+        "",
+        bean.getDriving_license_pic(),
+        DocumentaryImageCategoryEnum.NORMAL.getCode(),
+        DRIVER_LICENSE.getCode(),
+        DocumentaryImageUploadTypeEnum.UPLOAD_BY_USER_NORMAL.getCode(),
+        bean.getInfo_id());
+
     if (bean.getId() == null) {
       tb_user_basic_info_mapper.insert(bean);
     } else {
