@@ -24,9 +24,9 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             "b.status as applyStatus" +
             " from tb_operation_task a" +
             " join tb_apply_info b on a.apply_id=b.id" +
-            " where a.task_type= ${task_type}" +
+            " where a.task_type= ${taskType}" +
             "  and a.create_time >=${start} and a.create_time< ${end} ")
-    List<OperationTaskJoinBean> getOperationTaskJoinByTask(Date start, Date  end, Integer   tasktype );
+    List<OperationTaskJoinBean> getOperationTaskJoinByTask(Date start, Date  end, Integer taskType );
 
 
     @Select("select " +
