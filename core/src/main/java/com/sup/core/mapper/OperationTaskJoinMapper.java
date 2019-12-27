@@ -6,7 +6,6 @@ import com.sup.core.bean.CollectionStatBean;
 import com.sup.core.bean.OperationTaskJoinBean;
 import org.apache.ibatis.annotations.Select;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,7 +25,7 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             " join tb_apply_info b on a.apply_id=b.id" +
             " where a.task_type= ${taskType}" +
             "  and a.create_time >=${start} and a.create_time< ${end} ")
-    List<OperationTaskJoinBean> getOperationTaskJoinByTask(Date start, Date  end, Integer taskType );
+    List<OperationTaskJoinBean> getOperationTaskJoinByTask(String start, String  end, Integer taskType );
 
 
     @Select("select " +
@@ -39,7 +38,7 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             " where   repay_time > ${start} and  repay_time < ${end} and repay_status =1 group by apply_id) as b " +
             " on a.apply_id=b.apply_id" +
             " where  a.create_time >=${start} and a.create_time< ${end} ")
-    List<CollectionRepayBean> getCollectionRepay(Date start, Date  end);
+    List<CollectionRepayBean> getCollectionRepay(String start, String  end);
 
     @Select("select " +
             "a.apply_id as applyId, a.create_time as create_time, " +
@@ -48,6 +47,6 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             " join tb_repay_stat b on a.apply_id=b.apply_id" +
             " where a.task_type= ${taskType}" +
             " and create_time< ${end} ")
-    List<CollectionStatBean>  getCollectionStats(Date end, Integer taskType);
+    List<CollectionStatBean>  getCollectionStats(String end, Integer taskType);
 
 }
