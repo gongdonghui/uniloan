@@ -24,7 +24,7 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             " from tb_operation_task a" +
             " join tb_apply_info b on a.apply_id=b.id" +
             " where a.task_type= ${taskType}" +
-            "  and a.create_time >=${start} and a.create_time< ${end} ")
+            "  and a.create_time >='${start}' and a.create_time< '${end}' ")
     List<OperationTaskJoinBean> getOperationTaskJoinByTask(String start, String  end, Integer taskType );
 
 
@@ -37,7 +37,7 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             "( select  apply_id, sum(replay_amount)  as repay_sum from   tb_repay_history " +
             " where   repay_time > ${start} and  repay_time < ${end} and repay_status =1 group by apply_id) as b " +
             " on a.apply_id=b.apply_id" +
-            " where  a.create_time >=${start} and a.create_time< ${end} ")
+            " where  a.create_time >='${start}' and a.create_time< '${end}' ")
     List<CollectionRepayBean> getCollectionRepay(String start, String  end);
 
     @Select("select " +
@@ -46,7 +46,7 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             " from tb_operation_task a" +
             " join tb_repay_stat b on a.apply_id=b.apply_id" +
             " where a.task_type= ${taskType}" +
-            " and create_time< ${end} ")
+            " and create_time< '${end}' ")
     List<CollectionStatBean>  getCollectionStats(String end, Integer taskType);
 
 }
