@@ -604,6 +604,7 @@ public class ScheduleTasks {
         }
     }
 
+    //@Scheduled(cron = "0 */5 * * * ?")
     @Scheduled(cron = "0 30 1 * * ?")   //T+1
     public void dailyReport() {
         try {
@@ -685,8 +686,11 @@ public class ScheduleTasks {
     }
 
     private void doCheckReportDaily(Date data_dt, Date current, Integer taskType) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String start = dateFormat.format(data_dt);
+        String end = dateFormat.format(current);
 
-        List<OperationTaskJoinBean> operationTaskJoinBeanList = this.operationTaskJoinMapper.getOperationTaskJoinByTask(data_dt, current, taskType);
+        List<OperationTaskJoinBean> operationTaskJoinBeanList = this.operationTaskJoinMapper.getOperationTaskJoinByTask(start, end, taskType);
         CheckReportBean checkReportBean = new CheckReportBean();
         int total = operationTaskJoinBeanList.size();
         checkReportBean.setTask_type(taskType);
@@ -713,14 +717,18 @@ public class ScheduleTasks {
     }
 
     private void doOperationReportDaily(Date data_dt, Date current) {
-        List<CollectionStatBean> collectionStatBeans = this.operationTaskJoinMapper.getCollectionStats(current, OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String start = dateFormat.format(data_dt);
+        String end = dateFormat.format(current);
+
+        List<CollectionStatBean> collectionStatBeans = this.operationTaskJoinMapper.getCollectionStats(end, OperationTaskTypeEnum.TASK_OVERDUE.getCode());
         Integer in_apply = collectionStatBeans.size();
         Long in_amt = 0L;
         for (CollectionStatBean collectionStatBean : collectionStatBeans) {
             in_amt += collectionStatBean.getTotal();
         }
 
-        List<CollectionRepayBean> collectionRepayBeans = this.operationTaskJoinMapper.getCollectionRepay(data_dt, current);
+        List<CollectionRepayBean> collectionRepayBeans = this.operationTaskJoinMapper.getCollectionRepay(start, end);
 
         Integer tracked = collectionRepayBeans.size();
         Long repay_amt = 0L;
