@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -20,7 +21,9 @@ public class AuthResourceBean {
     private String level1;
     private String level2;
     private String level3;
+    @NotNull
     private String name;
+    @NotNull
     private String url;
     private String comment;
     @TableField(value = "create_time")

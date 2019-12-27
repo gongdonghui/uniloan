@@ -219,7 +219,9 @@ public class AuthorityController {
     public String roleModify(@RequestBody @Valid AuthModifyRoleParams params) {
         AuthRoleBean roleBean = new AuthRoleBean();
         roleBean.setId(params.getRoleId());
+        roleBean.setName(params.getName());
         roleBean.setComment(params.getComment());
+        roleBean.setUpdateTime(new Date());
         if (roleBeanMapper.updateById(roleBean) <= 0) {
             return ResponseUtil.failed();
         }
@@ -281,12 +283,41 @@ public class AuthorityController {
     }
 
     @GetMapping("/resource/list")
-    public String ResourceList() {
+    public String getResourceList() {
         List<AuthResourceBean> l = resourceBeanMapper.selectList(new QueryWrapper<>());
         List<AuthResourceList> ll = GsonUtil.gson.fromJson(GsonUtil.toJson(l), new TypeToken<List<AuthResourceList>>() {
         }.getType());
         return ResponseUtil.success(ll);
     }
+
+    @PostMapping("/resource/add")
+    public String addResource(@RequestBody @Valid AuthResourceBean bean) {
+        log.info("addResource bean=" + GsonUtil.toJson(bean));
+        bean.setCreateTime(new Date());
+        if (resourceBeanMapper.insert(bean) > 0) {
+            return ResponseUtil.success();
+        }
+        return ResponseUtil.failed();
+    }
+
+    @PostMapping("/resource/update")
+    public String updateResource(@RequestBody @Valid AuthResourceBean bean) {
+        log.info("updateResource bean=" + GsonUtil.toJson(bean));
+        if (resourceBeanMapper.updateById(bean) > 0) {
+            return ResponseUtil.success();
+        }
+        return ResponseUtil.failed();
+    }
+
+    @PostMapping("/resource/delete")
+    public String deleteResource(@RequestParam("id") Integer id) {
+        log.info("deleteResource id=" + id);
+        if (resourceBeanMapper.deleteById(id) > 0) {
+            return ResponseUtil.success();
+        }
+        return ResponseUtil.failed();
+    }
+
 
     @GetMapping("/getUserResources")
     public String getUserResources(@RequestParam("token") String token) {
