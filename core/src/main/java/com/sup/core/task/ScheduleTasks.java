@@ -604,9 +604,22 @@ public class ScheduleTasks {
         }
     }
 
-    //@Scheduled(cron = "0 */5 * * * ?")
-    @Scheduled(cron = "0 30 1 * * ?")   //T+1
+    @Scheduled(cron = "0 */5 * * * ?")
+    //@Scheduled(cron = "0 30 1 * * ?")   //T+1
     public void dailyReport() {
+        class ChannelContainer {
+            public Map<ApplyStatusEnum, Integer> applyStatMap = new HashMap<>();
+            public Set<Integer> userSet = new HashSet<>();
+            public int registNum = 0;
+            public int applyNum = 0;    // 申请订单数
+            public int repayNum = 0;    // 应还订单数
+            public int repayActualNum = 0; // 实还订单数
+            public long loanAmt = 0;    // 放款成功金额
+            public long loanInhandAmt = 0;  // 到手金额
+            public long repayAmt = 0;  // 应还总额
+            public long repayActualAmt = 0;    // 实际还款总额
+        }
+
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  //昨天
             Calendar calendar = Calendar.getInstance();
@@ -616,67 +629,115 @@ public class ScheduleTasks {
 
             String str2Date = dateFormat.format(new Date());
             Date current = dateFormat.parse(str2Date);
+            log.info("dailyReport data_dt = " + strDate + ", current = " + str2Date);
 
-            List<TbApplyInfoBean> list = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
+            List<TbUserRegistInfoBean> registInfoBeans = this.userRegisterInfoMapper.selectList(new QueryWrapper<TbUserRegistInfoBean>()
                     .ge("create_time", data_dt)
                     .lt("create_time", current));
-            Integer pay = 0, pay_amt = 0, apply = 0, apply_cust = 0, auto_deny = 0, manual_deny = 0;
-            HashSet<Integer> user_set = new HashSet<>();
-            for (TbApplyInfoBean tbApplyInfoBean : list) {
-                user_set.add(tbApplyInfoBean.getUser_id());
-                if (tbApplyInfoBean.getStatus() == ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()) {
-                    ++pay;
-                    pay_amt += tbApplyInfoBean.getGrant_quota();
 
-                } else if (tbApplyInfoBean.getStatus() == ApplyStatusEnum.APPLY_AUTO_DENY.getCode()) {
-                    auto_deny++;
-                } else if (tbApplyInfoBean.getStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode() ||
-                        tbApplyInfoBean.getStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode()) {
-                    manual_deny++;
-                }
-
-
-            }
-            apply = list.size();
-            apply_cust = user_set.size();
-            List<TbRepayPlanBean> tbRepayPlanBeans = this.repayPlanMapper.selectList(new QueryWrapper<TbRepayPlanBean>()
+            List<TbApplyInfoBean> applyInfoBeans = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
+                    .ge("create_time", data_dt)
+                    .lt("create_time", current));
+            List<TbRepayPlanBean> repayPlanBeans = this.repayPlanMapper.selectList(new QueryWrapper<TbRepayPlanBean>()
                     .ge("repay_end_date", data_dt)
                     .lt("repay_end_date", current));
-            Integer repay = tbRepayPlanBeans.size();
 
-            Integer repay_actual = 0;
-            for (TbRepayPlanBean repayPlanBean : tbRepayPlanBeans) {
-                if (repayPlanBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
-                    ++repay_actual;
+            /*
+            channel id => {status, count}, applyNum, applyUserSet, loanAmount,...
+             */
+            Map<Integer, ChannelContainer> channelStatMap = new HashMap<>();
+            Map<Integer, Integer> channelApplyMap = new HashMap<>();    // apply id => channel id
+
+            // regist statistic
+            for (TbUserRegistInfoBean registInfoBean : registInfoBeans) {
+                Integer channel = registInfoBean.getChannel_id();
+                if (!channelStatMap.containsKey(channel)) {
+                    channelStatMap.put(channel, new ChannelContainer());
                 }
-
+                ChannelContainer container = channelStatMap.get(channel);
+                container.registNum += 1;
             }
-            Integer register = this.userRegisterInfoMapper.selectCount(new QueryWrapper<TbUserRegistInfoBean>()
-                    .ge("create_time", data_dt)
-                    .lt("create_time", calendar));
-            Integer first_ovedue = repay - repay_actual;
-            double forate = (first_ovedue + 0.00001f) / (repay + 0.00001f);
 
-            OperationReportBean operationReportBean = new OperationReportBean();
-            operationReportBean.setData_dt(data_dt);
-            operationReportBean.setApply(apply);
-            operationReportBean.setApply_cust(apply_cust);
-            operationReportBean.setAuto_deny(auto_deny);
-            operationReportBean.setManual_deny(manual_deny);
-            operationReportBean.setPay(pay);
-            operationReportBean.setPay_amt(pay_amt);
-            operationReportBean.setForate(forate);
-            operationReportBean.setRepay(repay);
-            operationReportBean.setRepay_actual(repay_actual);
-            operationReportBean.setFirst_overdue(first_ovedue);
-            operationReportBean.setRegister(register);
-            operationReportBean.setCreate_time(new Date());
+            // apply statistic
+            for (TbApplyInfoBean applyInfoBean : applyInfoBeans) {
+                Integer channel = applyInfoBean.getChannel_id();
+                ApplyStatusEnum status = ApplyStatusEnum.getStatusByCode(applyInfoBean.getStatus());
+                channelApplyMap.put(applyInfoBean.getId(), channel);
 
-            this.operationReportMapper.insert(operationReportBean);
+                if (!channelStatMap.containsKey(channel)) {
+                    channelStatMap.put(channel, new ChannelContainer());
+                }
+                ChannelContainer container = channelStatMap.get(channel);
+                Integer statusCount = container.applyStatMap.getOrDefault(status, 0);
+                container.userSet.add(applyInfoBean.getUser_id());
+                container.applyStatMap.put(status, statusCount + 1);
+                container.applyNum += 1;
+                if (status == ApplyStatusEnum.APPLY_LOAN_SUCC) {
+                    container.loanAmt += applyInfoBean.getGrant_quota();
+                    container.loanInhandAmt += applyInfoBean.getInhand_quota();
+                }
+            }
 
+            // repay statistic
+            for (TbRepayPlanBean repayPlanBean : repayPlanBeans) {
+                Integer channel = channelApplyMap.get(repayPlanBean.getApply_id());
+                RepayPlanStatusEnum status = RepayPlanStatusEnum.getStatusByCode(repayPlanBean.getRepay_status());
+
+                if (!channelStatMap.containsKey(channel)) {
+                    channelStatMap.put(channel, new ChannelContainer());
+                }
+                ChannelContainer container = channelStatMap.get(channel);
+                container.repayNum += 1;
+                container.repayAmt += repayPlanBean.getNeed_total();
+                if (status == RepayPlanStatusEnum.PLAN_PAID_ALL) {
+                    container.repayActualNum += 1;
+                    container.repayActualAmt += repayPlanBean.getAct_total();
+                }
+            }
+
+            // store the statistic result
+            for (Map.Entry<Integer, ChannelContainer> entry : channelStatMap.entrySet()) {
+                Integer channel = entry.getKey();
+                ChannelContainer c = entry.getValue();
+                Integer auto_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_PASS, 0);
+                Integer auto_deny = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_DENY, 0);
+                Integer first_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_PASS, 0);
+                Integer first_deny = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_DENY, 0);
+                Integer final_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_PASS, 0);
+                Integer final_deny = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_DENY, 0);
+                Integer loan_num = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_LOAN_SUCC, 0);
+                Integer first_ovedue = c.repayNum - c.repayActualNum;
+                double forate = (first_ovedue + 0.00001f) / (c.repayNum + 0.00001f);
+
+                OperationReportBean operationReportBean = new OperationReportBean();
+                operationReportBean.setData_dt(data_dt);
+                operationReportBean.setChannel_id(channel);
+                operationReportBean.setApply_num(c.applyNum);
+                operationReportBean.setApply_user_num(c.userSet.size());
+                operationReportBean.setAuto_pass(auto_pass);
+                operationReportBean.setAuto_deny(auto_deny);
+                operationReportBean.setFirst_pass(first_pass);
+                operationReportBean.setFirst_deny(first_deny);
+                operationReportBean.setFinal_pass(final_pass);
+                operationReportBean.setFinal_deny(final_deny);
+                operationReportBean.setManual_pass(first_pass + final_pass);
+                operationReportBean.setManual_deny(first_deny + final_deny);
+                operationReportBean.setLoan_num(loan_num);
+                operationReportBean.setRepay(c.repayNum);
+                operationReportBean.setRepay_actual(c.repayActualNum);
+                operationReportBean.setFirst_overdue(first_ovedue);
+                operationReportBean.setLoan_amt(c.loanAmt);
+                operationReportBean.setLoan_inhand_amt(c.loanInhandAmt);
+                operationReportBean.setRepay_amt(c.repayAmt);
+                operationReportBean.setRepay_actual_amt(c.repayActualAmt);
+                operationReportBean.setFirst_overdue_amt(c.repayAmt - c.repayActualAmt);
+                operationReportBean.setForate(forate);
+                operationReportBean.setRegister(c.registNum);
+                operationReportBean.setCreate_time(new Date());
+                this.operationReportMapper.insert(operationReportBean);
+            }
             this.doCheckReportDaily(data_dt, current, OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode());
             this.doCheckReportDaily(data_dt, current, OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode());
-
 
         } catch (Exception e) {
             log.error(e.getMessage());
