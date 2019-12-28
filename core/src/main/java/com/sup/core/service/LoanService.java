@@ -328,8 +328,12 @@ public class LoanService {
 
     public Result payCallBack(@RequestBody FunpayCallBackParam param) {
         // update ApplyInfo status
+        String applyId = param.getTradeNo();
+        if (applyId.indexOf("_") > 0) {
+            applyId = applyId.substring(0, applyId.indexOf("_"));
+        }
         TbApplyInfoBean bean = applyInfoMapper.selectOne(
-                new QueryWrapper<TbApplyInfoBean>().eq("apply_id", param.getOrderNo()).orderByDesc("create_time"));
+                new QueryWrapper<TbApplyInfoBean>().eq("apply_id", applyId));
         if (bean == null) {
             log.error("Invalid param = " + GsonUtil.toJson(param));
             return Result.fail("Invalid applyId!");
@@ -353,6 +357,7 @@ public class LoanService {
                 log.error("param = " + GsonUtil.toJson(param));
                 bean.setInhand_quota(param.getAmount());
             }
+            bean.setTrade_number(param.getTradeNo());
             bean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
         } else {
             log.error("payCallBack: loan failed for applyId = " + bean.getId() +
