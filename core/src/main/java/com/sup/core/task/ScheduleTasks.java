@@ -707,7 +707,7 @@ public class ScheduleTasks {
                 Integer final_deny = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_DENY, 0);
                 Integer loan_num = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_LOAN_SUCC, 0);
                 Integer first_ovedue = c.repayNum - c.repayActualNum;
-                double forate = (first_ovedue + 0.00001f) / (c.repayNum + 0.00001f);
+                double forate = c.repayNum > 0 ? (first_ovedue + 0.00001f) / (c.repayNum + 0.00001f) : 0;
 
                 OperationReportBean operationReportBean = new OperationReportBean();
                 operationReportBean.setData_dt(data_dt);
