@@ -158,7 +158,7 @@ public class ScheduleTasks {
     /**
      * 定时检查放款是否成功
      */
-    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 */10 * * * ?")
     public void checkLoanResult() {
         QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<TbApplyInfoBean>();
         wrapper.eq("status", ApplyStatusEnum.APPLY_AUTO_LOANING.getCode());
