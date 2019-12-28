@@ -5,15 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.util.Map;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class AppVoucherImages {
-  private Integer id;
-  private String info_id;
-  private String image_key;
-  private Integer image_object;
+public class AppVoucherParams {
+  private Integer apply_id;
 }
