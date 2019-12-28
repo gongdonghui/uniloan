@@ -16,6 +16,7 @@ import com.sup.paycenter.util.GsonUtil;
 import com.sup.paycenter.util.OkBang;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,7 +64,7 @@ public class FunPayController {
     @Value("${paycenter.method.payCheck}")
     private String method_payCheck;
 
-    //@Autowired
+    @Autowired
     private CoreService coreService;
 
     private static final int FUNPAY_SUCCESS_FLAG = 10000;
