@@ -635,9 +635,12 @@ public class ScheduleTasks {
                     .ge("create_time", data_dt)
                     .lt("create_time", current));
 
-            List<TbApplyInfoBean> applyInfoBeans = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
-                    .ge("create_time", data_dt)
-                    .lt("create_time", current));
+            QueryWrapper<TbApplyInfoBean> applyInfoWrapper = new QueryWrapper<>();
+            applyInfoWrapper.or(w->w.ge("create_time", data_dt).lt("create_time", current));
+            applyInfoWrapper.or(w->w.ge("update_time", data_dt).lt("update_time", current));
+            log.info("[SQL] query applyInfo: " + applyInfoWrapper.getSqlSegment());
+            List<TbApplyInfoBean> applyInfoBeans = this.applyInfoMapper.selectList(applyInfoWrapper);
+
             List<TbRepayPlanBean> repayPlanBeans = this.repayPlanMapper.selectList(new QueryWrapper<TbRepayPlanBean>()
                     .ge("repay_end_date", data_dt)
                     .lt("repay_end_date", current));
