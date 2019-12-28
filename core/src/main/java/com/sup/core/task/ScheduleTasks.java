@@ -589,7 +589,7 @@ public class ScheduleTasks {
             Integer applyId = tbApplyInfoBean.getId();
 
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
-                if (days >= assetsLevelRuleBean.getBetween_paydays()) {
+                if (days >= assetsLevelRuleBean.getBetween_paydays() && assetLevel != assetsLevelRuleBean.getLevel()) {
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
                     tbApplyInfoBean.setUpdate_time(date);
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
@@ -672,9 +672,11 @@ public class ScheduleTasks {
                 }
                 ChannelContainer container = channelStatMap.get(channel);
                 Integer statusCount = container.applyStatMap.getOrDefault(status, 0);
-                container.userSet.add(applyInfoBean.getUser_id());
                 container.applyStatMap.put(status, statusCount + 1);
-                container.applyNum += 1;
+                if (DateUtil.isSameDay(applyInfoBean.getCreate_time(), data_dt)) {
+                    container.userSet.add(applyInfoBean.getUser_id());
+                    container.applyNum += 1;
+                }
                 if (status == ApplyStatusEnum.APPLY_LOAN_SUCC) {
                     container.loanAmt += applyInfoBean.getGrant_quota();
                     container.loanInhandAmt += applyInfoBean.getInhand_quota();
