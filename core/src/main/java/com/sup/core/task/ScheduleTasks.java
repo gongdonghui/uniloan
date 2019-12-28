@@ -604,8 +604,8 @@ public class ScheduleTasks {
         }
     }
 
-    @Scheduled(cron = "0 */5 * * * ?")
-    //@Scheduled(cron = "0 30 1 * * ?")   //T+1
+    //@Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 30 1 * * ?")   //T+1
     public void dailyReport() {
         class ChannelContainer {
             public Map<ApplyStatusEnum, Integer> applyStatMap = new HashMap<>();
