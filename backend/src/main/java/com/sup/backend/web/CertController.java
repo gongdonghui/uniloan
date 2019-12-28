@@ -543,6 +543,10 @@ public class CertController {
       return ToolUtils.fail(1, "duplicate_submit");
     }
 
+    if (bean.getAccount_type() < 0) {
+      return ToolUtils.fail("bad account_type");
+    }
+
     if (bean.getInfo_id() == null) {
       bean.setInfo_id(ToolUtils.getToken());
       bean.setUser_id(li.getUser_id());
