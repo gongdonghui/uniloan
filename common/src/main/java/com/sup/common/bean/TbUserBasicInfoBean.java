@@ -21,6 +21,9 @@ public class TbUserBasicInfoBean {
   private Integer id;
   private String info_id;
   private Integer user_id;
+  private String medical_insurance_pic;
+  private String refund_proof_pic;
+  private String driving_license_pic;
   private Integer education;
   private Integer marriage;
   private Integer children_count;

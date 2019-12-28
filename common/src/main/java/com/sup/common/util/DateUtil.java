@@ -6,6 +6,8 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
+
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -52,6 +54,9 @@ public class DateUtil {
     public static final String HOUR = "hour";
     public static final String MINUTE = "minute";
     public static final String SECOND = "second";
+
+    public static SimpleDateFormat DEFAULT_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
 
     /**
      * 将日期对象格式化成yyyy-mm-dd类型的字符串
@@ -333,5 +338,16 @@ public class DateUtil {
         cal2.set(Calendar.SECOND, 0);
 
         return cal1.compareTo(cal2);
+    }
+
+    public static boolean isSameDay(Date d1, Date d2) {
+
+        if (d1 == null && d2 == null) {
+            return true;
+        }
+        if (d1 == null || d2 == null) {
+            return false;
+        }
+        return DEFAULT_FORMAT.format(d1).equals(DEFAULT_FORMAT.format(d2));
     }
 }
