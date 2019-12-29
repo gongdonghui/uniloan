@@ -148,7 +148,7 @@ public class ScheduleTasks {
         }
 
         for (TbApplyInfoBean bean : applyInfos) {
-            Result r = loanService.autoLoan(bean);
+            Result r = loanService.autoLoan(bean, 0);
             if (!r.isSucc()) {
                 log.error("Failed to auto loan for applyId = " + bean.getId() + ", " + r.getMessage());
             }
@@ -180,7 +180,7 @@ public class ScheduleTasks {
                     log.error("No trade number for applyId = " + bean.getId());
                     continue;
                 }
-                psi.setApplyId(String.valueOf(bean.getId()));
+                psi.setOrderNo(String.valueOf(bean.getOrder_number()));
                 psi.setTradeNo(bean.getTrade_number());
                 Result<PayStatusVO> ret = funpayService.payStatus(psi);
                 if (!ret.isSucc()) {

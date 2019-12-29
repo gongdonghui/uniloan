@@ -15,7 +15,7 @@ public class PayInfo {
     @NotBlank(message = "用户ID不能为空")
     private String userId;
     @NotBlank(message = "进件id不能为空")
-    private String applyId;
+    private String orderNo;
     @Min(value = 0, message = "打款金额不能小于0")
     private Integer amount;
     @NotBlank(message = "附言不能为空")

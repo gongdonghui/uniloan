@@ -44,6 +44,7 @@ public class TbApplyInfoBean {
     private String  credit_class;
     private String  deny_code;
     private String  comment;
+    private String  order_number;   // 自动放款订单号，唯一
     private String  trade_number;   // 自动放款流水号
     private Integer asset_level;    // 资产登记，参见AssetLevelEnum
 
