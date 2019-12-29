@@ -114,7 +114,7 @@ public class InfoController {
       rc.Set("pay_center_bank_list", result.toJSONString(), 1L, TimeUnit.DAYS);
     }
     JSONObject cache_result = JSON.parseObject(rc.Get("pay_center_bank_list"));
-    return cache_result;
+    return Result.succ(cache_result);
   }
 
   @ResponseBody
