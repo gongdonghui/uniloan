@@ -14,12 +14,19 @@ public class DetailsInformationBean {
      * 身份证正面
      */
     private String pic1;
+
+    /**
+     * 身份证反面
+     */
+    private String pic2;
+
     /**
      * 手持身份证
      */
-    private String pic2;
+    private String pic3;
+
     /**
      * 工作环境
      */
-    private String pic3;
+    private String pic4;
 }
