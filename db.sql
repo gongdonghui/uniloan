@@ -379,7 +379,7 @@ CREATE TABLE if NOT EXISTS `tb_user_bank_account_info` (
   `user_id` int(10) NOT NULL COMMENT '关联用户id',
   `account_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '账户类型  0|借记卡 1|信用卡',
   `name` varchar(64) NOT NULL COMMENT '持卡人姓名',
-  `bank` tinyint(4) NOT NULL COMMENT '银行名称 0|xx_bank  1|yy_bank',
+  `bank` int(10) NOT NULL COMMENT '银行名称 0|xx_bank  1|yy_bank',
   `account_id` varchar(128) NOT NULL COMMENT '银行账号',
   `create_time` datetime NOT NULL,
   `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '有效期',
