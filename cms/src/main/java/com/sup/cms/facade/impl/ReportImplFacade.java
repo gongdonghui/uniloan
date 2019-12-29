@@ -45,12 +45,14 @@ public class ReportImplFacade implements ReportFacade {
 
             ret = operatioReportMapper.selectList(new QueryWrapper<OperationReportBean>()
                     .ge("data_dt", param.getStart_date())
-                    .le("data_dt", param.getEnd_date()));
+                    .le("data_dt", param.getEnd_date())
+                    .orderByDesc("data_dt", "channel_id"));
         } else {
             ret = operatioReportMapper.selectList(new QueryWrapper<OperationReportBean>()
                     .eq("channel_id", param.getChannel_id())
                     .ge("data_dt", param.getStart_date())
-                    .le("data_dt", param.getEnd_date()));
+                    .le("data_dt", param.getEnd_date())
+                    .orderByDesc("data_dt"));
         }
         if (ret == null) return Result.fail("not obtain  report  data");
         return Result.succ(ret);
@@ -62,9 +64,10 @@ public class ReportImplFacade implements ReportFacade {
             return Result.fail("input param is null");
 
         }
-        List<CheckReportBean> ret = this.checkReportMapper.selectList(new QueryWrapper<CheckReportBean>().
-                ge("data_dt", param.getStart_date()).
-                le("data_dt", param.getEnd_date()));
+        List<CheckReportBean> ret = this.checkReportMapper.selectList(new QueryWrapper<CheckReportBean>()
+                        .ge("data_dt", param.getStart_date())
+                        .le("data_dt", param.getEnd_date())
+                        .orderByDesc("data_dt"));
         return Result.succ(ret);
     }
 
@@ -74,9 +77,10 @@ public class ReportImplFacade implements ReportFacade {
             return Result.fail("input param is null");
 
         }
-        List<CollectionReportBean> ret = this.collectionReportMapper.selectList(new QueryWrapper<CollectionReportBean>().
-                ge("data_dt", param.getStart_date()).
-                le("data_dt", param.getEnd_date()));
+        List<CollectionReportBean> ret = this.collectionReportMapper.selectList(new QueryWrapper<CollectionReportBean>()
+                .ge("data_dt", param.getStart_date())
+                .le("data_dt", param.getEnd_date())
+                .orderByDesc("data_dt"));
 
         return Result.succ(ret);
     }
