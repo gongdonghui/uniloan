@@ -15,6 +15,7 @@ import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
 import com.sup.core.mapper.*;
 import com.sup.core.util.MqMessenger;
+import com.sup.core.util.ToolUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,13 +61,14 @@ public class LoanService {
     @Autowired
     private MqMessenger mqMessenger;
 
-    public Result autoLoan(TbApplyInfoBean applyInfoBean) {
+    public Result autoLoan(TbApplyInfoBean applyInfoBean, Integer operatorId) {
         String userId = String.valueOf(applyInfoBean.getUser_id());
         String applyId = String.valueOf(applyInfoBean.getId());
 
         ApplyStatusEnum status = ApplyStatusEnum.getStatusByCode(applyInfoBean.getStatus());
-        if (status == null || status != ApplyStatusEnum.APPLY_FINAL_PASS) {
-            return Result.fail("Not APPLY_FINAL_PASS status!");
+        if (status == null || (status != ApplyStatusEnum.APPLY_FINAL_PASS && status != ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED)) {
+            log.error("Invalid status for autoLoan, bean=" + GsonUtil.toJson(applyInfoBean) + ", operator_id=" + operatorId);
+            return Result.fail("Invalid status for auto loan!");
         }
         if (applyInfoBean.getInhand_quota() <= 0) {
             log.error("Invalid in-hand quota = " + applyInfoBean.getInhand_quota());
@@ -97,9 +99,10 @@ public class LoanService {
         // 3. loan using funpay(need thread safe)
         boolean loanSucc = false;
         synchronized (this) {
+            String token = ToolUtils.getToken();    // orderNo
             PayInfo payInfo = new PayInfo();
             payInfo.setUserId(userId);
-            payInfo.setApplyId(applyId);
+            payInfo.setOrderNo(token);
             payInfo.setAmount(applyInfoBean.getInhand_quota());
             payInfo.setBankNo(String.valueOf(bankInfoBean.getBank()));
             payInfo.setAccountNo(bankInfoBean.getAccount_id());
@@ -107,15 +110,14 @@ public class LoanService {
             payInfo.setAccountName(bankInfoBean.getName());
             payInfo.setRemark(applyId);
 
+            applyInfoBean.setOrder_number(token);
+
             try {
-                // for (int i = 0; i < AUTO_LOAN_RETRY_TIMES; i++) {
                 Result<PayVO> result = funpayService.pay(payInfo);
                 if (result != null && result.isSucc()) {
                     loanSucc = true;
                     applyInfoBean.setTrade_number(result.getData().getTradeNo());
                 }
-                //    Thread.sleep(1000);
-                //}
             }catch (Exception e) {
                 e.printStackTrace();
                 log.error(e.getMessage());
@@ -129,7 +131,7 @@ public class LoanService {
             applyInfoBean.setStatus(ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode());
         }
         applyInfoBean.setUpdate_time(new Date());
-        applyInfoBean.setOperator_id(0);    // system
+        applyInfoBean.setOperator_id(operatorId);
         return applyService.updateApplyInfo(applyInfoBean);
     }
 
@@ -328,12 +330,8 @@ public class LoanService {
 
     public Result payCallBack(@RequestBody FunpayCallBackParam param) {
         // update ApplyInfo status
-        String applyId = param.getTradeNo();
-        if (applyId.indexOf("_") > 0) {
-            applyId = applyId.substring(0, applyId.indexOf("_"));
-        }
         TbApplyInfoBean bean = applyInfoMapper.selectOne(
-                new QueryWrapper<TbApplyInfoBean>().eq("apply_id", applyId));
+                new QueryWrapper<TbApplyInfoBean>().eq("order_number", param.getOrderNo()));
         if (bean == null) {
             log.error("Invalid param = " + GsonUtil.toJson(param));
             return Result.fail("Invalid applyId!");
@@ -357,7 +355,10 @@ public class LoanService {
                 log.error("param = " + GsonUtil.toJson(param));
                 bean.setInhand_quota(param.getAmount());
             }
-            bean.setTrade_number(param.getTradeNo());
+            if (!param.getTradeNo().equals(bean.getTrade_number())) {
+                log.info("new trade number(" + param.getTradeNo() + ") for bean " + GsonUtil.toJson(bean));
+                bean.setTrade_number(param.getTradeNo());
+            }
             bean.setStatus(ApplyStatusEnum.APPLY_LOAN_SUCC.getCode());
         } else {
             log.error("payCallBack: loan failed for applyId = " + bean.getId() +
