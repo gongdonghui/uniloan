@@ -172,12 +172,13 @@ public class ApplyController {
       add(ApplyStatusEnum.APPLY_AUTO_LOANING.getCode());
     }};
     List<AppApplyOverView> ret_app_beans = new ArrayList<>();
+    String lang = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("lang");
     for (TbApplyInfoBean bean : beans) {
       if (!pending_status.contains(bean.getStatus())) {
         continue;
       }
       AppApplyOverView ov = new AppApplyOverView();
-      ov.setStatus(bean.getStatus().toString());
+      ov.setStatus(trans.GetTrans("apply_status", bean.getStatus().toString(), lang));
       ov.setAmount(bean.getApply_quota().toString());
       ov.setApply_id(bean.getId());
       ov.setRate(ToolUtils.formatRate(bean.getRate()));
@@ -319,6 +320,7 @@ public class ApplyController {
     String mobile = li.getMobile();
     String info_id = ToolUtils.getToken();
     RLock lock = red_client.getLock(mobile);
+    com.sup.common.util.Result rpc_result = null;
     try {
       // fetch sdk info now !!
       lock.lock();
@@ -326,17 +328,21 @@ public class ApplyController {
       aip.getInfoIdMap().put(ApplyMaterialTypeEnum.APPLY_MATERIAL_DOCUMENTARY_IMAGE.getCode(), info_id);
       Set<Integer> affect_items = UpdateInfoId(mobile, "", info_id);
       affect_items.forEach(v -> aip.getInfoIdMap().put(v, info_id));
-      com.sup.common.util.Result r = core.addApplyInfo(aip);
-      if (!r.isSucc()) {
+      rpc_result = core.addApplyInfo(aip);
+      if (!rpc_result.isSucc()) {
         throw new Exception("new_apply_call_fail");
       }
-      return r;
+      return rpc_result;
     } catch (Exception e) {
       // need to restore !!
       UpdateInfoId(mobile, info_id, "");
       UpdateImageInfoId(li.getUser_id(), info_id, "");
       logger.error(ToolUtils.GetTrace(e));
-      return ToolUtils.fail("rpc_call_exception");
+      if (rpc_result != null) {
+        return rpc_result;
+      } else {
+        return ToolUtils.fail("rpc_call_exception");
+      }
     } finally {
       lock.unlock();
     }
