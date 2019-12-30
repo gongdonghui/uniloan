@@ -40,20 +40,17 @@ public class ReportImplFacade implements ReportFacade {
         if (param == null) {
             return Result.fail("input  param is null");
         }
-        List<OperationReportBean> ret = null;
+        QueryWrapper<OperationReportBean> wrapper = new QueryWrapper<>();
+        wrapper.ge("data_dt", param.getStart_date());
+        wrapper.le("data_dt", param.getEnd_date());
         if (param.getChannel_id() < 0) {  //all  channel
-
-            ret = operatioReportMapper.selectList(new QueryWrapper<OperationReportBean>()
-                    .ge("data_dt", param.getStart_date())
-                    .le("data_dt", param.getEnd_date())
-                    .orderByDesc("data_dt", "channel_id"));
+            wrapper.orderByDesc("data_dt", "channel_id");
         } else {
-            ret = operatioReportMapper.selectList(new QueryWrapper<OperationReportBean>()
-                    .eq("channel_id", param.getChannel_id())
-                    .ge("data_dt", param.getStart_date())
-                    .le("data_dt", param.getEnd_date())
-                    .orderByDesc("data_dt"));
+            wrapper.eq("channel_id", param.getChannel_id());
+            wrapper.orderByDesc("data_dt");
         }
+        log.info("[SQL] operation report=" + wrapper.getSqlSegment());
+        List<OperationReportBean> ret = operatioReportMapper.selectList(wrapper);
         if (ret == null) return Result.fail("not obtain  report  data");
         return Result.succ(ret);
     }

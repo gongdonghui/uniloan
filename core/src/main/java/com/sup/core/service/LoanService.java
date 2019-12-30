@@ -61,6 +61,18 @@ public class LoanService {
     @Autowired
     private MqMessenger mqMessenger;
 
+    public Result retryLoan(ApplyRetryLoanParam param) {
+        log.info("retryLoan param: " + GsonUtil.toJson(param));
+        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("id", param.getApplyId());
+        TbApplyInfoBean applyInfoBean = applyInfoMapper.selectOne(wrapper);
+        if (applyInfoBean == null) {
+            log.error("No apply info found!");
+            return Result.fail("No apply info!");
+        }
+        return autoLoan(applyInfoBean, param.getOperatorId());
+    }
+
     public Result autoLoan(TbApplyInfoBean applyInfoBean, Integer operatorId) {
         String userId = String.valueOf(applyInfoBean.getUser_id());
         String applyId = String.valueOf(applyInfoBean.getId());
@@ -95,6 +107,9 @@ public class LoanService {
             log.error("No bank info for user(" + userId + "), info_id=" + infoId);
             return Result.fail("No bank info found!");
         }
+
+        log.info("autoLoan, bank info:" + GsonUtil.toJson(bankInfoBean));
+        log.info("autoLoan, apply info(before loan):" + GsonUtil.toJson(applyInfoBean));
 
         // 3. loan using funpay(need thread safe)
         boolean loanSucc = false;
@@ -132,6 +147,8 @@ public class LoanService {
         }
         applyInfoBean.setUpdate_time(new Date());
         applyInfoBean.setOperator_id(operatorId);
+
+        log.info("autoLoan, apply info(after loan):" + GsonUtil.toJson(applyInfoBean));
         return applyService.updateApplyInfo(applyInfoBean);
     }
 

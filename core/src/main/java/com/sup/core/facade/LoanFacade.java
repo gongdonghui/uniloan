@@ -113,5 +113,13 @@ public interface LoanFacade {
     @RequestMapping(value = "reduction", produces = "application/json;charset=UTF-8")
     Result reduction(@RequestBody ReductionParam param);
 
+    /**
+     * 重试线上放款
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "retry", produces = "application/json;charset=UTF-8")
+    Result retryLoan(@RequestBody ApplyRetryLoanParam param);
 
 }
