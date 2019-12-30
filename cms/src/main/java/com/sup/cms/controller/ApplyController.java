@@ -3,6 +3,7 @@ package com.sup.cms.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import com.sup.cms.bean.po.ApplyBankAccountInfoBean;
 import com.sup.cms.bean.po.ApplyManagementGetListBean;
 import com.sup.cms.bean.po.ApplyOperationTaskBean;
 import com.sup.cms.bean.po.ApplyApprovalGetListBean;
@@ -14,6 +15,7 @@ import com.sup.cms.util.ResponseUtil;
 import com.sup.cms.util.ToolUtils;
 import com.sup.common.bean.*;
 import com.sup.common.loan.*;
+import com.sup.common.param.ApplyRetryLoanParam;
 import com.sup.common.param.ManualLoanParam;
 import com.sup.common.param.ManualRepayParam;
 import com.sup.common.param.ReductionParam;
@@ -56,6 +58,9 @@ public class ApplyController {
 
     @Autowired
     private TbApplyMaterialInfoMapper applyMaterialInfoMapper;
+
+    @Autowired
+    private TbUserBankAccountInfoMapper userBankAccountInfoMapper;
 
     /**
      * 信审或者终审的待指派或者待领取-列表
@@ -552,5 +557,76 @@ public class ApplyController {
         result.put("imageKeys", imageKeys);
         return ResponseUtil.success(result);
     }
+
+    @PostMapping("/bankInfo/get")
+    public String getBankInfo(@RequestParam("applyId") Integer applyId) {
+        TbUserBankAccountInfoBean bankBean = getBankAccountInfo(applyId);
+        if (bankBean == null) {
+            return ResponseUtil.failed("No bank account info!");
+        }
+        ApplyBankAccountInfoBean b = new ApplyBankAccountInfoBean();
+        // log.info(bank.toString());
+        b.setApply_id(applyId);
+        b.setName(bankBean.getName());
+        b.setAccount(bankBean.getAccount_id());
+        b.setBank(bankBean.getBank());
+        b.setAccount_type(bankBean.getAccount_type());
+        return ResponseUtil.success(b);
+    }
+
+    @PostMapping("/bankInfo/update")
+    public String updateBankInfo(@RequestBody @Valid ApplyBankAccountInfoBean newBankInfoBean) {
+        log.info("updateBankInfo bean:" + GsonUtil.toJson(newBankInfoBean));
+        TbUserBankAccountInfoBean bankBean = getBankAccountInfo(newBankInfoBean.getApply_id());
+        if (bankBean == null) {
+            return ResponseUtil.failed("No bank account info!");
+        }
+        bankBean.setName(newBankInfoBean.getName());
+        bankBean.setAccount_id(newBankInfoBean.getAccount());
+        bankBean.setAccount_type(newBankInfoBean.getAccount_type());
+        bankBean.setBank(newBankInfoBean.getBank());
+        if (userBankAccountInfoMapper.updateById(bankBean) > 0) {
+            return ResponseUtil.success();
+        }
+        return ResponseUtil.failed("Failed to update bank account!");
+    }
+
+    /**
+     * 重试放款
+     * @param params
+     * @return
+     */
+    @PostMapping("/retryLoan")
+    public String retryLoan(@RequestBody @Valid ApplyRetryLoanParam params) {
+        log.info("retryLoan param: " + GsonUtil.toJson(params));
+        if (coreService.retryLoan(params).isSucc()) {
+            return ResponseUtil.success();
+        }
+        return ResponseUtil.failed();
+    }
+
+    private TbUserBankAccountInfoBean getBankAccountInfo(Integer applyId) {
+        QueryWrapper<TbApplyMaterialInfoBean> qw = new QueryWrapper<>();
+        qw.eq("apply_id", applyId);
+        qw.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_BANK);
+        TbApplyMaterialInfoBean bank = applyMaterialInfoMapper.selectOne(qw);
+        if (bank == null) {
+            log.error("No bank info found for applyId:" + applyId);
+            return null;
+        }
+        QueryWrapper<TbUserBankAccountInfoBean> bankQw = new QueryWrapper<>();
+        bankQw.eq("info_id", bank.getInfo_id());
+        bankQw.orderByDesc("create_time");
+        bankQw.last("limit 1");
+        TbUserBankAccountInfoBean bankBean = userBankAccountInfoMapper.selectOne(bankQw);
+        if (bankBean == null) {
+            log.error("No bank account info for bean:" + GsonUtil.toJson(bank));
+            return null;
+        }
+        log.info("getBankAccountInfo: applyId = " + applyId + ", bean = " + GsonUtil.toJson(bankBean));
+        return bankBean;
+    }
+
+
 }
 

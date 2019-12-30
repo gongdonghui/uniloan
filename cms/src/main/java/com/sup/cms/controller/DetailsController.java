@@ -183,30 +183,31 @@ public class DetailsController {
         return ResponseUtil.success(b);
     }
 
-    /**
-     * 银行账户信息-受托账户
-     */
-    @GetMapping("/bankAccountBeEntrusted")
-    public String bankAccountBeEntrusted(@RequestParam("applyId") Integer applyId) {
-        QueryWrapper<TbApplyMaterialInfoBean> qw = new QueryWrapper<>();
-        qw.eq("apply_id", applyId);
-        qw.eq("info_type", 4);
-        TbApplyMaterialInfoBean bank = applyMaterialInfoMapper.selectOne(qw);
-        if (bank == null) {
-            log.error("No bank info found for applyId:" + applyId);
-            return ResponseUtil.failed("No bank info found!");
-        }
-        QueryWrapper<TbUserBankAccountInfoBean> bankQw = new QueryWrapper<>();
-        bankQw.eq("info_id", bank.getInfo_id());
-        TbUserBankAccountInfoBean bankBean = userBankAccountInfoMapper.selectOne(bankQw);
-        DetailsBankAccountBeEntrustedBean b = new DetailsBankAccountBeEntrustedBean();
-        // log.info(bank.toString());
-        log.info("applyId = " + applyId + ", info_id = " + bank.getInfo_id() + ", bankBean == null: " + (bankBean == null));
-        b.setName(bankBean.getName());
-        b.setAccount(bankBean.getAccount_id());
-        b.setBank(bankBean.getBank());
-        return ResponseUtil.success(b);
-    }
+//    /**
+//     * 银行账户信息-受托账户
+//     */
+//    @GetMapping("/bankAccountBeEntrusted")
+//    public String bankAccountBeEntrusted(@RequestParam("applyId") Integer applyId) {
+//        QueryWrapper<TbApplyMaterialInfoBean> qw = new QueryWrapper<>();
+//        qw.eq("apply_id", applyId);
+//        qw.eq("info_type", 4);
+//        TbApplyMaterialInfoBean bank = applyMaterialInfoMapper.selectOne(qw);
+//        if (bank == null) {
+//            log.error("No bank info found for applyId:" + applyId);
+//            return ResponseUtil.failed("No bank info found!");
+//        }
+//        QueryWrapper<TbUserBankAccountInfoBean> bankQw = new QueryWrapper<>();
+//        bankQw.eq("info_id", bank.getInfo_id());
+//        TbUserBankAccountInfoBean bankBean = userBankAccountInfoMapper.selectOne(bankQw);
+//        ApplyBankAccountInfoBean b = new ApplyBankAccountInfoBean();
+//        // log.info(bank.toString());
+//        log.info("applyId = " + applyId + ", info_id = " + bank.getInfo_id() + ", bankBean == null: " + (bankBean == null));
+//        b.setName(bankBean.getName());
+//        b.setAccount(bankBean.getAccount_id());
+//        b.setBank(bankBean.getBank());
+//        b.setAccount_type(bankBean.getAccount_type());
+//        return ResponseUtil.success(b);
+//    }
 
     /**
      * 决策引擎结果

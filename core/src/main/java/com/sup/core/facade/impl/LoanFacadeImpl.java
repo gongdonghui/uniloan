@@ -171,4 +171,15 @@ public class LoanFacadeImpl implements LoanFacade {
     public Result reduction(ReductionParam param) {
         return loanService.reduction(param);
     }
+
+    /**
+     * 重试线上放款
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public Result retryLoan(ApplyRetryLoanParam param) {
+        return loanService.retryLoan(param);
+    }
 }
