@@ -64,7 +64,7 @@ public class LoanService {
     public Result retryLoan(ApplyRetryLoanParam param) {
         log.info("retryLoan param: " + GsonUtil.toJson(param));
         QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
-        wrapper.eq("apply_id", param.getApplyId());
+        wrapper.eq("id", param.getApplyId());
         TbApplyInfoBean applyInfoBean = applyInfoMapper.selectOne(wrapper);
         if (applyInfoBean == null) {
             log.error("No apply info found!");
