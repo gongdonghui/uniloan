@@ -608,7 +608,7 @@ public class ApplyController {
     private TbUserBankAccountInfoBean getBankAccountInfo(Integer applyId) {
         QueryWrapper<TbApplyMaterialInfoBean> qw = new QueryWrapper<>();
         qw.eq("apply_id", applyId);
-        qw.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_BANK);
+        qw.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_BANK.getCode());
         TbApplyMaterialInfoBean bank = applyMaterialInfoMapper.selectOne(qw);
         if (bank == null) {
             log.error("No bank info found for applyId:" + applyId);
