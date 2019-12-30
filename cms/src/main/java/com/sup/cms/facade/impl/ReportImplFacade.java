@@ -49,7 +49,7 @@ public class ReportImplFacade implements ReportFacade {
             wrapper.eq("channel_id", param.getChannel_id());
             wrapper.orderByDesc("data_dt");
         }
-        log.info("[SQL] operation report=" + wrapper.getSqlSelect());
+        log.info("[SQL] operation report=" + wrapper.getSqlSegment());
         List<OperationReportBean> ret = operatioReportMapper.selectList(wrapper);
         if (ret == null) return Result.fail("not obtain  report  data");
         return Result.succ(ret);
