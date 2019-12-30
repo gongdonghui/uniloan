@@ -13,5 +13,5 @@ public class PayStatusInfo {
     @NotBlank(message = "交易流水号不能为空")
     private String tradeNo;
     @NotBlank(message = "进件id不能为空")
-    private String applyId;
+    private String orderNo;
 }

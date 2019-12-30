@@ -178,7 +178,8 @@ public class DetailsController {
         DetailsInformationBean b = new DetailsInformationBean();
         b.setPic1(citizenBean.getPic_1());
         b.setPic2(citizenBean.getPic_2());
-        b.setPic3(employmentBean.getWork_pic());
+        b.setPic3(citizenBean.getPic_3());
+        b.setPic4(employmentBean.getWork_pic());
         return ResponseUtil.success(b);
     }
 

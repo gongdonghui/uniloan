@@ -147,7 +147,7 @@ public class FunPayController {
         m.put("timestamp", System.currentTimeMillis() + "");
         m.put("amount", payInfo.getAmount() + "");
         m.put("currency", "VND");
-        m.put("orderNo", payInfo.getApplyId());
+        m.put("orderNo", payInfo.getOrderNo());
         m.put("returnUrl", payReturnUrl);
         m.put("accountName", payInfo.getAccountName());
         m.put("accountNo", payInfo.getAccountNo());
@@ -222,7 +222,7 @@ public class FunPayController {
         m.put("timestamp", System.currentTimeMillis() + "");
         m.put("version", version);
         m.put("tradeNo", payStatusInfo.getTradeNo());
-        m.put("orderNo", payStatusInfo.getApplyId());
+        m.put("orderNo", payStatusInfo.getOrderNo());
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_transferCheck + "?param=" + param);
         log.info("payStatus:::result=" + result);

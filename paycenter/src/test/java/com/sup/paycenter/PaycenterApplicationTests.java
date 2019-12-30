@@ -40,7 +40,7 @@ public class PaycenterApplicationTests {
     public void pay() {
         PayInfo p = new PayInfo();
         p.setUserId("11223332");
-        p.setApplyId("33221212");
+        p.setOrderNo("33221212");
         p.setAmount(500000);
         p.setRemark("Hello Test3");
         p.setBankNo("1");
