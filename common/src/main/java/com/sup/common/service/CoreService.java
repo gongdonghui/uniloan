@@ -124,6 +124,6 @@ public interface CoreService {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "retry", produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/loan/retry", produces = "application/json;charset=UTF-8")
     Result retryLoan(@RequestBody ApplyRetryLoanParam param);
 }
