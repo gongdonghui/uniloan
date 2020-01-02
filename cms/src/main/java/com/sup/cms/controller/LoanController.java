@@ -62,13 +62,13 @@ public class LoanController {
             sb.append(" and a.product_id=" + params.getProductId());
         }
         if (!Strings.isNullOrEmpty(params.getCidNo())) {
-            sb.append(" and c.cid_no=" + params.getCidNo());
+            sb.append(" and c.cid_no='" + params.getCidNo() + "'");
         }
         if (params.getApplyId() != null) {
             sb.append(" and a.id=" + params.getApplyId());
         }
         if (!Strings.isNullOrEmpty(params.getMobile())) {
-            sb.append(" and d.mobile=" + params.getMobile());
+            sb.append(" and d.mobile='" + params.getMobile() + "'");
         }
         if (params.getStatus() != null) {
             if (params.getStatus() == 0) {  // 未核销
@@ -106,13 +106,13 @@ public class LoanController {
             sb.append(" and a.product_id=" + params.getProductId());
         }
         if (!Strings.isNullOrEmpty(params.getCidNo())) {
-            sb.append(" and c.cid_no=" + params.getCidNo());
+            sb.append(" and c.cid_no='" + params.getCidNo() + "'");
         }
         if (params.getApplyId() != null) {
             sb.append(" and a.id=" + params.getApplyId());
         }
         if (!Strings.isNullOrEmpty(params.getMobile())) {
-            sb.append(" and d.mobile=" + params.getMobile());
+            sb.append(" and d.mobile='" + params.getMobile() + "'");
         }
         log.info("unRepayInfoGetList conditions=" + sb.toString());
 
