@@ -119,7 +119,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " a.id as id," +
             " b.id as applyId," +
             " b.user_id as userId," +
-            " a.expire_time as lastAllocateDate," +
+            " a.create_time as lastAllocateDate," +
             " e.name," +
             " g.mobile as mobile," +
             " a.comment as status," +
@@ -164,7 +164,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " b.id as applyId," +
             " b.user_id as userId," +
             " g.mobile as mobile," +
-            " a.expire_time as lastAllocateDate," +
+            " a.create_time as lastAllocateDate," +
             " f.repay_status as periodStatus," +
             " a.comment as status," +
             " f.repay_status as partialRepay," +
