@@ -11,6 +11,7 @@ import com.sup.cms.util.ResponseUtil;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.param.ReductionParam;
 import com.sup.common.util.Result;
+import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ import java.util.Map;
  * @Author: kouichi
  * @Date: 2019/10/13 17:41
  */
-@Slf4j
+@Log4j
 @RestController
 @RequestMapping("/loan")
 public class LoanController {
