@@ -56,6 +56,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             ",b.name as productName" +
             ",d.name as name" +
             ",e.APP_NAME as appName" +
+            ",f.mobile as mobile" +
             " from tb_apply_info a" +
             " left join tb_product_info b on a.product_id=b.id" +
             " left join tb_apply_material_info c on a.id=c.apply_id" +
