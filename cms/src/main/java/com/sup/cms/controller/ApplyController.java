@@ -153,16 +153,18 @@ public class ApplyController {
      */
     @PostMapping("/approval/action")
     public String action(@Valid @RequestBody ApplyApprovalActionParams params) {
-        ApplyOperationTaskBean bean = applyOperationTaskMapper.selectById(params.getId());
-        //检查当前人和审批人是不是一个人
-        if (!bean.getOperatorId().equals(params.getOperatorId())) {
-            return ResponseUtil.failed("当前用户不能审批此单");
-        }
-        //修改task表审批状态
-        bean.setStatus(1);
-        bean.setComment(params.getComment());
-        if (applyOperationTaskMapper.updateById(bean) <= 0) {
-            return ResponseUtil.failed();
+        if (params.getId() != null) {
+            ApplyOperationTaskBean bean = applyOperationTaskMapper.selectById(params.getId());
+            //检查当前人和审批人是不是一个人
+            if (!bean.getOperatorId().equals(params.getOperatorId())) {
+                return ResponseUtil.failed("当前用户不能审批此单");
+            }
+            //修改task表审批状态
+            bean.setStatus(1);
+            bean.setComment(params.getComment());
+            if (applyOperationTaskMapper.updateById(bean) <= 0) {
+                return ResponseUtil.failed();
+            }
         }
         Result<TbApplyInfoBean> ret = coreService.getApplyInfo(params.getApplyId());
         if (!ret.isSucc()) {
@@ -171,30 +173,25 @@ public class ApplyController {
         }
         TbApplyInfoBean apply = ret.getData();
 
-        //调用关老师接口改申请单状态
-        //todo 和关佬确定一下是不是这么调用 都需要传哪些参数
-        // TbApplyInfoBean apply = new TbApplyInfoBean();
-        // apply.setId(params.getApplyId());
-
         apply.setOperator_id(params.getOperatorId());
         apply.setComment(params.getComment());
         apply.setUpdate_time(new Date());
         //如果是取消的话 直接设置取消状态
         ApplyStatusEnum applyStatus = null;
-        switch (params.getType()) {
+        switch (params.getResult()) {
             case 2:     // cancel
                 applyStatus = ApplyStatusEnum.APPLY_CANCEL;
                 break;
             case 1:     // pass
                 log.info("param = " + GsonUtil.toJson(params));
                 if (params.getGrantQuota() != null && params.getGrantQuota() > 0) {
-                    assert params.getType2() == 1;
+                    assert params.getStage() == 1;
                     apply.setGrant_quota(params.getGrantQuota());
                 }
-                applyStatus = params.getType2().equals(0) ? ApplyStatusEnum.APPLY_FIRST_PASS : ApplyStatusEnum.APPLY_FINAL_PASS;
+                applyStatus = params.getStage().equals(0) ? ApplyStatusEnum.APPLY_FIRST_PASS : ApplyStatusEnum.APPLY_FINAL_PASS;
                 break;
             case 0:     // deny
-                applyStatus = params.getType2().equals(0) ? ApplyStatusEnum.APPLY_FIRST_DENY : ApplyStatusEnum.APPLY_FINAL_DENY;
+                applyStatus = params.getStage().equals(0) ? ApplyStatusEnum.APPLY_FIRST_DENY : ApplyStatusEnum.APPLY_FINAL_DENY;
                 break;
             default:
                 log.error("Invalid type! param = " + GsonUtil.toJson(params));
@@ -203,23 +200,6 @@ public class ApplyController {
         if (applyStatus != null) {
             apply.setStatus(applyStatus.getCode());
         }
-//        if (params.getType().equals(2)) {
-//            apply.setStatus(9);
-//        } else {
-//            //区分信审和终审来分别设定状态
-//            if (params.getType2().equals(0)) {
-//                //apply.setStatus(params.getType().equals(1) ? 2 : 6);
-//                apply.setStatus(params.getType().equals(1) ? ApplyStatusEnum.APPLY_FIRST_PASS.getCode() : ApplyStatusEnum.APPLY_FIRST_DENY.getCode());
-//            } else {
-//                if (params.getGrantQuota() != null && params.getGrantQuota() > 0) {
-//                    apply.setGrant_quota(params.getGrantQuota());
-//                } else {
-//                    log.error("Invalid grant quota!");
-//                }
-//                // apply.setStatus(params.getType().equals(1) ? 4 : 8);
-//                apply.setStatus(params.getType().equals(1) ? ApplyStatusEnum.APPLY_FINAL_PASS.getCode() : ApplyStatusEnum.APPLY_FINAL_DENY.getCode());
-//            }
-//        }
 
         if (coreService.updateApplyInfo(apply).getStatus() == 0) {
             return ResponseUtil.success();
