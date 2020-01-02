@@ -44,16 +44,16 @@ public class LoanController {
             sb.append(" and g.status=0");
         }
         if (params.getShouldRepayDateStart() != null) {
-            sb.append(" and f.repay_end_date>=" + params.getShouldRepayDateStart());
+            sb.append(" and f.repay_end_date>='" + params.getShouldRepayDateStart() + "'");
         }
         if (params.getShouldRepayDateEnd() != null) {
-            sb.append(" and f.repay_start_date<=" + params.getShouldRepayDateEnd());
+            sb.append(" and f.repay_start_date<='" + params.getShouldRepayDateEnd() + "'");
         }
         if (params.getActualRepayDateStart() != null) {
-            sb.append(" and f.repay_time>=" + params.getActualRepayDateStart());
+            sb.append(" and f.repay_time>='" + params.getActualRepayDateStart() + "'");
         }
         if (params.getActualRepayDateEnd() != null) {
-            sb.append(" and f.repay_time<=" + params.getActualRepayDateEnd());
+            sb.append(" and f.repay_time<='" + params.getActualRepayDateEnd() + "'");
         }
 
         if (params.getProductId() != null) {
@@ -93,10 +93,10 @@ public class LoanController {
     public String unRepayInfoGetList(@RequestBody @Valid LoanUnRepayInfoGetListParams params) {
         StringBuilder sb = new StringBuilder();
         if (params.getShouldRepayDateStart() != null) {
-            sb.append(" and f.repay_end_date>=" + params.getShouldRepayDateStart());
+            sb.append(" and f.repay_end_date>='" + params.getShouldRepayDateStart() + "'");
         }
         if (params.getShouldRepayDateEnd() != null) {
-            sb.append(" and f.repay_start_date<=" + params.getShouldRepayDateEnd());
+            sb.append(" and f.repay_start_date<='" + params.getShouldRepayDateEnd() + "'");
         }
 
         if (params.getProductId() != null) {
