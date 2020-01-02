@@ -75,6 +75,7 @@ public class LoanController {
                 sb.append(" and a.status=" + ApplyStatusEnum.APPLY_WRITE_OFF.getCode());
             }
         }
+        log.info("repayInfoGetList conditions=" + sb.toString());
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<LoanRepayInfoGetListBean> l = crazyJoinMapper.loanRepayInfoGetList(sb.toString(), offset, rows);
@@ -111,6 +112,7 @@ public class LoanController {
         if (!Strings.isNullOrEmpty(params.getMobile())) {
             sb.append(" and d.mobile=" + params.getMobile());
         }
+        log.info("unRepayInfoGetList conditions=" + sb.toString());
 
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
