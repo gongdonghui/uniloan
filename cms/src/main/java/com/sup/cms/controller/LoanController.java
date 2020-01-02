@@ -10,6 +10,7 @@ import com.sup.cms.mapper.CrazyJoinMapper;
 import com.sup.cms.util.ResponseUtil;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.param.ReductionParam;
+import com.sup.common.util.DateUtil;
 import com.sup.common.util.Result;
 import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
@@ -45,16 +46,16 @@ public class LoanController {
             sb.append(" and g.status=0");
         }
         if (params.getShouldRepayDateStart() != null) {
-            sb.append(" and f.repay_end_date>='" + params.getShouldRepayDateStart() + "'");
+            sb.append(" and f.repay_end_date>='" + DateUtil.formatDate(params.getShouldRepayDateStart()) + "'");
         }
         if (params.getShouldRepayDateEnd() != null) {
-            sb.append(" and f.repay_start_date<='" + params.getShouldRepayDateEnd() + "'");
+            sb.append(" and f.repay_start_date<='" + DateUtil.formatDate(params.getShouldRepayDateEnd()) + " 23:59:59'");
         }
         if (params.getActualRepayDateStart() != null) {
-            sb.append(" and f.repay_time>='" + params.getActualRepayDateStart() + "'");
+            sb.append(" and f.repay_time>='" + DateUtil.formatDate(params.getActualRepayDateStart()) + "'");
         }
         if (params.getActualRepayDateEnd() != null) {
-            sb.append(" and f.repay_time<='" + params.getActualRepayDateEnd() + "'");
+            sb.append(" and f.repay_time<='" + DateUtil.formatDate(params.getActualRepayDateEnd()) + " 23:59:59'");
         }
 
         if (params.getProductId() != null) {
@@ -95,10 +96,10 @@ public class LoanController {
     public String unRepayInfoGetList(@RequestBody @Valid LoanUnRepayInfoGetListParams params) {
         StringBuilder sb = new StringBuilder();
         if (params.getShouldRepayDateStart() != null) {
-            sb.append(" and f.repay_end_date>='" + params.getShouldRepayDateStart() + "'");
+            sb.append(" and f.repay_end_date>='" + DateUtil.formatDate(params.getShouldRepayDateStart()) + "'");
         }
         if (params.getShouldRepayDateEnd() != null) {
-            sb.append(" and f.repay_start_date<='" + params.getShouldRepayDateEnd() + "'");
+            sb.append(" and f.repay_start_date<='" + DateUtil.formatDate(params.getShouldRepayDateEnd()) + " 23:59:59'");
         }
 
         if (params.getProductId() != null) {
