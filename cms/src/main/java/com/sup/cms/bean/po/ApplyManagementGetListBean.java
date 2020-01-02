@@ -21,6 +21,7 @@ public class ApplyManagementGetListBean {
     private String huanKuanFangShi;
     private String shangHuMingCheng;
     private String appName;
+    private String mobile;
     private Date dealDate;
     private Date createTime;
     private Date updateTime;

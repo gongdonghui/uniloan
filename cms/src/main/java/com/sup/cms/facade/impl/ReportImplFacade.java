@@ -9,6 +9,7 @@ import com.sup.common.bean.CheckReportBean;
 import com.sup.common.bean.CollectionReportBean;
 import com.sup.common.bean.OperationReportBean;
 import com.sup.common.param.OperationReportParam;
+import com.sup.common.util.DateUtil;
 import com.sup.common.util.Result;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +42,8 @@ public class ReportImplFacade implements ReportFacade {
             return Result.fail("input  param is null");
         }
         QueryWrapper<OperationReportBean> wrapper = new QueryWrapper<>();
-        wrapper.ge("data_dt", param.getStart_date());
-        wrapper.le("data_dt", param.getEnd_date());
+        wrapper.ge("data_dt", DateUtil.formatDate(param.getStart_date()) + " 00:00:00");
+        wrapper.le("data_dt", DateUtil.formatDate(param.getEnd_date()) + " 23:59:59");
         if (param.getChannel_id() < 0) {  //all  channel
             wrapper.orderByDesc("data_dt", "channel_id");
         } else {
@@ -59,12 +60,12 @@ public class ReportImplFacade implements ReportFacade {
     public Result<List<CheckReportBean>> check(OperationReportParam param) {
         if (param == null) {
             return Result.fail("input param is null");
-
         }
-        List<CheckReportBean> ret = this.checkReportMapper.selectList(new QueryWrapper<CheckReportBean>()
-                        .ge("data_dt", param.getStart_date())
-                        .le("data_dt", param.getEnd_date())
-                        .orderByDesc("data_dt"));
+        QueryWrapper<CheckReportBean> wrapper = new QueryWrapper<>();
+        wrapper.ge("data_dt", DateUtil.formatDate(param.getStart_date()) + " 00:00:00");
+        wrapper.le("data_dt", DateUtil.formatDate(param.getEnd_date()) + " 23:59:59");
+        wrapper.orderByDesc("data_dt");
+        List<CheckReportBean> ret = this.checkReportMapper.selectList(wrapper);
         return Result.succ(ret);
     }
 
@@ -74,10 +75,11 @@ public class ReportImplFacade implements ReportFacade {
             return Result.fail("input param is null");
 
         }
-        List<CollectionReportBean> ret = this.collectionReportMapper.selectList(new QueryWrapper<CollectionReportBean>()
-                .ge("data_dt", param.getStart_date())
-                .le("data_dt", param.getEnd_date())
-                .orderByDesc("data_dt"));
+        QueryWrapper<CollectionReportBean> wrapper = new QueryWrapper<>();
+        wrapper.ge("data_dt", DateUtil.formatDate(param.getStart_date()) + " 00:00:00");
+        wrapper.le("data_dt", DateUtil.formatDate(param.getEnd_date()) + " 23:59:59");
+        wrapper.orderByDesc("data_dt");
+        List<CollectionReportBean> ret = this.collectionReportMapper.selectList(wrapper);
 
         return Result.succ(ret);
     }

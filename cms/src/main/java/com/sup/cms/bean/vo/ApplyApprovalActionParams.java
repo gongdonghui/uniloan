@@ -12,10 +12,11 @@ import javax.validation.constraints.NotNull;
 @Data
 public class ApplyApprovalActionParams {
     /**
+     * 若关闭订单，可不传该参数
      * 任务id
      */
-    @NotNull
     private Integer id;
+
     /**
      * 进件id
      */
@@ -27,16 +28,17 @@ public class ApplyApprovalActionParams {
     @NotNull
     private Integer operatorId;
     /**
-     * 审核结果类型 0不通过 1通过 2取消
+     * 审核结果 0不通过 1通过 2取消
      */
     @NotNull
-    private Integer type;
+    private Integer result;
     /**
+     * 若关闭订单，可不传该参数
      * 0 信审
      * 1 终审
      */
-    @NotNull
-    private Integer type2;
+    private Integer stage;
+
     /**
      * 审批意见
      */

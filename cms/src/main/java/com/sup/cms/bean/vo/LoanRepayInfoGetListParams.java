@@ -1,5 +1,6 @@
 package com.sup.cms.bean.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
@@ -11,10 +12,18 @@ import java.util.Date;
  */
 @Data
 public class LoanRepayInfoGetListParams {
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date shouldRepayDateStart;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date shouldRepayDateEnd;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date actualRepayDateStart;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date actualRepayDateEnd;
+
     private Integer productId;
     private String cidNo;
     private Integer applyId;
