@@ -65,6 +65,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_user_regist_info as f on a.user_id=f.id" +
             " where c.info_type=0" +
             " ${conditions}" +
+            " order by applyId desc" +
             " limit #{offset},#{rows}")
     List<ApplyManagementGetListBean> applyManagementGetList(String conditions, Integer offset, Integer rows);
 
