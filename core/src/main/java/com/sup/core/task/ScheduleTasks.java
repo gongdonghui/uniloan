@@ -645,11 +645,24 @@ public class ScheduleTasks {
                     .ge("repay_end_date", data_dt)
                     .lt("repay_end_date", current));
 
+            QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
+            wrapper.in("status", ApplyStatusEnum.APPLY_AUTO_LOANING.getCode()
+                    , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode()
+                    , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
+                    , ApplyStatusEnum.APPLY_REPAY_PART.getCode()
+                    , ApplyStatusEnum.APPLY_OVERDUE.getCode()
+            );
+            List<TbApplyInfoBean> infoBeans = this.applyInfoMapper.selectList(wrapper);
+
             /*
             channel id => {status, count}, applyNum, applyUserSet, loanAmount,...
              */
             Map<Integer, ChannelContainer> channelStatMap = new HashMap<>();
             Map<Integer, Integer> channelApplyMap = new HashMap<>();    // apply id => channel id
+            // init map(apply id => channel id)
+            for (TbApplyInfoBean bean : infoBeans) {
+                channelApplyMap.put(bean.getId(), bean.getChannel_id());
+            }
 
             // regist statistic
             for (TbUserRegistInfoBean registInfoBean : registInfoBeans) {
