@@ -1,16 +1,9 @@
 package com.sup.cms.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.google.common.collect.Maps;
-import com.sup.cms.bean.po.LoanRepayInfoGetListBean;
-import com.sup.cms.bean.po.LoanUnRepayInfoGetListBean;
-import com.sup.cms.bean.vo.LoanRepayInfoGetListParams;
-import com.sup.cms.bean.vo.LoanUnRepayInfoGetListParams;
-import com.sup.cms.mapper.CrazyJoinMapper;
 import com.sup.cms.mapper.TbAppSdkAppListInfoMapper;
 import com.sup.cms.mapper.TbAppSdkContractInfoMapper;
 import com.sup.cms.mapper.TbApplyMaterialInfoMapper;
-import com.sup.cms.util.ResponseUtil;
 import com.sup.cms.util.ToolUtils;
 import com.sup.common.bean.TbAppSdkAppListInfoBean;
 import com.sup.common.bean.TbAppSdkContractInfoBean;
@@ -21,10 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 贷款管理下面的子页面

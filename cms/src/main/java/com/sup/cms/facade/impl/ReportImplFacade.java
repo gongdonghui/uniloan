@@ -42,8 +42,8 @@ public class ReportImplFacade implements ReportFacade {
             return Result.fail("input  param is null");
         }
         QueryWrapper<OperationReportBean> wrapper = new QueryWrapper<>();
-        wrapper.ge("data_dt", DateUtil.formatDate(param.getStart_date()) + " 00:00:00");
-        wrapper.le("data_dt", DateUtil.formatDate(param.getEnd_date()) + " 23:59:59");
+        wrapper.ge("data_dt", DateUtil.startOf(param.getStart_date()));
+        wrapper.le("data_dt", DateUtil.endOf(param.getEnd_date()));
         if (param.getChannel_id() < 0) {  //all  channel
             wrapper.orderByDesc("data_dt", "channel_id");
         } else {
@@ -62,8 +62,8 @@ public class ReportImplFacade implements ReportFacade {
             return Result.fail("input param is null");
         }
         QueryWrapper<CheckReportBean> wrapper = new QueryWrapper<>();
-        wrapper.ge("data_dt", DateUtil.formatDate(param.getStart_date()) + " 00:00:00");
-        wrapper.le("data_dt", DateUtil.formatDate(param.getEnd_date()) + " 23:59:59");
+        wrapper.ge("data_dt", DateUtil.startOf(param.getStart_date()));
+        wrapper.le("data_dt", DateUtil.endOf(param.getEnd_date()));
         wrapper.orderByDesc("data_dt");
         List<CheckReportBean> ret = this.checkReportMapper.selectList(wrapper);
         return Result.succ(ret);
@@ -76,8 +76,8 @@ public class ReportImplFacade implements ReportFacade {
 
         }
         QueryWrapper<CollectionReportBean> wrapper = new QueryWrapper<>();
-        wrapper.ge("data_dt", DateUtil.formatDate(param.getStart_date()) + " 00:00:00");
-        wrapper.le("data_dt", DateUtil.formatDate(param.getEnd_date()) + " 23:59:59");
+        wrapper.ge("data_dt", DateUtil.startOf(param.getStart_date()));
+        wrapper.le("data_dt", DateUtil.endOf(param.getEnd_date()));
         wrapper.orderByDesc("data_dt");
         List<CollectionReportBean> ret = this.collectionReportMapper.selectList(wrapper);
 

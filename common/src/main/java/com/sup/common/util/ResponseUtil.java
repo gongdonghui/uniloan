@@ -1,7 +1,6 @@
-package com.sup.cms.util;
+package com.sup.common.util;
 
 import com.google.common.collect.Maps;
-import com.sup.cms.common.Response;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;

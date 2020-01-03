@@ -1,4 +1,4 @@
-package com.sup.cms.common;
+package com.sup.common.util;
 
 /**
  * @author kouichi

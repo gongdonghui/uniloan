@@ -1,11 +1,9 @@
 package com.sup.cms.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.google.common.collect.Maps;
-import com.sup.cms.bean.po.ProductInfoBean;
 import com.sup.cms.bean.vo.OperationLogParams;
 import com.sup.cms.mapper.OperationLogMapper;
-import com.sup.cms.util.ResponseUtil;
+import com.sup.common.util.ResponseUtil;
 import com.sup.common.bean.TbOperationLogBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +12,6 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 产品页面
