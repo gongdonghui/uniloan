@@ -17,6 +17,7 @@ public class CollectionArchivesGetListBean {
     private Integer applyId;
     private Integer userId;
     private String mobile;
+    private String cidNo;
     private Date lastAllocateDate;
     /**
      * 只有2的时候代表已还清 其余都是逾期中

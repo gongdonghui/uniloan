@@ -20,6 +20,7 @@ public class CollectionAllocateGetListBean {
     private Date lastAllocateDate;
     private String name;
     private String mobile;
+    private String cidNo;
     /**
      * 催收状态
      */

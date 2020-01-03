@@ -55,6 +55,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             ",a.update_time as updateTime" +
             ",b.name as productName" +
             ",d.name as name" +
+            ",d.cid_no as cidNo" +
             ",e.APP_NAME as appName" +
             ",f.mobile as mobile" +
             " from tb_apply_info a" +
@@ -122,6 +123,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " b.user_id as userId," +
             " a.create_time as lastAllocateDate," +
             " e.name," +
+            " e.cid_no as cidNo," +
             " g.mobile as mobile," +
             " a.comment as status," +
             " c.name as productName," +
@@ -174,6 +176,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " b.period as period," +
             " 1 as currentTerm, 1 as totalTerms," +
             " e.name," +
+            " e.cid_no as cidNo," +
             " f.repay_end_date as shouldRepayDate," +
             " h.overdue_days_max as overdueDays," +
             " f.need_total as shouldRepayAmount," +
@@ -396,5 +399,12 @@ public interface CrazyJoinMapper extends BaseMapper {
             " where uri.type = 0" +
             " ${conditions} ")
     Integer getCustomersCount(@Param(value = "conditions") String conditions);
+
+    @Select("")
+    List<OverdueGetListBean> getPoolList(String conditions, Integer offset, Integer rows);
+
+    @Select("")
+    Integer getPoolListCount(String conditions);
+
 
 }

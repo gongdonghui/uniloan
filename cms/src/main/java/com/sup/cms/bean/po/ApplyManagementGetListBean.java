@@ -22,6 +22,7 @@ public class ApplyManagementGetListBean {
     private String shangHuMingCheng;
     private String appName;
     private String mobile;
+    private String cidNo;
     private Date dealDate;
     private Date createTime;
     private Date updateTime;
