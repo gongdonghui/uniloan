@@ -9,9 +9,7 @@ import com.sup.cms.bean.po.ApplyOperationTaskBean;
 import com.sup.cms.bean.po.ApplyApprovalGetListBean;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.*;
-import com.sup.cms.util.DateUtil;
-import com.sup.cms.util.GsonUtil;
-import com.sup.cms.util.ResponseUtil;
+import com.sup.common.util.ResponseUtil;
 import com.sup.cms.util.ToolUtils;
 import com.sup.common.bean.*;
 import com.sup.common.loan.*;
@@ -20,8 +18,10 @@ import com.sup.common.param.ManualLoanParam;
 import com.sup.common.param.ManualRepayParam;
 import com.sup.common.param.ReductionParam;
 import com.sup.common.service.CoreService;
+import com.sup.common.util.DateUtil;
+import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +39,7 @@ import java.util.Map;
  */
 @RequestMapping("/apply")
 @RestController
-@Slf4j
+@Log4j
 public class ApplyController {
     @Autowired
     private TbManualRepayMapper manualRepayMapper;
@@ -74,12 +74,12 @@ public class ApplyController {
         StringBuilder sb = new StringBuilder();
         //下面这部分内容为前端查询时的参数
         sb.append(null != params.getApplyId() ? " and a.apply_id=" + params.getApplyId() : "");
-        sb.append(null != params.getStartTime() ? " and b.create_time>=\"" + DateUtil.formatDateTime(params.getStartTime()) + "\"" : "");
-        sb.append(null != params.getEndTime() ? " and b.create_time<=\"" + DateUtil.formatDateTime(params.getEndTime()) + "\"" : "");
-        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
-        sb.append(!Strings.isNullOrEmpty(params.getCreditLevel()) ? " and b.credit_class=\"" + params.getCreditLevel() + "\"" : "");
-        sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");
-        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile=\"" + params.getMobile() + "\"" : "");
+        sb.append(null != params.getStartTime() ? " and b.create_time>='" + DateUtil.startOf(params.getStartTime()) + "'" : "");
+        sb.append(null != params.getEndTime() ? " and b.create_time<='" + DateUtil.endOf(params.getEndTime()) + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name='" + params.getName() + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getCreditLevel()) ? " and b.credit_class='" + params.getCreditLevel() + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no='" + params.getCidNo() + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile='" + params.getMobile() + "'" : "");
         //单子是否已领 不管是指派的还是自己领的
         if (params.getType1() == 0) {
             // 未指派、未领取
@@ -217,16 +217,17 @@ public class ApplyController {
     @PostMapping("/management/getList")
     public String getList2(@Valid @RequestBody ApplyManagementGetListParams params) {
         StringBuilder sb = new StringBuilder();
-        sb.append(null != params.getStartTime() ? " and a.create_time>=\"" + DateUtil.formatDateTime(params.getStartTime()) + "\"" : "");
-        sb.append(null != params.getEndTime() ? " and a.create_time<=\"" + DateUtil.formatDateTime(params.getEndTime()) + "\"" : "");
-        sb.append(null != params.getStatus() ? " and a.status=\"" + params.getStatus() + "\"" : "");
-        sb.append(null != params.getApplyId() ? " and a.id=\"" + params.getApplyId() + "\"" : "");
-        sb.append(null != params.getName() ? " and d.name=\"" + params.getApplyId() + "\"" : "");
-        sb.append(null != params.getCidNo() ? " and d.cid_no=\"" + params.getApplyId() + "\"" : "");
-        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile=\"" + params.getMobile() + "\"" : "");
-        sb.append(null != params.getAppName() ? " and e.app_name=\"" + params.getApplyId() + "\"" : "");
+        sb.append(null != params.getStartTime() ? " and a.create_time>='" + DateUtil.startOf(params.getStartTime()) + "'" : "");
+        sb.append(null != params.getEndTime() ? " and a.create_time<='" + DateUtil.endOf(params.getEndTime()) + "'" : "");
+        sb.append(null != params.getStatus() ? " and a.status=" + params.getStatus() : "");
+        sb.append(null != params.getApplyId() ? " and a.id=" + params.getApplyId() : "");
+        sb.append(null != params.getName() ? " and d.name='" + params.getName() + "'" : "");
+        sb.append(null != params.getCidNo() ? " and d.cid_no='" + params.getCidNo() + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile='" + params.getMobile() + "'" : "");
+        sb.append(null != params.getAppName() ? " and e.app_name='" + params.getApplyId() + "'" : "");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
+        log.info("apply management list, conditions=" + sb.toString());
         List<ApplyManagementGetListBean> l = crazyJoinMapper.applyManagementGetList(sb.toString(), offset, rows);
         Map m = Maps.newHashMap();
         m.put("total",crazyJoinMapper.applyManagementGetListForPaging(sb.toString()));
@@ -244,22 +245,22 @@ public class ApplyController {
     public String history(@Valid @RequestBody ApplyAllocationHistoryParams params) {
         StringBuilder sb = new StringBuilder();
         //下面这部分内容为前端查询时的参数
-        sb.append(null != params.getApplyId() ? " and a.apply_id=\"" + params.getApplyId() + "\"" : "");
-        sb.append(null != params.getOperatorId() ? " and a.operator_id=\"" + params.getOperatorId() + "\"" : "");
-        sb.append(null != params.getDistributorId() ? " and a.distributor_id=\"" + params.getDistributorId() + "\"" : "");
-        sb.append(null != params.getTaskType() ? " and a.task_type=\"" + params.getTaskType() + "\"" : "");
-        sb.append(null != params.getStatus() ? " and a.status=\"" + params.getStatus() + "\"" : "");
-        sb.append(null != params.getProductId() ? " and c.id=\"" + params.getProductId() + "\"" : "");
+        sb.append(null != params.getApplyId() ? " and a.apply_id=" + params.getApplyId() : "");
+        sb.append(null != params.getOperatorId() ? " and a.operator_id=" + params.getOperatorId() : "");
+        sb.append(null != params.getDistributorId() ? " and a.distributor_id=" + params.getDistributorId() : "");
+        sb.append(null != params.getTaskType() ? " and a.task_type=" + params.getTaskType() : "");
+        sb.append(null != params.getStatus() ? " and a.status=" + params.getStatus() : "");
+        sb.append(null != params.getProductId() ? " and c.id=" + params.getProductId() : "");
 
-        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
-        sb.append(!Strings.isNullOrEmpty(params.getCid()) ? " and b.credit_class=\"" + params.getCid() + "\"" : "");
-        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile=\"" + params.getMobile() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name='" + params.getName() + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getCid()) ? " and b.credit_class='" + params.getCid() + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile='" + params.getMobile() + "'" : "");
 
-        sb.append(null != params.getCreateTime() ? " and a.update_time>=\"" + DateUtil.formatDateTime(params.getCreateTime()) + "\"" : "");
-        sb.append(null != params.getEndTime() ? " and a.update_time<=\"" + DateUtil.formatDateTime(params.getEndTime()) + "\"" : "");
+        sb.append(null != params.getCreateTime() ? " and a.update_time>='" + DateUtil.startOf(params.getCreateTime()) + "'" : "");
+        sb.append(null != params.getEndTime() ? " and a.update_time<='" + DateUtil.endOf(params.getEndTime()) + "'" : "");
 
-        sb.append(null != params.getApplyCreateTime() ? " and b.create_time>=\"" + DateUtil.formatDateTime(params.getCreateTime()) + "\"" : "");
-        sb.append(null != params.getApplyEndTime() ? " and b.create_time<=\"" + DateUtil.formatDateTime(params.getEndTime()) + "\"" : "");
+        sb.append(null != params.getApplyCreateTime() ? " and b.create_time>='" + DateUtil.startOf(params.getCreateTime()) + "'" : "");
+        sb.append(null != params.getApplyEndTime() ? " and b.create_time<='" + DateUtil.endOf(params.getEndTime()) + "'" : "");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<ApplyApprovalGetListBean> list = crazyJoinMapper.applyApprovalGetList(sb.toString(), offset, rows);

@@ -2,14 +2,11 @@ package com.sup.cms.controller;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.sup.cms.bean.po.AfterLoanOverdueGetListBean;
 import com.sup.cms.bean.po.CustomerInfoBean;
-import com.sup.cms.bean.vo.AfterLoanOverdueGetListParams;
 import com.sup.cms.bean.vo.CustomerGetListParams;
 import com.sup.cms.mapper.CrazyJoinMapper;
-import com.sup.cms.util.DateUtil;
-import com.sup.cms.util.ResponseUtil;
-import org.apache.commons.lang.StringUtils;
+import com.sup.common.util.ResponseUtil;
+import com.sup.common.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,12 +32,12 @@ public class CustomerController {
     public String getCustomers(@RequestBody @Valid CustomerGetListParams params) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and uri.name like \"%" + params.getName() + "%\"" : "");
-        sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and cid.cid_no=\"" + params.getCidNo() + "\"" : "");
-        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and uri.mobile=\"" + params.getMobile() + "\"" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and uri.name like '%" + params.getName() + "%'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and cid.cid_no='" + params.getCidNo() + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and uri.mobile='" + params.getMobile() + "'" : "");
 
-        sb.append(params.getRegistStartDate() != null ? " and uri.create_time >= \"" + DateUtil.formatDateTime(params.getRegistStartDate()) + "\"" : "");
-        sb.append(params.getRegistEndDate() != null ? " and uri.create_time <= \"" + DateUtil.formatDateTime(params.getRegistEndDate()) + "\"" : "");
+        sb.append(params.getRegistStartDate() != null ? " and uri.create_time >= '" + DateUtil.startOf(params.getRegistStartDate()) + "'" : "");
+        sb.append(params.getRegistEndDate() != null ? " and uri.create_time <= '" + DateUtil.endOf(params.getRegistEndDate()) + "'" : "");
 
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();

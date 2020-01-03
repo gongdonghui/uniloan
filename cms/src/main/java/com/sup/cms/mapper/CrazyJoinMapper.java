@@ -310,7 +310,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_product_info e on a.product_id=e.id " +
             " left join tb_repay_plan f on a.id=f.apply_id " +
             " left join tb_app_version g on a.app_id=g.ID" +
-            " where b.info_type=0 and a.status in (12,13,15)" +
+            " where b.info_type=0 and f.is_overdue=1" +
             " ${conditions} " +
             " limit #{offset},#{rows}")
     List<AfterLoanOverdueGetListBean> afterLoanOverdueGetList(String conditions, Integer offset, Integer rows);
@@ -324,7 +324,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_product_info e on a.product_id=e.id " +
             " left join tb_repay_plan f on a.id=f.apply_id " +
             " left join tb_app_version g on a.app_id=g.ID" +
-            " where b.info_type=0 and a.status in (12,13,15)" +
+            " where b.info_type=0 and f.is_overdue=1" +
             " ${conditions}")
     Integer afterLoanOverdueGetListForPaging(@Param(value="conditions") String conditions);
 

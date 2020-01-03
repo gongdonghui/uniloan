@@ -7,13 +7,10 @@ import com.sup.cms.bean.po.LoanUnRepayInfoGetListBean;
 import com.sup.cms.bean.vo.LoanRepayInfoGetListParams;
 import com.sup.cms.bean.vo.LoanUnRepayInfoGetListParams;
 import com.sup.cms.mapper.CrazyJoinMapper;
-import com.sup.cms.util.ResponseUtil;
+import com.sup.common.util.ResponseUtil;
 import com.sup.common.loan.ApplyStatusEnum;
-import com.sup.common.param.ReductionParam;
 import com.sup.common.util.DateUtil;
-import com.sup.common.util.Result;
 import lombok.extern.log4j.Log4j;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

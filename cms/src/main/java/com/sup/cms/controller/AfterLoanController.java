@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.AfterLoanOverdueGetListBean;
 import com.sup.cms.bean.vo.AfterLoanOverdueGetListParams;
 import com.sup.cms.mapper.CrazyJoinMapper;
-import com.sup.cms.util.ResponseUtil;
+import com.sup.common.util.ResponseUtil;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

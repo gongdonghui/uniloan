@@ -5,7 +5,7 @@ import com.sup.cms.bean.po.AuthResourceBean;
 import com.sup.cms.bean.po.AuthRoleResourceBean;
 import com.sup.cms.bean.po.AuthUserRoleBean;
 import com.sup.cms.mapper.*;
-import com.sup.cms.util.ResponseUtil;
+import com.sup.common.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

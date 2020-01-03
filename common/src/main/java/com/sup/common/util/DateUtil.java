@@ -350,4 +350,24 @@ public class DateUtil {
         }
         return DEFAULT_FORMAT.format(d1).equals(DEFAULT_FORMAT.format(d2));
     }
+
+    /**
+     * yyyy-MM-dd 00:00:00
+     * @param date
+     * @return
+     */
+    public static String startOf(Date date) {
+        String dt = formatDate2String(date, DEFAULT_YEAR_MONTH_DAY_FORMAT);
+        return dt == null ? null : dt + " 00:00:00";
+    }
+
+    /**
+     * yyyy-MM-dd 23:59:59
+     * @param date
+     * @return
+     */
+    public static String endOf(Date date) {
+        String dt = formatDate2String(date, DEFAULT_YEAR_MONTH_DAY_FORMAT);
+        return dt == null ? null : dt + " 23:59:59";
+    }
 }

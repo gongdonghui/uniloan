@@ -6,8 +6,8 @@ import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.*;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.*;
-import com.sup.cms.util.GsonUtil;
-import com.sup.cms.util.ResponseUtil;
+import com.sup.common.util.ResponseUtil;
+import com.sup.common.util.GsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

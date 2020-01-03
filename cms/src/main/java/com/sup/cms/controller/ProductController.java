@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.ProductInfoBean;
 import com.sup.cms.bean.vo.ProductGetListParams;
 import com.sup.cms.mapper.ProductInfoMapper;
-import com.sup.cms.util.ResponseUtil;
+import com.sup.common.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
