@@ -80,6 +80,7 @@ public class SDKController {
         String infoId = infoBean.getInfo_id();
         QueryWrapper<TbAppSdkAppListInfoBean> contractWrapper = new QueryWrapper<>();
         contractWrapper.eq("info_id", infoId);
+        contractWrapper.orderByDesc("install_time");
         result = tb_app_sdk_app_list_info_mapper.selectList(contractWrapper);
         result.forEach(v -> v.setSignature(v.calcSignature()));
         return result;
