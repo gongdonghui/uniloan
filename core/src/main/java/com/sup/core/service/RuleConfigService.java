@@ -35,8 +35,9 @@ public class RuleConfigService {
     private ApplyInfoMapper applyInfoMapper;
 
     @Autowired
-    private RepayPlanMapper   repayPlanMapper;
+    private RepayPlanMapper repayPlanMapper;
 
+    //根据用户ID更新用户信用等级
     public void updateCreditLevelForUser(String user_id) {
 
 
@@ -45,7 +46,7 @@ public class RuleConfigService {
         int reloan_times = applyInfoBeanList != null ? applyInfoBeanList.size() : 0;
         this.updateCreditLevelForUser(user_id, reloan_times, creditLevelRuleBeans);
     }
-
+    //与定时任务共用部分
     public void updateCreditLevelForUser(String user_id, Integer reloan_times, List<CreditLevelRuleBean> creditLevelRuleBeans) {
 
         OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(user_id, this.repayPlanMapper);

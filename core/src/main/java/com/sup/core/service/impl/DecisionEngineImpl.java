@@ -78,6 +78,7 @@ public class DecisionEngineImpl implements DecesionEngine {
                 return !exists;
 
             } else if (variable_name.equals(RiskVariableConstants.BLACKLIST_INNER)) {
+                //内部上传黑名单
                 //String key = variable_name + mobile;
                 //boolean exist = redisClient.Exist(key);
                 //return exist && rule.getIs_in() == 1;   //is_in:1 表示在名单 （白名单），0  表示不能在名单（黑名单）
