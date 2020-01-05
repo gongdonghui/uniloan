@@ -650,6 +650,7 @@ public class ScheduleTasks {
                     , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode()
                     , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
                     , ApplyStatusEnum.APPLY_REPAY_PART.getCode()
+                    , ApplyStatusEnum.APPLY_REPAY_ALL.getCode()
                     , ApplyStatusEnum.APPLY_OVERDUE.getCode()
             );
             List<TbApplyInfoBean> infoBeans = this.applyInfoMapper.selectList(wrapper);
