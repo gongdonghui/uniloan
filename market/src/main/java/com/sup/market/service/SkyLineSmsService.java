@@ -2,6 +2,7 @@ package com.sup.market.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.sup.market.bean.SkySmsResponse;
 import com.sup.market.util.HttpClient;
 import com.sup.market.util.ToolUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +27,9 @@ public class   SkyLineSmsService {
 
   @Value("${sms.skyline.uri}")
   private String uri;
+
+  @Value("${sms.skyline.retry}")
+  private Integer retry_count;
 
   @Value("${sms.skyline.mock}")
   private Boolean mock;
@@ -94,16 +98,35 @@ public class   SkyLineSmsService {
     String url = sb.toString();
     logger.info("sms_to_send => " + url);
     String resp = HttpClient.httpGet(url, null);
-    JSONObject resp_obj = JSON.parseObject(resp);
+    SkySmsResponse resp_obj = JSON.parseObject(resp, SkySmsResponse.class);
     logger.info("resp => " + JSON.toJSONString(resp_obj));
-    return (resp_obj.getIntValue("status") == 0);
+    return resp_obj.getStatus().equals(0);
+  }
+
+  public boolean send_retry(List<String> mobiles, String content, String account, String password, String senderid) throws Exception {
+    int retry_most = (retry_count == null || retry_count == 0) ? 1: Math.max(1, retry_count);
+    int retry = 1;
+    boolean succ;
+    while (true) {
+      succ = send(mobiles, content, account, password, senderid);
+      logger.info(String.format("try (%d) of (%d), result: (%b)", retry, retry_most, succ));
+      if (succ) {
+        break;
+      }
+      retry++;
+      if (retry > retry_most) {
+        break;
+      }
+      Thread.sleep(5*1000l);
+    }
+    return succ;
   }
 
   public boolean SendSmsVip(List<String> mobiles, String content) throws Exception {
-    return send(mobiles, content, vip_account, vip_password, "Verify");
+    return send_retry(mobiles, content, vip_account, vip_password, "Verify");
   }
 
   public boolean SendSms(List<String> mobiles, String content) throws Exception {
-    return send(mobiles, content, account, password, "");
+    return send_retry(mobiles, content, account, password, "");
   }
 }
