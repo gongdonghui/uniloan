@@ -16,6 +16,7 @@ mybatis-plus:
 
 sms:
   skyline:
+    retry: 3
     mock: false
     pattern: '^\+?(0|84|084)?(\d+)$'
     area-code: 84
