@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * Created by xidongzhou1 on 2019/9/5.
@@ -61,9 +62,15 @@ public class UserController {
   @Value("${login.fake_verify_code}")
   boolean fake_verify_code;
 
+  private static Pattern pat = Pattern.compile("^\\d{6,15}$");
+
   @ResponseBody
   @RequestMapping(value = "issue_verify_code", produces = "application/json;charset=UTF-8")
   public Object IssueVerifyCode(@RequestParam(value="mobile") String mobile) throws Exception {
+    if (!pat.matcher(mobile).matches()) {
+      return ToolUtils.fail("error_mobile_number");
+    }
+
     // check pre_mobile !!
     String verify_key = String.format("verify_%s", mobile);
     if (rc.Exist(verify_key)) {
