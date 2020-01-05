@@ -1,10 +1,16 @@
-package com.sup.common.service;
+package com.sup.core.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.CreditLevelRuleBean;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbUserRegistInfoBean;
 import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.core.bean.OverdueInfoBean;
+import com.sup.core.mapper.ApplyInfoMapper;
+import com.sup.core.mapper.CreditLevelRulesMapper;
+import com.sup.core.mapper.RepayPlanMapper;
+import com.sup.core.mapper.UserRegisterInfoMapper;
+import com.sup.core.util.OverdueUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +33,9 @@ public class RuleConfigService {
     private CreditLevelRulesMapper creditLevelRulesMapper;
     @Autowired
     private ApplyInfoMapper applyInfoMapper;
+
+    @Autowired
+    private RepayPlanMapper   repayPlanMapper;
 
     public void updateCreditLevelForUser(String user_id) {
 

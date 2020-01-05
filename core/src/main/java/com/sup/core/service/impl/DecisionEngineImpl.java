@@ -77,10 +77,13 @@ public class DecisionEngineImpl implements DecesionEngine {
                 boolean exists = this.thirdPartyService.checkBlackListInXingtan(cid, "", mobile, applyId);
                 return !exists;
 
-            } else {
+            } else if (variable_name.equals(RiskVariableConstants.BLACKLIST_INNER)) {
                 //String key = variable_name + mobile;
                 //boolean exist = redisClient.Exist(key);
                 //return exist && rule.getIs_in() == 1;   //is_in:1 表示在名单 （白名单），0  表示不能在名单（黑名单）
+                boolean exists = this.thirdPartyService.checkInnerBlackList(cid, "", mobile, applyId);
+                return !exists;
+            } else {
                 return true;
             }
 

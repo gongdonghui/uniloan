@@ -19,10 +19,10 @@ import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.ApplyService;
 import com.sup.core.service.LoanService;
+import com.sup.core.service.RuleConfigService;
 import com.sup.core.service.impl.DecisionEngineImpl;
 import com.sup.core.status.DecisionEngineStatusEnum;
 import com.sup.core.util.MqMessenger;
-import com.sup.core.util.OverdueUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -95,6 +95,9 @@ public class ScheduleTasks {
 
     @Autowired
     private CollectionReportMapper collectionReportMapper;
+
+    @Autowired
+    private RuleConfigService ruleConfigService;
 
     @Scheduled(cron = "0 */5 * * * ?")
     public void checkApplyInfo() {
@@ -542,20 +545,7 @@ public class ScheduleTasks {
         for (String user_id : clear_user.keySet()) {
             int reloan_times = clear_user.get(user_id);
 
-            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(user_id, this.repayPlanMapper);
-            for (CreditLevelRuleBean creditLevelRuleBean : creditLevelRuleBeans) {
-                if (reloan_times >= creditLevelRuleBean.getReloan_times() && overdueInfoBean.getMax_days() <= creditLevelRuleBean.getMax_overdue_days()) {
-                    TbUserRegistInfoBean userRegistInfoBean = this.userRegisterInfoMapper.selectById(Integer.parseInt(user_id));
-                    if (userRegistInfoBean != null) {
-                        userRegistInfoBean.setCredit_level(creditLevelRuleBean.getLevel());
-                        this.userRegisterInfoMapper.updateById(userRegistInfoBean);
-                    } else {
-                        log.error("Failed to update Credit level user_id:" + user_id);
-                    }
-                    break;
-                }
-
-            }
+            this.ruleConfigService.updateCreditLevelForUser(user_id,  reloan_times,creditLevelRuleBeans);
 
         }
     }
