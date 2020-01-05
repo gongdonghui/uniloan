@@ -53,7 +53,7 @@ public class SDKController {
         List<TbAppSdkContractInfoBean> result = new ArrayList<>();
         QueryWrapper<TbApplyMaterialInfoBean> wrapper = new QueryWrapper();
         wrapper.eq("apply_id", apply_id);
-        wrapper.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_CONTACT_LIST);
+        wrapper.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_CONTACT_LIST.getCode());
 
         TbApplyMaterialInfoBean infoBean = tbApplyMaterialInfoMapper.selectOne(wrapper);
         if (infoBean == null) {
@@ -71,7 +71,7 @@ public class SDKController {
         List<TbAppSdkAppListInfoBean> result = new ArrayList<>();
         QueryWrapper<TbApplyMaterialInfoBean> wrapper = new QueryWrapper();
         wrapper.eq("apply_id", apply_id);
-        wrapper.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_APP_LIST);
+        wrapper.eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_SDK_APP_LIST.getCode());
 
         TbApplyMaterialInfoBean infoBean = tbApplyMaterialInfoMapper.selectOne(wrapper);
         if (infoBean == null) {
