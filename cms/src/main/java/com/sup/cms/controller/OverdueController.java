@@ -12,6 +12,7 @@ import com.sup.cms.mapper.OperationTaskMapper;
 import com.sup.common.bean.TbOperationTaskBean;
 import com.sup.common.loan.OperationTaskStatusEnum;
 import com.sup.common.loan.OperationTaskTypeEnum;
+import com.sup.common.util.DateUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.ResponseUtil;
 import lombok.extern.log4j.Log4j;
@@ -51,7 +52,27 @@ public class OverdueController {
     @PostMapping("/pool/getList")
     public String getPool(@RequestBody @Valid OverdueGetListParams params) {
         StringBuilder sb = new StringBuilder();
-        // TODO construct sql
+        if (params.getApplyId() != null) {
+            sb.append(" and ai.id=" + params.getApplyId());
+        }
+        if (params.getStartDate() != null) {
+            sb.append(" and rp.repay_end_date>='" + DateUtil.startOf(params.getStartDate()) + "'");
+        }
+        if (params.getEndDate() != null) {
+            sb.append(" and rp.repay_end_date<='" + DateUtil.endOf(params.getEndDate()) + "'");
+        }
+        if (params.getProductId() != null) {
+            sb.append(" and pi.id=" + params.getProductId());
+        }
+        if (!Strings.isNullOrEmpty(params.getName())) {
+            sb.append(" and b.name='" + params.getName() + "'");
+        }
+        if (!Strings.isNullOrEmpty(params.getMobile())) {
+            sb.append(" and uri.mobile='" + params.getMobile() + "'");
+        }
+        if (!Strings.isNullOrEmpty(params.getCidNo())) {
+            sb.append(" and b.cid_no='" + params.getCidNo() + "'");
+        }
 
         log.info("getPool conditions=" + sb.toString());
         Integer offset = (params.getPage() - 1) * params.getPageSize();
