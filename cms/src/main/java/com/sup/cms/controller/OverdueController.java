@@ -90,8 +90,18 @@ public class OverdueController {
     @PostMapping("/task/getList")
     public String getTaskList(@RequestBody @Valid OverdueGetListParams params) {
         // TODO
-
-        return ResponseUtil.success();
+        StringBuilder sb = new StringBuilder();
+        if (params.getOperatorId() != null) {
+            sb.append(" and operator_id=" + params.getOperatorId());
+        }
+        log.info("getTaskList conditions=" + sb.toString());
+        Integer offset = (params.getPage() - 1) * params.getPageSize();
+        Integer rows = params.getPageSize();
+        List<OverdueGetListBean> l = crazyJoinMapper.getTaskList(sb.toString(), offset, rows);
+        Map m = Maps.newHashMap();
+        m.put("total",crazyJoinMapper.getTaskListCount(sb.toString()));
+        m.put("list",l);
+        return ResponseUtil.success(m);
     }
 
     /**
