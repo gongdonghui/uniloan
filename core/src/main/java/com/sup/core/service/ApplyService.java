@@ -199,8 +199,17 @@ public class ApplyService {
     }
 
     public void addOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {
+        QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("apply_id", applyId);
+        wrapper.eq("task_type", taskType.getCode());
+        wrapper.eq("has_owner", 0);
+        wrapper.last("limit 1");
+        TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
+        if (taskBean != null) {  // already exists
+            return;
+        }
         Date now = new Date();
-        TbOperationTaskBean taskBean = new TbOperationTaskBean();
+        taskBean = new TbOperationTaskBean();
         taskBean.setApply_id(applyId);
         taskBean.setTask_type(taskType.getCode());
         taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());

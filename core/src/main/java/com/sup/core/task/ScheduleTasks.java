@@ -573,7 +573,7 @@ public class ScheduleTasks {
             Integer applyId = tbApplyInfoBean.getId();
 
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
-                if (days >= assetsLevelRuleBean.getBetween_paydays() && assetLevel != assetsLevelRuleBean.getLevel()) {
+                if (days >= assetsLevelRuleBean.getBetween_paydays() && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
                     tbApplyInfoBean.setUpdate_time(date);
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
