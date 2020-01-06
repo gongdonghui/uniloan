@@ -135,10 +135,13 @@ public class OverdueController {
                 if (needUpdate) {
                     if (operationTaskMapper.updateById(taskBean) <= 0) {
                         log.error("Failed to update task: " + GsonUtil.toJson(taskBean));
+                        return ResponseUtil.failed();
                     }
+
                 } else {
                     if (operationTaskMapper.insert(taskBean) <= 0) {
                         log.error("Failed to add new task: " + GsonUtil.toJson(taskBean));
+                        return ResponseUtil.failed();
                     }
                 }
             }
@@ -155,7 +158,7 @@ public class OverdueController {
      * 催收任务回收
      */
     @PostMapping("/task/recycle")
-    public String recycleTask(@RequestBody @Valid OverdueTaskRecycleParams params) {
+    public String recycleTask(@RequestBody @Valid OverdueTaskAllocateParams params) {
         log.info("recycle overdue task, param=" + GsonUtil.toJson(params));
         QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
         wrapper.eq("task_type", OperationTaskTypeEnum.TASK_OVERDUE.getCode());
