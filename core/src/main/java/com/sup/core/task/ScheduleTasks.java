@@ -529,24 +529,18 @@ public class ScheduleTasks {
         List<CreditLevelRuleBean> creditLevelRuleBeans = this.creditLevelRulesMapper.selectList(new QueryWrapper<CreditLevelRuleBean>().orderByDesc("level"));
 
         List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_REPAY_ALL));  //结清状态的申请单
-        Map<String, Integer> clear_user = new HashMap<String, Integer>();
+        Map<Integer, Integer> clear_user = new HashMap<>();
         for (TbApplyInfoBean tbApplyMaterialInfoBean : applyInfoBeanList) {
-
-
-            String user_id = Integer.toString(tbApplyMaterialInfoBean.getUser_id());
+            Integer user_id = tbApplyMaterialInfoBean.getUser_id();
             if (clear_user.containsKey(user_id)) {
                 clear_user.put(user_id, clear_user.get(user_id) + 1);
             } else {
                 clear_user.put(user_id, 1);
             }
-
-
         }
-        for (String user_id : clear_user.keySet()) {
+        for (Integer user_id : clear_user.keySet()) {
             int reloan_times = clear_user.get(user_id);
-
             this.ruleConfigService.updateCreditLevelForUser(user_id,  reloan_times,creditLevelRuleBeans);
-
         }
     }
 

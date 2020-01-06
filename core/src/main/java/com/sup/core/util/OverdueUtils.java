@@ -17,10 +17,10 @@ import java.util.List;
 public class OverdueUtils {
 
 
-    public static OverdueInfoBean getMaxOverdueDays(String userId, RepayPlanMapper   repayPlanMapper) {
+    public static OverdueInfoBean getMaxOverdueDays(Integer userId, RepayPlanMapper   repayPlanMapper) {
 
 
-        List<TbRepayPlanBean> plans = repayPlanMapper.selectList(new QueryWrapper<TbRepayPlanBean>().eq("user_id", Integer.parseInt(userId)).orderByAsc("repay_start_date"));
+        List<TbRepayPlanBean> plans = repayPlanMapper.selectList(new QueryWrapper<TbRepayPlanBean>().eq("user_id", userId).orderByAsc("repay_start_date"));
         if (plans.isEmpty()) {
             return null;
         }

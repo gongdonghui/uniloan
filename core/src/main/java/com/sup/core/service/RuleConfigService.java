@@ -38,21 +38,22 @@ public class RuleConfigService {
     private RepayPlanMapper repayPlanMapper;
 
     //根据用户ID更新用户信用等级
-    public void updateCreditLevelForUser(String user_id) {
+    public void updateCreditLevelForUser(Integer user_id) {
 
 
         List<CreditLevelRuleBean> creditLevelRuleBeans = this.creditLevelRulesMapper.selectList(new QueryWrapper<CreditLevelRuleBean>().orderByDesc("level"));
-        List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_REPAY_ALL).eq("user_id", Integer.parseInt(user_id)));  //结清状态的申请单
+        List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_REPAY_ALL).eq("user_id", user_id));  //结清状态的申请单
         int reloan_times = applyInfoBeanList != null ? applyInfoBeanList.size() : 0;
         this.updateCreditLevelForUser(user_id, reloan_times, creditLevelRuleBeans);
     }
+
     //与定时任务共用部分
-    public void updateCreditLevelForUser(String user_id, Integer reloan_times, List<CreditLevelRuleBean> creditLevelRuleBeans) {
+    public void updateCreditLevelForUser(Integer user_id, Integer reloan_times, List<CreditLevelRuleBean> creditLevelRuleBeans) {
 
         OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(user_id, this.repayPlanMapper);
         for (CreditLevelRuleBean creditLevelRuleBean : creditLevelRuleBeans) {
             if (reloan_times >= creditLevelRuleBean.getReloan_times() && overdueInfoBean.getMax_days() <= creditLevelRuleBean.getMax_overdue_days()) {
-                TbUserRegistInfoBean userRegistInfoBean = this.userRegisterInfoMapper.selectById(Integer.parseInt(user_id));
+                TbUserRegistInfoBean userRegistInfoBean = this.userRegisterInfoMapper.selectById(user_id);
                 if (userRegistInfoBean != null) {
                     userRegistInfoBean.setCredit_level(creditLevelRuleBean.getLevel());
                     this.userRegisterInfoMapper.updateById(userRegistInfoBean);

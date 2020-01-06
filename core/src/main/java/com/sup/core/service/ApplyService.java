@@ -61,6 +61,9 @@ public class ApplyService {
     @Autowired
     private MqMessenger mqMessenger;
 
+    @Autowired
+    private RuleConfigService ruleConfigService;
+
 
     public boolean addApplyInfo(TbApplyInfoBean bean) {
         log.info("addApplyInfo: userId=" + bean.getUser_id()
@@ -169,6 +172,8 @@ public class ApplyService {
                     taskBean.setUpdate_time(now);
                     operationTaskMapper.updateById(taskBean);
                 }
+                log.info("APPLY_REPAY_ALL, update credit level for user=" + bean.getUser_id());
+                ruleConfigService.updateCreditLevelForUser(bean.getUser_id());
                 break;
             case APPLY_WRITE_OFF:   // 还款计划也更新为核销
                 // 回收逾期任务
