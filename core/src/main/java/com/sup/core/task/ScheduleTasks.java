@@ -443,8 +443,7 @@ public class ScheduleTasks {
                 } else {
                     statBean = statRepayPlan(statBean, repayPlanMap.get(applyId));
                     statBean.setUpdate_time(now);
-                    if (repayStatMapper.update(statBean,
-                            new QueryWrapper<TbRepayStatBean>().eq("apply_id", applyId)) <= 0) {
+                    if (repayStatMapper.updateById(statBean) <= 0) {
                         log.error("Failed to update! bean = " + GsonUtil.toJson(statBean));
                     }
                 }

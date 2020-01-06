@@ -1,6 +1,7 @@
 package com.sup.common.bean;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.sup.common.loan.RepayPlanOverdueEnum;
 import lombok.Data;
 
 import java.util.Date;
@@ -34,6 +35,7 @@ public class TbRepayStatBean {
     private Long reduction_fee = 0L;
     private Long need_total = 0L;
     private Long act_total = 0L;
+    private Long normal_repay = 0L;     // 正常还款总额，逾期后还款不计入内
     private Integer current_seq;
     private Integer normal_repay_times;
     private Integer overdue_repay_times;
@@ -63,6 +65,10 @@ public class TbRepayStatBean {
 
             need_total += bean.getNeed_total();
             act_total  += bean.getAct_total();
+            if (bean.getIs_overdue() != RepayPlanOverdueEnum.PLAN_NOT_OVER_DUE.getCode()) {
+                // TODO bug??
+                normal_repay += bean.getAct_total();
+            }
         }
     }
 }
