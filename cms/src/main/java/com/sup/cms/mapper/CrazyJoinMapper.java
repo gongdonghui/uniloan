@@ -423,25 +423,25 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,cau.name as operatorName" +
             "  ,case when ot.operator_id is null then 1 else 0 end as label" +
             "from (select * from tb_apply_info where status in (12, 13, 15)) ai" +
-            "left join (" +
+            " left join (" +
             "  select apply_id, name, gender, cid_no from (" +
             "    select * from tb_apply_material_info where info_type=0" +
             "  ) ami left join tb_user_citizen_identity_card_info ucid on ami.info_id=ucid.info_id" +
             ") b on ai.id=b.apply_id" +
-            "left join (" +
+            " left join (" +
             "  select apply_id, age from (" +
             "    select * from tb_apply_material_info where info_type=1" +
             "  ) ami left join tb_user_basic_info ubi on ami.info_id=ubi.info_id" +
             ") c on ai.id=c.apply_id" +
-            "left join tb_user_regist_info uri on ai.user_id=uri.id" +
-            "left join tb_app_version av on ai.app_id=av.id" +
-            "left join tb_product_info pi on ai.product_id=pi.id" +
-            "left join tb_repay_stat rs on ai.id=rs.apply_id" +
-            "left join tb_repay_plan rp on ai.id=rp.apply_id" +
-            "left join (" +
+            " left join tb_user_regist_info uri on ai.user_id=uri.id" +
+            " left join tb_app_version av on ai.app_id=av.id" +
+            " left join tb_product_info pi on ai.product_id=pi.id" +
+            " left join tb_repay_stat rs on ai.id=rs.apply_id" +
+            " left join tb_repay_plan rp on ai.id=rp.apply_id" +
+            " left join (" +
             "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3" +
             ") ot on ai.id=ot.apply_id" +
-            "left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
+            " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
             " where uri.type = 0" +
             " ${conditions}" +
             " order by label, ai.id desc" +
@@ -450,25 +450,25 @@ public interface CrazyJoinMapper extends BaseMapper {
 
     @Select("select count(ai.id)" +
             "from (select * from tb_apply_info where status in (12, 13, 15)) ai" +
-            "left join (" +
+            " left join (" +
             "  select apply_id, name, gender, cid_no from (" +
             "    select * from tb_apply_material_info where info_type=0" +
             "  ) ami left join tb_user_citizen_identity_card_info ucid on ami.info_id=ucid.info_id" +
             ") b on ai.id=b.apply_id" +
-            "left join (" +
+            " left join (" +
             "  select apply_id, age from (" +
             "    select * from tb_apply_material_info where info_type=1" +
             "  ) ami left join tb_user_basic_info ubi on ami.info_id=ubi.info_id" +
             ") c on ai.id=c.apply_id" +
-            "left join tb_user_regist_info uri on ai.user_id=uri.id" +
-            "left join tb_app_version av on ai.app_id=av.id" +
-            "left join tb_product_info pi on ai.product_id=pi.id" +
-            "left join tb_repay_stat rs on ai.id=rs.apply_id" +
-            "left join tb_repay_plan rp on ai.id=rp.apply_id" +
-            "left join (" +
+            " left join tb_user_regist_info uri on ai.user_id=uri.id" +
+            " left join tb_app_version av on ai.app_id=av.id" +
+            " left join tb_product_info pi on ai.product_id=pi.id" +
+            " left join tb_repay_stat rs on ai.id=rs.apply_id" +
+            " left join tb_repay_plan rp on ai.id=rp.apply_id" +
+            " left join (" +
             "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3" +
             ") ot on ai.id=ot.apply_id" +
-            "left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
+            " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
             " where uri.type = 0" +
             " ${conditions}")
     Integer getPoolListCount(String conditions);
