@@ -528,7 +528,7 @@ public class ScheduleTasks {
         //TODO   improve by use  new  cleard user;
         List<CreditLevelRuleBean> creditLevelRuleBeans = this.creditLevelRulesMapper.selectList(new QueryWrapper<CreditLevelRuleBean>().orderByDesc("level"));
 
-        List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_REPAY_ALL));  //结清状态的申请单
+        List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_REPAY_ALL.getCode()));  //结清状态的申请单
         Map<Integer, Integer> clear_user = new HashMap<>();
         for (TbApplyInfoBean tbApplyMaterialInfoBean : applyInfoBeanList) {
             Integer user_id = tbApplyMaterialInfoBean.getUser_id();
