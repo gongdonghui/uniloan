@@ -471,7 +471,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
             " where uri.type = 0" +
             " ${conditions}")
-    Integer getPoolListCount(String conditions);
+    Integer getPoolListCount(@Param(value = "conditions") String conditions);
 
     @Select("select" +
             "  ai.id as applyId" +
@@ -544,5 +544,5 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_repay_plan rp on ai.id=rp.apply_id" +
             " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
             " order by ai.id desc")
-    Integer getTaskListCount(String conditions);
+    Integer getTaskListCount(@Param(value = "conditions") String conditions);
 }
