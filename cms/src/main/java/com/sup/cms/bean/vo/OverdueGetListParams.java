@@ -18,7 +18,7 @@ public class OverdueGetListParams {
     private String  name;       // 姓名
     private String  mobile;     // 手机号
     private String  cidNo;      // 身份证
-    private String  operatorId; // 催收员id
+    private Integer operatorId; // 催收员id
 
 
     /**

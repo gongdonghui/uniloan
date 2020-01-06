@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author: kouichi
@@ -11,24 +12,7 @@ import java.util.Date;
  */
 @Data
 public class OverdueTaskRecycleParams {
-
-    private Integer applyId;    // 订单id
-    private Date    startDate;  // 到期时间
-    private Date    endDate;    // 到期时间
-    private String  name;       // 姓名
-    private String  mobile;     // 手机号
-    private String  cidNo;      // 身份证
-    private String  operatorId; // 催收员id
-
-
-    /**
-     * 逾期天数
-     */
-    private Integer overdueDays;
-    private Integer productId;
-
-    @Min(0)
-    private Integer page;
-    @Min(0)
-    private Integer pageSize;
+    private Integer         distributor_id; // 分配人id
+    private Integer         operatorId;     // 催收员id
+    private List<Integer>   applyIdList;    // apply ids
 }
