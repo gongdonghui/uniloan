@@ -111,20 +111,30 @@ public class UserController {
       return ToolUtils.fail(1, "duplicate_submit");
     }
 
+    Integer login_channel = null;
+    if (StringUtils.isNotEmpty(req.getHeader("channel-id"))) {
+      login_channel = Integer.parseInt(req.getHeader("channel-id"));
+    }
+
     TbUserRegistInfoBean regist_info = tb_user_regist_info_mapper.selectOne(new QueryWrapper<TbUserRegistInfoBean>().eq("mobile", mobile).last("limit 1"));
     if (regist_info == null) {
       regist_info = new TbUserRegistInfoBean();
       regist_info.setMobile(mobile);
-      if (StringUtils.isNotEmpty(req.getHeader("channel-id"))) {
-        regist_info.setChannel_id(Integer.parseInt(req.getHeader("channel-id")));
-      }
+      regist_info.setChannel_id(login_channel);
       regist_info.setCreate_time(new Date());
       tb_user_regist_info_mapper.insert(regist_info);
       logger.info(String.format("---new_user: %s ---", JSON.toJSONString(regist_info)));
+    } else {
+      if (regist_info.getChannel_id() == null && login_channel != null) {
+        regist_info.setChannel_id(login_channel);
+        logger.info(String.format("complete_regist_channel: " + JSON.toJSONString(regist_info)));
+        tb_user_regist_info_mapper.updateById(regist_info);
+      }
     }
 
     String token = ToolUtils.getToken();
     LoginInfoCtx li = new LoginInfoCtx(regist_info.getId(), ToolUtils.NormTime(new Date()), regist_info.getMobile());
+    logger.info("user_login: " + JSON.toJSONString(li));
     rc.Set(token, li.toString(), 30l, TimeUnit.DAYS);
     rc.Delete(login_flag);
     return ToolUtils.succ(token, "login_succ");
