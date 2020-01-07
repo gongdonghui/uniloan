@@ -14,7 +14,7 @@ public enum OperationTaskTypeEnum {
     TASK_FIRST_AUDIT(0, "初审任务"),
     TASK_SECOND_AUDIT(1, "复审任务"),
     TASK_FINAL_AUDIT(2, "终审任务"),
-    TASK_OVERDUE(3, "逾期任务");
+    TASK_OVERDUE(3, "催收任务");    // 包含预催收、逾期催收
 
     private int code;
     private String codeDesc;
