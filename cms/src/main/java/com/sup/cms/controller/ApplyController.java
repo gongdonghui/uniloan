@@ -87,7 +87,7 @@ public class ApplyController {
             sb.append(" and a.has_owner=0");
         } else {
             // 当前操作人的待审核列表
-            sb.append(" and a.has_owner=1 and a.operator_id=" + params.getOperatorId());
+            sb.append(" and a.has_owner=1");
         }
         //单子状态 是初审还是终审呢
         int task_type = params.getType2() == 0 ? OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode() : OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode();
