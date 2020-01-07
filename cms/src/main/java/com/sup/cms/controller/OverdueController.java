@@ -177,6 +177,7 @@ public class OverdueController {
         newTaskBean.setDistributor_id(params.getDistributor_id());
         newTaskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_CANCEL.getCode());
         newTaskBean.setHas_owner(0);
+        newTaskBean.setUpdate_time(new Date());
 
         log.info("[SQL] recycle overdue task:" + wrapper.getSqlSegment());
         if (operationTaskMapper.update(newTaskBean, wrapper) <= 0) {
