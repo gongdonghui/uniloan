@@ -73,6 +73,9 @@ public class OverdueController {
         if (!Strings.isNullOrEmpty(params.getCidNo())) {
             sb.append(" and b.cid_no='" + params.getCidNo() + "'");
         }
+        if (params.getOperatorId() != null) {
+            sb.append(" and ot.operator_id=" + params.getOperatorId());
+        }
 
         log.info("getPool conditions=" + sb.toString());
         Integer offset = (params.getPage() - 1) * params.getPageSize();
