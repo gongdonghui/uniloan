@@ -156,8 +156,8 @@ public class OverdueController {
                 taskBean.setHas_owner(1);
                 taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
                 taskBean.setTask_type(OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+                taskBean.setUpdate_time(now);
                 if (needUpdate) {
-                    taskBean.setUpdate_time(now);
                     if (operationTaskMapper.updateById(taskBean) <= 0) {
                         log.error("Failed to update task: " + GsonUtil.toJson(taskBean));
                         return ResponseUtil.failed();
