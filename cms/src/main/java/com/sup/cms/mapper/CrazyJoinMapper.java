@@ -495,7 +495,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,ot.operator_id as operatorId" +
             "  ,cau.name as operatorName" +
             " from (" +
-            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3" +
+            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=1 " +
             "  ${conditions}" +
             ") ot left join (" +
             "  select * from tb_apply_info where status in (12, 13, 15)" +
