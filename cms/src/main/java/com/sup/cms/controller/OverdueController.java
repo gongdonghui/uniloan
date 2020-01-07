@@ -173,6 +173,7 @@ public class OverdueController {
             wrapper.in("apply_id", params.getApplyIdList());
         }
         TbOperationTaskBean newTaskBean = new TbOperationTaskBean();
+        newTaskBean.setOperator_id(null);
         newTaskBean.setDistributor_id(params.getDistributor_id());
         newTaskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_CANCEL.getCode());
         newTaskBean.setHas_owner(0);
