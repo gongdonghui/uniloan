@@ -55,6 +55,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             ",a.update_time as updateTime" +
             ",b.name as productName" +
             ",d.name as name" +
+            ",d.cid_no as cidNo" +
             ",e.APP_NAME as appName" +
             ",f.mobile as mobile" +
             " from tb_apply_info a" +
@@ -122,6 +123,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " b.user_id as userId," +
             " a.create_time as lastAllocateDate," +
             " e.name," +
+            " e.cid_no as cidNo," +
             " g.mobile as mobile," +
             " a.comment as status," +
             " c.name as productName," +
@@ -174,6 +176,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " b.period as period," +
             " 1 as currentTerm, 1 as totalTerms," +
             " e.name," +
+            " e.cid_no as cidNo," +
             " f.repay_end_date as shouldRepayDate," +
             " h.overdue_days_max as overdueDays," +
             " f.need_total as shouldRepayAmount," +
@@ -397,4 +400,149 @@ public interface CrazyJoinMapper extends BaseMapper {
             " ${conditions} ")
     Integer getCustomersCount(@Param(value = "conditions") String conditions);
 
+    @Select("select" +
+            "  ai.id as applyId" +
+            "  ,rp.repay_end_date as shouldRepayDate" +
+            "  ,b.name as name" +
+            "  ,b.gender as gender" +
+            "  ,c.age as age" +
+            "  ,uri.mobile as mobile" +
+            "  ,b.cid_no as cidNo" +
+            "  ,av.app_name as appName" +
+            "  ,pi.name as productName" +
+            "  ,(rs.need_total-rs.act_total) as remainAmount" +
+            "  ,(rs.act_total-rs.normal_repay) as callBackAmount" +
+            "  ,ai.grant_quota as loanAmount" +
+            "  ,rs.need_total as shouldRepayAmount" +
+            "  ,(rs.need_total-rs.normal_repay) as overdueAmount" +
+            "  ,rs.need_penalty_interest as penaltyInterest" +
+            "  ,rs.overdue_days as overdueDays" +
+            "  ,ot.status as taskStatus" +
+            "  ,ai.loan_time as loanDate" +
+            "  ,ot.operator_id as operatorId" +
+            "  ,cau.name as operatorName" +
+            "  ,case when ot.operator_id is null then 1 else 0 end as label" +
+            " from (select * from tb_apply_info where status in (12, 13, 15)) ai" +
+            " left join (" +
+            "  select apply_id, name, gender, cid_no from (" +
+            "    select * from tb_apply_material_info where info_type=0" +
+            "  ) ami left join tb_user_citizen_identity_card_info ucid on ami.info_id=ucid.info_id" +
+            ") b on ai.id=b.apply_id" +
+            " left join (" +
+            "  select apply_id, age from (" +
+            "    select * from tb_apply_material_info where info_type=1" +
+            "  ) ami left join tb_user_basic_info ubi on ami.info_id=ubi.info_id" +
+            ") c on ai.id=c.apply_id" +
+            " left join tb_user_regist_info uri on ai.user_id=uri.id" +
+            " left join tb_app_version av on ai.app_id=av.id" +
+            " left join tb_product_info pi on ai.product_id=pi.id" +
+            " left join tb_repay_stat rs on ai.id=rs.apply_id" +
+            " left join tb_repay_plan rp on ai.id=rp.apply_id" +
+            " left join (" +
+            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3" +
+            ") ot on ai.id=ot.apply_id" +
+            " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
+            " where uri.type = 0" +
+            " ${conditions}" +
+            " order by label, ai.id desc" +
+            " limit #{offset},#{rows}")
+    List<OverdueGetListBean> getPoolList(String conditions, Integer offset, Integer rows);
+
+    @Select("select count(ai.id)" +
+            "from (select * from tb_apply_info where status in (12, 13, 15)) ai" +
+            " left join (" +
+            "  select apply_id, name, gender, cid_no from (" +
+            "    select * from tb_apply_material_info where info_type=0" +
+            "  ) ami left join tb_user_citizen_identity_card_info ucid on ami.info_id=ucid.info_id" +
+            ") b on ai.id=b.apply_id" +
+            " left join (" +
+            "  select apply_id, age from (" +
+            "    select * from tb_apply_material_info where info_type=1" +
+            "  ) ami left join tb_user_basic_info ubi on ami.info_id=ubi.info_id" +
+            ") c on ai.id=c.apply_id" +
+            " left join tb_user_regist_info uri on ai.user_id=uri.id" +
+            " left join tb_app_version av on ai.app_id=av.id" +
+            " left join tb_product_info pi on ai.product_id=pi.id" +
+            " left join tb_repay_stat rs on ai.id=rs.apply_id" +
+            " left join tb_repay_plan rp on ai.id=rp.apply_id" +
+            " left join (" +
+            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3" +
+            ") ot on ai.id=ot.apply_id" +
+            " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
+            " where uri.type = 0" +
+            " ${conditions}")
+    Integer getPoolListCount(@Param(value = "conditions") String conditions);
+
+    @Select("select" +
+            "  ai.id as applyId" +
+            "  ,rp.repay_end_date as shouldRepayDate" +
+            "  ,b.name as name" +
+            "  ,b.gender as gender" +
+            "  ,c.age as age" +
+            "  ,uri.mobile as mobile" +
+            "  ,b.cid_no as cidNo" +
+            "  ,av.app_name as appName" +
+            "  ,pi.name as productName" +
+            "  ,(rs.need_total-rs.act_total) as remainAmount" +
+            "  ,(rs.act_total-rs.normal_repay) as callBackAmount" +
+            "  ,ai.grant_quota as loanAmount" +
+            "  ,rs.need_total as shouldRepayAmount" +
+            "  ,(rs.need_total-rs.normal_repay) as overdueAmount" +
+            "  ,rs.need_penalty_interest as penaltyInterest" +
+            "  ,rs.overdue_days as overdueDays" +
+            "  ,ot.status as taskStatus" +
+            "  ,ai.loan_time as loanDate" +
+            "  ,ot.operator_id as operatorId" +
+            "  ,cau.name as operatorName" +
+            " from (" +
+            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=1 " +
+            "  ${conditions}" +
+            ") ot left join (" +
+            "  select * from tb_apply_info where status in (12, 13, 15)" +
+            ") ai on ot.apply_id=ai.id" +
+            " left join (" +
+            "  select apply_id, name, gender, cid_no from (" +
+            "    select * from tb_apply_material_info where info_type=0" +
+            "  ) ami left join tb_user_citizen_identity_card_info ucid on ami.info_id=ucid.info_id" +
+            ") b on ai.id=b.apply_id" +
+            " left join (" +
+            "  select apply_id, age from (" +
+            "    select * from tb_apply_material_info where info_type=1" +
+            "  ) ami left join tb_user_basic_info ubi on ami.info_id=ubi.info_id" +
+            ") c on ai.id=c.apply_id" +
+            " left join tb_user_regist_info uri on ai.user_id=uri.id" +
+            " left join tb_app_version av on ai.app_id=av.id" +
+            " left join tb_product_info pi on ai.product_id=pi.id" +
+            " left join tb_repay_stat rs on ai.id=rs.apply_id" +
+            " left join tb_repay_plan rp on ai.id=rp.apply_id" +
+            " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
+            " order by ai.id desc" +
+            " limit #{offset},#{rows}")
+    List<OverdueGetListBean> getTaskList(String conditions, Integer offset, Integer rows);
+
+    @Select("select count(ai.id)" +
+            " from (" +
+            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3" +
+            "  ${conditions}" +
+            ") ot left join (" +
+            "  select * from tb_apply_info where status in (12, 13, 15)" +
+            ") ai on ot.apply_id=ai.id" +
+            " left join (" +
+            "  select apply_id, name, gender, cid_no from (" +
+            "    select * from tb_apply_material_info where info_type=0" +
+            "  ) ami left join tb_user_citizen_identity_card_info ucid on ami.info_id=ucid.info_id" +
+            ") b on ai.id=b.apply_id" +
+            " left join (" +
+            "  select apply_id, age from (" +
+            "    select * from tb_apply_material_info where info_type=1" +
+            "  ) ami left join tb_user_basic_info ubi on ami.info_id=ubi.info_id" +
+            ") c on ai.id=c.apply_id" +
+            " left join tb_user_regist_info uri on ai.user_id=uri.id" +
+            " left join tb_app_version av on ai.app_id=av.id" +
+            " left join tb_product_info pi on ai.product_id=pi.id" +
+            " left join tb_repay_stat rs on ai.id=rs.apply_id" +
+            " left join tb_repay_plan rp on ai.id=rp.apply_id" +
+            " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
+            " order by ai.id desc")
+    Integer getTaskListCount(@Param(value = "conditions") String conditions);
 }

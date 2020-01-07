@@ -492,17 +492,19 @@ public class LoanService {
         repayHistoryBean.setRepay_amount(repayAmount);
         repayHistoryBean.setRepay_time(repayTime);
         repayHistoryBean.setUpdate_time(new Date());
-        if (repayHistoryMapper.updateById(repayHistoryBean) <= 0) {
-            log.error("Failed to update bean: " + GsonUtil.toJson(repayHistoryBean));
-        }
 
         // 更新还款计划
         // TODO: 根据plan_id查找当期还款计划
         TbRepayPlanBean repayPlanBean = repayPlanMapper.getByApplyId(repayHistoryBean.getApply_id());
         // TbRepayPlanBean repayPlanBean = repayPlanMapper.selectById(repayHistoryBean.getRepay_plan_id());
         if (repayPlanBean == null) {
+            repayHistoryMapper.updateById(repayHistoryBean);
             log.error("Invalid apply id! bean = " + GsonUtil.toJson(repayHistoryBean));
             return Result.fail("Invalid apply id!");
+        }
+        repayHistoryBean.setRepay_plan_id(repayPlanBean.getId());
+        if (repayHistoryMapper.updateById(repayHistoryBean) <= 0) {
+            log.error("Failed to update bean: " + GsonUtil.toJson(repayHistoryBean));
         }
 
         repayPlanBean.updateActFields(repayAmount);

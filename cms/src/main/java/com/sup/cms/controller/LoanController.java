@@ -43,16 +43,16 @@ public class LoanController {
             sb.append(" and g.status=0");
         }
         if (params.getShouldRepayDateStart() != null) {
-            sb.append(" and f.repay_end_date>='" + DateUtil.formatDate(params.getShouldRepayDateStart()) + "'");
+            sb.append(" and f.repay_end_date>='" + DateUtil.startOf(params.getShouldRepayDateStart()) + "'");
         }
         if (params.getShouldRepayDateEnd() != null) {
-            sb.append(" and f.repay_start_date<='" + DateUtil.formatDate(params.getShouldRepayDateEnd()) + " 23:59:59'");
+            sb.append(" and f.repay_end_date<='" + DateUtil.endOf(params.getShouldRepayDateEnd()) + "'");
         }
         if (params.getActualRepayDateStart() != null) {
-            sb.append(" and f.repay_time>='" + DateUtil.formatDate(params.getActualRepayDateStart()) + "'");
+            sb.append(" and f.repay_time>='" + DateUtil.startOf(params.getActualRepayDateStart()) + "'");
         }
         if (params.getActualRepayDateEnd() != null) {
-            sb.append(" and f.repay_time<='" + DateUtil.formatDate(params.getActualRepayDateEnd()) + " 23:59:59'");
+            sb.append(" and f.repay_time<='" + DateUtil.endOf(params.getActualRepayDateEnd()) + "'");
         }
 
         if (params.getProductId() != null) {
@@ -93,10 +93,10 @@ public class LoanController {
     public String unRepayInfoGetList(@RequestBody @Valid LoanUnRepayInfoGetListParams params) {
         StringBuilder sb = new StringBuilder();
         if (params.getShouldRepayDateStart() != null) {
-            sb.append(" and f.repay_end_date>='" + DateUtil.formatDate(params.getShouldRepayDateStart()) + "'");
+            sb.append(" and f.repay_end_date>='" + DateUtil.startOf(params.getShouldRepayDateStart()) + "'");
         }
         if (params.getShouldRepayDateEnd() != null) {
-            sb.append(" and f.repay_start_date<='" + DateUtil.formatDate(params.getShouldRepayDateEnd()) + " 23:59:59'");
+            sb.append(" and f.repay_end_date<='" + DateUtil.endOf(params.getShouldRepayDateEnd()) + "'");
         }
 
         if (params.getProductId() != null) {

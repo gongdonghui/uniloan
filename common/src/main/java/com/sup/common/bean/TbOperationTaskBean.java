@@ -1,8 +1,6 @@
 package com.sup.common.bean;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.util.Date;
@@ -13,7 +11,9 @@ public class TbOperationTaskBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private Integer apply_id;
-    private Integer operator_id;
+
+    @TableField(strategy= FieldStrategy.IGNORED)
+    private Integer operator_id;    // 任务回收时忽略null判断，即可设置为null
     private Integer distributor_id;
     private Integer task_type;      // 详见OperationTaskTypeEnum
     private Integer status;         // 详见OperationTaskStatusEnum
