@@ -397,7 +397,7 @@ public class ScheduleTasks {
 
         // 1. 获取所有还款统计
         List<TbRepayStatBean> statBeans = repayStatMapper.selectList(
-                new QueryWrapper<TbRepayStatBean>().select("id", "apply_id", "create_time")
+                new QueryWrapper<TbRepayStatBean>().select("apply_id", "create_time")
         );
         Map<Integer, TbRepayStatBean> repayStatMap = new HashMap<>();
         for (TbRepayStatBean statBean : statBeans) {
@@ -443,7 +443,8 @@ public class ScheduleTasks {
                 } else {
                     statBean = statRepayPlan(statBean, repayPlanMap.get(applyId));
                     statBean.setUpdate_time(now);
-                    if (repayStatMapper.updateById(statBean) <= 0) {
+                    if (repayStatMapper.update(statBean,
+                            new QueryWrapper<TbRepayStatBean>().eq("apply_id", applyId)) <= 0) {
                         log.error("Failed to update! bean = " + GsonUtil.toJson(statBean));
                     }
                 }
