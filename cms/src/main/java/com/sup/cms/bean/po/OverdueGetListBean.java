@@ -30,5 +30,5 @@ public class OverdueGetListBean {
     private Date loanDate;          // 借款时间
     private Date taskDate;          // 催收时间
     private Integer operatorId;     // 催收员id
-    private Integer operatorName;   // 催收员姓名
+    private String  operatorName;   // 催收员姓名
 }
