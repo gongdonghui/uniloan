@@ -77,10 +77,14 @@ public class DecisionEngineImpl implements DecesionEngine {
                 boolean exists = this.thirdPartyService.checkBlackListInXingtan(cid, "", mobile, applyId);
                 return !exists;
 
-            } else {
+            } else if (variable_name.equals(RiskVariableConstants.BLACKLIST_INNER)) {
+                //内部上传黑名单
                 //String key = variable_name + mobile;
                 //boolean exist = redisClient.Exist(key);
                 //return exist && rule.getIs_in() == 1;   //is_in:1 表示在名单 （白名单），0  表示不能在名单（黑名单）
+                boolean exists = this.thirdPartyService.checkInnerBlackList(cid, "", mobile, applyId);
+                return !exists;
+            } else {
                 return true;
             }
 
@@ -114,7 +118,7 @@ public class DecisionEngineImpl implements DecesionEngine {
             Integer userid = userRegistInfoBean.getId();
             List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("user_id", userid));
             int apply_times = applyInfoBeanList.size();
-            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(Integer.toString(userid), this.repayPlanInfoMapper);
+            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(userid, this.repayPlanInfoMapper);
             if (overdueInfoBean == null) {
                 return null;
             }
@@ -164,7 +168,7 @@ public class DecisionEngineImpl implements DecesionEngine {
                 riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(last_dey_days));
             }
 
-            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(userId, this.repayPlanInfoMapper);
+            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(Integer.parseInt(userId), this.repayPlanInfoMapper);
             if (overdueInfoBean != null) { //overdue  days
 
                 riskBean.put(RiskVariableConstants.MAX_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getMax_days()));

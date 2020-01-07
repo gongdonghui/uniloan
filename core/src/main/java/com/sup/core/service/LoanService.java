@@ -60,6 +60,8 @@ public class LoanService {
     private PayCenterService funpayService;
     @Autowired
     private MqMessenger mqMessenger;
+    @Autowired
+    private RuleConfigService ruleConfigService;
 
     public Result retryLoan(ApplyRetryLoanParam param) {
         log.info("retryLoan param: " + GsonUtil.toJson(param));
@@ -315,6 +317,7 @@ public class LoanService {
         }
         applyInfoBean.setUpdate_time(new Date());
         applyInfoMapper.updateById(applyInfoBean);
+        ruleConfigService.updateCreditLevelForUser(applyInfoBean.getUser_id());
         return Result.succ();
     }
 

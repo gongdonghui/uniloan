@@ -56,11 +56,37 @@ public class ThirdPartyService {
         String countryCode;
         String areaCode;
         String number;
+
         public JirongPhoneParam(String cc, String ac, String nb) {
             this.countryCode = cc;
             this.areaCode = ac;
             this.number = nb;
         }
+    }
+
+    public boolean checkInnerBlackList(String cid, String name, String mobile, String apply_id) {
+        QueryWrapper<BlackListBean> wrapper = new QueryWrapper<>();
+        QueryWrapper<BlackListBean> subWrapper = new QueryWrapper<>();
+        if (!Strings.isNullOrEmpty(cid)) {
+            subWrapper.or().eq("cid_no", cid);
+        }
+        if (!Strings.isNullOrEmpty(name)) {
+            subWrapper.or().eq("name", name.toUpperCase());
+        }
+        if (!Strings.isNullOrEmpty(mobile)) {
+            subWrapper.or().eq("mobile", mobile);
+        }
+        subWrapper.eq("platform", "inner"); //inner   plaftform
+        wrapper.and(
+                new Function<QueryWrapper<BlackListBean>, QueryWrapper<BlackListBean>>() {
+                    @Override
+                    public QueryWrapper<BlackListBean> apply(QueryWrapper<BlackListBean> blackListBeanQueryWrapper) {
+                        return subWrapper;
+                    }
+                }
+        );
+        List<BlackListBean> beans = blackListMapper.selectList(wrapper);
+        return beans != null && beans.size() > 0;
     }
 
     public boolean checkBlackListInJirong(String id, String name, String phone, String apply_id) {

@@ -336,6 +336,8 @@ public class DateUtil {
         cal2.set(Calendar.HOUR_OF_DAY, 0);
         cal2.set(Calendar.MINUTE, 0);
         cal2.set(Calendar.SECOND, 0);
+        cal2.set(Calendar.MILLISECOND, 0);
+
 
         return cal1.compareTo(cal2);
     }
@@ -369,5 +371,12 @@ public class DateUtil {
     public static String endOf(Date date) {
         String dt = formatDate2String(date, DEFAULT_YEAR_MONTH_DAY_FORMAT);
         return dt == null ? null : dt + " 23:59:59";
+    }
+
+    public static void main(String args[]) {
+        Date dt = new Date();
+        Date now = new Date();
+        int ret = compareDay(dt, now);
+        System.out.println("ret=" + ret);
     }
 }

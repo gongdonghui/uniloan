@@ -19,10 +19,10 @@ import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.ApplyService;
 import com.sup.core.service.LoanService;
+import com.sup.core.service.RuleConfigService;
 import com.sup.core.service.impl.DecisionEngineImpl;
 import com.sup.core.status.DecisionEngineStatusEnum;
 import com.sup.core.util.MqMessenger;
-import com.sup.core.util.OverdueUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -95,6 +95,9 @@ public class ScheduleTasks {
 
     @Autowired
     private CollectionReportMapper collectionReportMapper;
+
+    @Autowired
+    private RuleConfigService ruleConfigService;
 
     @Scheduled(cron = "0 */5 * * * ?")
     public void checkApplyInfo() {
@@ -526,37 +529,18 @@ public class ScheduleTasks {
         List<CreditLevelRuleBean> creditLevelRuleBeans = this.creditLevelRulesMapper.selectList(new QueryWrapper<CreditLevelRuleBean>().orderByDesc("level"));
 
         List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_REPAY_ALL.getCode()));  //结清状态的申请单
-        Map<String, Integer> clear_user = new HashMap<String, Integer>();
+        Map<Integer, Integer> clear_user = new HashMap<>();
         for (TbApplyInfoBean tbApplyMaterialInfoBean : applyInfoBeanList) {
-
-
-            String user_id = Integer.toString(tbApplyMaterialInfoBean.getUser_id());
+            Integer user_id = tbApplyMaterialInfoBean.getUser_id();
             if (clear_user.containsKey(user_id)) {
                 clear_user.put(user_id, clear_user.get(user_id) + 1);
             } else {
                 clear_user.put(user_id, 1);
             }
-
-
         }
-        for (String user_id : clear_user.keySet()) {
+        for (Integer user_id : clear_user.keySet()) {
             int reloan_times = clear_user.get(user_id);
-
-            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(user_id, this.repayPlanMapper);
-            for (CreditLevelRuleBean creditLevelRuleBean : creditLevelRuleBeans) {
-                if (reloan_times >= creditLevelRuleBean.getReloan_times() && overdueInfoBean.getMax_days() <= creditLevelRuleBean.getMax_overdue_days()) {
-                    TbUserRegistInfoBean userRegistInfoBean = this.userRegisterInfoMapper.selectById(Integer.parseInt(user_id));
-                    if (userRegistInfoBean != null) {
-                        userRegistInfoBean.setCredit_level(creditLevelRuleBean.getLevel());
-                        this.userRegisterInfoMapper.updateById(userRegistInfoBean);
-                    } else {
-                        log.error("Failed to update Credit level user_id:" + user_id);
-                    }
-                    break;
-                }
-
-            }
-
+            this.ruleConfigService.updateCreditLevelForUser(user_id,  reloan_times,creditLevelRuleBeans);
         }
     }
 
@@ -650,6 +634,7 @@ public class ScheduleTasks {
                     , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode()
                     , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
                     , ApplyStatusEnum.APPLY_REPAY_PART.getCode()
+                    , ApplyStatusEnum.APPLY_REPAY_ALL.getCode()
                     , ApplyStatusEnum.APPLY_OVERDUE.getCode()
             );
             List<TbApplyInfoBean> infoBeans = this.applyInfoMapper.selectList(wrapper);
