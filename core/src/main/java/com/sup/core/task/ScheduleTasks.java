@@ -397,7 +397,7 @@ public class ScheduleTasks {
 
         // 1. 获取所有还款统计
         List<TbRepayStatBean> statBeans = repayStatMapper.selectList(
-                new QueryWrapper<TbRepayStatBean>().select("apply_id", "create_time")
+                new QueryWrapper<TbRepayStatBean>().select("id", "apply_id", "create_time")
         );
         Map<Integer, TbRepayStatBean> repayStatMap = new HashMap<>();
         for (TbRepayStatBean statBean : statBeans) {
