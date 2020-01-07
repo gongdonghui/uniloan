@@ -496,7 +496,6 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,cau.name as operatorName" +
             " from (" +
             "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=1 " +
-            "  ${conditions}" +
             ") ot left join (" +
             "  select * from tb_apply_info where status in (12, 13, 15)" +
             ") ai on ot.apply_id=ai.id" +
@@ -516,14 +515,15 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_repay_stat rs on ai.id=rs.apply_id" +
             " left join tb_repay_plan rp on ai.id=rp.apply_id" +
             " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
+            " where uri.type = 0" +
+            " ${conditions}" +
             " order by ai.id desc" +
             " limit #{offset},#{rows}")
     List<OverdueGetListBean> getTaskList(String conditions, Integer offset, Integer rows);
 
     @Select("select count(ai.id)" +
             " from (" +
-            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3" +
-            "  ${conditions}" +
+            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=1" +
             ") ot left join (" +
             "  select * from tb_apply_info where status in (12, 13, 15)" +
             ") ai on ot.apply_id=ai.id" +
@@ -543,6 +543,8 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_repay_stat rs on ai.id=rs.apply_id" +
             " left join tb_repay_plan rp on ai.id=rp.apply_id" +
             " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
+            " where uri.type = 0" +
+            " ${conditions}" +
             " order by ai.id desc")
     Integer getTaskListCount(@Param(value = "conditions") String conditions);
 }

@@ -94,9 +94,31 @@ public class OverdueController {
     public String getTaskList(@RequestBody @Valid OverdueGetListParams params) {
         // TODO
         StringBuilder sb = new StringBuilder();
-        if (params.getOperatorId() != null) {
-            sb.append(" and operator_id=" + params.getOperatorId());
+        if (params.getApplyId() != null) {
+            sb.append(" and ai.id=" + params.getApplyId());
         }
+        if (params.getStartDate() != null) {
+            sb.append(" and rp.repay_end_date>='" + DateUtil.startOf(params.getStartDate()) + "'");
+        }
+        if (params.getEndDate() != null) {
+            sb.append(" and rp.repay_end_date<='" + DateUtil.endOf(params.getEndDate()) + "'");
+        }
+        if (params.getProductId() != null) {
+            sb.append(" and pi.id=" + params.getProductId());
+        }
+        if (!Strings.isNullOrEmpty(params.getName())) {
+            sb.append(" and b.name='" + params.getName() + "'");
+        }
+        if (!Strings.isNullOrEmpty(params.getMobile())) {
+            sb.append(" and uri.mobile='" + params.getMobile() + "'");
+        }
+        if (!Strings.isNullOrEmpty(params.getCidNo())) {
+            sb.append(" and b.cid_no='" + params.getCidNo() + "'");
+        }
+        if (params.getOperatorId() != null) {
+            sb.append(" and ot.operator_id=" + params.getOperatorId());
+        }
+
         log.info("getTaskList conditions=" + sb.toString());
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
