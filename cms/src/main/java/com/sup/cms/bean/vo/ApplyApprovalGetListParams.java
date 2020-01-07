@@ -23,6 +23,7 @@ public class ApplyApprovalGetListParams {
     /**
      * 0 未指派未领取的
      * 1 待审批的
+     * 2 可重新指派的
      */
     @NotNull
     private Integer type1;
