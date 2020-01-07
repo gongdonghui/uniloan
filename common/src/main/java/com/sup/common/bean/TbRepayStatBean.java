@@ -65,7 +65,7 @@ public class TbRepayStatBean {
 
             need_total += bean.getNeed_total();
             act_total  += bean.getAct_total();
-            if (bean.getIs_overdue() != RepayPlanOverdueEnum.PLAN_NOT_OVER_DUE.getCode()) {
+            if (bean.getIs_overdue() == RepayPlanOverdueEnum.PLAN_NOT_OVER_DUE.getCode()) {
                 // TODO bug??
                 normal_repay += bean.getAct_total();
             }
