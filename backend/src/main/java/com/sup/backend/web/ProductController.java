@@ -69,7 +69,7 @@ public class ProductController {
       api.setMin_quota(bean.getMin_quota());
       api.setMax_quota(bean.getMax_quota());
       api.setRate(ToolUtils.formatRate(bean.getRate()));
-      api.setStatus(bean.getCredit_level().equals(credit_level) ? 1: 0);
+      api.setStatus(bean.getCredit_level().compareTo(credit_level) <= 0 ? 1: 0);
       api.setPeriod_type(bean.getPeriod_type());
       api.setDesc(bean.getProduct_desc());
       api.setMaterial_needed(bean.getMaterial_needed());
