@@ -202,7 +202,7 @@ public class ApplyService {
         QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
         wrapper.eq("apply_id", applyId);
         wrapper.eq("task_type", taskType.getCode());
-        wrapper.eq("has_owner", 0);
+        // wrapper.eq("has_owner", 0);
         wrapper.last("limit 1");
         TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
         if (taskBean != null) {  // already exists
@@ -211,6 +211,7 @@ public class ApplyService {
         Date now = new Date();
         taskBean = new TbOperationTaskBean();
         taskBean.setApply_id(applyId);
+        taskBean.setHas_owner(0);
         taskBean.setTask_type(taskType.getCode());
         taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
         taskBean.setComment(comment);
@@ -227,6 +228,7 @@ public class ApplyService {
         wrapper.eq("has_owner", 1);
         TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
         if (taskBean != null) {
+            taskBean.setHas_owner(0);
             taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_CANCEL.getCode());
             taskBean.setComment(comment);
             taskBean.setUpdate_time(new Date());
