@@ -85,12 +85,11 @@ public class ApplyController {
             // 未指派、未领取
             //sb.append(" and a.has_owner=0 and a.operator_id is null");
             sb.append(" and a.has_owner=0");
-        } else if (params.getType1() == 1) {
-            // 当前操作人的待审核列表
-            sb.append(" and a.has_owner=1 and a.operator_id=" + params.getOperatorId());
         } else {
-            // 可重新指派的列表
-            // sb.append(" and a.has_owner=1");
+            if (params.getOperatorId() != null) {
+                // 当前操作人的待审核列表
+                sb.append(" and a.has_owner=1 and a.operator_id=" + params.getOperatorId());
+            }
         }
         //单子状态 是初审还是终审呢
         int task_type = params.getType2() == 0 ? OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode() : OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode();
