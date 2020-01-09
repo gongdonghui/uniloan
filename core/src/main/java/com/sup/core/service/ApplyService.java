@@ -198,7 +198,7 @@ public class ApplyService {
         return Result.succ();
     }
 
-    public void addOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {
+    public synchronized void addOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {
         QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
         wrapper.eq("apply_id", applyId);
         wrapper.eq("task_type", taskType.getCode());
@@ -220,7 +220,7 @@ public class ApplyService {
         operationTaskMapper.insert(taskBean);
     }
 
-    public void cancelOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {
+    public synchronized void cancelOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {
         QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
         wrapper.eq("apply_id", applyId);
         wrapper.eq("task_type", taskType.getCode());
