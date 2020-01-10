@@ -15,7 +15,7 @@ import java.util.List;
 public interface ReportOverdueDetailMapper extends BaseMapper<TbReportOverdueDetailBean> {
 
     @Select("select" +
-            "  substr(ot.create_time,1,10) as task_dt" +
+            "  substr(ot.create_time,1,10) as data_dt" +
             "  ,ot.operator_id as operator_id" +
             "  ,cau.name as name" +
             "  ,ot.apply_id as apply_id" +
