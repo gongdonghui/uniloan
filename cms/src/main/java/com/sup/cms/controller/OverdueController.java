@@ -143,7 +143,7 @@ public class OverdueController {
                 QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
                 wrapper.eq("apply_id", applyId);
                 wrapper.eq("task_type", OperationTaskTypeEnum.TASK_OVERDUE.getCode());
-                wrapper.eq("has_owner", 0);
+                // wrapper.eq("has_owner", 0);
                 TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
                 needUpdate = true;
                 if (taskBean == null) {
