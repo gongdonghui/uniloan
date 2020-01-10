@@ -31,7 +31,7 @@ public class OverdueUtils {
             Date repay_date = repayPlanBean.getRepay_time();
             Date repay_end_date = repayPlanBean.getRepay_end_date();
             if (repay_date != null) {
-                int days = DateUtil.daysbetween(repay_end_date, repay_date);
+                int days = DateUtil.getDaysBetween(repay_end_date, repay_date);
                 if (days > 0) {
                     times++;
                     max_days = days > max_days ? days : max_days;

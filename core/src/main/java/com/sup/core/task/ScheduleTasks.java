@@ -363,7 +363,7 @@ public class ScheduleTasks {
                 }
                 bean.setIs_overdue(RepayPlanOverdueEnum.PLAN_OVER_DUE.getCode());
                 Float rate = productInfoBean.getOverdue_rate();
-                int overdueDays = DateUtil.daysbetween(repay_end_date, now);
+                int overdueDays = DateUtil.getDaysBetween(repay_end_date, now);
                 Long new_penalty_interest = (long) (bean.getNeed_principal() * rate * overdueDays);
                 Long ori_total = bean.getNeed_total();
                 Long ori_penalty_interest = bean.getNeed_penalty_interest();
@@ -497,9 +497,9 @@ public class ScheduleTasks {
                     overdueEndDate = planBean.getUpdate_time();
                 } else {
                     // 最后一期逾期天数
-                    overdueDays = Math.max(0, DateUtil.daysbetween(repayEndDate, now));
+                    overdueDays = Math.max(0, DateUtil.getDaysBetween(repayEndDate, now));
                 }
-                maxOverdueDays = Math.max(maxOverdueDays, DateUtil.daysbetween(repayEndDate, overdueEndDate));
+                maxOverdueDays = Math.max(maxOverdueDays, DateUtil.getDaysBetween(repayEndDate, overdueEndDate));
             }
             if (planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_PART.getCode() ||
                     planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
@@ -568,7 +568,7 @@ public class ScheduleTasks {
 
             TbRepayPlanBean repayPlanBean = this.repayPlanMapper.selectOne(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", tbApplyInfoBean.getId()));
             Date replay_end = repayPlanBean.getRepay_end_date();
-            int days = DateUtil.daysbetween(replay_end, date);
+            int days = DateUtil.getDaysBetween(replay_end, date);
             Integer assetLevel = tbApplyInfoBean.getAsset_level();
             Integer applyId = tbApplyInfoBean.getId();
 
