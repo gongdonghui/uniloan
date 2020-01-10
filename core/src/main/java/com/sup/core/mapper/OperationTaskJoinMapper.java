@@ -35,7 +35,7 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             " from   tb_cms_collection_record a" +
             " join " +
             "( select  apply_id, sum(replay_amount)  as repay_sum from   tb_repay_history " +
-            " where   repay_time > ${start} and  repay_time < ${end} and repay_status =1 group by apply_id) as b " +
+            " where   repay_time > '${start}' and  repay_time < '${end}' and repay_status =1 group by apply_id) as b " +
             " on a.apply_id=b.apply_id" +
             " where  a.create_time >='${start}' and a.create_time< '${end}' ")
     List<CollectionRepayBean> getCollectionRepay(String start, String  end);
