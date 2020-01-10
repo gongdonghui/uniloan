@@ -579,7 +579,7 @@ public class ScheduleTasks {
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
                     if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
                         // assert level changed
-                        applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
+                        //applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
                         applyService.addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
                     }
                     break;
