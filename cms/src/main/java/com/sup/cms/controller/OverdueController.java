@@ -75,8 +75,8 @@ public class OverdueController {
         }
         if (params.getOperatorId() != null) {   // 查询个人任务列表
             sb.append(" and ot.operator_id=" + params.getOperatorId());
-        } else {    // 查询所有可分配任务，不包含已完成
-            sb.append(" and ot.status!=1");
+        } else {    // 查询所有可分配任务，包含正常放款订单、不包含已完成任务
+            sb.append(" and (ot.status is null or ot.status!=1)");
         }
 
         log.info("getPool conditions=" + sb.toString());
