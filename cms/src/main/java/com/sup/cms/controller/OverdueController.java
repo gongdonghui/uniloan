@@ -61,6 +61,11 @@ public class OverdueController {
         if (params.getEndDate() != null) {
             sb.append(" and rp.repay_end_date<='" + DateUtil.endOf(params.getEndDate()) + "'");
         }
+        if (params.getOverdueDays() != null) {
+            Date repay_dt = DateUtil.getDate(new Date(), -1 * params.getOverdueDays());
+            sb.append(" and rp.repay_end_date>='" + DateUtil.startOf(repay_dt) + "'");
+            sb.append(" and rp.repay_end_date<='" + DateUtil.endOf(repay_dt) + "'");
+        }
         if (params.getProductId() != null) {
             sb.append(" and pi.id=" + params.getProductId());
         }
