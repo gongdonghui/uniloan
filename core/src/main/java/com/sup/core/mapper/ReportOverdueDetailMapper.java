@@ -24,7 +24,7 @@ public interface ReportOverdueDetailMapper extends BaseMapper<TbReportOverdueDet
             "  ,rs.need_total as need_total" +
             "  ,rs.act_total as act_total" +
             "  ,rs.normal_repay as normal_repay" +
-            "  ,(rs.need_total - rs.normal_repay) as overdue_amount" +
+            "  ,case when ai.status=15 then (rs.need_total - rs.normal_repay) else 0 end as overdue_amount" +
             "  ,(rs.act_total - rs.normal_repay) as recall_amount" +
             " from (" +
             "   select * from tb_operation_task where task_type=3 and has_owner=1" +
