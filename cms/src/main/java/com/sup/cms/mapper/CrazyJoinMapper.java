@@ -495,7 +495,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,ot.operator_id as operatorId" +
             "  ,cau.name as operatorName" +
             " from (" +
-            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=1 " +
+            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=1 and status!=1" +
             ") ot left join (" +
             "  select * from tb_apply_info where status in (12, 13, 15)" +
             ") ai on ot.apply_id=ai.id" +
@@ -523,7 +523,7 @@ public interface CrazyJoinMapper extends BaseMapper {
 
     @Select("select count(ai.id)" +
             " from (" +
-            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=1" +
+            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=1 and status!=1" +
             ") ot left join (" +
             "  select * from tb_apply_info where status in (12, 13, 15)" +
             ") ai on ot.apply_id=ai.id" +

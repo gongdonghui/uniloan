@@ -44,8 +44,8 @@ public class OverdueController {
 
 
     /**
-     * 催收列表（查询所有）
-     * 催收列表查询（查询个人催收任务）
+     * 催收待指派任务列表（查询所有非完成状态的任务）
+     * 催收列表查询（查询个人催收任务，包含已完成任务）
      * @param params
      * @return
      */
@@ -73,8 +73,10 @@ public class OverdueController {
         if (!Strings.isNullOrEmpty(params.getCidNo())) {
             sb.append(" and b.cid_no='" + params.getCidNo() + "'");
         }
-        if (params.getOperatorId() != null) {
+        if (params.getOperatorId() != null) {   // 查询个人任务列表
             sb.append(" and ot.operator_id=" + params.getOperatorId());
+        } else {    // 查询所有可分配任务，不包含已完成
+            sb.append(" and ot.status!=1");
         }
 
         log.info("getPool conditions=" + sb.toString());
@@ -88,7 +90,7 @@ public class OverdueController {
     }
 
     /**
-     * 催收任务列表
+     * 催收任务待回收列表(需排除已完成任务）
      */
     @PostMapping("/task/getList")
     public String getTaskList(@RequestBody @Valid OverdueGetListParams params) {
