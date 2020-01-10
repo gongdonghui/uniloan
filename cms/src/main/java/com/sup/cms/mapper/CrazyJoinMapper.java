@@ -302,7 +302,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " c.cid_no as cidNo," +
             " a.grant_quota as loanAmount," +
             " f.need_total as shouldRepayAmount," +
-            " (f.need_total-f.act_total) as overdueAmount," +
+            " case when f.is_overdue=1 then (f.need_total-f.act_total) else 0 end as overdueAmount," +
             " a.loan_time as loanDate," +
             " f.repay_end_date as endDate," +
             " f.repay_time as shouldRepayDate," +
@@ -414,7 +414,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,(rs.act_total-rs.normal_repay) as callBackAmount" +
             "  ,ai.grant_quota as loanAmount" +
             "  ,rs.need_total as shouldRepayAmount" +
-            "  ,(rs.need_total-rs.normal_repay) as overdueAmount" +
+            "  ,case when rp.is_overdue=1 then (rs.need_total-rs.normal_repay) else 0 end as overdueAmount" +
             "  ,rs.need_penalty_interest as penaltyInterest" +
             "  ,rs.overdue_days as overdueDays" +
             "  ,ot.status as taskStatus" +
@@ -487,7 +487,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,(rs.act_total-rs.normal_repay) as callBackAmount" +
             "  ,ai.grant_quota as loanAmount" +
             "  ,rs.need_total as shouldRepayAmount" +
-            "  ,(rs.need_total-rs.normal_repay) as overdueAmount" +
+            "  ,case when rp.is_overdue=1 then (rs.need_total-rs.normal_repay) else 0 end as overdueAmount" +
             "  ,rs.need_penalty_interest as penaltyInterest" +
             "  ,rs.overdue_days as overdueDays" +
             "  ,ot.status as taskStatus" +
