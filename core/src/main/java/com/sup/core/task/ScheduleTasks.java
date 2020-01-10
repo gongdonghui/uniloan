@@ -391,9 +391,9 @@ public class ScheduleTasks {
     }
 
     /**
-     * 每天更新还款统计表
+     * 每天更新还款统计表（要在更新还款计划之后）
      */
-    @Scheduled(cron = "0 30 0 * * ?")
+    @Scheduled(cron = "0 0 2 * * ?")
     // @Scheduled(cron = "30 0 * * * ?")
     public void statRepayInfo() {
         // TODO: 处理过程有待优化，仅处理还款中的数据
@@ -579,7 +579,7 @@ public class ScheduleTasks {
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
                     if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
                         // assert level changed
-                        applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
+                        //applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
                         applyService.addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
                     }
                     break;

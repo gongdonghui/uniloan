@@ -302,7 +302,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " c.cid_no as cidNo," +
             " a.grant_quota as loanAmount," +
             " f.need_total as shouldRepayAmount," +
-            " (f.need_total-f.act_total) as overdueAmount," +
+            " case when f.is_overdue=1 then (f.need_total-f.act_total) else 0 end as overdueAmount," +
             " a.loan_time as loanDate," +
             " f.repay_end_date as endDate," +
             " f.repay_time as shouldRepayDate," +
@@ -414,7 +414,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,(rs.act_total-rs.normal_repay) as callBackAmount" +
             "  ,ai.grant_quota as loanAmount" +
             "  ,rs.need_total as shouldRepayAmount" +
-            "  ,(rs.need_total-rs.normal_repay) as overdueAmount" +
+            "  ,case when rp.is_overdue=1 then (rs.need_total-rs.normal_repay) else 0 end as overdueAmount" +
             "  ,rs.need_penalty_interest as penaltyInterest" +
             "  ,rs.overdue_days as overdueDays" +
             "  ,ot.status as taskStatus" +
@@ -439,7 +439,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_repay_stat rs on ai.id=rs.apply_id" +
             " left join tb_repay_plan rp on ai.id=rp.apply_id" +
             " left join (" +
-            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3" +
+            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=0" +
             ") ot on ai.id=ot.apply_id" +
             " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
             " where uri.type = 0" +
@@ -466,7 +466,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_repay_stat rs on ai.id=rs.apply_id" +
             " left join tb_repay_plan rp on ai.id=rp.apply_id" +
             " left join (" +
-            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3" +
+            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=0" +
             ") ot on ai.id=ot.apply_id" +
             " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
             " where uri.type = 0" +
@@ -487,15 +487,16 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,(rs.act_total-rs.normal_repay) as callBackAmount" +
             "  ,ai.grant_quota as loanAmount" +
             "  ,rs.need_total as shouldRepayAmount" +
-            "  ,(rs.need_total-rs.normal_repay) as overdueAmount" +
+            "  ,case when rp.is_overdue=1 then (rs.need_total-rs.normal_repay) else 0 end as overdueAmount" +
             "  ,rs.need_penalty_interest as penaltyInterest" +
             "  ,rs.overdue_days as overdueDays" +
             "  ,ot.status as taskStatus" +
             "  ,ai.loan_time as loanDate" +
+            "  ,ot.update_time as taskDate" +
             "  ,ot.operator_id as operatorId" +
             "  ,cau.name as operatorName" +
             " from (" +
-            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=1 " +
+            "  select distinct apply_id,status,task_type,operator_id,update_time from tb_operation_task where task_type=3 and has_owner=1 and status!=1" +
             ") ot left join (" +
             "  select * from tb_apply_info where status in (12, 13, 15)" +
             ") ai on ot.apply_id=ai.id" +
@@ -523,7 +524,7 @@ public interface CrazyJoinMapper extends BaseMapper {
 
     @Select("select count(ai.id)" +
             " from (" +
-            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=1" +
+            "  select distinct apply_id,status,task_type,operator_id,update_time from tb_operation_task where task_type=3 and has_owner=1 and status!=1" +
             ") ot left join (" +
             "  select * from tb_apply_info where status in (12, 13, 15)" +
             ") ai on ot.apply_id=ai.id" +

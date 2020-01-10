@@ -44,8 +44,8 @@ public class OverdueController {
 
 
     /**
-     * 催收列表（查询所有）
-     * 催收列表查询（查询个人催收任务）
+     * 催收待指派任务列表（查询所有非完成状态的任务）
+     * 催收列表查询（查询个人催收任务，包含已完成任务）
      * @param params
      * @return
      */
@@ -61,6 +61,11 @@ public class OverdueController {
         if (params.getEndDate() != null) {
             sb.append(" and rp.repay_end_date<='" + DateUtil.endOf(params.getEndDate()) + "'");
         }
+        if (params.getOverdueDays() != null) {
+            Date repay_dt = DateUtil.getDate(new Date(), -1 * params.getOverdueDays());
+            sb.append(" and rp.repay_end_date>='" + DateUtil.startOf(repay_dt) + "'");
+            sb.append(" and rp.repay_end_date<='" + DateUtil.endOf(repay_dt) + "'");
+        }
         if (params.getProductId() != null) {
             sb.append(" and pi.id=" + params.getProductId());
         }
@@ -73,8 +78,10 @@ public class OverdueController {
         if (!Strings.isNullOrEmpty(params.getCidNo())) {
             sb.append(" and b.cid_no='" + params.getCidNo() + "'");
         }
-        if (params.getOperatorId() != null) {
+        if (params.getOperatorId() != null) {   // 查询个人任务列表
             sb.append(" and ot.operator_id=" + params.getOperatorId());
+        } else {    // 查询所有可分配任务，包含正常放款订单、不包含已完成任务
+            sb.append(" and (ot.status is null or ot.status!=1)");
         }
 
         log.info("getPool conditions=" + sb.toString());
@@ -88,7 +95,7 @@ public class OverdueController {
     }
 
     /**
-     * 催收任务列表
+     * 催收任务待回收列表(需排除已完成任务）
      */
     @PostMapping("/task/getList")
     public String getTaskList(@RequestBody @Valid OverdueGetListParams params) {
@@ -143,7 +150,7 @@ public class OverdueController {
                 QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
                 wrapper.eq("apply_id", applyId);
                 wrapper.eq("task_type", OperationTaskTypeEnum.TASK_OVERDUE.getCode());
-                wrapper.eq("has_owner", 0);
+                // wrapper.eq("has_owner", 0);
                 TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
                 needUpdate = true;
                 if (taskBean == null) {
