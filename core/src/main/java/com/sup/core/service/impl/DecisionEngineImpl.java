@@ -164,7 +164,7 @@ public class DecisionEngineImpl implements DecesionEngine {
             if (applyInfoBean != null) {
 
                 Date deny_date = applyInfoBean.getUpdate_time();
-                int last_dey_days = DateUtil.daysbetween(deny_date, new Date());
+                int last_dey_days = DateUtil.getDaysBetween(deny_date, new Date());
                 riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(last_dey_days));
             }
 

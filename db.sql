@@ -852,3 +852,25 @@ CREATE TABLE IF NOT EXISTS `tb_channel_product` (
   KEY `idx_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE tb_report_overdue_detail;
+CREATE TABLE IF NOT EXISTS `tb_report_overdue_detail` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `data_dt` date NOT NULL COMMENT '报表日期',
+  `operator_id` int(11) NOT NULL COMMENT '催收员id',
+  `name` varchar(128) NOT NULL DEFAULT '""' COMMENT '催收员姓名',
+  `apply_id` int(11) NOT NULL COMMENT '申请ID',
+  `status` int(10) NOT NULL COMMENT '订单状态',
+  `grant_quota` int(11) NOT NULL DEFAULT '0' COMMENT '放款合同金额',
+  `need_total` int(11) NOT NULL DEFAULT '0' COMMENT '应还总额',
+  `act_total` int(11) NOT NULL DEFAULT '0' COMMENT '实际还款总额',
+  `normal_repay` int(11) NOT NULL DEFAULT '0' COMMENT '正常还款总额（逾期前）',
+  `overdue_amount` int(11) NOT NULL DEFAULT '0' COMMENT '逾期金额，应还-正常还款',
+  `recall_amount` int(11) NOT NULL DEFAULT '0' COMMENT '催回金额，实还-正常还款',
+  `create_time` datetime NOT NULL,
+  `update_time` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `data_dt_2` (`data_dt`,`operator_id`,`apply_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
