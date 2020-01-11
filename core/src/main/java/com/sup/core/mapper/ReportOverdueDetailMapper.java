@@ -21,17 +21,20 @@ public interface ReportOverdueDetailMapper extends BaseMapper<TbReportOverdueDet
             "  ,cau.name as name" +
             "  ,ot.apply_id as apply_id" +
             "  ,ai.status as status" +
+            "  ,rs.overdue_days as overdue_days" +
             "  ,ai.grant_quota as grant_quota" +
             "  ,rs.need_total as need_total" +
             "  ,rs.act_total as act_total" +
             "  ,rs.normal_repay as normal_repay" +
-            "  ,case when ai.status=15 then (rs.need_total - rs.normal_repay) else 0 end as overdue_amount" +
+            "  ,case when rp.is_overdue=1 then (rs.need_total - rs.normal_repay) else 0 end as overdue_amount" +
             "  ,(rs.act_total - rs.normal_repay) as recall_amount" +
+            "  ,rp.repay_end_date as repay_end_date" +
             " from (" +
             "   select * from tb_operation_task where task_type=3 and has_owner=1" +
             " ) ot" +
             " left join tb_apply_info ai on ot.apply_id=ai.id" +
             " left join tb_repay_stat rs on ot.apply_id=rs.apply_id" +
+            " left join tb_repay_plan rp on ot.apply_id=rp.apply_id and rs.current_seq=rp.seq_no" +
             " left join tb_cms_auth_user cau on ot.operator_id = cau.id" +
             " where ot.has_owner=1" +
             " ${conditions}")

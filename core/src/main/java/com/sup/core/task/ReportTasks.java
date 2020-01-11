@@ -34,7 +34,7 @@ public class ReportTasks {
     /**
      * 更新催收明细表(tb_report_overdue_detail)
      */
-    @Scheduled(cron = "0 0 */1 * * ?")
+    @Scheduled(cron = "0 5 */1 * * ?")
     public void updateOverdueDetail() {
         Date now = new Date();
         Date yesterday = DateUtil.getDate(now, -1);
@@ -56,7 +56,7 @@ public class ReportTasks {
                 if (reportOverdueDetailMapper.insert(bean) <= 0) {
                     log.error("Failed to insert bean:" + GsonUtil.toJson(bean));
                 }
-            } else {
+            } else if (!bean.eaquals(_bean)) {
                 bean.setId(_bean.getId());
                 bean.setUpdate_time(now);
                 if (reportOverdueDetailMapper.updateById(bean) <= 0) {
