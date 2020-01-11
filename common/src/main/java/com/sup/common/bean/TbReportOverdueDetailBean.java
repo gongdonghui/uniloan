@@ -18,6 +18,7 @@ public class TbReportOverdueDetailBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private Date    data_dt;           //日期
+    private Integer task_id;
     private Integer operator_id;
     private String  name;
     private Integer apply_id;

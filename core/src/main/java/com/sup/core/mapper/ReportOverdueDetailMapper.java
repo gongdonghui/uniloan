@@ -16,6 +16,7 @@ public interface ReportOverdueDetailMapper extends BaseMapper<TbReportOverdueDet
 
     @Select("select" +
             "  substr(ot.create_time,1,10) as data_dt" +
+            "  ,ot.id as task_id" +
             "  ,ot.operator_id as operator_id" +
             "  ,cau.name as name" +
             "  ,ot.apply_id as apply_id" +

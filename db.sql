@@ -856,6 +856,7 @@ DROP TABLE tb_report_overdue_detail;
 CREATE TABLE IF NOT EXISTS `tb_report_overdue_detail` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `data_dt` date NOT NULL COMMENT '报表日期',
+  `task_id` int(11) NOT NULL COMMENT '催收任务id',
   `operator_id` int(11) NOT NULL COMMENT '催收员id',
   `name` varchar(128) NOT NULL DEFAULT '""' COMMENT '催收员姓名',
   `apply_id` int(11) NOT NULL COMMENT '申请ID',
