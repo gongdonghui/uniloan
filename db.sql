@@ -860,6 +860,7 @@ CREATE TABLE IF NOT EXISTS `tb_report_overdue_detail` (
   `operator_id` int(11) NOT NULL COMMENT '催收员id',
   `name` varchar(128) NOT NULL DEFAULT '""' COMMENT '催收员姓名',
   `apply_id` int(11) NOT NULL COMMENT '申请ID',
+  `product_id` int(11) NOT NULL DEFAULT '0' COMMENT '产品ID',
   `status` int(10) NOT NULL COMMENT '订单状态',
   `overdue_days` int(11) NOT NULL DEFAULT '0' COMMENT '逾期天数',
   `grant_quota` int(11) NOT NULL DEFAULT '0' COMMENT '放款合同金额',
@@ -872,8 +873,15 @@ CREATE TABLE IF NOT EXISTS `tb_report_overdue_detail` (
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `data_dt_2` (`data_dt`,`operator_id`,`apply_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+  UNIQUE KEY `data_dt_2` (`data_dt`,`operator_id`,`apply_id`),
+  KEY `data_dt` (`data_dt`),
+  KEY `operator_id` (`operator_id`),
+  KEY `apply_id` (`apply_id`),
+  KEY `product_id` (`product_id`),
+  KEY `status` (`status`),
+  KEY `overdue_days` (`overdue_days`),
+  KEY `repay_end_date` (`repay_end_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 
 
