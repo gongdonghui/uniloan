@@ -38,6 +38,7 @@ public class TbReportOverdueDetailBean {
     private Date    update_time;
 
     public boolean eaquals(TbReportOverdueDetailBean bean) {
+        // 忽略normal_repay
         return DateUtil.isSameDay(data_dt, bean.data_dt)
                 && task_id.equals(bean.task_id)
                 && operator_id.equals(bean.operator_id)
@@ -49,7 +50,6 @@ public class TbReportOverdueDetailBean {
                 && grant_quota.equals(bean.grant_quota)
                 && need_total.equals(bean.need_total)
                 && act_total.equals(bean.act_total)
-                && normal_repay.equals(bean.normal_repay)
                 && overdue_amount.equals(bean.overdue_amount)
                 && recall_amount.equals(bean.recall_amount)
                 && DateUtil.isSameDay(repay_end_date, bean.repay_end_date)
