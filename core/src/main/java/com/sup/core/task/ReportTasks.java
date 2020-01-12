@@ -57,6 +57,7 @@ public class ReportTasks {
                     log.error("Failed to insert bean:" + GsonUtil.toJson(bean));
                 }
             } else if (!bean.eaquals(_bean)) {
+                bean.setNormal_repay(_bean.getNormal_repay());  // 保持正常还款金额为任务分配前的值
                 bean.setId(_bean.getId());
                 bean.setUpdate_time(now);
                 if (reportOverdueDetailMapper.updateById(bean) <= 0) {

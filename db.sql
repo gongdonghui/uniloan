@@ -867,7 +867,7 @@ CREATE TABLE IF NOT EXISTS `tb_report_overdue_detail` (
   `grant_quota` int(11) NOT NULL DEFAULT '0' COMMENT '放款合同金额',
   `need_total` int(11) NOT NULL DEFAULT '0' COMMENT '应还总额',
   `act_total` int(11) NOT NULL DEFAULT '0' COMMENT '实际还款总额',
-  `normal_repay` int(11) NOT NULL DEFAULT '0' COMMENT '正常还款总额（逾期前）',
+  `normal_repay` int(11) NOT NULL DEFAULT '0' COMMENT '任务分配前，正常还款总额',
   `overdue_amount` int(11) NOT NULL DEFAULT '0' COMMENT '逾期金额，应还-正常还款',
   `recall_amount` int(11) NOT NULL DEFAULT '0' COMMENT '催回金额，实还-正常还款',
   `repay_end_date` datetime NOT NULL COMMENT '还款截止日期',

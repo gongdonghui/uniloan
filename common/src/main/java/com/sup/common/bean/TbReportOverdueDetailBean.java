@@ -30,7 +30,7 @@ public class TbReportOverdueDetailBean {
     private Integer grant_quota;
     private Integer need_total;
     private Integer act_total;
-    private Integer normal_repay;
+    private Integer normal_repay;   // 任务分配前，正常还款金额
     private Integer overdue_amount;
     private Integer recall_amount;
     private Date    repay_end_date;
