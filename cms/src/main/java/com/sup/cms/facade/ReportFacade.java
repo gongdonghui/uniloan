@@ -36,6 +36,6 @@ public interface ReportFacade {
 
     @ResponseBody
     @RequestMapping(value = "collector", produces = "application/json;charset=UTF-8")
-    Result<List<ReportCollectorBean>> collector(@RequestBody CollectorReportParam param);
+    String collector(@RequestBody CollectorReportParam param);
 
 }

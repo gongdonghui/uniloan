@@ -1,23 +1,29 @@
 package com.sup.cms.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.ReportCollectorBean;
 import com.sup.cms.bean.vo.CollectorReportParam;
 import com.sup.cms.facade.ReportFacade;
 import com.sup.cms.mapper.CheckReportMapper;
 import com.sup.cms.mapper.CollectionReportMapper;
+import com.sup.cms.mapper.CrazyJoinMapper;
 import com.sup.cms.mapper.OperationReportMapper;
 import com.sup.common.bean.CheckReportBean;
 import com.sup.common.bean.CollectionReportBean;
 import com.sup.common.bean.OperationReportBean;
 import com.sup.common.param.OperationReportParam;
 import com.sup.common.util.DateUtil;
+import com.sup.common.util.GsonUtil;
+import com.sup.common.util.ResponseUtil;
 import com.sup.common.util.Result;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * gongshuai
@@ -36,6 +42,9 @@ public class ReportImplFacade implements ReportFacade {
 
     @Autowired
     private CollectionReportMapper collectionReportMapper;
+
+    @Autowired
+    private CrazyJoinMapper crazyJoinMapper;
 
 
     @Override
@@ -87,7 +96,38 @@ public class ReportImplFacade implements ReportFacade {
     }
 
     @Override
-    public Result<List<ReportCollectorBean>> collector(CollectorReportParam param) {
-        return null;
+    public String collector(CollectorReportParam param) {
+        log.info("Report collector param:" + GsonUtil.toJson(param));
+        StringBuilder sb = new StringBuilder();
+        if (param.getStartDate() != null) {
+            sb.append(" and data_dt>=" + DateUtil.formatDate(param.getStartDate()));
+        }
+        if (param.getEndDate() != null) {
+            sb.append(" and data_dt<=" + DateUtil.formatDate(param.getEndDate()));
+        }
+        Integer offset = (param.getPage() - 1) * param.getPageSize();
+        Integer rows = param.getPageSize();
+        List<ReportCollectorBean> result;
+        Integer resultCount = 0;
+        if (param.getOperatorId() != null) {
+            sb.append(" and operator_id=" + param.getOperatorId());
+            result = crazyJoinMapper.getCollectorReport(sb.toString(), offset, rows);
+            resultCount = crazyJoinMapper.getCollectorReportCount(sb.toString());
+        } else {
+            result = crazyJoinMapper.getCollectorReportAll(sb.toString(), offset, rows);
+            resultCount = crazyJoinMapper.getCollectorReportAllCount(sb.toString());
+        }
+        for(ReportCollectorBean bean : result) {
+            Integer totalNum = bean.getTaskNum();
+            Float rate = 0F;
+            if (totalNum > 0) {
+                rate = (float)(bean.getCollectNum() + bean.getPartialCollectNum())/totalNum;
+            }
+            bean.setCollectRate(rate);
+        }
+        Map m = Maps.newHashMap();
+        m.put("total", resultCount);
+        m.put("list", result);
+        return ResponseUtil.success(m);
     }
 }

@@ -10,7 +10,7 @@ import java.util.Date;
  */
 @Data
 public class ReportCollectorBean {
-    private Date    allocate_dt;    // 分配时间
+    private Date    allocDate;      // 分配时间
     private Integer operatorId;     // 催收员id
     private Integer taskNum;        // 分单数
     private Long    taskAmount;     // 分单金额
@@ -19,6 +19,5 @@ public class ReportCollectorBean {
     private Integer partialCollectNum;  // 部分催回订单数
     private Long    partialCollectAmt;  // 部分催回订单金额
     private Integer noCollectNum;   // 未催回订单数
-    private Long    noCollectAmt;   // 未催回订单金额
     private Float   collectRate;    // 催回率
 }
