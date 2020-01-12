@@ -27,7 +27,7 @@ public interface ReportOverdueDetailMapper extends BaseMapper<TbReportOverdueDet
             "  ,ai.grant_quota as grant_quota" +
             "  ,rp.need_total as need_total" +
             "  ,rp.act_total as act_total" +
-            "  ,rp.normal_repay as normal_repay" +
+            "  ,rs.normal_repay as normal_repay" +
             "  ,case when rp.is_overdue=1 then (rs.need_total - rs.normal_repay) else 0 end as overdue_amount" +
             "  ,(rs.act_total - rs.normal_repay) as recall_amount" +
             "  ,rp.repay_end_date as repay_end_date" +
