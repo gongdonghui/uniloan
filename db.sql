@@ -882,7 +882,7 @@ CREATE TABLE IF NOT EXISTS `tb_report_overdue_detail` (
   KEY `status` (`status`),
   KEY `overdue_days` (`overdue_days`),
   KEY `repay_end_date` (`repay_end_date`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 
