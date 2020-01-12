@@ -158,26 +158,13 @@ public class ApplyService {
                 addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_OVERDUE, "");
                 break;
             case APPLY_REPAY_ALL:   // 已还清
-                // 对逾期已还清的任务，将状态置为完成
-                QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
-                wrapper.eq("apply_id", bean.getId());
-                wrapper.eq("task_type", OperationTaskTypeEnum.TASK_OVERDUE.getCode());
-                wrapper.eq("status", OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
-                wrapper.eq("has_owner", 1);
-                wrapper.ge("expire_time", now);
-                taskBean = operationTaskMapper.selectOne(wrapper);
-                if (taskBean != null) {
-                    taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_DONE.getCode());
-                    taskBean.setComment("repay all");
-                    taskBean.setUpdate_time(now);
-                    operationTaskMapper.updateById(taskBean);
-                }
+                closeOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_OVERDUE, "repay all");
                 log.info("APPLY_REPAY_ALL, update credit level for user=" + bean.getUser_id());
                 ruleConfigService.updateCreditLevelForUser(bean.getUser_id());
                 break;
             case APPLY_WRITE_OFF:   // 还款计划也更新为核销
                 // 回收逾期任务
-                cancelOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_OVERDUE, "write off");
+                closeOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_OVERDUE, "write off");
                 loanService.writeOffRepayPlan(bean.getId());
                 break;
             default:
@@ -196,6 +183,22 @@ public class ApplyService {
             return Result.fail("insert into ApplyInfoHistory failed! bean = " + GsonUtil.toJson(applyInfoHistoryBean));
         }
         return Result.succ();
+    }
+    public synchronized void closeOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {
+        // 将任务状态置为完成
+        QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("apply_id", applyId);
+        wrapper.eq("task_type", taskType.getCode());
+        wrapper.eq("has_owner", 1);
+        wrapper.last("limit 1");
+        TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
+        if (taskBean == null) {  // not exists
+            return;
+        }
+        taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_DONE.getCode());
+        taskBean.setComment(comment);
+        taskBean.setUpdate_time(new Date());
+        operationTaskMapper.updateById(taskBean);
     }
 
     public synchronized void addOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {

@@ -322,6 +322,11 @@ public class ApplyController {
         if (applyInfoBean == null) {
             return ResponseUtil.failed("Invalid applyId!");
         }
+        if (applyInfoBean.getStatus() != ApplyStatusEnum.APPLY_OVERDUE.getCode()) {
+            log.error("ApplyInfo bean=" + GsonUtil.toJson(applyInfoBean));
+            log.error("Can't write off for status=" + ApplyStatusEnum.getStatusByCode(applyInfoBean.getStatus()).getCodeDesc());
+            return ResponseUtil.failed("Invalid apply status!");
+        }
         applyInfoBean.setStatus(ApplyStatusEnum.APPLY_WRITE_OFF.getCode());
         if (coreService.updateApplyInfo(applyInfoBean).isSucc()) {
             return ResponseUtil.success();

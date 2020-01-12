@@ -566,11 +566,11 @@ public interface CrazyJoinMapper extends BaseMapper {
             " limit #{offset},#{rows}")
     List<ReportCollectorBean> getCollectorReportAll(String conditions, Integer offset, Integer rows);
 
-    @Select("select count(*)" +
-            " from tb_report_overdue_detail" +
+    @Select("select count(*) from (" +
+            " select * from tb_report_overdue_detail" +
             " where 1=1 " +
             " ${conditions}" +
-            " group by data_dt order by data_dt desc")
+            " group by data_dt order by data_dt desc) tb")
     Integer getCollectorReportAllCount(@Param(value = "conditions") String conditions);
 
     @Select("select" +
@@ -590,10 +590,10 @@ public interface CrazyJoinMapper extends BaseMapper {
             " limit #{offset},#{rows}")
     List<ReportCollectorBean> getCollectorReport(String conditions, Integer offset, Integer rows);
 
-    @Select("select count(*)" +
-            " from tb_report_overdue_detail" +
+    @Select("select count(*) from (" +
+            " select * from tb_report_overdue_detail" +
             " where 1=1 " +
             " ${conditions}" +
-            " group by data_dt,operator_id order by data_dt desc")
+            " group by data_dt,operator_id order by data_dt desc) tb")
     Integer getCollectorReportCount(@Param(value = "conditions") String conditions);
 }
