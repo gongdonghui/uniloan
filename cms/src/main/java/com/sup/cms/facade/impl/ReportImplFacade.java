@@ -1,6 +1,8 @@
 package com.sup.cms.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.sup.cms.bean.po.ReportCollectorBean;
+import com.sup.cms.bean.vo.CollectorReportParam;
 import com.sup.cms.facade.ReportFacade;
 import com.sup.cms.mapper.CheckReportMapper;
 import com.sup.cms.mapper.CollectionReportMapper;
@@ -82,5 +84,10 @@ public class ReportImplFacade implements ReportFacade {
         List<CollectionReportBean> ret = this.collectionReportMapper.selectList(wrapper);
 
         return Result.succ(ret);
+    }
+
+    @Override
+    public Result<List<ReportCollectorBean>> collector(CollectorReportParam param) {
+        return null;
     }
 }

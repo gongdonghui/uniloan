@@ -25,6 +25,7 @@ public class TbReportOverdueDetailBean {
     private Integer apply_id;
     private Integer product_id;
     private Integer status;
+    private Integer is_overdue;
     private Integer overdue_days;
     private Integer grant_quota;
     private Integer need_total;
@@ -43,6 +44,7 @@ public class TbReportOverdueDetailBean {
                 && apply_id.equals(bean.apply_id)
                 && product_id.equals(bean.product_id)
                 && status.equals(bean.status)
+                && is_overdue.equals(bean.is_overdue)
                 && overdue_days.equals(bean.overdue_days)
                 && grant_quota.equals(bean.grant_quota)
                 && need_total.equals(bean.need_total)

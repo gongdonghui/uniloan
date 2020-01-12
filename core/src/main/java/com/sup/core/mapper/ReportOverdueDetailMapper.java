@@ -22,6 +22,7 @@ public interface ReportOverdueDetailMapper extends BaseMapper<TbReportOverdueDet
             "  ,ot.apply_id as apply_id" +
             "  ,ai.product_id as product_id" +
             "  ,ai.status as status" +
+            "  ,rp.is_overdue as is_overdue" +
             "  ,rs.overdue_days as overdue_days" +
             "  ,ai.grant_quota as grant_quota" +
             "  ,rs.need_total as need_total" +

@@ -862,6 +862,7 @@ CREATE TABLE IF NOT EXISTS `tb_report_overdue_detail` (
   `apply_id` int(11) NOT NULL COMMENT '申请ID',
   `product_id` int(11) NOT NULL DEFAULT '0' COMMENT '产品ID',
   `status` int(10) NOT NULL COMMENT '订单状态',
+  `is_overdue` int(11) NOT NULL DEFAULT '0' COMMENT '是否逾期',
   `overdue_days` int(11) NOT NULL DEFAULT '0' COMMENT '逾期天数',
   `grant_quota` int(11) NOT NULL DEFAULT '0' COMMENT '放款合同金额',
   `need_total` int(11) NOT NULL DEFAULT '0' COMMENT '应还总额',
