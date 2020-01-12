@@ -548,4 +548,52 @@ public interface CrazyJoinMapper extends BaseMapper {
             " ${conditions}" +
             " order by ai.id desc")
     Integer getTaskListCount(@Param(value = "conditions") String conditions);
+
+
+    @Select("select" +
+            "  data_dt as allocDate" +
+            "  ,count(apply_id) as taskNum" +
+            "  ,sum(need_total-normal_repay) as taskAmount" +
+            "  ,sum(case when status=14 then 1 else 0 end) as collectNum" +
+            "  ,sum(case when status=14 then act_total-normal_repay else 0 end) as collectAmt" +
+            "  ,sum(case when status!=14 and act_total>normal_repay then 1 else 0 end) as partialCollectNum" +
+            "  ,sum(case when status!=14 and act_total>normal_repay then act_total-normal_repay else 0 end) as partialCollectAmt" +
+            "  ,sum(case when status!=14 and act_total=normal_repay then 1 else 0 end) as noCollectNum" +
+            " from tb_report_overdue_detail" +
+            " where 1=1 " +
+            " ${conditions}" +
+            " group by data_dt order by data_dt desc" +
+            " limit #{offset},#{rows}")
+    List<ReportCollectorBean> getCollectorReportAll(String conditions, Integer offset, Integer rows);
+
+    @Select("select count(*)" +
+            " from tb_report_overdue_detail" +
+            " where 1=1 " +
+            " ${conditions}" +
+            " group by data_dt order by data_dt desc")
+    Integer getCollectorReportAllCount(@Param(value = "conditions") String conditions);
+
+    @Select("select" +
+            "  data_dt as allocDate" +
+            "  ,operator_id as operatorId" +
+            "  ,count(apply_id) as taskNum" +
+            "  ,sum(need_total-normal_repay) as taskAmount" +
+            "  ,sum(case when status=14 then 1 else 0 end) as collectNum" +
+            "  ,sum(case when status=14 then act_total-normal_repay else 0 end) as collectAmt" +
+            "  ,sum(case when status!=14 and act_total>normal_repay then 1 else 0 end) as partialCollectNum" +
+            "  ,sum(case when status!=14 and act_total>normal_repay then act_total-normal_repay else 0 end) as partialCollectAmt" +
+            "  ,sum(case when status!=14 and act_total=normal_repay then 1 else 0 end) as noCollectNum" +
+            " from tb_report_overdue_detail" +
+            " where 1=1 " +
+            " ${conditions}" +
+            " group by data_dt,operator_id order by data_dt desc" +
+            " limit #{offset},#{rows}")
+    List<ReportCollectorBean> getCollectorReport(String conditions, Integer offset, Integer rows);
+
+    @Select("select count(*)" +
+            " from tb_report_overdue_detail" +
+            " where 1=1 " +
+            " ${conditions}" +
+            " group by data_dt,operator_id order by data_dt desc")
+    Integer getCollectorReportCount(@Param(value = "conditions") String conditions);
 }

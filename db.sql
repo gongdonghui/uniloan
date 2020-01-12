@@ -852,3 +852,37 @@ CREATE TABLE IF NOT EXISTS `tb_channel_product` (
   KEY `idx_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE tb_report_overdue_detail;
+CREATE TABLE IF NOT EXISTS `tb_report_overdue_detail` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `data_dt` date NOT NULL COMMENT '报表日期',
+  `task_id` int(11) NOT NULL COMMENT '催收任务id',
+  `operator_id` int(11) NOT NULL COMMENT '催收员id',
+  `name` varchar(128) NOT NULL DEFAULT '""' COMMENT '催收员姓名',
+  `apply_id` int(11) NOT NULL COMMENT '申请ID',
+  `product_id` int(11) NOT NULL DEFAULT '0' COMMENT '产品ID',
+  `status` int(10) NOT NULL COMMENT '订单状态',
+  `is_overdue` int(11) NOT NULL DEFAULT '0' COMMENT '是否逾期',
+  `overdue_days` int(11) NOT NULL DEFAULT '0' COMMENT '逾期天数',
+  `grant_quota` int(11) NOT NULL DEFAULT '0' COMMENT '放款合同金额',
+  `need_total` int(11) NOT NULL DEFAULT '0' COMMENT '应还总额',
+  `act_total` int(11) NOT NULL DEFAULT '0' COMMENT '实际还款总额',
+  `normal_repay` int(11) NOT NULL DEFAULT '0' COMMENT '任务分配前，正常还款总额',
+  `overdue_amount` int(11) NOT NULL DEFAULT '0' COMMENT '逾期金额，应还-正常还款',
+  `recall_amount` int(11) NOT NULL DEFAULT '0' COMMENT '催回金额，实还-正常还款',
+  `repay_end_date` datetime NOT NULL COMMENT '还款截止日期',
+  `create_time` datetime NOT NULL,
+  `update_time` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `data_dt_2` (`data_dt`,`operator_id`,`apply_id`),
+  KEY `data_dt` (`data_dt`),
+  KEY `operator_id` (`operator_id`),
+  KEY `apply_id` (`apply_id`),
+  KEY `product_id` (`product_id`),
+  KEY `status` (`status`),
+  KEY `overdue_days` (`overdue_days`),
+  KEY `repay_end_date` (`repay_end_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+
+
