@@ -3,9 +3,12 @@ package com.sup.core.task;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.TbReportOverdueDetailBean;
+import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.loan.OperationTaskTypeEnum;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.core.mapper.ReportOverdueDetailMapper;
+import com.sup.core.service.ApplyService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +33,9 @@ public class ReportTasks {
 
     @Autowired
     private ReportOverdueDetailMapper reportOverdueDetailMapper;
+
+    @Autowired
+    private ApplyService applyService;
 
     /**
      * 更新催收明细表(tb_report_overdue_detail)
@@ -56,13 +62,19 @@ public class ReportTasks {
                 if (reportOverdueDetailMapper.insert(bean) <= 0) {
                     log.error("Failed to insert bean:" + GsonUtil.toJson(bean));
                 }
-            } else if (!bean.eaquals(_bean)) {
+                continue;
+            }
+            if (!bean.eaquals(_bean)) {
                 bean.setNormal_repay(_bean.getNormal_repay());  // 保持正常还款金额为任务分配前的值
                 bean.setId(_bean.getId());
                 bean.setUpdate_time(now);
                 if (reportOverdueDetailMapper.updateById(bean) <= 0) {
                     log.error("Failed to update bean:" + GsonUtil.toJson(bean));
                 }
+            }
+            if (bean.getStatus() == ApplyStatusEnum.APPLY_REPAY_ALL.getCode()) {
+                // 已还清，关闭逾期任务
+                applyService.closeOperationTask(bean.getApply_id(), OperationTaskTypeEnum.TASK_OVERDUE, "pay off");
             }
         }
     }

@@ -158,7 +158,7 @@ public class ApplyService {
                 addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_OVERDUE, "");
                 break;
             case APPLY_REPAY_ALL:   // 已还清
-                closeOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_OVERDUE, "repay all");
+                closeOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_OVERDUE, "pay off");
                 log.info("APPLY_REPAY_ALL, update credit level for user=" + bean.getUser_id());
                 ruleConfigService.updateCreditLevelForUser(bean.getUser_id());
                 break;
@@ -189,10 +189,11 @@ public class ApplyService {
         QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
         wrapper.eq("apply_id", applyId);
         wrapper.eq("task_type", taskType.getCode());
+        wrapper.ne("status", OperationTaskStatusEnum.TASK_STATUS_DONE.getCode());
         wrapper.eq("has_owner", 1);
         wrapper.last("limit 1");
         TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
-        if (taskBean == null) {  // not exists
+        if (taskBean == null) {  // not exists or finished
             return;
         }
         taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_DONE.getCode());

@@ -316,9 +316,9 @@ public class LoanService {
             }
         }
         applyInfoBean.setUpdate_time(new Date());
-        applyInfoMapper.updateById(applyInfoBean);
         ruleConfigService.updateCreditLevelForUser(applyInfoBean.getUser_id());
-        return Result.succ();
+        return applyService.updateApplyInfo(applyInfoBean);
+
     }
 
     public Result getRepayPlan(String applyId) {
