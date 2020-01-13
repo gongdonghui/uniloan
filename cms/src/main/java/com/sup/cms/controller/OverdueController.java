@@ -95,7 +95,7 @@ public class OverdueController {
     }
 
     /**
-     * 催收任务待回收列表(需排除已完成任务）
+     * 催收档案，待回收任务列表(需排除已完成任务）
      */
     @PostMapping("/task/getList")
     public String getTaskList(@RequestBody @Valid OverdueGetListParams params) {
@@ -220,9 +220,9 @@ public class OverdueController {
 
 
     /**
-     * 催收报表
+     * 已催回任务列表
      */
-    @PostMapping("/report/get")
+    @PostMapping("/task/recallList")
     public String getReport(@RequestBody @Valid OverdueGetListParams params) {
         // TODO
         return ResponseUtil.success();
