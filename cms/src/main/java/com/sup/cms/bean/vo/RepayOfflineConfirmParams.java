@@ -1,5 +1,6 @@
 package com.sup.cms.bean.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ import java.util.Date;
 @Data
 public class RepayOfflineConfirmParams {
     @NotNull
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date    repayDate;      // 还款时间
     @NotNull
     private Integer repayAmount;    // 还款金额
