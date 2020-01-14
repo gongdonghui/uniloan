@@ -11,7 +11,8 @@ import java.util.Date;
 @Data
 public class OverdueGetListBean {
     private Integer applyId;
-    private Date    shouldRepayDate;
+    private Date    shouldRepayDate;    // 应还日期
+    private Date    repayDate;          // 实际还款日期
     private String  name;
     private Integer gender;
     private Integer age;

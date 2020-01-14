@@ -596,4 +596,79 @@ public interface CrazyJoinMapper extends BaseMapper {
             " ${conditions}" +
             " group by data_dt,operator_id order by data_dt desc) tb")
     Integer getCollectorReportCount(@Param(value = "conditions") String conditions);
+
+    
+    @Select("select" +
+            "  rod.apply_id as applyId" +
+            "  ,rod.repay_end_date as shouldRepayDate" +
+            "  ,rp.repay_time as repayDate" +
+            "  ,b.name as name" +
+            "  ,b.gender as gender" +
+            "  ,c.age as age" +
+            "  ,uri.mobile as mobile" +
+            "  ,b.cid_no as cidNo" +
+            "  ,av.app_name as appName" +
+            "  ,pi.name as productName" +
+            "  ,(rs.need_total-rs.act_total) as remainAmount" +
+            "  ,(rod.act_total-rod.normal_repay) as callBackAmount" +
+            "  ,ai.grant_quota as loanAmount" +
+            "  ,rs.need_total as shouldRepayAmount" +
+            "  ,case when rp.is_overdue=1 then (rs.need_total-rs.normal_repay) else 0 end as overdueAmount" +
+            "  ,rs.need_penalty_interest as penaltyInterest" +
+            "  ,rs.overdue_days as overdueDays" +
+            "  ,ot.status as taskStatus" +
+            "  ,ai.loan_time as loanDate" +
+            "  ,ot.operator_id as operatorId" +
+            "  ,rod.name as operatorName" +
+            " from ( select * from tb_report_overdue_detail where act_total>normal_repay ) rod" +
+            " left join tb_repay_stat rs on rod.apply_id=rs.apply_id" +
+            " left join tb_repay_plan rp on rod.apply_id=rp.apply_id and rs.current_seq=rp.seq_no" +
+            " left join tb_product_info pi on rp.product_id=pi.id" +
+            " left join tb_user_regist_info uri on rp.user_id=uri.id" +
+            " left join (select * from tb_apply_info where status in (12, 13, 14, 15)) ai on rod.apply_id=ai.id" +
+            " left join tb_app_version av on ai.app_id=av.id" +
+            " left join (" +
+            "   select apply_id, name, gender, cid_no from (" +
+            "    select * from tb_apply_material_info where info_type=0" +
+            "   ) ami left join tb_user_citizen_identity_card_info ucid on ami.info_id=ucid.info_id" +
+            " ) b on rod.apply_id=b.apply_id" +
+            " left join (" +
+            "   select apply_id, age from (" +
+            "     select * from tb_apply_material_info where info_type=1" +
+            "   ) ami left join tb_user_basic_info ubi on ami.info_id=ubi.info_id" +
+            " ) c on rod.apply_id=c.apply_id" +
+            " left join (" +
+            "   select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3" +
+            " ) ot on rod.apply_id=ot.apply_id" +
+            " where 1=1 " +
+            " ${conditions}" +
+            " order by rod.apply_id desc" +
+            " limit #{offset},#{rows}"
+    )
+    List<OverdueGetListBean> getRecallList(String conditions, Integer offset, Integer rows);
+
+    @Select("select count(rod.apply_id)" +
+            " from ( select * from tb_report_overdue_detail where act_total>normal_repay ) rod" +
+            " left join tb_repay_stat rs on rod.apply_id=rs.apply_id" +
+            " left join tb_repay_plan rp on rod.apply_id=rp.apply_id and rs.current_seq=rp.seq_no" +
+            " left join tb_product_info pi on rp.product_id=pi.id" +
+            " left join tb_user_regist_info uri on rp.user_id=uri.id" +
+            " left join (select * from tb_apply_info where status in (12, 13, 14, 15)) ai on rod.apply_id=ai.id" +
+            " left join tb_app_version av on ai.app_id=av.id" +
+            " left join (" +
+            "   select apply_id, name, gender, cid_no from (" +
+            "    select * from tb_apply_material_info where info_type=0" +
+            "   ) ami left join tb_user_citizen_identity_card_info ucid on ami.info_id=ucid.info_id" +
+            " ) b on rod.apply_id=b.apply_id" +
+            " left join (" +
+            "   select apply_id, age from (" +
+            "     select * from tb_apply_material_info where info_type=1" +
+            "   ) ami left join tb_user_basic_info ubi on ami.info_id=ubi.info_id" +
+            " ) c on rod.apply_id=c.apply_id" +
+            " left join (" +
+            "   select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3" +
+            " ) ot on rod.apply_id=ot.apply_id" +
+            " where 1=1 " +
+            " ${conditions}")
+    Integer getRecallListCount(@Param(value = "conditions") String conditions);
 }
