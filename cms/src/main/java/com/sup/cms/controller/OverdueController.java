@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.OverdueGetListBean;
 import com.sup.cms.bean.vo.OverdueGetListParams;
+import com.sup.cms.bean.vo.OverdueRecallListParams;
 import com.sup.cms.bean.vo.OverdueTaskAllocateParams;
 import com.sup.cms.bean.vo.OverdueTaskRecycleParams;
 import com.sup.cms.mapper.CrazyJoinMapper;
@@ -99,7 +100,6 @@ public class OverdueController {
      */
     @PostMapping("/task/getList")
     public String getTaskList(@RequestBody @Valid OverdueGetListParams params) {
-        // TODO
         StringBuilder sb = new StringBuilder();
         if (params.getApplyId() != null) {
             sb.append(" and ai.id=" + params.getApplyId());
@@ -223,9 +223,33 @@ public class OverdueController {
      * 已催回任务列表
      */
     @PostMapping("/task/recallList")
-    public String getReport(@RequestBody @Valid OverdueGetListParams params) {
-        // TODO
-        return ResponseUtil.success();
+    public String getRecallList(@RequestBody @Valid OverdueRecallListParams params) {
+        StringBuilder sb = new StringBuilder();
+        if (params.getAllocStartDate() != null) {
+            sb.append(" and rod.data_dt>='" + DateUtil.startOf(params.getAllocStartDate()) + "'");
+        }
+        if (params.getAllocEndDate() != null) {
+            sb.append(" and rod.data_dt<='" + DateUtil.endOf(params.getAllocEndDate()) + "'");
+        }
+        if (params.getRepayStartDate() != null) {
+            sb.append(" and rp.repay_time>='" + DateUtil.startOf(params.getRepayStartDate()) + "'");
+        }
+        if (params.getRepayStartDate() != null) {
+            sb.append(" and rp.repay_time<='" + DateUtil.endOf(params.getRepayEndDate()) + "'");
+        }
+
+        if (params.getOperatorId() != null) {
+            sb.append(" and rod.operator_id=" + params.getOperatorId());
+        }
+
+        log.info("getRecallList conditions=" + sb.toString());
+        Integer offset = (params.getPage() - 1) * params.getPageSize();
+        Integer rows = params.getPageSize();
+        List<OverdueGetListBean> l = crazyJoinMapper.getRecallList(sb.toString(), offset, rows);
+        Map m = Maps.newHashMap();
+        m.put("total",crazyJoinMapper.getRecallListCount(sb.toString()));
+        m.put("list",l);
+        return ResponseUtil.success(m);
     }
 
 }

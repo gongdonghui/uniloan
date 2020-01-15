@@ -20,4 +20,6 @@ public class ManualRepayParam {
     private String  operatorId;
     private Integer amount;     // 还款金额
     private String  repayTime;  // 还款时间 yyyy-MM-dd HH:mm:ss
+    private String  repayImg;
+    private String  comment;
 }
