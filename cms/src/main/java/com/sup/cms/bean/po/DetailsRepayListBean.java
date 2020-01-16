@@ -21,5 +21,6 @@ public class DetailsRepayListBean {
     private Date    actRepayDate;               // 还款日期
     private Integer remainPenaltyInterestAmount;// 剩余罚息
     private Integer remainBreachFeeAmount;      // 剩余违约金
+    private Integer reductionFee;               // 已减免的费用
     private Integer status;
 }
