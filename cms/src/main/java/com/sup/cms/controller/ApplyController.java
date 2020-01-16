@@ -336,8 +336,8 @@ public class ApplyController {
         log.info("manual loan, params = " + GsonUtil.toJson(params));
         Result result = coreService.manualLoan(params);
         if (!result.isSucc()) {
-            log.error("Failed to manualLoan with param = " + GsonUtil.toJson(params));
-            return ResponseUtil.failed("");
+            log.error("Failed to manualLoan(" + result.getMessage() + "), param = " + GsonUtil.toJson(params));
+            return ResponseUtil.failed(result.getMessage());
         }
         return ResponseUtil.success();
     }
@@ -353,8 +353,8 @@ public class ApplyController {
         Result ret = coreService.reduction(param);
         log.info("reduction, param = " + GsonUtil.toJson(param));
         if (!ret.isSucc()) {
-            log.error("reduction failed, param = " + GsonUtil.toJson(param));
-            return ResponseUtil.failed();
+            log.error("reduction failed(" + ret.getMessage() + "), param = " + GsonUtil.toJson(param));
+            return ResponseUtil.failed(ret.getMessage());
         }
         return ResponseUtil.success();
     }
