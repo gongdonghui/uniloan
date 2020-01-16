@@ -315,9 +315,7 @@ public class ScheduleTasks {
     // @Scheduled(cron = "0 1 * * * ?")
     public void checkOverdue() {
         // 1. 获取所有产品信息（逾期日费率）
-        List<TbProductInfoBean> products = productInfoMapper.selectList(
-                new QueryWrapper<TbProductInfoBean>().eq("status", ProductStatusEnum.PRODUCT_STATUS_OFFLINE.getCode())
-        );
+        List<TbProductInfoBean> products = productInfoMapper.selectList(null);
         if (products == null || products.size() == 0) {
             // No products??
             return;
@@ -333,6 +331,7 @@ public class ScheduleTasks {
         wrapper.ne("repay_status", RepayPlanStatusEnum.PLAN_PAID_ALL.getCode());
         wrapper.ne("repay_status", RepayPlanStatusEnum.PLAN_PAID_WRITE_OFF.getCode());
         wrapper.le("repay_start_date", now);
+        wrapper.orderByAsc("id");
 
         Integer total = repayPlanMapper.selectCount(wrapper);
         Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
