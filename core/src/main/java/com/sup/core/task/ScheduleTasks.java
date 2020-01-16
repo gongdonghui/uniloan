@@ -297,7 +297,7 @@ public class ScheduleTasks {
                     if (repayHistoryMapper.updateById(bean) <= 0) {
                         log.error("checkRepayResult: Failed to update for bean = " + GsonUtil.toJson(bean));
                     }
-                    if (repayPlanBean != null) {
+                    if (repayPlanBean != null && repayPlanBean.getRepay_status() != RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
                         repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_ERROR.getCode());
                         if (repayPlanMapper.updateById(repayPlanBean) <= 0) {
                             log.error("checkRepayResult: Failed to update repayPlan bean = " + GsonUtil.toJson(repayPlanBean));
@@ -345,6 +345,11 @@ public class ScheduleTasks {
             }
 
             for (TbRepayPlanBean bean : repayPlanBeans.getRecords()) {
+                if (bean.getAct_total() + bean.getReduction_fee() >= bean.getNeed_total()) {    // 已还清
+                    bean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode());
+                    repayPlanMapper.updateById(bean);
+                    continue;
+                }
                 boolean isOverdue = bean.getIs_overdue() == RepayPlanOverdueEnum.PLAN_OVER_DUE.getCode();
                 Integer productId = bean.getProduct_id();
                 TbProductInfoBean productInfoBean = productsMap.getOrDefault(productId, null);
