@@ -366,7 +366,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " a.repay_time as actRepayDate," +
             " (a.need_penalty_interest-a.act_penalty_interest) as remainPenaltyInterestAmount," +
             " (a.need_breach_fee-a.act_breach_fee) as remainBreachFeeAmount," +
-            " a.reduction_fee as reductionFee" +
+            " a.reduction_fee as reductionFee," +
             " a.repay_status as status" +
             " from " +
             "(select * from tb_repay_plan where apply_id=#{applyId}) a" +
