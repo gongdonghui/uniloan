@@ -1,7 +1,9 @@
 package com.sup.cms.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.sup.cms.bean.po.DetailsRepayBean;
 import com.sup.cms.bean.vo.*;
+import com.sup.cms.mapper.CrazyJoinMapper;
 import com.sup.cms.mapper.TbManualRepayMapper;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbManualRepayBean;
@@ -13,10 +15,7 @@ import com.sup.common.util.ResponseUtil;
 import com.sup.common.util.Result;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Date;
@@ -37,6 +36,9 @@ public class RepayController {
 
     @Autowired
     private TbManualRepayMapper manualRepayMapper;
+
+    @Autowired
+    private CrazyJoinMapper crazyJoinMapper;
 
     /**
      * 确认用户线下还款(未通过系统提交还款凭证)
@@ -160,5 +162,15 @@ public class RepayController {
             return ResponseUtil.failed("No material found!");
         }
         return ResponseUtil.success(repayBeans);
+    }
+
+    @GetMapping("/repayPlan/get")
+    public String getRepayPlan(@RequestParam("applyId") String applyId) {
+        DetailsRepayBean bean = crazyJoinMapper.detailsRepay(applyId);
+        log.info(">>> applyId = " + applyId + ", repay bean:" + GsonUtil.toJson(bean));
+        if (bean != null) {
+            bean.setList(crazyJoinMapper.detailsRepayList(applyId));
+        }
+        return ResponseUtil.success(bean);
     }
 }

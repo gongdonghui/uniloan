@@ -231,16 +231,6 @@ public class DetailsController {
         return ResponseUtil.success(m);
     }
 
-    @GetMapping("/repay")
-    public String repay(@RequestParam("applyId") String applyId) {
-        DetailsRepayBean bean = crazyJoinMapper.detailsRepay(applyId);
-        log.info(">>> applyId = " + applyId + ", repay bean:" + GsonUtil.toJson(bean));
-        if (bean != null) {
-            bean.setList(crazyJoinMapper.detailsRepayList(applyId));
-        }
-        return ResponseUtil.success(bean);
-    }
-
     @ResponseBody
     @RequestMapping(value = "/image/get")
     public String getImages(@RequestParam("keys") List<String> keys) {
