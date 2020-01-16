@@ -447,6 +447,21 @@ public class LoanService {
             log.error("Invalid amount = " + GsonUtil.toJson(param));
             return Result.fail("");
         }
+        // 简单验证还款信息
+        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("id", param.getApplyId());
+        wrapper.eq("user_id", param.getUserId());
+        wrapper.in("status",
+                ApplyStatusEnum.APPLY_LOAN_SUCC.getCode(),
+                ApplyStatusEnum.APPLY_REPAY_PART.getCode(),
+                ApplyStatusEnum.APPLY_OVERDUE.getCode(),
+                ApplyStatusEnum.APPLY_WRITE_OFF.getCode());
+        TbApplyInfoBean applyInfoBean = applyInfoMapper.selectOne(wrapper);
+        if (applyInfoBean == null) {    // 可能已还清
+            log.error("Invalid repay info! [SQL]=" + wrapper.getSqlSegment());
+            return Result.fail("Invalid repay info!");
+        }
+
         // 创建还款记录
         Date now = new Date();
         Date repayTime = DateUtil.parse(param.getRepayTime(), DateUtil.DEFAULT_DATETIME_FORMAT);
