@@ -276,7 +276,7 @@ public class LoanService {
             return Result.fail("TbRepayPlanBean is null!");
         }
 
-        log.debug("updateRepayPlan: bean = " + GsonUtil.toJson(bean));
+        log.info("updateRepayPlan: bean = " + GsonUtil.toJson(bean));
 
         bean.setUpdate_time(new Date());
         if (repayPlanMapper.updateById(bean) <= 0) {
