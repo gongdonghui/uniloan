@@ -160,7 +160,6 @@ public class ApplyService {
             case APPLY_REPAY_ALL:   // 已还清
                 closeOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_OVERDUE, "pay off");
                 log.info("APPLY_REPAY_ALL, update credit level for user=" + bean.getUser_id());
-                ruleConfigService.updateCreditLevelForUser(bean.getUser_id());
                 break;
             case APPLY_WRITE_OFF:   // 还款计划也更新为核销
                 // 回收逾期任务
@@ -175,6 +174,10 @@ public class ApplyService {
 
         if (applyInfoMapper.updateById(bean) <= 0) {
             return Result.fail("update ApplyInfo failed! bean = " + GsonUtil.toJson(bean));
+        }
+
+        if (newState == ApplyStatusEnum.APPLY_REPAY_ALL) {
+            ruleConfigService.updateCreditLevelForUser(bean.getUser_id());
         }
 
         TbApplyInfoHistoryBean applyInfoHistoryBean = new TbApplyInfoHistoryBean(bean);

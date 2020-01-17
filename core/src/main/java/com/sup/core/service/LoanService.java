@@ -316,7 +316,7 @@ public class LoanService {
             }
         }
         applyInfoBean.setUpdate_time(new Date());
-        ruleConfigService.updateCreditLevelForUser(applyInfoBean.getUser_id());
+        //ruleConfigService.updateCreditLevelForUser(applyInfoBean.getUser_id());
         return applyService.updateApplyInfo(applyInfoBean);
 
     }

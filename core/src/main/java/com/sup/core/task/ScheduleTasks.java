@@ -558,6 +558,7 @@ public class ScheduleTasks {
         List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
                 .eq("status", ApplyStatusEnum.APPLY_LOAN_SUCC.getCode())
                 .or().eq("status", ApplyStatusEnum.APPLY_REPAY_PART.getCode())
+                .or().eq("status", ApplyStatusEnum.APPLY_REPAY_ALL.getCode())
                 .or().eq("status", ApplyStatusEnum.APPLY_OVERDUE.getCode()));
 
         //TODO 结清的问题
