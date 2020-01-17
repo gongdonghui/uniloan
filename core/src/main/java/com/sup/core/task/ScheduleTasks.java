@@ -778,6 +778,9 @@ public class ScheduleTasks {
 
             }
         }
+        if (deny + checked + allocated == 0) {
+            return;
+        }
         checkReportBean.setDenyed(deny);
         checkReportBean.setChecked(checked);
         checkReportBean.setAllocated(allocated);
