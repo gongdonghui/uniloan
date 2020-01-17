@@ -5,6 +5,7 @@ import com.sup.common.bean.CreditLevelRuleBean;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbUserRegistInfoBean;
 import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.util.GsonUtil;
 import com.sup.core.bean.OverdueInfoBean;
 import com.sup.core.mapper.ApplyInfoMapper;
 import com.sup.core.mapper.CreditLevelRulesMapper;
@@ -51,6 +52,7 @@ public class RuleConfigService {
     public void updateCreditLevelForUser(Integer user_id, Integer reloan_times, List<CreditLevelRuleBean> creditLevelRuleBeans) {
 
         OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(user_id, this.repayPlanMapper);
+        log.info("updateCreditLevelForUser user_id=" + user_id + ", reloan_times=" + reloan_times + ", bean=" + GsonUtil.toJson(overdueInfoBean));
         for (CreditLevelRuleBean creditLevelRuleBean : creditLevelRuleBeans) {
             if (reloan_times >= creditLevelRuleBean.getReloan_times() && overdueInfoBean.getMax_days() <= creditLevelRuleBean.getMax_overdue_days()) {
                 TbUserRegistInfoBean userRegistInfoBean = this.userRegisterInfoMapper.selectById(user_id);
