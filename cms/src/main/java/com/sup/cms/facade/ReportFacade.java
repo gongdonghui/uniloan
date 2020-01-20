@@ -1,6 +1,5 @@
 package com.sup.cms.facade;
 
-import com.sup.cms.bean.po.ReportCollectorBean;
 import com.sup.cms.bean.vo.CollectorReportParam;
 import com.sup.common.bean.CheckReportBean;
 import com.sup.common.bean.CollectionReportBean;
@@ -34,8 +33,22 @@ public interface ReportFacade {
     @RequestMapping(value = "collection", produces = "application/json;charset=UTF-8")
     Result<List<CollectionReportBean>> collection(@RequestBody OperationReportParam param);
 
+    /**
+     * 催收日报
+     * @param param
+     * @return
+     */
     @ResponseBody
     @RequestMapping(value = "collector", produces = "application/json;charset=UTF-8")
     String collector(@RequestBody CollectorReportParam param);
+
+    /**
+     * 运营日报
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "operation", produces = "application/json;charset=UTF-8")
+    String operationReport(@RequestBody OperationReportParam param);
 
 }

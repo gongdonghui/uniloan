@@ -2,11 +2,13 @@ package com.sup.core.task;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.sup.common.bean.TbLoanInfoBean;
 import com.sup.common.bean.TbReportOverdueDetailBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.OperationTaskTypeEnum;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.GsonUtil;
+import com.sup.core.mapper.LoanInfoMapper;
 import com.sup.core.mapper.ReportOverdueDetailMapper;
 import com.sup.core.service.ApplyService;
 import lombok.extern.log4j.Log4j;
@@ -36,6 +38,9 @@ public class ReportTasks {
 
     @Autowired
     private ApplyService applyService;
+    @Autowired
+    private LoanInfoMapper loanInfoMapper;
+
 
     /**
      * 更新催收明细表(tb_report_overdue_detail)
@@ -75,6 +80,42 @@ public class ReportTasks {
             if (bean.getStatus() == ApplyStatusEnum.APPLY_REPAY_ALL.getCode()) {
                 // 已还清，关闭逾期任务
                 applyService.closeOperationTask(bean.getApply_id(), OperationTaskTypeEnum.TASK_OVERDUE, "pay off");
+            }
+        }
+    }
+
+    /**
+     * 更新还款信息表（tb_loan_info）
+     * 该任务需在更新还款统计任务之后运行
+     */
+    @Scheduled(cron = "0 0 2 * * ?")
+    public void updateLoanInfo() {
+        List<TbLoanInfoBean> beans = loanInfoMapper.selectList(null);
+        Map<Integer, TbLoanInfoBean> beanMap = new HashMap<>();
+        for (TbLoanInfoBean bean : beans) {
+            beanMap.put(bean.getApply_id(), bean);
+        }
+        Date now = new Date();
+        Integer total = loanInfoMapper.getLoanInfoCount();
+        Integer pageCount = (total + QUERY_PAGE_NUM - 1) / QUERY_PAGE_NUM;
+        for (int i = 0; i < pageCount; i++) {
+            List<TbLoanInfoBean> loanInfoBeans = loanInfoMapper.getLoanInfo(i * QUERY_PAGE_NUM, QUERY_PAGE_NUM);
+            for (TbLoanInfoBean bean : loanInfoBeans) {
+                TbLoanInfoBean oldBean = beanMap.getOrDefault(bean.getApply_id(), null);
+                if (oldBean == null) {
+                    bean.setCreate_time(now);
+                    bean.setUpdate_time(now);
+                    if (loanInfoMapper.insert(bean) <= 0) {
+                        log.error("updateLoanInfo failed to insert bean:" + GsonUtil.toJson(bean));
+                    }
+                } else {
+                    bean.setId(oldBean.getId());
+                    bean.setCreate_time(oldBean.getCreate_time());
+                    bean.setUpdate_time(now);
+                    if (loanInfoMapper.updateById(bean) <= 0) {
+                        log.error("updateLoanInfo failed to update bean:" + GsonUtil.toJson(bean));
+                    }
+                }
             }
         }
     }

@@ -2,6 +2,7 @@ package com.sup.cms.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Maps;
+import com.sup.cms.bean.po.LoanStatBean;
 import com.sup.cms.bean.po.ReportCollectorBean;
 import com.sup.cms.bean.vo.CollectorReportParam;
 import com.sup.cms.facade.ReportFacade;
@@ -128,6 +129,38 @@ public class ReportImplFacade implements ReportFacade {
         Map m = Maps.newHashMap();
         m.put("total", resultCount);
         m.put("list", result);
+        return ResponseUtil.success(m);
+    }
+
+    /**
+     * 运营日报
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public String operationReport(OperationReportParam param) {
+        StringBuilder sb = new StringBuilder();
+        if (param.getStart_date() != null) {
+            sb.append(" and loan_time>='" + DateUtil.startOf(param.getStart_date()) + "'");
+        }
+        if (param.getEnd_date() != null) {
+            sb.append(" and loan_time<='" + DateUtil.endOf(param.getEnd_date()) + "'");
+        }
+        if (param.getChannel_id() != null && param.getChannel_id() >= 0) {
+            sb.append(" and channel_id=" + param.getChannel_id());
+        }
+        if (param.getProduct_id() != null && param.getProduct_id() >= 0) {
+            sb.append(" and product_id=" + param.getProduct_id());
+        }
+
+        log.info("operationReport conditions=" + sb.toString());
+        Integer offset = (param.getPage() - 1) * param.getPageSize();
+        Integer rows = param.getPageSize();
+        List<LoanStatBean> l = crazyJoinMapper.getOperationReport(sb.toString(), offset, rows);
+        Map m = Maps.newHashMap();
+        m.put("total",crazyJoinMapper.getOperationReportCount(sb.toString()));
+        m.put("list",l);
         return ResponseUtil.success(m);
     }
 }

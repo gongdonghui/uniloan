@@ -672,4 +672,40 @@ public interface CrazyJoinMapper extends BaseMapper {
             " where 1=1 " +
             " ${conditions}")
     Integer getRecallListCount(@Param(value = "conditions") String conditions);
+
+    @Select("select" +
+            "  substr(loan_time,1,10) as dt" +
+            "  ,count(apply_id) as loanNum" +
+            "  ,sum(need_principal) as principal" +
+            "  ,sum(contract_amount) as contractAmt" +
+            "  ,sum(normal_repay) as normalRepayAmt" +
+            "  ,sum(case when is_overdue=0 and act_total>0 then 1 else 0 END) as normalRepayNum" +
+            "  ,sum(is_overdue) as firstOverdueNum" +
+            "  ,sum(overdue_amount) as firstOverdueAmt" +
+            "  ,sum(case when is_overdue=1 and status=14 then contract_amount else 0 end) as overduedContractAmt" +
+            "  ,sum(case when is_overdue=1 and status=14 then act_penalty_interest else 0 end) as overduedPenaltyInterest" +
+            "  ,sum(case when is_overdue=1 and status!=14 then contract_amount else 0 end) as overduingContractAmt" +
+            "  ,sum(act_total) as repayTotal" +
+            "  ,sum(is_overdue)/count(apply_id) as foRate" +
+            "  ,sum(case when is_overdue=1 and status!=14 then 1 else 0 end) as overdueNum" +
+            "  ,sum(case when is_overdue=1 and status!=14 then 1 else 0 end)/count(apply_id) as overdueRate" +
+            "  ,sum(act_principal)/sum(need_principal) as principalRate" +
+            " from tb_loan_info" +
+            " where 1=1 " +
+            " ${conditions}" +
+            " group by substr(loan_time,1,10) having loanNum>0 order by dt desc"
+    )
+    List<LoanStatBean> getOperationReport(String conditions, Integer offset, Integer rows);
+    
+    @Select("select count(*) from (" +
+            "  select" +
+            "    substr(loan_time,1,10) as dt" +
+            "    ,count(apply_id) as loanNum" +
+            "  from tb_loan_info" +
+            "  where 1=1 " +
+            "  ${conditions}" +
+            "  group by substr(loan_time,1,10) having loanNum>0 order by dt desc" +
+            ") tb"
+    )
+    Integer getOperationReportCount(@Param(value = "conditions") String conditions);
 }
