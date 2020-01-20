@@ -885,5 +885,42 @@ CREATE TABLE IF NOT EXISTS `tb_report_overdue_detail` (
   KEY `repay_end_date` (`repay_end_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
+DROP TABLE tb_loan_info;
+CREATE TABLE IF NOT EXISTS `tb_loan_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `apply_id` int(10) NOT NULL COMMENT 'apply_id 作为主键',
+  `user_id` int(11) NOT NULL,
+  `product_id` int(11) DEFAULT NULL,
+  `channel_id` int(11) DEFAULT NULL,
+  `app_id` int(11) DEFAULT NULL,
+  `current_seq` int(10) DEFAULT NULL COMMENT '当前期数',
+  `status` int(11) DEFAULT NULL COMMENT '订单状态，参见tb_apply_info的状态',
+  `max_overdue_days` int(11) NOT NULL DEFAULT '0' COMMENT '最大逾期天数',
+  `regist_time` datetime DEFAULT NULL,
+  `apply_time` datetime DEFAULT NULL,
+  `loan_time` datetime DEFAULT NULL,
+  `repay_end_date` datetime DEFAULT NULL COMMENT '应还日期',
+  `repay_time` datetime DEFAULT NULL COMMENT '最后还款日期',
+  `contract_amount` bigint(20) NOT NULL DEFAULT '0' COMMENT '合同金额',
+  `inhand_amount` bigint(20) NOT NULL DEFAULT '0' COMMENT '到手金额',
+  `need_total` bigint(20) NOT NULL DEFAULT '0' COMMENT '应还总额',
+  `act_total` bigint(20) NOT NULL DEFAULT '0' COMMENT '实还总额',
+  `normal_repay` bigint(20) NOT NULL DEFAULT '0' COMMENT '正常还款总额，逾期后还款不计入内',
+  `reduction_fee` bigint(20) NOT NULL DEFAULT '0' COMMENT '减免费用',
+  `need_penalty_interest` bigint(20) NOT NULL DEFAULT '0' COMMENT '应还罚息',
+  `act_penalty_interest` bigint(20) NOT NULL DEFAULT '0' COMMENT '实还罚息',
+  `overdue_amount` bigint(20) NOT NULL DEFAULT '0' COMMENT '逾期金额（首逾金额）',
+  `remain_overdue_amount` bigint(20) NOT NULL DEFAULT '0' COMMENT '剩余逾期金额',
+  `create_time` datetime NOT NULL COMMENT '记录创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `apply_id` (`apply_id`),
+  KEY `status` (`status`),
+  KEY `regist_time` (`regist_time`),
+  KEY `apply_time` (`apply_time`),
+  KEY `loan_time` (`loan_time`),
+  KEY `product_id` (`product_id`),
+  KEY `channel_id` (`channel_id`),
+  KEY `repay_end_date` (`repay_end_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
