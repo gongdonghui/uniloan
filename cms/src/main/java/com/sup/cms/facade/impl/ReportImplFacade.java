@@ -147,10 +147,10 @@ public class ReportImplFacade implements ReportFacade {
         if (param.getEnd_date() != null) {
             sb.append(" and loan_time<='" + DateUtil.endOf(param.getEnd_date()) + "'");
         }
-        if (param.getChannel_id() != null) {
+        if (param.getChannel_id() != null && param.getChannel_id() >= 0) {
             sb.append(" and channel_id=" + param.getChannel_id());
         }
-        if (param.getProduct_id() != null) {
+        if (param.getProduct_id() != null && param.getProduct_id() >= 0) {
             sb.append(" and product_id=" + param.getProduct_id());
         }
 
