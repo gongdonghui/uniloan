@@ -702,6 +702,8 @@ public interface CrazyJoinMapper extends BaseMapper {
             "    substr(loan_time,1,10) as dt" +
             "    ,count(apply_id) as loanNum" +
             "  from tb_loan_info" +
+            "  where 1=1 " +
+            "  ${conditions}" +
             "  group by substr(loan_time,1,10) having loanNum>0 order by dt desc" +
             ") tb"
     )
