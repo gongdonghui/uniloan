@@ -33,6 +33,8 @@ public interface LoanInfoMapper extends BaseMapper<TbLoanInfoBean> {
             " ,rp.repay_time as repay_time" +
             " ,ai.grant_quota as contract_amount" +
             " ,ai.inhand_quota as inhand_amount" +
+            " ,rs.need_principal as need_principal" +
+            " ,rs.act_principal as act_principal" +
             " ,rs.need_total as need_total" +
             " ,rs.act_total as act_total" +
             " ,rs.normal_repay as normal_repay" +

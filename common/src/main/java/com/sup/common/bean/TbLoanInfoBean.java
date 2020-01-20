@@ -28,6 +28,7 @@ public class TbLoanInfoBean {
     private Integer app_id;
     private Integer current_seq;    // 当前还款期数
     private Integer status;         // 订单状态，详见tb_apply_info.status
+    private Integer is_overdue;
     private Integer max_overdue_days;
     private Date    regist_time;
     private Date    apply_time;
@@ -36,6 +37,8 @@ public class TbLoanInfoBean {
     private Date    repay_time;     // 最近还款日期
     private Long    contract_amount;
     private Long    inhand_amount;
+    private Long    need_principal = 0L;    // 应还本金
+    private Long    act_principal = 0L;     // 已还本金
     private Long    need_total = 0L;
     private Long    act_total = 0L;
     private Long    normal_repay = 0L;     // 正常还款总额，逾期后还款不计入内
