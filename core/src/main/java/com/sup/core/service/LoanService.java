@@ -75,7 +75,7 @@ public class LoanService {
         return autoLoan(applyInfoBean, param.getOperatorId());
     }
 
-    public Result autoLoan(TbApplyInfoBean applyInfoBean, Integer operatorId) {
+    public synchronized Result autoLoan(TbApplyInfoBean applyInfoBean, Integer operatorId) {
         String userId = String.valueOf(applyInfoBean.getUser_id());
         String applyId = String.valueOf(applyInfoBean.getId());
 
@@ -115,7 +115,7 @@ public class LoanService {
 
         // 3. loan using funpay(need thread safe)
         boolean loanSucc = false;
-        synchronized (this) {
+        {
             String token = ToolUtils.getToken();    // orderNo
             PayInfo payInfo = new PayInfo();
             payInfo.setUserId(userId);
