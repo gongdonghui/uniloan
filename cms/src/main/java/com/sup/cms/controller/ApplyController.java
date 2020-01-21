@@ -487,7 +487,13 @@ public class ApplyController {
     @PostMapping("/retryLoan")
     public String retryLoan(@RequestBody @Valid ApplyRetryLoanParam params) {
         log.info("retryLoan param: " + GsonUtil.toJson(params));
-        if (coreService.retryLoan(params).isSucc()) {
+        Result ret = coreService.retryLoan(params);
+        try {
+            Thread.sleep(5000);
+        } catch (Exception e) {
+
+        }
+        if (ret.isSucc()) {
             return ResponseUtil.success();
         }
         return ResponseUtil.failed();
