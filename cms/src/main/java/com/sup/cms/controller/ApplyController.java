@@ -489,7 +489,7 @@ public class ApplyController {
         log.info("retryLoan param: " + GsonUtil.toJson(params));
         Result ret = coreService.retryLoan(params);
         try {
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         } catch (Exception e) {
 
         }
