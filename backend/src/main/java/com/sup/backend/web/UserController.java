@@ -62,7 +62,7 @@ public class UserController {
   @Value("${login.fake_verify_code}")
   boolean fake_verify_code;
 
-  private static Pattern pat = Pattern.compile("^\\d{6,15}$");
+  private static Pattern pat = Pattern.compile("^0\\d{9}$");
 
   @ResponseBody
   @RequestMapping(value = "issue_verify_code", produces = "application/json;charset=UTF-8")
