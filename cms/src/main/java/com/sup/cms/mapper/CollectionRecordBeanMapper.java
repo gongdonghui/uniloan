@@ -13,18 +13,18 @@ import java.util.List;
  * @Date: 2019/10/2 16:25
  */
 public interface CollectionRecordBeanMapper extends BaseMapper<TbCollectionRecordBean> {
-    @Select("select\n" +
-            "  cr.mobile as mobile\n" +
-            "  ,cr.status as status\n" +
-            "  ,cr.alert_date as alertDate\n" +
-            "  ,cr.comment as comment\n" +
-            "  ,cr.apply_id as applyId\n" +
-            "  ,cr.periods as periods\n" +
-            "  ,cr.operator_id as operatorId\n" +
-            "  ,cau.name as operatorName\n" +
-            "  ,cr.create_time as createTime\n" +
-            " from (select * from tb_cms_collection_record where apply_id=#{applyId}) cr\n" +
-            " left join tb_cms_auth_user cau\n" +
-            " on cr.operator_id=cau.id")
+    @Select("select" +
+            "  cr.mobile as mobile" +
+            "  ,cr.status as status" +
+            "  ,cr.alert_date as alertDate" +
+            "  ,cr.comment as comment" +
+            "  ,cr.apply_id as applyId" +
+            "  ,cr.periods as periods" +
+            "  ,cr.operator_id as operatorId" +
+            "  ,cau.name as operatorName" +
+            "  ,cr.create_time as createTime" +
+            " from (select * from tb_cms_collection_record where apply_id=#{applyId}) cr" +
+            " left join tb_cms_auth_user cau on cr.operator_id=cau.id"
+    )
     List<CollectionRecordBean> getRecords(@RequestParam("applyId") String applyId);
 }
