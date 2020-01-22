@@ -21,7 +21,7 @@ public interface CollectionRecordBeanMapper extends BaseMapper<TbCollectionRecor
             "  ,cr.apply_id as applyId\n" +
             "  ,cr.periods as periods\n" +
             "  ,cr.operator_id as operatorId\n" +
-            "  ,cau.name as operaName\n" +
+            "  ,cau.name as operatorName\n" +
             "  ,cr.create_time as createTime\n" +
             " from (select * from tb_cms_collection_record where apply_id=#{applyId}) cr\n" +
             " left join tb_cms_auth_user cau\n" +
