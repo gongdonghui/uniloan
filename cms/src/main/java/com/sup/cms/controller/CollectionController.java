@@ -75,7 +75,7 @@ public class CollectionController {
         if (applyOperationTaskMapper.updateById(task) <= 0) {
             return ResponseUtil.failed();
         }
-        CollectionRecordBean bean = GsonUtil.beanCopy(params, CollectionRecordBean.class);
+        TbCollectionRecordBean bean = GsonUtil.beanCopy(params, TbCollectionRecordBean.class);
         if (collectionRecordBeanMapper.insert(bean) <= 0) {
             return ResponseUtil.failed();
         }
@@ -90,9 +90,7 @@ public class CollectionController {
      */
     @GetMapping("/records")
     public String records(@RequestParam("applyId") String applyId) {
-        QueryWrapper<CollectionRecordBean> qw = new QueryWrapper<>();
-        qw.eq("apply_id", applyId);
-        List<CollectionRecordBean> l = collectionRecordBeanMapper.selectList(qw);
+        List<CollectionRecordBean> l = collectionRecordBeanMapper.getRecords(applyId);
         return ResponseUtil.success(l);
     }
 
