@@ -420,6 +420,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,rs.overdue_days_max as overdueDays" +
             "  ,ot.status as taskStatus" +
             "  ,ai.loan_time as loanDate" +
+            "  ,ot.update_time as taskDate" +
             "  ,ot.operator_id as operatorId" +
             "  ,cau.name as operatorName" +
             "  ,case when ot.operator_id is null then 1 else 0 end as label" +
@@ -440,7 +441,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_repay_stat rs on ai.id=rs.apply_id" +
             " left join tb_repay_plan rp on ai.id=rp.apply_id" +
             " left join (" +
-            "  select distinct apply_id,status,task_type,operator_id from tb_operation_task where task_type=3 and has_owner=0" +
+            "  select distinct apply_id,status,task_type,operator_id,update_time from tb_operation_task where task_type=3 and has_owner=0" +
             ") ot on ai.id=ot.apply_id" +
             " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
             " where uri.type = 0" +
