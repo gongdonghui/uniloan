@@ -67,6 +67,11 @@ public class UserController {
   @ResponseBody
   @RequestMapping(value = "issue_verify_code", produces = "application/json;charset=UTF-8")
   public Object IssueVerifyCode(@RequestParam(value="mobile") String mobile) throws Exception {
+    if (mobile.length() == 9) {
+      mobile = "0" + mobile;
+      logger.info("old_style_phone_login: " + mobile);
+    }
+
     if (!pat.matcher(mobile).matches()) {
       return ToolUtils.fail("error_mobile_number");
     }
@@ -100,6 +105,15 @@ public class UserController {
   @ResponseBody
   @RequestMapping(value = "login", produces = "application/json;charset=UTF-8")
   public Object Login(@RequestParam(value="mobile") String mobile, @RequestParam(value="verify_code") String verify_code, HttpServletRequest req) {
+    if (mobile.length() == 9) {
+      mobile = "0" + mobile;
+      logger.info("old_style_phone_login: " + mobile);
+    }
+
+    if (!pat.matcher(mobile).matches()) {
+      return ToolUtils.fail("error_mobile_number");
+    }
+
     String verify_key = String.format("verify_%s", mobile);
     String verify_ans = rc.Get(verify_key);
     if (verify_ans == null || (!verify_ans.equals(verify_code))) {
