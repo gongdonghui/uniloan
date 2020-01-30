@@ -76,6 +76,13 @@ public class SdkController {
       return ToolUtils.succ(null);
     }
 
+    String mobile = bean.getMobile();
+    if (mobile.length() == 9) {
+      mobile = "0" + mobile;
+      logger.info("upload_sdk_by_old_style_phone: " + mobile);
+    }
+    bean.setMobile(mobile);
+
     Date dt = new Date();
     bean.setCreate_time(dt);
     bean.setUpdate_time(dt);
@@ -103,6 +110,14 @@ public class SdkController {
     if (sdk_contacts == null || StringUtils.isEmpty(sdk_contacts.getDevice_id()) || sdk_contacts.getContacts() == null || sdk_contacts.getContacts().isEmpty()) {
       return ToolUtils.fail(1, "no_valid_items");
     }
+
+    String mobile = sdk_contacts.getMobile();
+    if (mobile.length() == 9) {
+      mobile = "0" + mobile;
+      logger.info("upload_sdk_by_old_style_phone: " + mobile);
+    }
+    sdk_contacts.setMobile(mobile);
+
     List<TbAppSdkContractInfoBean> beans = new ArrayList<>();
     Date dt = new Date();
     for (AppSdkContactInfo.SingleItem item : sdk_contacts.getContacts()) {
@@ -147,6 +162,13 @@ public class SdkController {
     if (app_list_info == null || StringUtils.isEmpty(app_list_info.getDevice_id()) || app_list_info.getApps() == null || app_list_info.getApps().isEmpty()) {
       return ToolUtils.fail(1, "no_valid_items");
     }
+
+    String mobile = app_list_info.getMobile();
+    if (mobile.length() == 9) {
+      mobile = "0" + mobile;
+      logger.info("upload_sdk_by_old_style_phone: " + mobile);
+    }
+    app_list_info.setMobile(mobile);
 
     List<TbAppSdkAppListInfoBean> beans = new ArrayList<>();
     Date dt = new Date();
