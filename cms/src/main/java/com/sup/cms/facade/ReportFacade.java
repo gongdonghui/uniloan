@@ -1,9 +1,7 @@
 package com.sup.cms.facade;
 
 import com.sup.cms.bean.vo.CollectorReportParam;
-import com.sup.common.bean.CheckReportBean;
-import com.sup.common.bean.CollectionReportBean;
-import com.sup.common.bean.OperationReportBean;
+import com.sup.common.bean.*;
 import com.sup.common.param.OperationReportParam;
 import com.sup.common.util.Result;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,12 +27,32 @@ public interface ReportFacade {
     @RequestMapping(value = "check", produces = "application/json;charset=UTF-8")
     Result<List<CheckReportBean>> check(@RequestBody OperationReportParam param);
 
+    /**
+     * 数据概况   单日
+     *
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "overall", produces = "application/json;charset=UTF-8")
+    Result<OverallReportBean> overall(@RequestBody OperationReportParam param);
+
+    /**
+     * 数据概况  多日
+     *
+     * @param param
+     * @return
+     */
+    @RequestMapping(value = "overallmul", produces = "application/json;charset=UTF-8")
+    Result<OverallMultiReportBean> overallmul(@RequestBody OperationReportParam param);
+
     @ResponseBody
     @RequestMapping(value = "collection", produces = "application/json;charset=UTF-8")
     Result<List<CollectionReportBean>> collection(@RequestBody OperationReportParam param);
 
     /**
      * 催收日报
+     *
      * @param param
      * @return
      */
@@ -44,6 +62,7 @@ public interface ReportFacade {
 
     /**
      * 运营日报
+     *
      * @param param
      * @return
      */

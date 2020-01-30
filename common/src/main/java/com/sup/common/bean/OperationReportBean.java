@@ -41,5 +41,7 @@ public class OperationReportBean {
     private Long first_overdue_amt; // 首逾金额
     private Double forate;          //  first overdue  rate; 首逾比例
     private Integer download;       // 下载数
+    private Integer loan_failed;      //放款中订单
+    private Integer loan_pending;    //放款失败订单
     private Date create_time;
 }

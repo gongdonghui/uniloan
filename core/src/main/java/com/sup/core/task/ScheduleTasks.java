@@ -544,7 +544,7 @@ public class ScheduleTasks {
         }
         for (Integer user_id : clear_user.keySet()) {
             int reloan_times = clear_user.get(user_id);
-            this.ruleConfigService.updateCreditLevelForUser(user_id,  reloan_times,creditLevelRuleBeans);
+            this.ruleConfigService.updateCreditLevelForUser(user_id, reloan_times, creditLevelRuleBeans);
         }
     }
 
@@ -624,8 +624,8 @@ public class ScheduleTasks {
                     .lt("create_time", current));
 
             QueryWrapper<TbApplyInfoBean> applyInfoWrapper = new QueryWrapper<>();
-            applyInfoWrapper.or(w->w.ge("create_time", data_dt).lt("create_time", current));
-            applyInfoWrapper.or(w->w.ge("update_time", data_dt).lt("update_time", current));
+            applyInfoWrapper.or(w -> w.ge("create_time", data_dt).lt("create_time", current));
+            applyInfoWrapper.or(w -> w.ge("update_time", data_dt).lt("update_time", current));
             log.info("[SQL] query applyInfo: " + applyInfoWrapper.getSqlSegment());
             List<TbApplyInfoBean> applyInfoBeans = this.applyInfoMapper.selectList(applyInfoWrapper);
 
@@ -713,6 +713,8 @@ public class ScheduleTasks {
                 Integer final_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_PASS, 0);
                 Integer final_deny = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_DENY, 0);
                 Integer loan_num = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_LOAN_SUCC, 0);
+                Integer loan_failed = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED, 0);
+                Integer loan_pending = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_LOANING, 0);
                 Integer first_ovedue = c.repayNum - c.repayActualNum;
                 double forate = c.repayNum > 0 ? (first_ovedue + 0.00001f) / (c.repayNum + 0.00001f) : 0;
 
@@ -738,6 +740,8 @@ public class ScheduleTasks {
                 operationReportBean.setRepay_amt(c.repayAmt);
                 operationReportBean.setRepay_actual_amt(c.repayActualAmt);
                 operationReportBean.setFirst_overdue_amt(c.repayAmt - c.repayActualAmt);
+                operationReportBean.setLoan_failed(loan_failed);
+                operationReportBean.setLoan_pending(loan_pending);
                 operationReportBean.setForate(forate);
                 operationReportBean.setRegister(c.registNum);
                 operationReportBean.setCreate_time(new Date());
@@ -808,7 +812,7 @@ public class ScheduleTasks {
             Long amt = collectionRepayBean.getRepay_amt();
             if (amt > 0) {
                 repay_apply++;
-                repay_amt+=amt;
+                repay_amt += amt;
             }
         }
 

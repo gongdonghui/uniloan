@@ -6,13 +6,10 @@ import com.sup.cms.bean.po.LoanStatBean;
 import com.sup.cms.bean.po.ReportCollectorBean;
 import com.sup.cms.bean.vo.CollectorReportParam;
 import com.sup.cms.facade.ReportFacade;
-import com.sup.cms.mapper.CheckReportMapper;
-import com.sup.cms.mapper.CollectionReportMapper;
-import com.sup.cms.mapper.CrazyJoinMapper;
-import com.sup.cms.mapper.OperationReportMapper;
-import com.sup.common.bean.CheckReportBean;
-import com.sup.common.bean.CollectionReportBean;
-import com.sup.common.bean.OperationReportBean;
+import com.sup.cms.mapper.*;
+import com.sup.common.bean.*;
+import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.loan.OperationTaskTypeEnum;
 import com.sup.common.param.OperationReportParam;
 import com.sup.common.util.DateUtil;
 import com.sup.common.util.GsonUtil;
@@ -22,7 +19,6 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +42,9 @@ public class ReportImplFacade implements ReportFacade {
 
     @Autowired
     private CrazyJoinMapper crazyJoinMapper;
+
+    @Autowired
+    private TbApplyInfoMapper applyInfoMapper;
 
 
     @Override
@@ -79,6 +78,186 @@ public class ReportImplFacade implements ReportFacade {
         wrapper.orderByDesc("data_dt");
         List<CheckReportBean> ret = this.checkReportMapper.selectList(wrapper);
         return Result.succ(ret);
+    }
+
+    @Override
+    public Result<OverallReportBean> overall(OperationReportParam param) {
+
+        if (param == null || param.getStart_date() == null) {
+            log.info("get  overall report input param  isnull");
+            return Result.fail("input para is null");
+
+        }
+        QueryWrapper<OperationReportBean> wrapper = new QueryWrapper<>();
+        wrapper.ge("data_dt", DateUtil.startOf(param.getStart_date()));
+        wrapper.le("data_dt", DateUtil.endOf(param.getStart_date()));
+        List<OperationReportBean> operationReportBeans = this.operatioReportMapper.selectList(wrapper);
+        OverallReportBean overallReportBean = new OverallReportBean();
+        int apply_num = 0;
+        int auto_pass = 0;
+        int first_pass = 0;
+        int final_pass = 0;
+        int loan_num = 0;
+        int loan_failed = 0;
+        int loan_pending = 0;
+
+        for (OperationReportBean operationReportBean : operationReportBeans) {
+            apply_num += operationReportBean.getApply_num();
+            auto_pass += operationReportBean.getAuto_pass();
+            first_pass += operationReportBean.getFirst_pass();
+            final_pass += operationReportBean.getFinal_pass();
+            loan_num += operationReportBean.getLoan_num();
+            loan_failed = operationReportBean.getLoan_failed();
+            loan_pending = operationReportBean.getLoan_pending();
+        }
+        overallReportBean.setApply_num(apply_num);
+        overallReportBean.setAuto_pass(auto_pass);
+        overallReportBean.setFirst_pass(first_pass);
+        overallReportBean.setFinal_pass(final_pass);
+        overallReportBean.setLoan_num(loan_num);
+        overallReportBean.setLoan_failed(loan_failed);
+        overallReportBean.setLoan_pending(loan_pending);
+
+        int first_check = 0;
+        int first_pending = 0;
+        int final_check = 0;
+        int final_pending = 0;
+        int final_total = 0;
+        int first_total = 0;
+
+        QueryWrapper<CheckReportBean> wrapper2 = new QueryWrapper<>();
+        wrapper2.ge("data_dt", DateUtil.startOf(param.getStart_date()));
+        wrapper2.le("data_dt", DateUtil.endOf(param.getStart_date()));
+        wrapper2.orderByDesc("data_dt");
+        List<CheckReportBean> checkReportBeans = this.checkReportMapper.selectList(wrapper2);
+        for (CheckReportBean checkReportBean : checkReportBeans) {
+            if (checkReportBean.getTask_type() == OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode()) {
+                first_total += checkReportBean.getTotal();
+                first_check += checkReportBean.getChecked();
+
+
+            } else if (checkReportBean.getTask_type() == OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode()) {
+                final_total += checkReportBean.getTotal();
+                final_check += checkReportBean.getChecked();
+            }
+
+        }
+        first_pending = first_total - first_check;
+        final_pending = final_total - final_check;
+
+        overallReportBean.setFirst_total(first_total);
+        overallReportBean.setFirst_check(first_check);
+        overallReportBean.setFirst_pending(first_pending);
+        overallReportBean.setFinal_total(final_total);
+        overallReportBean.setFinal_check(final_check);
+        overallReportBean.setFinal_pending(final_pending);
+
+        return Result.succ(overallReportBean);
+    }
+
+    /**
+     * 数据概况  多日
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public Result<OverallMultiReportBean> overallmul(OperationReportParam param) {
+
+        if (param != null && param.getStart_date() != null
+                && param.getEnd_date() != null) {
+
+            OverallMultiReportBean ret = new OverallMultiReportBean();
+            QueryWrapper<OperationReportBean> wrapper = new QueryWrapper<>();
+            String start_str = DateUtil.startOf(param.getStart_date());
+            String end_str = DateUtil.startOf(param.getEnd_date());
+            wrapper.ge("data_dt", start_str);
+            wrapper.le("data_dt", end_str);
+
+
+            int apply_num = 0;
+            int auto_pass = 0;
+            int manual_pass = 0;
+            int loan_num = 0;
+            int loan_amt = 0;
+            int repay_amt = 0;
+            int repay_num = 0;
+            int repay_actual_num = 0;
+            int repay_actual_amt = 0;
+            int fr_num = 0;
+            int fr_amt = 0;
+            List<OperationReportBean> operationReportBeans = this.operatioReportMapper.selectList(wrapper);
+            for (OperationReportBean operationReportBean : operationReportBeans) {
+
+
+                apply_num += operationReportBean.getApply_num();
+                auto_pass += operationReportBean.getAuto_pass();
+                manual_pass += operationReportBean.getManual_pass();
+                loan_num += operationReportBean.getLoan_num();
+                loan_amt += operationReportBean.getLoan_amt();
+                repay_amt += operationReportBean.getRepay_amt();
+                repay_num += operationReportBean.getRepay();
+                repay_actual_amt += operationReportBean.getRepay_actual_amt();
+                repay_actual_num += operationReportBean.getRepay_actual();
+                fr_num += operationReportBean.getFirst_overdue();
+                fr_amt += operationReportBean.getFirst_overdue_amt();
+            }
+
+            ret.setApply(apply_num);
+            ret.setAuto_pass(auto_pass);
+            ret.setManual_pass(manual_pass);
+            ret.setLoan_amt(loan_amt);
+            ret.setLoan_num(loan_num);
+            double ctr = apply_num > 0 ? ((loan_num + 0.001f) / (apply_num + 0.001f)) : 0;
+            ret.setLoan_ctr(ctr);
+
+            ret.setRepay_num(repay_num);
+            ret.setRepay_actual_num(repay_actual_num);
+            ret.setRepay_amt(repay_amt);
+            ret.setRepay_actual_amt(repay_actual_amt);
+            double repay_rate = repay_num > 0 ? ((repay_actual_num + 0.001f) / (repay_num + 0.001f)) : 0;
+            ret.setRepay_rate(repay_rate);
+
+            ret.setFr_num(fr_num);
+            ret.setFr_amt(fr_amt);
+            double fr_rate = loan_num > 0 ? ((fr_num + 0.001f) / (loan_num + 0.001f)) : 0;
+            ret.setFr_rate(fr_rate);
+
+
+            QueryWrapper<TbApplyInfoBean> applyInfoWrapper = new QueryWrapper<>();
+            applyInfoWrapper.or(w -> w.ge("create_time", start_str).le("create_time", end_str));
+            applyInfoWrapper.or(w -> w.ge("update_time", start_str).le("update_time", end_str));
+            applyInfoWrapper.in("status"
+                    , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
+                    , ApplyStatusEnum.APPLY_OVERDUE.getCode()
+            );
+            int in_loan = 0;
+            int in_loan_amt = 0;
+            int delinquency_amt = 0;
+            int delinquency_num = 0;
+
+            List<TbApplyInfoBean> infos = this.applyInfoMapper.selectList(applyInfoWrapper);
+            for (TbApplyInfoBean applyInfoBean : infos) {
+                if (applyInfoBean.getStatus() == ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()) {
+                    in_loan_amt += applyInfoBean.getGrant_quota();
+                    ++in_loan;
+                }
+                if (applyInfoBean.getStatus() == ApplyStatusEnum.APPLY_OVERDUE.getCode()) {
+                    delinquency_amt += applyInfoBean.getGrant_quota();
+                    ++delinquency_num;
+                }
+            }
+            ret.setIn_loan_num(in_loan);
+            ret.setIn_loan_amt(in_loan_amt);
+            ret.setDelinquency_amt(delinquency_amt);
+            ret.setDelinquency_num(delinquency_num);
+            double dq_rate = loan_num > 0 ? ((delinquency_num + 0.001f) / (loan_num + 0.001f)) : 0;
+            ret.setDelinquency_rate(dq_rate);
+
+            return Result.succ(ret);
+        } else {
+            return Result.fail("input param is null");
+        }
     }
 
     @Override
@@ -118,11 +297,11 @@ public class ReportImplFacade implements ReportFacade {
             result = crazyJoinMapper.getCollectorReportAll(sb.toString(), offset, rows);
             resultCount = crazyJoinMapper.getCollectorReportAllCount(sb.toString());
         }
-        for(ReportCollectorBean bean : result) {
+        for (ReportCollectorBean bean : result) {
             Integer totalNum = bean.getTaskNum();
             Float rate = 0F;
             if (totalNum > 0) {
-                rate = (float)(bean.getCollectNum() + bean.getPartialCollectNum())/totalNum;
+                rate = (float) (bean.getCollectNum() + bean.getPartialCollectNum()) / totalNum;
             }
             bean.setCollectRate(rate);
         }
@@ -159,8 +338,8 @@ public class ReportImplFacade implements ReportFacade {
         Integer rows = param.getPageSize();
         List<LoanStatBean> l = crazyJoinMapper.getOperationReport(sb.toString(), offset, rows);
         Map m = Maps.newHashMap();
-        m.put("total",crazyJoinMapper.getOperationReportCount(sb.toString()));
-        m.put("list",l);
+        m.put("total", crazyJoinMapper.getOperationReportCount(sb.toString()));
+        m.put("list", l);
         return ResponseUtil.success(m);
     }
 }
