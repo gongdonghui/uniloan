@@ -745,6 +745,8 @@ CREATE TABLE IF NOT EXISTS `tb_report_operation_daily` (
   `first_overdue_amt` bigint(20) DEFAULT NULL COMMENT '首逾金额',
   `forate` double DEFAULT NULL COMMENT '首逾率',
   `download` int(11) DEFAULT NULL COMMENT '下载',
+  `loan_failed` int(11) DEFAULT NULL COMMENT '放款失败',
+  `loan_pending` int(11) DEFAULT NULL COMMENT '放款中',
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `channel_id` (`channel_id`),
