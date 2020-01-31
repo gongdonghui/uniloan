@@ -107,8 +107,8 @@ public class ReportImplFacade implements ReportFacade {
             first_pass += operationReportBean.getFirst_pass();
             final_pass += operationReportBean.getFinal_pass();
             loan_num += operationReportBean.getLoan_num();
-            loan_failed = operationReportBean.getLoan_failed();
-            loan_pending = operationReportBean.getLoan_pending();
+            loan_failed = operationReportBean.getLoan_failed() == null ? 0 : operationReportBean.getLoan_failed();
+            loan_pending = operationReportBean.getLoan_pending() == null ? 0 : operationReportBean.getLoan_pending();
         }
         overallReportBean.setApply_num(apply_num);
         overallReportBean.setAuto_pass(auto_pass);
