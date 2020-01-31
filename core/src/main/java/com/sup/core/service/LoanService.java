@@ -22,9 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Project:uniloan
@@ -62,6 +60,8 @@ public class LoanService {
     private MqMessenger mqMessenger;
     @Autowired
     private RuleConfigService ruleConfigService;
+    @Autowired
+    private RepayStatMapper repayStatMapper;
 
     public Result retryLoan(ApplyRetryLoanParam param) {
         log.info("retryLoan param: " + GsonUtil.toJson(param));
@@ -275,17 +275,44 @@ public class LoanService {
         if (bean == null) {
             return Result.fail("TbRepayPlanBean is null!");
         }
-
         log.info("updateRepayPlan: bean = " + GsonUtil.toJson(bean));
 
-        bean.setUpdate_time(new Date());
+        Date now = new Date();
+        Integer applyId = bean.getApply_id();
+
+        bean.setUpdate_time(now);
         if (repayPlanMapper.updateById(bean) <= 0) {
             log.error("updateRepayPlan failed! bean = " + GsonUtil.toJson(bean));
             return Result.fail("");
         }
 
+        List<TbRepayPlanBean> planBeans = repayPlanMapper.selectList(
+                new QueryWrapper<TbRepayPlanBean>().eq("apply_id", applyId)
+        );
+        assert(planBeans != null && planBeans.size() > 0);
+
+        // update repay statis
+        TbRepayStatBean statBean = repayStatMapper.selectOne(
+                new QueryWrapper<TbRepayStatBean>().eq("apply_id", applyId)
+        );
+        if (statBean == null) {
+            statBean = statRepayPlan(applyId, planBeans);
+            statBean.setCreate_time(now);
+            statBean.setUpdate_time(now);
+            if (repayStatMapper.insert(statBean) <= 0) {
+                log.error("Failed to insert! bean = " + GsonUtil.toJson(statBean));
+            }
+        } else {
+            statBean = statRepayPlan(statBean, planBeans);
+            statBean.setUpdate_time(now);
+            if (repayStatMapper.update(statBean,
+                    new QueryWrapper<TbRepayStatBean>().eq("apply_id", applyId)) <= 0) {
+                log.error("Failed to update! bean = " + GsonUtil.toJson(statBean));
+            }
+        }
+
         // update ApplyInfo
-        TbApplyInfoBean applyInfoBean = applyInfoMapper.selectById(bean.getApply_id());
+        TbApplyInfoBean applyInfoBean = applyInfoMapper.selectById(applyId);
         if (applyInfoBean == null) {
             log.error("Invalid applyId! bean = " + GsonUtil.toJson(bean));
             return Result.succ();
@@ -298,15 +325,7 @@ public class LoanService {
             }
         }
 
-        List<TbRepayPlanBean> planBeans = repayPlanMapper.selectList(
-                new QueryWrapper<TbRepayPlanBean>().eq("apply_id", bean.getApply_id())
-        );
-        assert(planBeans != null && planBeans.size() > 0);
-        TbRepayStatBean repayStatBean = new TbRepayStatBean();
-        for (TbRepayPlanBean planBean : planBeans) {
-            repayStatBean.inc(planBean);
-        }
-        if (repayStatBean.getAct_total() + repayStatBean.getReduction_fee() >= repayStatBean.getNeed_total()) {
+        if (statBean.getAct_total() + statBean.getReduction_fee() >= statBean.getNeed_total()) {
             applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
             mqMessenger.applyStatusChange(applyInfoBean);
         } else {
@@ -316,9 +335,7 @@ public class LoanService {
             }
         }
         applyInfoBean.setUpdate_time(new Date());
-        //ruleConfigService.updateCreditLevelForUser(applyInfoBean.getUser_id());
         return applyService.updateApplyInfo(applyInfoBean);
-
     }
 
     public Result getRepayPlan(String applyId) {
@@ -706,5 +723,70 @@ public class LoanService {
         plans.add(repayPlanBean);
 
         return plans;
+    }
+
+
+    public TbRepayStatBean statRepayPlan(Integer applyId, List<TbRepayPlanBean> planBeans) {
+        TbRepayStatBean statBean = new TbRepayStatBean();
+        statBean.setApply_id(applyId);
+        return statRepayPlan(statBean, planBeans);
+    }
+
+    public TbRepayStatBean statRepayPlan(TbRepayStatBean statBean, List<TbRepayPlanBean> planBeans) {
+        if (planBeans == null || planBeans.size() == 0) {
+            return statBean;
+        }
+        Collections.sort(planBeans, new Comparator<TbRepayPlanBean>() {
+            @Override
+            public int compare(TbRepayPlanBean o1, TbRepayPlanBean o2) {
+                return o1.getId() - o2.getId();
+            }
+        });
+        Date now = new Date();
+
+        int normalRepayTimes = 0;
+        int overdueRepayTimes = 0;
+        int overdueTimes = 0;
+        int currentSeq = planBeans.size();
+        int overdueDays = 0;        // 逾期天数
+        int maxOverdueDays = 0;     // 最大逾期天数
+
+        for (TbRepayPlanBean planBean : planBeans) {
+            Date repayStartDate = planBean.getRepay_start_date();
+            Date repayEndDate = planBean.getRepay_end_date();
+            if (DateUtil.compareDate(repayStartDate, now) <= 0 && DateUtil.compareDate(now, repayEndDate) <= 0) {
+                currentSeq = Math.min(currentSeq, planBean.getSeq_no());
+            }
+            boolean isOverdue = planBean.getIs_overdue() == RepayPlanOverdueEnum.PLAN_OVER_DUE.getCode();
+            boolean repayed = planBean.getAct_total() > 0;
+            if (isOverdue) {
+                Date overdueEndDate = now;
+                if (planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
+                    overdueEndDate = planBean.getRepay_time();
+                } else if (planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_WRITE_OFF.getCode()) {
+                    overdueEndDate = planBean.getUpdate_time();
+                } else {
+                    // 最后一期逾期天数
+                    overdueDays = Math.max(0, DateUtil.getDaysBetween(repayEndDate, now));
+                }
+                maxOverdueDays = Math.max(maxOverdueDays, DateUtil.getDaysBetween(repayEndDate, overdueEndDate));
+            }
+            if (planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_PART.getCode() ||
+                    planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
+                overdueRepayTimes += isOverdue && repayed ? 1 : 0;
+                normalRepayTimes += !isOverdue && repayed ? 1 : 0;
+            }
+            overdueTimes += isOverdue ? 1 : 0;
+            statBean.inc(planBean);
+        }
+
+        statBean.setCurrent_seq(currentSeq);
+        statBean.setNormal_repay_times(normalRepayTimes);
+        statBean.setOverdue_repay_times(overdueRepayTimes);
+        statBean.setOverdue_times(overdueTimes);
+        statBean.setOverdue_days_max(maxOverdueDays);
+        statBean.setOverdue_days(overdueDays);
+
+        return statBean;
     }
 }

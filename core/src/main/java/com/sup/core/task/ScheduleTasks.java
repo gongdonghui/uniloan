@@ -441,14 +441,14 @@ public class ScheduleTasks {
 
                 Date now = new Date();
                 if (statBean == null) {
-                    statBean = statRepayPlan(applyId, repayPlanMap.get(applyId));
+                    statBean = loanService.statRepayPlan(applyId, repayPlanMap.get(applyId));
                     statBean.setCreate_time(now);
                     statBean.setUpdate_time(now);
                     if (repayStatMapper.insert(statBean) <= 0) {
                         log.error("Failed to insert! bean = " + GsonUtil.toJson(statBean));
                     }
                 } else {
-                    statBean = statRepayPlan(statBean, repayPlanMap.get(applyId));
+                    statBean = loanService.statRepayPlan(statBean, repayPlanMap.get(applyId));
                     statBean.setUpdate_time(now);
                     if (repayStatMapper.update(statBean,
                             new QueryWrapper<TbRepayStatBean>().eq("apply_id", applyId)) <= 0) {
@@ -459,70 +459,6 @@ public class ScheduleTasks {
         }
     }
 
-
-    protected TbRepayStatBean statRepayPlan(Integer applyId, List<TbRepayPlanBean> planBeans) {
-        TbRepayStatBean statBean = new TbRepayStatBean();
-        statBean.setApply_id(applyId);
-        return statRepayPlan(statBean, planBeans);
-    }
-
-    protected TbRepayStatBean statRepayPlan(TbRepayStatBean statBean, List<TbRepayPlanBean> planBeans) {
-        if (planBeans == null || planBeans.size() == 0) {
-            return statBean;
-        }
-        Collections.sort(planBeans, new Comparator<TbRepayPlanBean>() {
-            @Override
-            public int compare(TbRepayPlanBean o1, TbRepayPlanBean o2) {
-                return o1.getId() - o2.getId();
-            }
-        });
-        Date now = new Date();
-
-        int normalRepayTimes = 0;
-        int overdueRepayTimes = 0;
-        int overdueTimes = 0;
-        int currentSeq = planBeans.size();
-        int overdueDays = 0;        // 逾期天数
-        int maxOverdueDays = 0;     // 最大逾期天数
-
-        for (TbRepayPlanBean planBean : planBeans) {
-            Date repayStartDate = planBean.getRepay_start_date();
-            Date repayEndDate = planBean.getRepay_end_date();
-            if (DateUtil.compareDate(repayStartDate, now) <= 0 && DateUtil.compareDate(now, repayEndDate) <= 0) {
-                currentSeq = Math.min(currentSeq, planBean.getSeq_no());
-            }
-            boolean isOverdue = planBean.getIs_overdue() == RepayPlanOverdueEnum.PLAN_OVER_DUE.getCode();
-            boolean repayed = planBean.getAct_total() > 0;
-            if (isOverdue) {
-                Date overdueEndDate = now;
-                if (planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
-                    overdueEndDate = planBean.getRepay_time();
-                } else if (planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_WRITE_OFF.getCode()) {
-                    overdueEndDate = planBean.getUpdate_time();
-                } else {
-                    // 最后一期逾期天数
-                    overdueDays = Math.max(0, DateUtil.getDaysBetween(repayEndDate, now));
-                }
-                maxOverdueDays = Math.max(maxOverdueDays, DateUtil.getDaysBetween(repayEndDate, overdueEndDate));
-            }
-            if (planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_PART.getCode() ||
-                    planBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
-                overdueRepayTimes += isOverdue && repayed ? 1 : 0;
-                normalRepayTimes += !isOverdue && repayed ? 1 : 0;
-            }
-            overdueTimes += isOverdue ? 1 : 0;
-            statBean.inc(planBean);
-        }
-
-        statBean.setCurrent_seq(currentSeq);
-        statBean.setNormal_repay_times(normalRepayTimes);
-        statBean.setOverdue_repay_times(overdueRepayTimes);
-        statBean.setOverdue_times(overdueTimes);
-        statBean.setOverdue_days_max(maxOverdueDays);
-        statBean.setOverdue_days(overdueDays);
-
-        return statBean;
-    }
 
     /**
      * 每天更新用户的信用等级
