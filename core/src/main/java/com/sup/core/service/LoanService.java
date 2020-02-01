@@ -293,7 +293,7 @@ public class LoanService {
 
         // update repay statis
         TbRepayStatBean statBean = repayStatMapper.selectOne(
-                new QueryWrapper<TbRepayStatBean>().eq("apply_id", applyId)
+                new QueryWrapper<TbRepayStatBean>().select("apply_id", "create_time").eq("apply_id", applyId)
         );
         if (statBean == null) {
             statBean = statRepayPlan(applyId, planBeans);
