@@ -1,5 +1,6 @@
 package com.sup.cms.bean.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
@@ -16,7 +17,9 @@ public class CollectionArchivesGetListParams {
     private String mobile;
     private String cidNo;
     private String appName;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date shouldRepayDateStart;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date shouldRepayDateEnd;
     private String overdueLevel;
     /**

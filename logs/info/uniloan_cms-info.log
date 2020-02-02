@@ -1,0 +1,19 @@
+2020-01-03 14:34:54.137 | main | ?:? |  |  |  |  | Bean 'org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$48e3bd23] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2020-01-03 14:34:54.481 | main | ?:? |  |  |  |  | The following profiles are active: test
+2020-01-03 14:34:56.464 | main | ?:? |  |  |  |  | Multiple Spring Data modules found, entering strict repository configuration mode!
+2020-01-03 14:34:56.472 | main | ?:? |  |  |  |  | Bootstrapping Spring Data repositories in DEFAULT mode.
+2020-01-03 14:34:56.528 | main | ?:? |  |  |  |  | Finished Spring Data repository scanning in 30ms. Found 0 repository interfaces.
+2020-01-03 14:34:56.811 | main | ?:? |  |  |  |  | Endpoint ID 'service-registry' contains invalid characters, please migrate to a valid format.
+2020-01-03 14:34:57.199 | main | ?:? |  |  |  |  | BeanFactory id=5228e57e-5a2e-3dcf-897e-3a7e2cb9814c
+2020-01-03 14:34:57.250 | main | ?:? |  |  |  |  | Bean 'com.sup.common.service.CoreService' of type [org.springframework.cloud.openfeign.FeignClientFactoryBean] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2020-01-03 14:34:57.251 | main | ?:? |  |  |  |  | Bean 'com.sup.common.service.PayCenterService' of type [org.springframework.cloud.openfeign.FeignClientFactoryBean] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2020-01-03 14:34:57.312 | main | ?:? |  |  |  |  | Bean 'org.springframework.ws.config.annotation.DelegatingWsConfiguration' of type [org.springframework.ws.config.annotation.DelegatingWsConfiguration$$EnhancerBySpringCGLIB$$d1617f25] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2020-01-03 14:34:57.339 | main | ?:? |  |  |  |  | Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2020-01-03 14:34:57.407 | main | ?:? |  |  |  |  | Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$2cc9ba26] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2020-01-03 14:34:57.460 | main | ?:? |  |  |  |  | Bean 'org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$48e3bd23] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2020-01-03 14:34:57.858 | main | ?:? |  |  |  |  | UT026010: Buffer pool was not set on WebSocketDeploymentInfo, the default pool will be used
+2020-01-03 14:34:57.965 | main | ?:? |  |  |  |  | Initializing Spring embedded WebApplicationContext
+2020-01-03 14:34:57.965 | main | ?:? |  |  |  |  | Root WebApplicationContext: initialization completed in 3453 ms
+2020-01-03 14:34:58.103 | main | ?:? |  |  |  |  | No URLs will be polled as dynamic configuration sources.
+2020-01-03 14:34:58.103 | main | ?:? |  |  |  |  | To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.
+2020-01-03 14:34:58.122 | main | ?:? |  |  |  |  | DynamicPropertyFactory is initialized with configuration sources: com.netflix.config.ConcurrentCompositeConfiguration@642a16aa

@@ -13,7 +13,7 @@ import java.util.Date;
 @Data
 public class RepayOfflineConfirmParams {
     @NotNull
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date    repayDate;      // 还款时间
     @NotNull
     private Integer repayAmount;    // 还款金额

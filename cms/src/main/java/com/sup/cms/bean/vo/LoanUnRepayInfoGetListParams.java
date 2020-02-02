@@ -12,10 +12,9 @@ import java.util.Date;
  */
 @Data
 public class LoanUnRepayInfoGetListParams {
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date shouldRepayDateStart;
-
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date shouldRepayDateEnd;
 
     private Integer productId;
