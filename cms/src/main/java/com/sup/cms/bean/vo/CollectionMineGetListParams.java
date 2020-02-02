@@ -1,5 +1,6 @@
 package com.sup.cms.bean.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
@@ -24,9 +25,13 @@ public class CollectionMineGetListParams {
     private String mobile;
     private String cidNo;
     private String overdueLevel;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date lastCollectionDateStart;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date lastCollectionDateEnd;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date shouldRepayDateStart;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date shouldRepayDateEnd;
     /**
      * 催收状态

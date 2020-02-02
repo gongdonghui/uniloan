@@ -1,5 +1,6 @@
 package com.sup.cms.bean.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
@@ -17,8 +18,9 @@ public class CustomerGetListParams {
 
     private String mobile;
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date registStartDate;
-
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date registEndDate;
 
     @Min(0)

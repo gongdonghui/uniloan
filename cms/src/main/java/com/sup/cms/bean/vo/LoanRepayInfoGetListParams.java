@@ -12,16 +12,13 @@ import java.util.Date;
  */
 @Data
 public class LoanRepayInfoGetListParams {
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date shouldRepayDateStart;
-
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date shouldRepayDateEnd;
-
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date actualRepayDateStart;
-
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date actualRepayDateEnd;
 
     private Integer productId;
