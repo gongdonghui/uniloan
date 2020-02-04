@@ -223,10 +223,13 @@ public class ReportImplFacade implements ReportFacade {
             double fr_rate = loan_num > 0 ? ((fr_num + 0.001f) / (loan_num + 0.001f)) : 0;
             ret.setFr_rate(fr_rate);
 
+            //TODO   add  collection info
+
+
+
 
             QueryWrapper<TbApplyInfoBean> applyInfoWrapper = new QueryWrapper<>();
-            applyInfoWrapper.or(w -> w.ge("create_time", start_str).le("create_time", end_str));
-            applyInfoWrapper.or(w -> w.ge("update_time", start_str).le("update_time", end_str));
+            applyInfoWrapper.or(w -> w.ge("loan_time", start_str).le("loan_time", end_str));
             applyInfoWrapper.in("status"
                     , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
                     , ApplyStatusEnum.APPLY_OVERDUE.getCode()

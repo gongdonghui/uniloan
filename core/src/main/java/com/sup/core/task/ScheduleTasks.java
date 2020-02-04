@@ -642,16 +642,16 @@ public class ScheduleTasks {
             for (Map.Entry<Integer, ChannelContainer> entry : channelStatMap.entrySet()) {
                 Integer channel = entry.getKey();
                 ChannelContainer c = entry.getValue();
-                Integer auto_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_PASS, 0);
                 Integer auto_deny = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_DENY, 0);
-                Integer first_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_PASS, 0);
                 Integer first_deny = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_DENY, 0);
-                Integer final_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_PASS, 0);
                 Integer final_deny = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_DENY, 0);
                 Integer loan_num = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_LOAN_SUCC, 0);
                 Integer loan_failed = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED, 0);
                 Integer loan_pending = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_LOANING, 0);
                 Integer first_ovedue = c.repayNum - c.repayActualNum;
+                Integer final_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_PASS, 0) + loan_failed+loan_pending+loan_num;
+                Integer first_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_PASS, 0)+final_pass + first_deny;
+                Integer auto_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_PASS, 0) + final_pass+ final_deny;
                 double forate = c.repayNum > 0 ? (first_ovedue + 0.00001f) / (c.repayNum + 0.00001f) : 0;
 
                 OperationReportBean operationReportBean = new OperationReportBean();
