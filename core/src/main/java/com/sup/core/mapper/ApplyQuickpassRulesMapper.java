@@ -8,6 +8,6 @@ import org.apache.ibatis.annotations.Select;
 public interface ApplyQuickpassRulesMapper extends BaseMapper<TbApplyQuickpassRulesBean> {
 
     @Select("select count(id) from tb_apply_info where user_id=#{userId} and status=#{status}")
-    public Integer getUserApplyCount(Integer userId, Integer sattus);
+    public Integer getUserApplyCount(Integer userId, Integer status);
 
 }
