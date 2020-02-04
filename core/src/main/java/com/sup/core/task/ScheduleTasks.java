@@ -132,6 +132,8 @@ public class ScheduleTasks {
             }
 
             if (bean.getStatus() == ApplyStatusEnum.APPLY_AUTO_PASS.getCode()) {
+                ApplyStatusEnum status = applyService.getQuickpassStatus(ApplyStatusEnum.APPLY_AUTO_PASS, bean.getUser_id());
+                bean.setStatus(status.getCode());
 
             }
             // 3. 更新进件状态
