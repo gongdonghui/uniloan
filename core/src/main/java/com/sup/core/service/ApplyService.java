@@ -8,11 +8,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbApplyInfoHistoryBean;
+import com.sup.common.bean.TbApplyQuickpassRulesBean;
 import com.sup.common.bean.TbOperationTaskBean;
-import com.sup.common.loan.ApplyStatusEnum;
-import com.sup.common.loan.LoanFeeTypeEnum;
-import com.sup.common.loan.OperationTaskStatusEnum;
-import com.sup.common.loan.OperationTaskTypeEnum;
+import com.sup.common.loan.*;
 import com.sup.common.mq.ApplyStateMessage;
 import com.sup.common.mq.MqTag;
 import com.sup.common.mq.MqTopic;
@@ -23,6 +21,7 @@ import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
 import com.sup.core.mapper.ApplyInfoHistoryMapper;
 import com.sup.core.mapper.ApplyInfoMapper;
+import com.sup.core.mapper.ApplyQuickpassRulesMapper;
 import com.sup.core.mapper.OperationTaskMapper;
 import com.sup.core.util.MqMessenger;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
@@ -63,6 +62,9 @@ public class ApplyService {
 
     @Autowired
     private RuleConfigService ruleConfigService;
+
+    @Autowired
+    private ApplyQuickpassRulesMapper applyQuickpassRulesMapper;
 
 
     public boolean addApplyInfo(TbApplyInfoBean bean) {
@@ -280,4 +282,28 @@ public class ApplyService {
 //        }
 //        return quotaInhand;
 //    }
+
+    /**
+     *
+     * @param userId
+     * @return
+     */
+    public ApplyStatusEnum getQuickpassStatus(ApplyStatusEnum status, Integer userId) {
+        TbApplyQuickpassRulesBean rule = applyQuickpassRulesMapper.selectOne(
+                new QueryWrapper<TbApplyQuickpassRulesBean>().eq("stage_from", status.getCode())
+        );
+        if (rule == null) {
+            log.info("getQuickpassStatus no rule for status=" + status.getCode() + ", desc=" + status.getCodeDesc());
+            return status;
+        }
+
+        // TODO: simple rule
+        Integer count = applyQuickpassRulesMapper.getUserApplyCount(userId, ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
+        log.info("getUserApplyCount=" + count + " for user=" + userId);
+        if (count >= rule.getApply_count()) {
+            return ApplyStatusEnum.getStatusByCode(rule.getStage_skip_to());
+        }
+
+        return status;
+    }
 }
