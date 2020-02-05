@@ -130,6 +130,12 @@ public class ScheduleTasks {
                 bean.setStatus(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
                 bean.setDeny_code(result.getRefuse_code());
             }
+
+            if (bean.getStatus() == ApplyStatusEnum.APPLY_AUTO_PASS.getCode()) {
+                ApplyStatusEnum status = applyService.getQuickpassStatus(ApplyStatusEnum.APPLY_AUTO_PASS, bean.getUser_id());
+                bean.setStatus(status.getCode());
+
+            }
             // 3. 更新进件状态
             applyService.updateApplyInfo(bean);
         }
