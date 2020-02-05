@@ -1,5 +1,6 @@
 package com.sup.cms.bean.po;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -15,7 +16,8 @@ import java.util.Date;
 @Data
 public class LoanStatBean {
 
-    private String  dt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
+    private Date    dt;
     private Integer loanNum;                // 放款数
     private Long    principal;              // 放款本金
     private Long    contractAmt;            // 合同金额
