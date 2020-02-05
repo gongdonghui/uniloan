@@ -675,7 +675,7 @@ public interface CrazyJoinMapper extends BaseMapper {
     Integer getRecallListCount(@Param(value = "conditions") String conditions);
 
     @Select("select" +
-            "  substr(loan_time,1,10) as dt" +
+            "  DATE(loan_time) as dt" +
             "  ,count(apply_id) as loanNum" +
             "  ,sum(need_principal) as principal" +
             "  ,sum(contract_amount) as contractAmt" +
@@ -694,7 +694,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " from tb_loan_info" +
             " where 1=1 " +
             " ${conditions}" +
-            " group by substr(loan_time,1,10) having loanNum>0 order by dt desc"
+            " group by DATE(loan_time) having loanNum>0 order by dt desc"
     )
     List<LoanStatBean> getOperationReport(String conditions, Integer offset, Integer rows);
     

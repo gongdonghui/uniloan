@@ -16,7 +16,6 @@ import java.util.Date;
 @Data
 public class LoanStatBean {
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date    dt;
     private Integer loanNum;                // 放款数
     private Long    principal;              // 放款本金
