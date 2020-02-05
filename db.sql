@@ -929,3 +929,21 @@ CREATE TABLE IF NOT EXISTS `tb_loan_info` (
   KEY `repay_end_date` (`repay_end_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+drop table tb_report_check_operator_daily;
+CREATE TABLE if not exists  `tb_report_check_operator_daily` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `operator` int(11) DEFAULT NULL,
+  `passed` int(11) DEFAULT NULL,
+  `cheched` int(11) DEFAULT NULL,
+  `allocated` int(11) DEFAULT NULL,
+  `loan_num` int(11) DEFAULT NULL,
+  `loan_amt` int(11) DEFAULT NULL,
+  `fpd` double DEFAULT NULL,
+  `pd3` double DEFAULT NULL,
+  `pd7` double DEFAULT NULL,
+  `pass_rate` double DEFAULT NULL,
+  `loan_rate` double DEFAULT NULL,
+  `data_dt` date DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
