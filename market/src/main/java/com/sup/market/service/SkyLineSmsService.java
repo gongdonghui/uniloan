@@ -84,7 +84,9 @@ public class   SkyLineSmsService {
     List<String> norm_numbers = mobiles.stream().map(x -> toAreaNumber(x)).collect(Collectors.toList());
 
     Map<String, String> params = new HashMap<>();
-    String time_str = (new SimpleDateFormat("yyyyMMddHHmmss")).format(new Date());
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+    sdf.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+    String time_str = sdf.format(new Date());
     StringBuffer sb = new StringBuffer();
     sb.append(uri)
       .append("?account=").append(account)
