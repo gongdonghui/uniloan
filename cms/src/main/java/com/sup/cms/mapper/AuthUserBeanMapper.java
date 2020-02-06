@@ -1,7 +1,7 @@
 package com.sup.cms.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.sup.cms.bean.po.AuthUserBean;
+import com.sup.common.bean.AuthUserBean;
 
 /**
  * @Author: kouichi

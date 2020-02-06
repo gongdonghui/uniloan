@@ -964,5 +964,6 @@ CREATE TABLE if not exists `tb_report_check_operator_daily` (
   `loan_rate` double DEFAULT NULL,
   `data_dt` date DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
+  `operator_name` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

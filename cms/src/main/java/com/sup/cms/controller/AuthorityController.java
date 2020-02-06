@@ -12,6 +12,7 @@ import com.sup.cms.bean.dto.AuthUserList;
 import com.sup.cms.bean.po.*;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.*;
+import com.sup.common.bean.AuthUserBean;
 import com.sup.common.util.ResponseUtil;
 import com.sup.common.util.GsonUtil;
 import lombok.extern.slf4j.Slf4j;

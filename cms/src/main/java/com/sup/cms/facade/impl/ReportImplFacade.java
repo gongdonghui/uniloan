@@ -420,7 +420,7 @@ public class ReportImplFacade implements ReportFacade {
 
             Integer total = this.reportOperatorDailyMapper.selectCount(wrapper);
 
-            List<TbReportCheckOperatorDaily>     tbReportCheckOperatorDailyList   =   this.crazyJoinMapper.getOperatorReport(start_str, end_str,conditions.toString(),offset,rows);
+            List<TbReportCheckOperatorDaily> tbReportCheckOperatorDailyList = this.crazyJoinMapper.getOperatorReport(start_str, end_str,conditions.toString(),offset,rows);
             Map m = Maps.newHashMap();
             m.put("total", total);
             m.put("list", tbReportCheckOperatorDailyList);

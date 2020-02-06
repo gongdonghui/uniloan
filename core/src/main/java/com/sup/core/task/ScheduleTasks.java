@@ -100,7 +100,10 @@ public class ScheduleTasks {
 
 
     @Autowired
-    private  ReportOperatorDailyMapper    reportOperatorDailyMapper;
+    private ReportOperatorDailyMapper reportOperatorDailyMapper;
+
+    @Autowired
+    private AuthUserMapper authUserMapper;
 
     @Scheduled(cron = "0 */5 * * * ?")
     public void checkApplyInfo() {
@@ -658,9 +661,9 @@ public class ScheduleTasks {
                 Integer loan_failed = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED, 0);
                 Integer loan_pending = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_LOANING, 0);
                 Integer first_ovedue = c.repayNum - c.repayActualNum;
-                Integer final_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_PASS, 0) + loan_failed+loan_pending+loan_num;
-                Integer first_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_PASS, 0)+final_pass + first_deny;
-                Integer auto_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_PASS, 0) + final_pass+ final_deny;
+                Integer final_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_PASS, 0) + loan_failed + loan_pending + loan_num;
+                Integer first_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_PASS, 0) + final_pass + first_deny;
+                Integer auto_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_PASS, 0) + final_pass + final_deny;
                 double forate = c.repayNum > 0 ? (first_ovedue + 0.00001f) / (c.repayNum + 0.00001f) : 0;
 
                 OperationReportBean operationReportBean = new OperationReportBean();
@@ -692,8 +695,16 @@ public class ScheduleTasks {
                 operationReportBean.setCreate_time(new Date());
                 this.operationReportMapper.insert(operationReportBean);
             }
-            this.doCheckReportDaily(data_dt, current, OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode());
-            this.doCheckReportDaily(data_dt, current, OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode());
+
+            List<AuthUserBean> users = this.authUserMapper.selectList(new QueryWrapper<AuthUserBean>());
+            Map<Integer, String> userNames = new HashMap<Integer, String>();
+            for (AuthUserBean authUserBean : users) {
+                userNames.put(authUserBean.getId(), authUserBean.getUserName());
+
+            }
+
+            this.doCheckReportDaily(data_dt, current, OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode(), userNames);
+            this.doCheckReportDaily(data_dt, current, OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode(), userNames);
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -702,7 +713,7 @@ public class ScheduleTasks {
 
     }
 
-    private void doCheckReportDaily(Date data_dt, Date current, Integer taskType) {
+    private void doCheckReportDaily(Date data_dt, Date current, Integer taskType, Map<Integer, String> names) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String start = dateFormat.format(data_dt);
         String end = dateFormat.format(current);
@@ -715,7 +726,7 @@ public class ScheduleTasks {
         checkReportBean.setTotal(total);
 
 
-        OperationStatBean    operationStatBean   = CheckStatUtil.processList(operationTaskJoinBeanList);
+        OperationStatBean operationStatBean = CheckStatUtil.processList(operationTaskJoinBeanList);
 
 
         checkReportBean.setDenyed(operationStatBean.getDenyed());
@@ -724,28 +735,29 @@ public class ScheduleTasks {
 
         this.checkReportMapper.insert(checkReportBean);
 
-        this.doCheckOpertorDaily(operationTaskJoinBeanList, data_dt);  // operator report
+        this.doCheckOpertorDaily(operationTaskJoinBeanList, data_dt,names);  // operator report
     }
 
     /**
      * 计算每一位信审员，  截止昨天的审核情况汇总
+     *
      * @param data_dt
      * @param current
      */
-    private  void  doCheckOpertorDaily(List<OperationTaskJoinBean>   list,  Date  data_dt ) {
-        Map<Integer, List<OperationTaskJoinBean>>  map  = new HashMap<Integer, List<OperationTaskJoinBean>>();
-        for (OperationTaskJoinBean  operationTaskJoinBean : list) {
-            Integer   operator = operationTaskJoinBean.getOperatorId();
-            if(! map.containsKey(operator)) {
-                map.put(operator,  new ArrayList<OperationTaskJoinBean>());
+    private void doCheckOpertorDaily(List<OperationTaskJoinBean> list, Date data_dt, Map<Integer, String> names) {
+        Map<Integer, List<OperationTaskJoinBean>> map = new HashMap<Integer, List<OperationTaskJoinBean>>();
+        for (OperationTaskJoinBean operationTaskJoinBean : list) {
+            Integer operator = operationTaskJoinBean.getOperatorId();
+            if (!map.containsKey(operator)) {
+                map.put(operator, new ArrayList<OperationTaskJoinBean>());
             }
             map.get(operator).add(operationTaskJoinBean);
         }
 
-        for(Integer  operator: map.keySet()) {
+        for (Integer operator : map.keySet()) {
 
-            OperationStatBean    operationStatBean  =   CheckStatUtil.processList(map.get(operator));
-            TbReportCheckOperatorDaily  tbReportCheckOperatorDaily   =  new TbReportCheckOperatorDaily();
+            OperationStatBean operationStatBean = CheckStatUtil.processList(map.get(operator));
+            TbReportCheckOperatorDaily tbReportCheckOperatorDaily = new TbReportCheckOperatorDaily();
             tbReportCheckOperatorDaily.setData_dt(data_dt);
             tbReportCheckOperatorDaily.setOperator(operator);
             tbReportCheckOperatorDaily.setChecked(operationStatBean.getChecked());
@@ -755,7 +767,8 @@ public class ScheduleTasks {
             tbReportCheckOperatorDaily.setLoan_amt(operationStatBean.getLoan_amt());
             tbReportCheckOperatorDaily.setPass_rate(operationStatBean.getPass_rate());
             tbReportCheckOperatorDaily.setLoan_rate(operationStatBean.getLoan_rate());
-            this.reportOperatorDailyMapper.insert(tbReportCheckOperatorDaily) ;
+            tbReportCheckOperatorDaily.setOperator_name(names.get(operator));
+            this.reportOperatorDailyMapper.insert(tbReportCheckOperatorDaily);
         }
 
 
