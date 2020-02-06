@@ -779,18 +779,18 @@ public class ScheduleTasks {
     }
 
 
-/*    public  void  updateOperatorReport() {
+    public  void  updateOperatorReport() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, -24*8);//last  week
         String strDate = dateFormat.format(calendar.getTime());
-        Date start_date = dateFormat.parse(strDate);
+      //  Date start_date = dateFormat.parse(strDate);
 
 
 
 
 
-    }*/
+    }
 
     private void doOperationReportDaily(Date data_dt, Date current) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

@@ -15,7 +15,7 @@ public class RepayJoinBean {
     private Date repay_start_date;
     private Date repay_end_date;
     private Date  loan_time;
-    private Integer  operator;
-    private Integer   tasktype;
+    private Integer  operator_id;
+    private Integer   task_type;
 
 }
