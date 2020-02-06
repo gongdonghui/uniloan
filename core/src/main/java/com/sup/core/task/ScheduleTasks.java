@@ -10,11 +10,10 @@ import com.sup.common.bean.paycenter.vo.PayStatusVO;
 import com.sup.common.bean.paycenter.vo.RepayStatusVO;
 import com.sup.common.loan.*;
 import com.sup.common.service.PayCenterService;
-import com.sup.common.util.DateUtil;
-import com.sup.common.util.FunpayOrderUtil;
-import com.sup.common.util.GsonUtil;
-import com.sup.common.util.Result;
-import com.sup.core.bean.*;
+import com.sup.common.util.*;
+import com.sup.core.bean.CollectionRepayBean;
+import com.sup.core.bean.CollectionStatBean;
+import com.sup.core.bean.RiskDecisionResultBean;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.ApplyService;
@@ -99,6 +98,10 @@ public class ScheduleTasks {
     @Autowired
     private RuleConfigService ruleConfigService;
 
+
+    @Autowired
+    private  ReportOperatorDailyMapper    reportOperatorDailyMapper;
+
     @Scheduled(cron = "0 */5 * * * ?")
     public void checkApplyInfo() {
         // 1. 获取所有新提交的进件
@@ -129,6 +132,12 @@ public class ScheduleTasks {
             } else {
                 bean.setStatus(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
                 bean.setDeny_code(result.getRefuse_code());
+            }
+
+            if (bean.getStatus() == ApplyStatusEnum.APPLY_AUTO_PASS.getCode()) {
+                ApplyStatusEnum status = applyService.getQuickpassStatus(ApplyStatusEnum.APPLY_AUTO_PASS, bean.getUser_id());
+                bean.setStatus(status.getCode());
+
             }
             // 3. 更新进件状态
             applyService.updateApplyInfo(bean);
@@ -642,16 +651,16 @@ public class ScheduleTasks {
             for (Map.Entry<Integer, ChannelContainer> entry : channelStatMap.entrySet()) {
                 Integer channel = entry.getKey();
                 ChannelContainer c = entry.getValue();
-                Integer auto_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_PASS, 0);
                 Integer auto_deny = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_DENY, 0);
-                Integer first_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_PASS, 0);
                 Integer first_deny = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_DENY, 0);
-                Integer final_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_PASS, 0);
                 Integer final_deny = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_DENY, 0);
                 Integer loan_num = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_LOAN_SUCC, 0);
                 Integer loan_failed = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED, 0);
                 Integer loan_pending = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_LOANING, 0);
                 Integer first_ovedue = c.repayNum - c.repayActualNum;
+                Integer final_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_PASS, 0) + loan_failed+loan_pending+loan_num;
+                Integer first_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_PASS, 0)+final_pass + first_deny;
+                Integer auto_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_PASS, 0) + final_pass+ final_deny;
                 double forate = c.repayNum > 0 ? (first_ovedue + 0.00001f) / (c.repayNum + 0.00001f) : 0;
 
                 OperationReportBean operationReportBean = new OperationReportBean();
@@ -704,27 +713,52 @@ public class ScheduleTasks {
         checkReportBean.setTask_type(taskType);
         checkReportBean.setData_dt(data_dt);
         checkReportBean.setTotal(total);
-        Integer deny = 0, checked = 0, allocated = 0;
 
-        for (OperationTaskJoinBean joinBean : operationTaskJoinBeanList) {
-            if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode() || joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode()) {
-                ++deny;
-            }
-            if (joinBean.getTaskStatus() == OperationTaskStatusEnum.TASK_STATUS_DONE.getCode()) {
-                ++checked;
-            }
-            if (joinBean.getHasOwner() == 1) {
-                ++allocated;
 
-            }
-        }
-        if (deny + checked + allocated == 0) {
-            return;
-        }
-        checkReportBean.setDenyed(deny);
-        checkReportBean.setChecked(checked);
-        checkReportBean.setAllocated(allocated);
+        OperationStatBean    operationStatBean   = CheckStatUtil.processList(operationTaskJoinBeanList);
+
+
+        checkReportBean.setDenyed(operationStatBean.getDenyed());
+        checkReportBean.setChecked(operationStatBean.getChecked());
+        checkReportBean.setAllocated(operationStatBean.getAllocated());
+
         this.checkReportMapper.insert(checkReportBean);
+
+        this.doCheckOpertorDaily(operationTaskJoinBeanList, data_dt);  // operator report
+    }
+
+    /**
+     * 计算每一位信审员，  截止昨天的审核情况汇总
+     * @param data_dt
+     * @param current
+     */
+    private  void  doCheckOpertorDaily(List<OperationTaskJoinBean>   list,  Date  data_dt ) {
+        Map<Integer, List<OperationTaskJoinBean>>  map  = new HashMap<Integer, List<OperationTaskJoinBean>>();
+        for (OperationTaskJoinBean  operationTaskJoinBean : list) {
+            Integer   operator = operationTaskJoinBean.getOperatorId();
+            if(! map.containsKey(operator)) {
+                map.put(operator,  new ArrayList<OperationTaskJoinBean>());
+            }
+            map.get(operator).add(operationTaskJoinBean);
+        }
+
+        for(Integer  operator: map.keySet()) {
+
+            OperationStatBean    operationStatBean  =   CheckStatUtil.processList(map.get(operator));
+            TbReportCheckOperatorDaily  tbReportCheckOperatorDaily   =  new TbReportCheckOperatorDaily();
+            tbReportCheckOperatorDaily.setData_dt(data_dt);
+            tbReportCheckOperatorDaily.setOperator(operator);
+            tbReportCheckOperatorDaily.setChecked(operationStatBean.getChecked());
+            tbReportCheckOperatorDaily.setPassed(operationStatBean.getPassed());
+            tbReportCheckOperatorDaily.setAllocated(operationStatBean.getAllocated());
+            tbReportCheckOperatorDaily.setLoan_num(operationStatBean.getLoan_num());
+            tbReportCheckOperatorDaily.setLoan_amt(operationStatBean.getLoan_amt());
+            tbReportCheckOperatorDaily.setPass_rate(operationStatBean.getPass_rate());
+            tbReportCheckOperatorDaily.setLoan_rate(operationStatBean.getLoan_rate());
+            this.reportOperatorDailyMapper.insert(tbReportCheckOperatorDaily) ;
+        }
+
+
     }
 
     private void doOperationReportDaily(Date data_dt, Date current) {

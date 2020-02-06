@@ -1,4 +1,4 @@
-package com.sup.core.bean;
+package com.sup.common.bean;
 
 import lombok.Data;
 
@@ -16,4 +16,6 @@ public class OperationTaskJoinBean {
     private Integer hasOwner;
     private Integer createTime;
     private Integer updateTime;
+    private Integer operatorId;
+    private Integer loanAmt;
 }

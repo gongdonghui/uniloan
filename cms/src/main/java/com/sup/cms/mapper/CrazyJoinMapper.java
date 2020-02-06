@@ -2,6 +2,8 @@ package com.sup.cms.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.sup.cms.bean.po.*;
+import com.sup.common.bean.OperationTaskJoinBean;
+import com.sup.common.bean.TbReportCheckOperatorDaily;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -39,7 +41,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " join tb_user_regist_info f on b.user_id=f.id" +
             " where d.info_type=0" +
             " ${conditions}")
-    Integer applyApprovalGetListForPaging(@Param(value="conditions") String conditions);
+    Integer applyApprovalGetListForPaging(@Param(value = "conditions") String conditions);
 
     @Select("select " +
             "a.user_id as userId" +
@@ -79,7 +81,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_user_regist_info as f on a.user_id=f.id" +
             " where c.info_type=0" +
             " ${conditions}")
-    Integer applyManagementGetListForPaging(@Param(value="conditions") String conditions);
+    Integer applyManagementGetListForPaging(@Param(value = "conditions") String conditions);
 
     //    @Select("select" +
 //            " a.status,a.id as applyId,a.create_time as createTIme,c.name as productName,a.apply_quota as applyQuota,a.rate as applyRate,a.fee_type as feeType,a.grant_quota as grantQuota,a.rate as rate,a.id as loanId,b.purpose as purpose,a.quota as quota,d.APP_NAME as appName,b.credit_level as creditLevel,e.name as channel" +
@@ -101,21 +103,21 @@ public interface CrazyJoinMapper extends BaseMapper {
             " a.fee_type as feeType,a.rate as rate,b.repay_end_date as endDate" +
             " from tb_apply_info a left join tb_repay_plan b on a.id=b.apply_id" +
             " where a.id=#{applyId}")
-    DetailsToBeRepayBean detailsToBeRepay(@Param(value="applyId") Integer applyId);
+    DetailsToBeRepayBean detailsToBeRepay(@Param(value = "applyId") Integer applyId);
 
     @Select("select" +
             " seq_no as seqNo,repay_start_date as startDate,need_total as needTotal,(need_principal-act_principal) as remainPrincipal,(need_interest-act_interest) as remainInterest,(need_penalty_interest-act_penalty_interest) as remainPenaltyInterest,(need_other-act_other) as other from tb_repay_plan" +
             " where apply_id=#{applyId}")
-    List<DetailsToBeRepayList> detailsToBeRepayList(@Param(value="applyId") Integer applyId);
+    List<DetailsToBeRepayList> detailsToBeRepayList(@Param(value = "applyId") Integer applyId);
 
     @Select("select" +
             " repay_time as repayTime,act_total as actTotal,(need_total-act_total) as remainTotal,act_principal as actPrincipal,act_interest as actInterest,act_penalty_interest as actPenaltyInterest,(need_other-act_other) as remainOther from tb_repay_plan" +
             " where apply_id=#{applyId}")
-    List<DetailsRepayRecordBean> detailsRepayRecord(@Param(value="applyId") Integer applyId);
+    List<DetailsRepayRecordBean> detailsRepayRecord(@Param(value = "applyId") Integer applyId);
 
     @Select("select a.rule_status as ruleStatus,a.rule_hit_type as ruleHitType,b.variable_name as variableName from tb_core_risk_decesion_result_detail a left join tb_core_risk_rules b on a.rule_id=b.id" +
             " where a.apply_id=#{applyId}")
-    List<DetailsRiskDecisionBean> detailsRiskDecision(@Param(value="applyId") Integer applyId);
+    List<DetailsRiskDecisionBean> detailsRiskDecision(@Param(value = "applyId") Integer applyId);
 
     @Select("select " +
             " a.id as id," +
@@ -160,7 +162,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_repay_stat h on b.id=h.apply_id " +
             " where a.task_type=3 and b.status!=16 and a.has_owner=0 and d.info_type=0 and f.seq_no=1 " +
             " ${conditions}")
-    Integer collectionAllocateGetListForPaging(@Param(value="conditions") String conditions);
+    Integer collectionAllocateGetListForPaging(@Param(value = "conditions") String conditions);
 
     @Select("select " +
             " a.id as id," +
@@ -210,7 +212,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_app_version j on j.id=b.app_id " +
             " where a.task_type=3 and b.status!=16 and d.info_type=0 and f.seq_no=1" +
             " ${conditions}")
-    Integer collectionArchivesGetListForPaging(@Param(value="conditions") String conditions);
+    Integer collectionArchivesGetListForPaging(@Param(value = "conditions") String conditions);
 
 
     @Select("select distinct" +
@@ -255,7 +257,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join (select * from tb_manual_repay where status = 0) g on f.id = g.plan_id and f.apply_id = g.apply_id" +
             " where (a.status in (13,14,16) or ((a.status=12 or a.status=15) and g.status = 0)) and b.info_type=0 " +
             " ${conditions}")
-    Integer loanRepayInfoGetListForPaging(@Param(value="conditions") String conditions);
+    Integer loanRepayInfoGetListForPaging(@Param(value = "conditions") String conditions);
 
     @Select("select " +
             " a.id as applyId," +
@@ -291,7 +293,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join (select * from tb_manual_repay where status = 0) g on f.id = g.plan_id and f.apply_id = g.apply_id" +
             " where a.status=12 and (g.status is null or g.status!=0) and b.info_type=0" +
             " ${conditions}")
-    Integer loanUnRepayInfoGetListForPaging(@Param(value="conditions") String conditions);
+    Integer loanUnRepayInfoGetListForPaging(@Param(value = "conditions") String conditions);
 
     @Select("select " +
             " a.id as applyId," +
@@ -330,7 +332,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_app_version g on a.app_id=g.ID" +
             " where b.info_type=0 and f.is_overdue=1" +
             " ${conditions}")
-    Integer afterLoanOverdueGetListForPaging(@Param(value="conditions") String conditions);
+    Integer afterLoanOverdueGetListForPaging(@Param(value = "conditions") String conditions);
 
     @Select("select " +
             " a.id as applyId," +
@@ -352,7 +354,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_product_info e on a.product_id=e.id " +
             " left join tb_repay_plan f on a.id=f.apply_id " +
             " where b.info_type=0 and a.id=#{applyId}")
-    DetailsRepayBean detailsRepay(@Param(value="applyId") String applyId);
+    DetailsRepayBean detailsRepay(@Param(value = "applyId") String applyId);
 
     @Select("select " +
             "a.id as planId," +
@@ -372,7 +374,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             "(select * from tb_repay_plan where apply_id=#{applyId}) a" +
             " left join tb_apply_info b on a.apply_id=b.id" +
             " left join tb_product_info c on b.product_id=c.id")
-    List<DetailsRepayListBean> detailsRepayList(@Param(value="applyId") String applyId);
+    List<DetailsRepayListBean> detailsRepayList(@Param(value = "applyId") String applyId);
 
     @Select("select distinct " +
             " uri.id as userId" +
@@ -599,7 +601,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " group by data_dt,operator_id order by data_dt desc) tb")
     Integer getCollectorReportCount(@Param(value = "conditions") String conditions);
 
-    
+
     @Select("select" +
             "  rod.apply_id as applyId" +
             "  ,rod.repay_end_date as shouldRepayDate" +
@@ -675,7 +677,7 @@ public interface CrazyJoinMapper extends BaseMapper {
     Integer getRecallListCount(@Param(value = "conditions") String conditions);
 
     @Select("select" +
-            "  substr(loan_time,1,10) as dt" +
+            "  DATE(loan_time) as dt" +
             "  ,count(apply_id) as loanNum" +
             "  ,sum(need_principal) as principal" +
             "  ,sum(contract_amount) as contractAmt" +
@@ -694,10 +696,10 @@ public interface CrazyJoinMapper extends BaseMapper {
             " from tb_loan_info" +
             " where 1=1 " +
             " ${conditions}" +
-            " group by substr(loan_time,1,10) having loanNum>0 order by dt desc"
+            " group by DATE(loan_time) having loanNum>0 order by dt desc"
     )
     List<LoanStatBean> getOperationReport(String conditions, Integer offset, Integer rows);
-    
+
     @Select("select count(*) from (" +
             "  select" +
             "    substr(loan_time,1,10) as dt" +
@@ -709,4 +711,26 @@ public interface CrazyJoinMapper extends BaseMapper {
             ") tb"
     )
     Integer getOperationReportCount(@Param(value = "conditions") String conditions);
+
+
+    @Select("select " +
+            "a.id as id, a.apply_id as applyId, a.create_time as createTime, a.task_type as taskType," +
+            "a.status as taskStatus, a.operator_id as operatorId,a.has_owner as  hasOwner," +
+            "a.update_time as updateTime," +
+            "b.status as applyStatus, a.operator_id as  operatorId, b.grant_quota as  loanAmt" +
+            " from tb_operation_task a" +
+            " join tb_apply_task_typeinfo b on a.apply_id=b.id" +
+            " where a.= ${taskType}" +
+            "  and a.create_time >='${start}' and a.create_time< '${end}' ")
+    List<OperationTaskJoinBean> getOperationTaskJoinByTask(String start, String end, Integer taskType);
+
+
+    @Select("select *   " +
+            " from  tb_report_check_operator_daily " +
+            " where 1=1" +
+            " ${conditions}" +
+            "  and  data_dt>='${start}' and data_dt<= '${end}' limit ${offset}, ${rows} ")
+    List<TbReportCheckOperatorDaily> getOperatorReport(String start, String end, String conditions, Integer offset, Integer rows);
+
+
 }

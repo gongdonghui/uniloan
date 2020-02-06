@@ -1,5 +1,6 @@
 package com.sup.cms.bean.po;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;

@@ -58,7 +58,7 @@ public class ReportTasks {
         for (TbReportOverdueDetailBean bean : detailBeans) {
             QueryWrapper<TbReportOverdueDetailBean> wrapper = new QueryWrapper<>();
             wrapper.eq("data_dt", bean.getData_dt());
-            wrapper.eq("operator_id", bean.getOperator_id());
+            // wrapper.eq("operator_id", bean.getOperator_id());
             wrapper.eq("apply_id", bean.getApply_id());
             TbReportOverdueDetailBean _bean = reportOverdueDetailMapper.selectOne(wrapper);
             if (_bean == null) {

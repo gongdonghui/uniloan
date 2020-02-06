@@ -929,3 +929,40 @@ CREATE TABLE IF NOT EXISTS `tb_loan_info` (
   KEY `repay_end_date` (`repay_end_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE tb_apply_quickpass_rules;
+CREATE TABLE IF NOT EXISTS `tb_apply_quickpass_rules` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `stage_from` int(11) NOT NULL COMMENT '审核起始状态',
+  `stage_skip_to` int(11) NOT NULL COMMENT '满足条件后，自动跳至下一个审核状态',
+  `apply_count` int(10) NOT NULL DEFAULT '0' COMMENT '累计申请次数（已结清）',
+  `overdue_count` int(11) NOT NULL DEFAULT '0' COMMENT '逾期申请次数',
+  `apply_amount` bigint(10) NOT NULL DEFAULT '0' COMMENT '累计申请金额',
+  `last_apply_days` int(10) NOT NULL DEFAULT '0' COMMENT '上一次申请时间间隔',
+  `overdue_days` int(10) NOT NULL DEFAULT '0' COMMENT '累计逾期天数',
+  `max_overdue_days` int(10) NOT NULL DEFAULT '0' COMMENT '最大逾期天数',
+  `operator_id` int(11) DEFAULT '0' COMMENT '规则添加人',
+  `comment` varchar(256) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL COMMENT '记录创建时间',
+  `update_time` datetime NOT NULL COMMENT '记录更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `stage_from` (`stage_from`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+drop table tb_report_check_operator_daily;
+CREATE TABLE if not exists `tb_report_check_operator_daily` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `operator` int(11) DEFAULT NULL,
+  `passed` int(11) DEFAULT NULL,
+  `cheched` int(11) DEFAULT NULL,
+  `allocated` int(11) DEFAULT NULL,
+  `loan_num` int(11) DEFAULT NULL,
+  `loan_amt` int(11) DEFAULT NULL,
+  `fpd` double DEFAULT NULL,
+  `pd3` double DEFAULT NULL,
+  `pd7` double DEFAULT NULL,
+  `pass_rate` double DEFAULT NULL,
+  `loan_rate` double DEFAULT NULL,
+  `data_dt` date DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

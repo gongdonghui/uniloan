@@ -2,6 +2,7 @@ package com.sup.cms.facade;
 
 import com.sup.cms.bean.vo.CollectorReportParam;
 import com.sup.common.bean.*;
+import com.sup.common.param.CheckOverviewParam;
 import com.sup.common.param.OperationReportParam;
 import com.sup.common.util.Result;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -70,4 +71,21 @@ public interface ReportFacade {
     @RequestMapping(value = "operation", produces = "application/json;charset=UTF-8")
     String operationReport(@RequestBody OperationReportParam param);
 
+    /**
+     * 信审进度报表
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "checkoverview", produces = "application/json;charset=UTF-8")
+    Result<OperationStatBean> checkoverview(@RequestBody CheckOverviewParam param);
+
+    /**
+     * 信审员报表
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "operator", produces = "application/json;charset=UTF-8")
+    String operator(@RequestBody CheckOverviewParam param);
 }

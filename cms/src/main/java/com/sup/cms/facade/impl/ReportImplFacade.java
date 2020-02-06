@@ -9,12 +9,11 @@ import com.sup.cms.facade.ReportFacade;
 import com.sup.cms.mapper.*;
 import com.sup.common.bean.*;
 import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.loan.OperationTaskStatusEnum;
 import com.sup.common.loan.OperationTaskTypeEnum;
+import com.sup.common.param.CheckOverviewParam;
 import com.sup.common.param.OperationReportParam;
-import com.sup.common.util.DateUtil;
-import com.sup.common.util.GsonUtil;
-import com.sup.common.util.ResponseUtil;
-import com.sup.common.util.Result;
+import com.sup.common.util.*;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,6 +44,9 @@ public class ReportImplFacade implements ReportFacade {
 
     @Autowired
     private TbApplyInfoMapper applyInfoMapper;
+
+    @Autowired
+    private ReportOperatorDailyMapper reportOperatorDailyMapper;
 
 
     @Override
@@ -107,8 +109,8 @@ public class ReportImplFacade implements ReportFacade {
             first_pass += operationReportBean.getFirst_pass();
             final_pass += operationReportBean.getFinal_pass();
             loan_num += operationReportBean.getLoan_num();
-            loan_failed = operationReportBean.getLoan_failed();
-            loan_pending = operationReportBean.getLoan_pending();
+            loan_failed = operationReportBean.getLoan_failed() == null ? 0 : operationReportBean.getLoan_failed();
+            loan_pending = operationReportBean.getLoan_pending() == null ? 0 : operationReportBean.getLoan_pending();
         }
         overallReportBean.setApply_num(apply_num);
         overallReportBean.setAuto_pass(auto_pass);
@@ -223,10 +225,11 @@ public class ReportImplFacade implements ReportFacade {
             double fr_rate = loan_num > 0 ? ((fr_num + 0.001f) / (loan_num + 0.001f)) : 0;
             ret.setFr_rate(fr_rate);
 
+            //TODO   add  collection info
+
 
             QueryWrapper<TbApplyInfoBean> applyInfoWrapper = new QueryWrapper<>();
-            applyInfoWrapper.or(w -> w.ge("create_time", start_str).le("create_time", end_str));
-            applyInfoWrapper.or(w -> w.ge("update_time", start_str).le("update_time", end_str));
+            applyInfoWrapper.or(w -> w.ge("loan_time", start_str).le("loan_time", end_str));
             applyInfoWrapper.in("status"
                     , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
                     , ApplyStatusEnum.APPLY_OVERDUE.getCode()
@@ -341,5 +344,91 @@ public class ReportImplFacade implements ReportFacade {
         m.put("total", crazyJoinMapper.getOperationReportCount(sb.toString()));
         m.put("list", l);
         return ResponseUtil.success(m);
+    }
+
+    /**
+     * 信审进度报表
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public Result<OperationStatBean> checkoverview(CheckOverviewParam param) {
+
+        if (param != null && param.getStart_date() != null && param.getEnd_date() != null && param.getType() != null) {
+
+            String start_str = DateUtil.startOf(param.getStart_date());
+            String end_str = DateUtil.startOf(param.getEnd_date());
+            String checkType = param.getType();
+            Integer taskType = -1;
+
+
+            if (checkType.equals("first")) {
+                taskType = OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode();
+
+
+            } else if (checkType.equals("final")) {
+                taskType = OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode();
+
+            } else {
+
+                return Result.fail("input check type invalid");
+            }
+            List<OperationTaskJoinBean> operationTaskJoinBeanList = this.crazyJoinMapper.getOperationTaskJoinByTask(start_str, end_str, taskType);
+            OperationStatBean operationStatBean = CheckStatUtil.processList(operationTaskJoinBeanList);
+
+            return Result.succ(operationStatBean);
+
+        } else {
+            return Result.fail("input param is null");
+        }
+
+    }
+
+    /**
+     * 信审员报表
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public String operator(CheckOverviewParam param) {
+        if (param != null && param.getStart_date() != null && param.getEnd_date() != null) {
+            String start_str = DateUtil.startOf(param.getStart_date());
+            String end_str = DateUtil.startOf(param.getEnd_date());
+
+            String operator = param.getOperator_id();
+
+            Integer offset = (param.getPage() - 1) * param.getPageSize();
+            Integer rows = param.getPageSize();
+
+            QueryWrapper<TbReportCheckOperatorDaily> wrapper = new QueryWrapper<>();
+            wrapper.le("data_dt", end_str);
+            wrapper.ge("data_dt", start_str);
+            StringBuilder  conditions  =new StringBuilder();
+
+            if(operator!=null&& !operator.isEmpty()) {
+                try {
+                    Integer val = Integer.parseInt(operator);
+                    wrapper.eq("operator", val);
+                    conditions.append(" and   operator = ");
+                    conditions.append(val);
+                }catch (Exception  e) {
+                    log.info("operator is invalid integer");
+                }
+            }
+
+            Integer total = this.reportOperatorDailyMapper.selectCount(wrapper);
+
+            List<TbReportCheckOperatorDaily>     tbReportCheckOperatorDailyList   =   this.crazyJoinMapper.getOperatorReport(start_str, end_str,conditions.toString(),offset,rows);
+            Map m = Maps.newHashMap();
+            m.put("total", total);
+            m.put("list", tbReportCheckOperatorDailyList);
+
+            return ResponseUtil.success(m);
+
+        } else {
+            return ResponseUtil.failed("input param is null");
+        }
     }
 }
