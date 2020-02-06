@@ -524,6 +524,8 @@ public class ScheduleTasks {
             Integer assetLevel = tbApplyInfoBean.getAsset_level();
             Integer applyId = tbApplyInfoBean.getId();
 
+
+
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
                 if (days >= assetsLevelRuleBean.getBetween_paydays() && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
@@ -539,6 +541,8 @@ public class ScheduleTasks {
             }
         }
     }
+
+
 
     //@Scheduled(cron = "0 */5 * * * ?")
     @Scheduled(cron = "0 30 1 * * ?")   //T+1
@@ -773,6 +777,20 @@ public class ScheduleTasks {
 
 
     }
+
+
+/*    public  void  updateOperatorReport() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, -24*8);//last  week
+        String strDate = dateFormat.format(calendar.getTime());
+        Date start_date = dateFormat.parse(strDate);
+
+
+
+
+
+    }*/
 
     private void doOperationReportDaily(Date data_dt, Date current) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
