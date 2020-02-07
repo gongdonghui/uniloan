@@ -339,7 +339,7 @@ public class DecisionEngineImpl implements DecesionEngine {
         result.setRet(0);
         result.setApply_id(Integer.parseInt(param.getApplyId()));
         result.setUser_id(Integer.parseInt(param.getUserId()));
-        result.setApply_date(new Date());
+        result.setApply_time(new Date());
 
         List<RiskRulesBean> rulesBeanList = riskRulesMapper.selectList(new QueryWrapper<RiskRulesBean>().eq("product_id", Integer.parseInt(param.getProductId())));
         List<RiskDecisionResultDetailBean> detailBeanList = new ArrayList<>();
