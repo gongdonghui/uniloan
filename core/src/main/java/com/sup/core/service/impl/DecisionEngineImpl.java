@@ -100,9 +100,9 @@ public class DecisionEngineImpl implements DecesionEngine {
                 }
                 boolean ret_right = false;
                 if (rule.getRange_right() == 1) {
-                    ret_right = val > rule.getVal_right();
+                    ret_right = val < rule.getVal_right();
                 } else {
-                    ret_right = val >= rule.getVal_left();
+                    ret_right = val <= rule.getVal_left();
                 }
                 return ret && ret_right;
             } else {
@@ -337,6 +337,10 @@ public class DecisionEngineImpl implements DecesionEngine {
 
         RiskDecisionResultBean result = new RiskDecisionResultBean();
         result.setRet(0);
+        result.setApply_id(Integer.parseInt(param.getApplyId()));
+        result.setUser_id(Integer.parseInt(param.getUserId()));
+        result.setApply_date(new Date());
+
         List<RiskRulesBean> rulesBeanList = riskRulesMapper.selectList(new QueryWrapper<RiskRulesBean>().eq("product_id", Integer.parseInt(param.getProductId())));
         List<RiskDecisionResultDetailBean> detailBeanList = new ArrayList<>();
         for (RiskRulesBean rule : rulesBeanList) {
