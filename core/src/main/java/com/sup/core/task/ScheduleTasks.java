@@ -13,6 +13,7 @@ import com.sup.common.service.PayCenterService;
 import com.sup.common.util.*;
 import com.sup.core.bean.CollectionRepayBean;
 import com.sup.core.bean.CollectionStatBean;
+import com.sup.core.bean.RepayJoinBean;
 import com.sup.core.bean.RiskDecisionResultBean;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
@@ -525,7 +526,6 @@ public class ScheduleTasks {
             Integer applyId = tbApplyInfoBean.getId();
 
 
-
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
                 if (days >= assetsLevelRuleBean.getBetween_paydays() && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
@@ -541,7 +541,6 @@ public class ScheduleTasks {
             }
         }
     }
-
 
 
     //@Scheduled(cron = "0 */5 * * * ?")
@@ -739,7 +738,7 @@ public class ScheduleTasks {
 
         this.checkReportMapper.insert(checkReportBean);
 
-        this.doCheckOpertorDaily(operationTaskJoinBeanList, data_dt,names);  // operator report
+        this.doCheckOpertorDaily(operationTaskJoinBeanList, data_dt, names);  // operator report
     }
 
     /**
@@ -779,15 +778,64 @@ public class ScheduleTasks {
     }
 
 
-    public  void  updateOperatorReport() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    public void updateOperatorReport(Date data_dt, Date current) {
+        /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, -24*8);//last  week
-        String strDate = dateFormat.format(calendar.getTime());
-      //  Date start_date = dateFormat.parse(strDate);
+        calendar.set(Calendar.HOUR_OF_DAY, -24 * 8);//last  week
+
+        SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+
+            String start = dateFormat.format(DateUtil.startOf(calendar.getTime()));
+
+            String end = DateUtil.startOf(current);
+
+            List<RepayJoinBean> repayJoinBeans = this.operationTaskJoinMapper.getRepayJoinByDate(start, end);
+
+            QueryWrapper<TbReportCheckOperatorDaily> wrapper = new QueryWrapper<>();
+            Map<Integer, Map<String, List<RepayJoinBean>>> map = new HashMap<Integer, Map<String, List<RepayJoinBean>>>();
+            for (RepayJoinBean repayJoinBean : repayJoinBeans) {
+                Integer operator_id = repayJoinBean.getOperator_id();
+                if (!map.containsKey(operator_id)) {
+                    Map<String, List<RepayJoinBean>>  dis  =  new HashMap<>();
+                    map.put(operator_id, dis);
+                }
+
+                String  loan_str= repayJoinBean.getLoan_time();
+                String  date_str = dayFormat.format( dateFormat.parse(loan_str));
+                if( !map.get(operator_id).containsKey(date_str)) {
+
+                    map.get(operator_id).put(date_str,new ArrayList<>());
+                }
+
+                map.get(operator_id).get(date_str).add(repayJoinBean);
+            }
+            for (Integer operator : map.keySet()) {
+                int fpd = 0, d3 = 0, d7 = 0;
+                for (RepayJoinBean repayJoinBean : map.get(operator)) {
+                    String repay_date = repayJoinBean.getRepay_start_date();
+                    Date repay = dateFormat.parse(repay_date);
+                    int days = DateUtil.getDaysBetween(repay, current);
+                    if (days == 1) {
+                        ++fpd;
+                    }
+                    if (days == 4) {
+                        ++d3;
+                    }
+                    if (days == 8) {
+                        ++d7;
+                    }
 
 
+                }
 
+            }
+
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        } */
 
 
     }

@@ -45,9 +45,9 @@ public class CheckStatUtil {
         operationStatBean.setLoan_amt(loan_amt);
         operationStatBean.setPending(list.size() - allocated);
         operationStatBean.setPassed(checked - deny);
-        double pass_rate = checked > 0 ? 0.0f : (checked - deny + 0.001f) / (checked + 0.001f);
+        double pass_rate = checked > 0 ? (checked - deny + 0.001f) / (checked + 0.001f) : 0.0f;
         operationStatBean.setPass_rate(pass_rate);
-        double  loan_rate = checked >0 ? 0.0 : (loan+0.001f)/(checked+0.001f);
+        double loan_rate = checked > 0 ? (loan + 0.001f) / (checked + 0.001f) : 0.0f;
         operationStatBean.setLoan_rate(loan_rate);
         return operationStatBean;
 

@@ -53,10 +53,10 @@ public interface OperationTaskJoinMapper extends BaseMapper {
     @Select("select " +
             "a.repay_start_date  as  repay_start_date, a.repay_end_date  as repay_end_date, " +
             "b.loan_time as loan_time ,c.operator_id  as  operator_id, c.task_type   as  task_type" +
-            "from (select * from  tb_repay_plan  where is_overdue = 1 and  repay_start_date >= '${start}'  and   repay_start_date <'${end}')as  a " +
+            "from (select * from  tb_repay_plan  where is_overdue = 1 and  repay_start_date >='${start}'  and   repay_start_date <'${end}')as  a " +
             " left join tb_apply_info as b on a.apply_id=b.id" +
-            " left join  tb_operation_tas as c on  a.apply_id = c.apply_id ")
-    List<RepayJoinBean>  getRepayJoinByDate(String start , String end, Integer taskType);
+            " left join  tb_operation_task as c on  a.apply_id = c.apply_id ")
+    List<RepayJoinBean>  getRepayJoinByDate(String start , String end );
 
 
 }
