@@ -19,7 +19,7 @@ public class RiskDecisionResultBean {
     private int apply_id;
     private int ret;
     private String refuse_code;
-    private Date apply_date;
+    private Date apply_time;
 
 
 }
