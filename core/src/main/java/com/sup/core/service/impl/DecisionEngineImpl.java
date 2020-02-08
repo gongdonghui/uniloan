@@ -2,6 +2,7 @@ package com.sup.core.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.*;
+import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.DateUtil;
 import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
@@ -159,8 +160,14 @@ public class DecisionEngineImpl implements DecesionEngine {
             }//age
 
             QueryWrapper<TbApplyInfoBean> materialWrapper = new QueryWrapper<TbApplyInfoBean>();
+            List<Integer>     denyStatus =  new ArrayList<>();
+            denyStatus.add(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
+            denyStatus.add(ApplyStatusEnum.APPLY_FINAL_DENY.getCode());
+            denyStatus.add(ApplyStatusEnum.APPLY_FIRST_DENY.getCode());
+
             TbApplyInfoBean applyInfoBean = applyInfoMapper.selectOne(
-                    materialWrapper.eq("user_id", userId).eq("deny_code", ""));    // deny  date
+                    materialWrapper.eq("user_id", userId).in("status", denyStatus).
+                            orderByDesc("update_time"));  // deny  date
             if (applyInfoBean != null) {
 
                 Date deny_date = applyInfoBean.getUpdate_time();
