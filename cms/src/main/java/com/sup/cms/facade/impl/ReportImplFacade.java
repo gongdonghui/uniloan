@@ -358,7 +358,7 @@ public class ReportImplFacade implements ReportFacade {
         if (param != null && param.getStart_date() != null && param.getEnd_date() != null && param.getType() != null) {
 
             String start_str = DateUtil.startOf(param.getStart_date());
-            String end_str = DateUtil.startOf(param.getEnd_date());
+            String end_str = DateUtil.endOf(param.getEnd_date());
             String checkType = param.getType();
             Integer taskType = -1;
 
