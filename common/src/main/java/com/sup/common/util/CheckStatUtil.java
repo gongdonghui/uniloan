@@ -23,19 +23,21 @@ public class CheckStatUtil {
         OperationStatBean operationStatBean = new OperationStatBean();
 
         for (OperationTaskJoinBean joinBean : list) {
-            if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode() || joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode()) {
+            if(joinBean!= null) {
+                if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode() || joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode()) {
 
-                ++deny;
-            }
-            if (joinBean.getTaskStatus() == OperationTaskStatusEnum.TASK_STATUS_DONE.getCode()) {
-                ++checked;
-            }
-            if (joinBean.getHasOwner() == 1) {
-                ++allocated;
-            }
-            if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()) {
-                ++loan;
-                loan_amt += joinBean.getLoanAmt();
+                    ++deny;
+                }
+                if (joinBean.getTaskStatus() == OperationTaskStatusEnum.TASK_STATUS_DONE.getCode()) {
+                    ++checked;
+                }
+                if (joinBean.getHasOwner() == 1) {
+                    ++allocated;
+                }
+                if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()) {
+                    ++loan;
+                    loan_amt += joinBean.getLoanAmt();
+                }
             }
         }
         operationStatBean.setAllocated(allocated);

@@ -953,7 +953,7 @@ CREATE TABLE if not exists `tb_report_check_operator_daily` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `operator` int(11) DEFAULT NULL,
   `passed` int(11) DEFAULT NULL,
-  `cheched` int(11) DEFAULT NULL,
+  `checked` int(11) DEFAULT NULL,
   `allocated` int(11) DEFAULT NULL,
   `loan_num` int(11) DEFAULT NULL,
   `loan_amt` int(11) DEFAULT NULL,

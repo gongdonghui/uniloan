@@ -737,8 +737,12 @@ public class ScheduleTasks {
         checkReportBean.setAllocated(operationStatBean.getAllocated());
 
         this.checkReportMapper.insert(checkReportBean);
+        try {
 
-        this.doCheckOpertorDaily(operationTaskJoinBeanList, data_dt, names);  // operator report
+            this.doCheckOpertorDaily(operationTaskJoinBeanList, data_dt, names);  // operator report
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
     /**
@@ -748,17 +752,16 @@ public class ScheduleTasks {
      * @param current
      */
     private void doCheckOpertorDaily(List<OperationTaskJoinBean> list, Date data_dt, Map<Integer, String> names) {
-        Map<Integer, List<OperationTaskJoinBean>> map = new HashMap<Integer, List<OperationTaskJoinBean>>();
+        Map<Integer, List<OperationTaskJoinBean>> map = new HashMap<>();
+        if (list == null || list.isEmpty()) return;
         for (OperationTaskJoinBean operationTaskJoinBean : list) {
             Integer operator = operationTaskJoinBean.getOperatorId();
             if (!map.containsKey(operator)) {
-                map.put(operator, new ArrayList<OperationTaskJoinBean>());
+                map.put(operator, new ArrayList<>());
             }
             map.get(operator).add(operationTaskJoinBean);
         }
-
         for (Integer operator : map.keySet()) {
-
             OperationStatBean operationStatBean = CheckStatUtil.processList(map.get(operator));
             TbReportCheckOperatorDaily tbReportCheckOperatorDaily = new TbReportCheckOperatorDaily();
             tbReportCheckOperatorDaily.setData_dt(data_dt);
@@ -770,11 +773,11 @@ public class ScheduleTasks {
             tbReportCheckOperatorDaily.setLoan_amt(operationStatBean.getLoan_amt());
             tbReportCheckOperatorDaily.setPass_rate(operationStatBean.getPass_rate());
             tbReportCheckOperatorDaily.setLoan_rate(operationStatBean.getLoan_rate());
-            tbReportCheckOperatorDaily.setOperator_name(names.get(operator));
+            if (names != null && names.containsKey(operator)) {
+                tbReportCheckOperatorDaily.setOperator_name(names.get(operator));
+            }
             this.reportOperatorDailyMapper.insert(tbReportCheckOperatorDaily);
         }
-
-
     }
 
 
