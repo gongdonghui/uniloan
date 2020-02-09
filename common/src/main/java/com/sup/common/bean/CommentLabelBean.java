@@ -13,13 +13,13 @@ import java.util.Date;
  * 2019/10/14
  */
 @Data
-@TableName("tb_cms_task_label")
-public class TaskLabel {
+@TableName("tb_core_comment_label")
+public class CommentLabelBean {
     @TableId(type = IdType.AUTO)
-    private Integer id;         // apply_id
-    private String label;
-    private String description;
+    private Integer id;
+    private String label_name;
+    private String content;
     private String scene;
-    private Date create_time;
-    private String creator;
+    private Date creat_time;
+    private Integer creator;
 }

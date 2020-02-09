@@ -102,6 +102,7 @@ public class ReportImplFacade implements ReportFacade {
         int loan_num = 0;
         int loan_failed = 0;
         int loan_pending = 0;
+        int  register = 0;
 
         for (OperationReportBean operationReportBean : operationReportBeans) {
             apply_num += operationReportBean.getApply_num();
@@ -111,6 +112,7 @@ public class ReportImplFacade implements ReportFacade {
             loan_num += operationReportBean.getLoan_num();
             loan_failed = operationReportBean.getLoan_failed() == null ? 0 : operationReportBean.getLoan_failed();
             loan_pending = operationReportBean.getLoan_pending() == null ? 0 : operationReportBean.getLoan_pending();
+            register +=   operationReportBean.getRegister();
         }
         overallReportBean.setApply_num(apply_num);
         overallReportBean.setAuto_pass(auto_pass);
@@ -119,6 +121,7 @@ public class ReportImplFacade implements ReportFacade {
         overallReportBean.setLoan_num(loan_num);
         overallReportBean.setLoan_failed(loan_failed);
         overallReportBean.setLoan_pending(loan_pending);
+        overallReportBean.setRegister(register);
 
         int first_check = 0;
         int first_pending = 0;
@@ -395,7 +398,7 @@ public class ReportImplFacade implements ReportFacade {
     public String operator(CheckOverviewParam param) {
         if (param != null && param.getStart_date() != null && param.getEnd_date() != null) {
             String start_str = DateUtil.startOf(param.getStart_date());
-            String end_str = DateUtil.startOf(param.getEnd_date());
+            String end_str = DateUtil.endOf(param.getEnd_date());
 
             String operator = param.getOperator_id();
 

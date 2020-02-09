@@ -20,5 +20,8 @@ public interface TaskLabelConfigFacade {
     Result addLabel(@RequestBody TaskLabelParam param);
     @ResponseBody
     @RequestMapping(value = "getLabel", produces = "application/json;charset=UTF-8")
-    Result getLabel(@RequestBody GetLabelParam param);
+    String  getLabel(@RequestBody GetLabelParam param);
+    @ResponseBody
+    @RequestMapping(value = "delLabel", produces = "application/json;charset=UTF-8")
+    Result delLabel(@RequestBody Integer label_id);
 }

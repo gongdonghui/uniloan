@@ -702,7 +702,7 @@ public class ScheduleTasks {
             List<AuthUserBean> users = this.authUserMapper.selectList(new QueryWrapper<AuthUserBean>());
             Map<Integer, String> userNames = new HashMap<Integer, String>();
             for (AuthUserBean authUserBean : users) {
-                userNames.put(authUserBean.getId(), authUserBean.getUserName());
+                userNames.put(authUserBean.getId(), authUserBean.getName());
 
             }
 
