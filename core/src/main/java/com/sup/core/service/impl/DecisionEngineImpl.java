@@ -139,7 +139,7 @@ public class DecisionEngineImpl implements DecesionEngine {
 
         Map<String, Double> riskBean = new HashMap<>();
         riskBean.put(RiskVariableConstants.AGE, Double.valueOf(0));
-        riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(0));
+        riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(Integer.MAX_VALUE));
         riskBean.put(RiskVariableConstants.MAX_OVERDUE_DAYS, Double.valueOf(0));
         riskBean.put(RiskVariableConstants.OVERDUE_TIMES, Double.valueOf(0));
         riskBean.put(RiskVariableConstants.LATEST_OVERDUE_DAYS, Double.valueOf(0));
@@ -174,6 +174,8 @@ public class DecisionEngineImpl implements DecesionEngine {
                 int last_dey_days = DateUtil.getDaysBetween(deny_date, new Date());
                 riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(last_dey_days));
             }
+
+
 
             OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(Integer.parseInt(userId), this.repayPlanInfoMapper);
             if (overdueInfoBean != null) { //overdue  days
