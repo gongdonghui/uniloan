@@ -782,7 +782,7 @@ public class ScheduleTasks {
 
 
     public void updateOperatorReport(Date data_dt, Date current) {
-        /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, -24 * 8);//last  week
@@ -796,49 +796,82 @@ public class ScheduleTasks {
 
             List<RepayJoinBean> repayJoinBeans = this.operationTaskJoinMapper.getRepayJoinByDate(start, end);
 
-            QueryWrapper<TbReportCheckOperatorDaily> wrapper = new QueryWrapper<>();
-            Map<Integer, Map<String, List<RepayJoinBean>>> map = new HashMap<Integer, Map<String, List<RepayJoinBean>>>();
+            Map<Integer, Map<String, Integer>> map = new HashMap<>(); //operator :  loan_date,   overdue_size;
             for (RepayJoinBean repayJoinBean : repayJoinBeans) {
                 Integer operator_id = repayJoinBean.getOperator_id();
                 if (!map.containsKey(operator_id)) {
-                    Map<String, List<RepayJoinBean>>  dis  =  new HashMap<>();
+                    Map<String, Integer> dis = new HashMap<>();
                     map.put(operator_id, dis);
                 }
 
-                String  loan_str= repayJoinBean.getLoan_time();
-                String  date_str = dayFormat.format( dateFormat.parse(loan_str));
-                if( !map.get(operator_id).containsKey(date_str)) {
+                Date loan_str = repayJoinBean.getLoan_time();
+                String date_str = dayFormat.format(loan_str);
+                if (!map.get(operator_id).containsKey(date_str)) {
 
-                    map.get(operator_id).put(date_str,new ArrayList<>());
+                    map.get(operator_id).put(date_str, 0);
                 }
 
-                map.get(operator_id).get(date_str).add(repayJoinBean);
+                int val = map.get(operator_id).get(date_str);
+                val++;
+                map.get(operator_id).put(date_str, val);
             }
             for (Integer operator : map.keySet()) {
-                int fpd = 0, d3 = 0, d7 = 0;
-                for (RepayJoinBean repayJoinBean : map.get(operator)) {
-                    String repay_date = repayJoinBean.getRepay_start_date();
-                    Date repay = dateFormat.parse(repay_date);
-                    int days = DateUtil.getDaysBetween(repay, current);
+
+                Map<String, Integer> day_dis = map.get(operator);
+                for (String loan_date : day_dis.keySet()) {
+                    int fpd = 0, d3 = 0, d7 = 0;
+
+                    Date loan = dateFormat.parse(loan_date);
+                    int days = DateUtil.getDaysBetween(loan, current);
+
                     if (days == 1) {
-                        ++fpd;
+                        fpd += day_dis.get(loan_date);
                     }
                     if (days == 4) {
-                        ++d3;
+                        d3 += day_dis.get(loan_date);
                     }
                     if (days == 8) {
-                        ++d7;
+                        d7 += day_dis.get(loan_date);
+                    }
+                    if (fpd > 0 || d3 > 0 || d7 > 0) {
+                        log.info("need to update pd info for operator:" + operator + ", data_dt:" + loan_date + ", fpd:" + fpd + ",pd3:" + d3 + ",d7:" + d7);
+                        QueryWrapper<TbReportCheckOperatorDaily> wrapper = new QueryWrapper<>();
+                        wrapper.eq("data_dt", loan).eq("operator", operator);
+                        List<TbReportCheckOperatorDaily> beans = this.reportOperatorDailyMapper.selectList(wrapper);
+                        if (beans != null && !beans.isEmpty()) {
+                            TbReportCheckOperatorDaily tbReportCheckOperatorDaily = beans.get(0);
+                            int loan_num = tbReportCheckOperatorDaily.getLoan_num();
+                            if (loan_num > 0) {
+
+                                if (fpd > 0) {
+                                    double val = (fpd + 0.001f) / (loan_num + 0.001f);
+                                    tbReportCheckOperatorDaily.setFpd(val);
+                                }
+                                if (d3 > 0) {
+                                    double pd3 = (d3 + 0.001f) / (loan_num + 0.001f);
+                                    tbReportCheckOperatorDaily.setPd3(pd3);
+                                }
+                                if (d7 > 0) {
+                                    double pd7 = (d7 + 0.001f) / (loan_num + 0.001f);
+                                    tbReportCheckOperatorDaily.setPd7(pd7);
+                                }
+                                this.reportOperatorDailyMapper.updateById(tbReportCheckOperatorDaily);
+                            } else {
+                                log.info("loan num is invalid");
+                            }
+                        }
+
                     }
 
-
                 }
+
 
             }
 
 
         } catch (Exception e) {
             log.error(e.getMessage());
-        } */
+        }
 
 
     }

@@ -168,7 +168,7 @@ public class DecisionEngineImpl implements DecesionEngine {
             List<TbApplyInfoBean> applyInfoBean = applyInfoMapper.selectList(
                     materialWrapper.eq("user_id", userId).in("status", denyStatus).
                             orderByDesc("update_time"));  // deny  date
-            if (applyInfoBean != null &&  !  applyInfoBean.isEmpty()) {
+            if (applyInfoBean != null &&  !applyInfoBean.isEmpty()) {
 
                 Date deny_date = applyInfoBean.get(0).getUpdate_time();
                 int last_dey_days = DateUtil.getDaysBetween(deny_date, new Date());
