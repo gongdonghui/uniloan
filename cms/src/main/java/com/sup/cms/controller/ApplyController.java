@@ -250,7 +250,7 @@ public class ApplyController {
         sb.append(null != params.getProductId() ? " and c.id=" + params.getProductId() : "");
 
         sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name='" + params.getName() + "'" : "");
-        sb.append(!Strings.isNullOrEmpty(params.getCid()) ? " and b.credit_class='" + params.getCid() + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no='" + params.getCidNo() + "'" : "");
         sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile='" + params.getMobile() + "'" : "");
 
         sb.append(null != params.getCreateTime() ? " and a.update_time>='" + DateUtil.startOf(params.getCreateTime()) + "'" : "");

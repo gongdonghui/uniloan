@@ -28,7 +28,7 @@ public class ApplyAllocationHistoryParams {
      */
     private Integer productId;
     private String name;
-    private String cid;
+    private String cidNo;
     private String mobile;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date createTime;
