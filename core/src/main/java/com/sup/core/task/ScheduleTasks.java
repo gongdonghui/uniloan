@@ -730,7 +730,7 @@ public class ScheduleTasks {
 
 
         OperationStatBean operationStatBean = CheckStatUtil.processList(operationTaskJoinBeanList);
-
+        log.info("operationStatBean=" + GsonUtil.toJson(operationStatBean));
 
         checkReportBean.setDenyed(operationStatBean.getDenyed());
         checkReportBean.setChecked(operationStatBean.getChecked());
@@ -748,8 +748,6 @@ public class ScheduleTasks {
     /**
      * 计算每一位信审员，  截止昨天的审核情况汇总
      *
-     * @param data_dt
-     * @param current
      */
     private void doCheckOpertorDaily(List<OperationTaskJoinBean> list, Date data_dt, Map<Integer, String> names) {
         Map<Integer, List<OperationTaskJoinBean>> map = new HashMap<>();
