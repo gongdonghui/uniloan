@@ -43,7 +43,7 @@ public class RuleConfigService {
 
 
         List<CreditLevelRuleBean> creditLevelRuleBeans = this.creditLevelRulesMapper.selectList(new QueryWrapper<CreditLevelRuleBean>().orderByDesc("level"));
-        List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_REPAY_ALL).eq("user_id", user_id));  //结清状态的申请单
+        List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_REPAY_ALL.getCode()).eq("user_id", user_id));  //结清状态的申请单
         int reloan_times = applyInfoBeanList != null ? applyInfoBeanList.size() : 0;
         this.updateCreditLevelForUser(user_id, reloan_times, creditLevelRuleBeans);
     }
