@@ -218,10 +218,10 @@ public class ApplyController {
         sb.append(null != params.getEndTime() ? " and a.create_time<='" + DateUtil.endOf(params.getEndTime()) + "'" : "");
         sb.append(null != params.getStatus() ? " and a.status=" + params.getStatus() : "");
         sb.append(null != params.getApplyId() ? " and a.id=" + params.getApplyId() : "");
-        sb.append(null != params.getName() ? " and d.name='" + params.getName() + "'" : "");
-        sb.append(null != params.getCidNo() ? " and d.cid_no='" + params.getCidNo() + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and d.name='" + params.getName() + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and d.cid_no='" + params.getCidNo() + "'" : "");
         sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile='" + params.getMobile() + "'" : "");
-        sb.append(null != params.getAppName() ? " and e.app_name='" + params.getApplyId() + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getAppName()) ? " and e.app_name='" + params.getApplyId() + "'" : "");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         log.info("apply management list, conditions=" + sb.toString());
