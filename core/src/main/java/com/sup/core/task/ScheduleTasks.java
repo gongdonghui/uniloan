@@ -754,6 +754,9 @@ public class ScheduleTasks {
         if (list == null || list.isEmpty()) return;
         for (OperationTaskJoinBean operationTaskJoinBean : list) {
             Integer operator = operationTaskJoinBean.getOperatorId();
+            if (operator == null) {
+                continue;
+            }
             if (!map.containsKey(operator)) {
                 map.put(operator, new ArrayList<>());
             }
