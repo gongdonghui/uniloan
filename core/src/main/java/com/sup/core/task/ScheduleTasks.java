@@ -13,6 +13,7 @@ import com.sup.common.service.PayCenterService;
 import com.sup.common.util.*;
 import com.sup.core.bean.CollectionRepayBean;
 import com.sup.core.bean.CollectionStatBean;
+import com.sup.core.bean.RepayJoinBean;
 import com.sup.core.bean.RiskDecisionResultBean;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
@@ -100,7 +101,10 @@ public class ScheduleTasks {
 
 
     @Autowired
-    private  ReportOperatorDailyMapper    reportOperatorDailyMapper;
+    private ReportOperatorDailyMapper reportOperatorDailyMapper;
+
+    @Autowired
+    private AuthUserMapper authUserMapper;
 
     @Scheduled(cron = "0 */5 * * * ?")
     public void checkApplyInfo() {
@@ -521,6 +525,7 @@ public class ScheduleTasks {
             Integer assetLevel = tbApplyInfoBean.getAsset_level();
             Integer applyId = tbApplyInfoBean.getId();
 
+
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
                 if (days >= assetsLevelRuleBean.getBetween_paydays() && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
@@ -536,6 +541,7 @@ public class ScheduleTasks {
             }
         }
     }
+
 
     //@Scheduled(cron = "0 */5 * * * ?")
     @Scheduled(cron = "0 30 1 * * ?")   //T+1
@@ -658,9 +664,9 @@ public class ScheduleTasks {
                 Integer loan_failed = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED, 0);
                 Integer loan_pending = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_LOANING, 0);
                 Integer first_ovedue = c.repayNum - c.repayActualNum;
-                Integer final_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_PASS, 0) + loan_failed+loan_pending+loan_num;
-                Integer first_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_PASS, 0)+final_pass + first_deny;
-                Integer auto_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_PASS, 0) + final_pass+ final_deny;
+                Integer final_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_PASS, 0) + loan_failed + loan_pending + loan_num;
+                Integer first_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_PASS, 0) + final_pass + first_deny;
+                Integer auto_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_PASS, 0) + final_pass + final_deny;
                 double forate = c.repayNum > 0 ? (first_ovedue + 0.00001f) / (c.repayNum + 0.00001f) : 0;
 
                 OperationReportBean operationReportBean = new OperationReportBean();
@@ -692,8 +698,16 @@ public class ScheduleTasks {
                 operationReportBean.setCreate_time(new Date());
                 this.operationReportMapper.insert(operationReportBean);
             }
-            this.doCheckReportDaily(data_dt, current, OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode());
-            this.doCheckReportDaily(data_dt, current, OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode());
+
+            List<AuthUserBean> users = this.authUserMapper.selectList(new QueryWrapper<AuthUserBean>());
+            Map<Integer, String> userNames = new HashMap<Integer, String>();
+            for (AuthUserBean authUserBean : users) {
+                userNames.put(authUserBean.getId(), authUserBean.getName());
+
+            }
+
+            this.doCheckReportDaily(data_dt, current, OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode(), userNames);
+            this.doCheckReportDaily(data_dt, current, OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode(), userNames);
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -702,7 +716,7 @@ public class ScheduleTasks {
 
     }
 
-    private void doCheckReportDaily(Date data_dt, Date current, Integer taskType) {
+    private void doCheckReportDaily(Date data_dt, Date current, Integer taskType, Map<Integer, String> names) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String start = dateFormat.format(data_dt);
         String end = dateFormat.format(current);
@@ -715,37 +729,42 @@ public class ScheduleTasks {
         checkReportBean.setTotal(total);
 
 
-        OperationStatBean    operationStatBean   = CheckStatUtil.processList(operationTaskJoinBeanList);
-
+        OperationStatBean operationStatBean = CheckStatUtil.processList(operationTaskJoinBeanList);
+        log.info("operationStatBean=" + GsonUtil.toJson(operationStatBean));
 
         checkReportBean.setDenyed(operationStatBean.getDenyed());
         checkReportBean.setChecked(operationStatBean.getChecked());
         checkReportBean.setAllocated(operationStatBean.getAllocated());
 
         this.checkReportMapper.insert(checkReportBean);
+        try {
 
-        this.doCheckOpertorDaily(operationTaskJoinBeanList, data_dt);  // operator report
+            this.doCheckOpertorDaily(operationTaskJoinBeanList, data_dt, names);  // operator report
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
     /**
      * 计算每一位信审员，  截止昨天的审核情况汇总
-     * @param data_dt
-     * @param current
+     *
      */
-    private  void  doCheckOpertorDaily(List<OperationTaskJoinBean>   list,  Date  data_dt ) {
-        Map<Integer, List<OperationTaskJoinBean>>  map  = new HashMap<Integer, List<OperationTaskJoinBean>>();
-        for (OperationTaskJoinBean  operationTaskJoinBean : list) {
-            Integer   operator = operationTaskJoinBean.getOperatorId();
-            if(! map.containsKey(operator)) {
-                map.put(operator,  new ArrayList<OperationTaskJoinBean>());
+    private void doCheckOpertorDaily(List<OperationTaskJoinBean> list, Date data_dt, Map<Integer, String> names) {
+        Map<Integer, List<OperationTaskJoinBean>> map = new HashMap<>();
+        if (list == null || list.isEmpty()) return;
+        for (OperationTaskJoinBean operationTaskJoinBean : list) {
+            Integer operator = operationTaskJoinBean.getOperatorId();
+            if (operator == null) {
+                continue;
+            }
+            if (!map.containsKey(operator)) {
+                map.put(operator, new ArrayList<>());
             }
             map.get(operator).add(operationTaskJoinBean);
         }
-
-        for(Integer  operator: map.keySet()) {
-
-            OperationStatBean    operationStatBean  =   CheckStatUtil.processList(map.get(operator));
-            TbReportCheckOperatorDaily  tbReportCheckOperatorDaily   =  new TbReportCheckOperatorDaily();
+        for (Integer operator : map.keySet()) {
+            OperationStatBean operationStatBean = CheckStatUtil.processList(map.get(operator));
+            TbReportCheckOperatorDaily tbReportCheckOperatorDaily = new TbReportCheckOperatorDaily();
             tbReportCheckOperatorDaily.setData_dt(data_dt);
             tbReportCheckOperatorDaily.setOperator(operator);
             tbReportCheckOperatorDaily.setChecked(operationStatBean.getChecked());
@@ -755,7 +774,104 @@ public class ScheduleTasks {
             tbReportCheckOperatorDaily.setLoan_amt(operationStatBean.getLoan_amt());
             tbReportCheckOperatorDaily.setPass_rate(operationStatBean.getPass_rate());
             tbReportCheckOperatorDaily.setLoan_rate(operationStatBean.getLoan_rate());
-            this.reportOperatorDailyMapper.insert(tbReportCheckOperatorDaily) ;
+            if (names != null && names.containsKey(operator)) {
+                tbReportCheckOperatorDaily.setOperator_name(names.get(operator));
+            }
+            this.reportOperatorDailyMapper.insert(tbReportCheckOperatorDaily);
+        }
+    }
+
+
+    public void updateOperatorReport(Date data_dt, Date current) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, -24 * 8);//last  week
+
+        SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+
+            String start = dateFormat.format(DateUtil.startOf(calendar.getTime()));
+
+            String end = DateUtil.startOf(current);
+
+            List<RepayJoinBean> repayJoinBeans = this.operationTaskJoinMapper.getRepayJoinByDate(start, end);
+
+            Map<Integer, Map<String, Integer>> map = new HashMap<>(); //operator :  loan_date,   overdue_size;
+            for (RepayJoinBean repayJoinBean : repayJoinBeans) {
+                Integer operator_id = repayJoinBean.getOperator_id();
+                if (!map.containsKey(operator_id)) {
+                    Map<String, Integer> dis = new HashMap<>();
+                    map.put(operator_id, dis);
+                }
+
+                Date loan_str = repayJoinBean.getLoan_time();
+                String date_str = dayFormat.format(loan_str);
+                if (!map.get(operator_id).containsKey(date_str)) {
+
+                    map.get(operator_id).put(date_str, 0);
+                }
+
+                int val = map.get(operator_id).get(date_str);
+                val++;
+                map.get(operator_id).put(date_str, val);
+            }
+            for (Integer operator : map.keySet()) {
+
+                Map<String, Integer> day_dis = map.get(operator);
+                for (String loan_date : day_dis.keySet()) {
+                    int fpd = 0, d3 = 0, d7 = 0;
+
+                    Date loan = dateFormat.parse(loan_date);
+                    int days = DateUtil.getDaysBetween(loan, current);
+
+                    if (days == 1) {
+                        fpd += day_dis.get(loan_date);
+                    }
+                    if (days == 4) {
+                        d3 += day_dis.get(loan_date);
+                    }
+                    if (days == 8) {
+                        d7 += day_dis.get(loan_date);
+                    }
+                    if (fpd > 0 || d3 > 0 || d7 > 0) {
+                        log.info("need to update pd info for operator:" + operator + ", data_dt:" + loan_date + ", fpd:" + fpd + ",pd3:" + d3 + ",d7:" + d7);
+                        QueryWrapper<TbReportCheckOperatorDaily> wrapper = new QueryWrapper<>();
+                        wrapper.eq("data_dt", loan).eq("operator", operator);
+                        List<TbReportCheckOperatorDaily> beans = this.reportOperatorDailyMapper.selectList(wrapper);
+                        if (beans != null && !beans.isEmpty()) {
+                            TbReportCheckOperatorDaily tbReportCheckOperatorDaily = beans.get(0);
+                            int loan_num = tbReportCheckOperatorDaily.getLoan_num();
+                            if (loan_num > 0) {
+
+                                if (fpd > 0) {
+                                    double val = (fpd + 0.001f) / (loan_num + 0.001f);
+                                    tbReportCheckOperatorDaily.setFpd(val);
+                                }
+                                if (d3 > 0) {
+                                    double pd3 = (d3 + 0.001f) / (loan_num + 0.001f);
+                                    tbReportCheckOperatorDaily.setPd3(pd3);
+                                }
+                                if (d7 > 0) {
+                                    double pd7 = (d7 + 0.001f) / (loan_num + 0.001f);
+                                    tbReportCheckOperatorDaily.setPd7(pd7);
+                                }
+                                this.reportOperatorDailyMapper.updateById(tbReportCheckOperatorDaily);
+                            } else {
+                                log.info("loan num is invalid");
+                            }
+                        }
+
+                    }
+
+                }
+
+
+            }
+
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
 
 

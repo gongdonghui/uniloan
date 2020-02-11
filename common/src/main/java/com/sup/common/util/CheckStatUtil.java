@@ -23,19 +23,21 @@ public class CheckStatUtil {
         OperationStatBean operationStatBean = new OperationStatBean();
 
         for (OperationTaskJoinBean joinBean : list) {
-            if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode() || joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode()) {
+            if(joinBean!= null) {
+                if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode() || joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode()) {
 
-                ++deny;
-            }
-            if (joinBean.getTaskStatus() == OperationTaskStatusEnum.TASK_STATUS_DONE.getCode()) {
-                ++checked;
-            }
-            if (joinBean.getHasOwner() == 1) {
-                ++allocated;
-            }
-            if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()) {
-                ++loan;
-                loan_amt += joinBean.getLoanAmt();
+                    ++deny;
+                }
+                if (joinBean.getTaskStatus() == OperationTaskStatusEnum.TASK_STATUS_DONE.getCode()) {
+                    ++checked;
+                }
+                if (joinBean.getHasOwner() == 1) {
+                    ++allocated;
+                }
+                if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()) {
+                    ++loan;
+                    loan_amt += joinBean.getLoanAmt();
+                }
             }
         }
         operationStatBean.setAllocated(allocated);
@@ -45,9 +47,9 @@ public class CheckStatUtil {
         operationStatBean.setLoan_amt(loan_amt);
         operationStatBean.setPending(list.size() - allocated);
         operationStatBean.setPassed(checked - deny);
-        double pass_rate = checked > 0 ? 0.0f : (checked - deny + 0.001f) / (checked + 0.001f);
+        double pass_rate = checked > 0 ? (checked - deny + 0.001f) / (checked + 0.001f) : 0.0f;
         operationStatBean.setPass_rate(pass_rate);
-        double  loan_rate = checked >0 ? 0.0 : (loan+0.001f)/(checked+0.001f);
+        double loan_rate = checked > 0 ? (loan + 0.001f) / (checked + 0.001f) : 0.0f;
         operationStatBean.setLoan_rate(loan_rate);
         return operationStatBean;
 

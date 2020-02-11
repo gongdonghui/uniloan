@@ -24,6 +24,7 @@ import com.sup.core.mapper.*;
 import com.sup.common.util.Result;
 import com.sup.core.service.ApplyService;
 import com.sup.core.service.LoanService;
+import com.sup.core.service.RuleConfigService;
 import lombok.Data;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,9 @@ import java.util.*;
 public class LoanFacadeImpl implements LoanFacade {
     @Autowired
     private ApplyInfoMapper     applyInfoMapper;
+
+    @Autowired
+    private RuleConfigService ruleConfigService;
 
     @Autowired
     private LoanService loanService;
@@ -181,5 +185,17 @@ public class LoanFacadeImpl implements LoanFacade {
     @Override
     public Result retryLoan(ApplyRetryLoanParam param) {
         return loanService.retryLoan(param);
+    }
+
+    /**
+     * 更新用户等级
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public Result updateUserCredit(Integer userId) {
+        ruleConfigService.updateCreditLevelForUser(userId);
+        return Result.succ();
     }
 }

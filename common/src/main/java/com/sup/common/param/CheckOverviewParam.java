@@ -13,10 +13,10 @@ import java.util.Date;
  */
 @Data
 public class CheckOverviewParam {
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date start_date;
 
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date end_date;
 
     private  String  type;  // first， final

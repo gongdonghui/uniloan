@@ -105,7 +105,7 @@ public class CollectionController {
         StringBuilder sb = new StringBuilder();
         sb.append(null != params.getProductId() ? " and c.id=" + params.getProductId() : "");
         sb.append(null != params.getApplyId() ? " and b.id=" + params.getApplyId() : "");
-        sb.append(null != params.getOverdueDays() ? " and h.overdue_days_max=\"" + params.getOverdueDays() + "\"" : "");
+        sb.append(null != params.getOverdueDays() ? " and h.overdue_days_max=" + params.getOverdueDays() : "");
         sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and e.name=\"" + params.getName() + "\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and g.mobile=\"" + params.getMobile() + "\"" : "");
         sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and e.cid_no=\"" + params.getCidNo() + "\"" : "");

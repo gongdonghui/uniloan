@@ -2,6 +2,8 @@ package com.sup.common.bean;
 
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * gongshuai
  * <p>
@@ -14,8 +16,8 @@ public class OperationTaskJoinBean {
     private Integer id;
     private Integer taskStatus;
     private Integer hasOwner;
-    private Integer createTime;
-    private Integer updateTime;
+    private Date    createTime;
+    private Date    updateTime;
     private Integer operatorId;
     private Integer loanAmt;
 }

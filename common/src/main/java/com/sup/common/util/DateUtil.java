@@ -398,8 +398,8 @@ public class DateUtil {
     }
 
     public static void main(String args[]) {
-        Date start  = parseDateTime("2019-12-07 14:00:00");
-        Date end    = parseDateTime("2020-01-10 10:00:00");
+        Date start  = parseDateTime("2020-02-06 09:00:00");
+        Date end    = new Date();
         //System.out.println("daysbetween: " + daysbetween(start, end));
         System.out.println("getDaysBetween: " + getDaysBetween(start, end));
         Date dt = new Date();

@@ -2,6 +2,8 @@ package com.sup.common.param;
 
 import lombok.Data;
 
+import javax.validation.constraints.Min;
+
 /**
  * gongshuai
  * <p>
@@ -9,5 +11,14 @@ import lombok.Data;
  */
 @Data
 public class GetLabelParam {
-    private String  scene;
+
+
+
+    @Min(0)
+    private Integer page;
+
+    @Min(0)
+    private Integer pageSize;
+
+
 }

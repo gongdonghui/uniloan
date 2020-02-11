@@ -719,8 +719,8 @@ public interface CrazyJoinMapper extends BaseMapper {
             "a.update_time as updateTime," +
             "b.status as applyStatus, a.operator_id as  operatorId, b.grant_quota as  loanAmt" +
             " from tb_operation_task a" +
-            " join tb_apply_task_typeinfo b on a.apply_id=b.id" +
-            " where a.= ${taskType}" +
+            " join tb_apply_info b on a.apply_id=b.id" +
+            " where a.task_type= ${taskType}" +
             "  and a.create_time >='${start}' and a.create_time< '${end}' ")
     List<OperationTaskJoinBean> getOperationTaskJoinByTask(String start, String end, Integer taskType);
 

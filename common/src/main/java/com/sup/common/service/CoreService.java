@@ -126,4 +126,13 @@ public interface CoreService {
     @ResponseBody
     @RequestMapping(value = "/loan/retry", produces = "application/json;charset=UTF-8")
     Result retryLoan(@RequestBody ApplyRetryLoanParam param);
+
+    /**
+     * 更新用户等级
+     * @param userId
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/loan/updateUser", produces = "application/json;charset=UTF-8")
+    Result updateUserCredit(Integer userId);
 }

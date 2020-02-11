@@ -2,6 +2,7 @@ package com.sup.core.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.*;
+import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.DateUtil;
 import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
@@ -100,9 +101,9 @@ public class DecisionEngineImpl implements DecesionEngine {
                 }
                 boolean ret_right = false;
                 if (rule.getRange_right() == 1) {
-                    ret_right = val > rule.getVal_right();
+                    ret_right = val < rule.getVal_right();
                 } else {
-                    ret_right = val >= rule.getVal_left();
+                    ret_right = val <= rule.getVal_left();
                 }
                 return ret && ret_right;
             } else {
@@ -138,7 +139,7 @@ public class DecisionEngineImpl implements DecesionEngine {
 
         Map<String, Double> riskBean = new HashMap<>();
         riskBean.put(RiskVariableConstants.AGE, Double.valueOf(0));
-        riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(0));
+        riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(Integer.MAX_VALUE));
         riskBean.put(RiskVariableConstants.MAX_OVERDUE_DAYS, Double.valueOf(0));
         riskBean.put(RiskVariableConstants.OVERDUE_TIMES, Double.valueOf(0));
         riskBean.put(RiskVariableConstants.LATEST_OVERDUE_DAYS, Double.valueOf(0));
@@ -159,14 +160,22 @@ public class DecisionEngineImpl implements DecesionEngine {
             }//age
 
             QueryWrapper<TbApplyInfoBean> materialWrapper = new QueryWrapper<TbApplyInfoBean>();
-            TbApplyInfoBean applyInfoBean = applyInfoMapper.selectOne(
-                    materialWrapper.eq("user_id", userId).eq("deny_code", ""));    // deny  date
-            if (applyInfoBean != null) {
+            List<Integer>     denyStatus =  new ArrayList<>();
+            denyStatus.add(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
+            denyStatus.add(ApplyStatusEnum.APPLY_FINAL_DENY.getCode());
+            denyStatus.add(ApplyStatusEnum.APPLY_FIRST_DENY.getCode());
 
-                Date deny_date = applyInfoBean.getUpdate_time();
+            List<TbApplyInfoBean> applyInfoBean = applyInfoMapper.selectList(
+                    materialWrapper.eq("user_id", userId).in("status", denyStatus).
+                            orderByDesc("update_time"));  // deny  date
+            if (applyInfoBean != null &&  !applyInfoBean.isEmpty()) {
+
+                Date deny_date = applyInfoBean.get(0).getUpdate_time();
                 int last_dey_days = DateUtil.getDaysBetween(deny_date, new Date());
                 riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(last_dey_days));
             }
+
+
 
             OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(Integer.parseInt(userId), this.repayPlanInfoMapper);
             if (overdueInfoBean != null) { //overdue  days
@@ -337,6 +346,10 @@ public class DecisionEngineImpl implements DecesionEngine {
 
         RiskDecisionResultBean result = new RiskDecisionResultBean();
         result.setRet(0);
+        result.setApply_id(Integer.parseInt(param.getApplyId()));
+        result.setUser_id(Integer.parseInt(param.getUserId()));
+        result.setApply_time(new Date());
+
         List<RiskRulesBean> rulesBeanList = riskRulesMapper.selectList(new QueryWrapper<RiskRulesBean>().eq("product_id", Integer.parseInt(param.getProductId())));
         List<RiskDecisionResultDetailBean> detailBeanList = new ArrayList<>();
         for (RiskRulesBean rule : rulesBeanList) {
