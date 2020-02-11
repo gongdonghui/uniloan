@@ -729,7 +729,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " from  tb_report_check_operator_daily " +
             " where 1=1" +
             " ${conditions}" +
-            "  and  data_dt>='${start}' and data_dt<= '${end}' limit ${offset}, ${rows} ")
+            "  and  data_dt>='${start}' and data_dt<= '${end}' order  by  data_dt desc limit ${offset}, ${rows} ")
     List<TbReportCheckOperatorDaily> getOperatorReport(String start, String end, String conditions, Integer offset, Integer rows);
 
 

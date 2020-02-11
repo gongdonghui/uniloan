@@ -405,6 +405,7 @@ public class DateUtil {
         Date dt = new Date();
         Date now = new Date();
         int ret = compareDay(dt, now);
-        System.out.println("ret=" + ret);
+        //System.out.println("ret=" + ret);
+        System.out.printf(Integer.toString(Integer.MAX_VALUE));
     }
 }
