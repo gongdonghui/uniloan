@@ -763,6 +763,9 @@ public class ScheduleTasks {
             map.get(operator).add(operationTaskJoinBean);
         }
         for (Integer operator : map.keySet()) {
+            if(map.get(operator).isEmpty()) {
+                continue;
+            }
             OperationStatBean operationStatBean = CheckStatUtil.processList(map.get(operator));
             TbReportCheckOperatorDaily tbReportCheckOperatorDaily = new TbReportCheckOperatorDaily();
             tbReportCheckOperatorDaily.setData_dt(data_dt);
