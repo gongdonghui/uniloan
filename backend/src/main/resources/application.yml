@@ -11,6 +11,11 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
+ssdb:
+  thumbnail:
+    h: 600
+    w: 800
+
 repay:
   accountno: 315832828
   bankaccount: 'CÔNG TY TNHH ĐÔNG NAM PRIMA'

@@ -21,6 +21,7 @@ import com.sup.common.loan.RepayPlanStatusEnum;
 import com.sup.common.param.ApplyInfoParam;
 import com.sup.common.service.CoreService;
 import net.bytebuddy.asm.Advice;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.Lang;
 import org.apache.log4j.Logger;
 import org.redisson.api.RLock;
@@ -64,6 +65,8 @@ public class ApplyController {
   TbAppSdkAppListInfoMapper tb_app_sdk_applist_info_mapper;
   @Autowired
   TbUserDocumentaryImageMapper tb_user_documentary_image_mapper;
+  @Autowired
+  TbProductInfoMapper tb_product_info_mapper;
   @Autowired
   RedissonClient red_client;
 
@@ -316,6 +319,17 @@ public class ApplyController {
     aip.setProduct_id(order_detail.getProduct_id());
     aip.setPeriod(order_detail.getPeriod());
     aip.setInfoIdMap(order_detail.getMaterial_ids());
+
+    TbProductInfoBean product_bean = tb_product_info_mapper.selectById(aip.getProduct_id());
+    if (product_bean == null) {
+      return ToolUtils.fail("found_no_product_info");
+    }
+    if (StringUtils.isNotEmpty(product_bean.getMaterial_needed())) {
+      boolean all_exists = Arrays.stream(product_bean.getMaterial_needed().split(",")).allMatch(v -> aip.getInfoIdMap().containsKey(Integer.parseInt(v)));
+      if (!all_exists) {
+        return ToolUtils.fail("missing_required_basic_info");
+      }
+    }
 
     String mobile = li.getMobile();
     String info_id = ToolUtils.getToken();

@@ -2,12 +2,13 @@ package com.sup.backend.util;
 
 import com.alibaba.fastjson.JSON;
 import com.sup.common.util.Result;
+import net.coobird.thumbnailator.Thumbnails;
 import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.Response;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
@@ -83,6 +84,21 @@ public class ToolUtils {
         ret.setResult(Result.fail("time_out"));
       }
     });
+  }
+
+  public static byte[] getThumbnail(byte[] org, int w, int h) throws Exception {
+    ByteArrayOutputStream bout = new ByteArrayOutputStream();
+    ByteArrayInputStream bin = new ByteArrayInputStream(org);
+    BufferedImage img = Thumbnails.of(bin).asBufferedImage();
+    int org_h = img.getHeight();
+    int org_w = img.getWidth();
+    if (org_h < h && org_w < w) {
+      return null;
+    }
+
+    Thumbnails.of(img).size(w, h).toOutputStream((bout));
+    byte[] binary_thumbnail = bout.toByteArray();
+    return binary_thumbnail;
   }
 
   public static String GetTrace(Throwable t) {

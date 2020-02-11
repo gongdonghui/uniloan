@@ -42,6 +42,14 @@ public class SSDBClient {
     }
   }
 
+  public boolean Exist(String key) {
+    Response resp = ssdb.exists(key);
+    if (resp.notFound()) {
+      return false;
+    }
+    return (resp.asInt() == 1);
+  }
+
   public byte[] GetBytes(String key) {
     Response resp =  ssdb.get(key);
     if (resp.notFound()) {
