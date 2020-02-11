@@ -23,7 +23,7 @@ public class CheckStatUtil {
         OperationStatBean operationStatBean = new OperationStatBean();
 
         for (OperationTaskJoinBean joinBean : list) {
-            if(joinBean!= null) {
+            if (joinBean != null) {
                 if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode() || joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode()) {
 
                     ++deny;
@@ -47,9 +47,10 @@ public class CheckStatUtil {
         operationStatBean.setLoan_amt(loan_amt);
         operationStatBean.setPending(list.size() - allocated);
         operationStatBean.setPassed(checked - deny);
-        double pass_rate = checked > 0 ? (checked - deny + 0.001f) / (checked + 0.001f) : 0.0f;
+        int passed = checked - deny;
+        double pass_rate = checked > 0 && passed > 0 ? (passed + 0.001f) / (checked + 0.001f) : 0.0f;
         operationStatBean.setPass_rate(pass_rate);
-        double loan_rate = checked > 0 ? (loan + 0.001f) / (checked + 0.001f) : 0.0f;
+        double loan_rate = checked > 0 && loan > 0 ? (loan + 0.001f) / (checked + 0.001f) : 0.0f;
         operationStatBean.setLoan_rate(loan_rate);
         return operationStatBean;
 

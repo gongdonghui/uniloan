@@ -3,6 +3,7 @@ package com.sup.common.bean;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -29,7 +30,9 @@ public class TbReportCheckOperatorDaily {
     private Double pd7;     //逾期率D7
     private Double pass_rate;   //通过率
     private Double loan_rate;   //放款转化率
-    private Date data_dt;      //数据日期
-    private Date update_time;    //更新时间
+
+    @JsonFormat(pattern="yyyy-MM-dd", timezone = "GMT+7")
+    private Date data_dt;       //数据日期
+    private Date update_time;   //更新时间
 
 }

@@ -763,6 +763,9 @@ public class ScheduleTasks {
             map.get(operator).add(operationTaskJoinBean);
         }
         for (Integer operator : map.keySet()) {
+            if(map.get(operator).isEmpty()) {
+                continue;
+            }
             OperationStatBean operationStatBean = CheckStatUtil.processList(map.get(operator));
             TbReportCheckOperatorDaily tbReportCheckOperatorDaily = new TbReportCheckOperatorDaily();
             tbReportCheckOperatorDaily.setData_dt(data_dt);
@@ -774,6 +777,7 @@ public class ScheduleTasks {
             tbReportCheckOperatorDaily.setLoan_amt(operationStatBean.getLoan_amt());
             tbReportCheckOperatorDaily.setPass_rate(operationStatBean.getPass_rate());
             tbReportCheckOperatorDaily.setLoan_rate(operationStatBean.getLoan_rate());
+            tbReportCheckOperatorDaily.setUpdate_time(new Date());
             if (names != null && names.containsKey(operator)) {
                 tbReportCheckOperatorDaily.setOperator_name(names.get(operator));
             }
