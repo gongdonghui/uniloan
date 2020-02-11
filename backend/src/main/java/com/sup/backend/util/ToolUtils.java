@@ -87,16 +87,12 @@ public class ToolUtils {
   }
 
   public static byte[] getThumbnail(byte[] org, int w, int h) throws Exception {
-    ByteArrayOutputStream bout = new ByteArrayOutputStream();
-    ByteArrayInputStream bin = new ByteArrayInputStream(org);
-    BufferedImage img = Thumbnails.of(bin).asBufferedImage();
-    int org_h = img.getHeight();
-    int org_w = img.getWidth();
-    if (org_h < h && org_w < w) {
+    if (org.length < 128*1024) {
       return null;
     }
-
-    Thumbnails.of(img).size(w, h).toOutputStream((bout));
+    ByteArrayOutputStream bout = new ByteArrayOutputStream();
+    ByteArrayInputStream bin = new ByteArrayInputStream(org);
+    Thumbnails.of(bin).size(w, h).toOutputStream((bout));
     byte[] binary_thumbnail = bout.toByteArray();
     return binary_thumbnail;
   }
