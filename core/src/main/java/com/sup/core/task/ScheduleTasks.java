@@ -774,6 +774,7 @@ public class ScheduleTasks {
             tbReportCheckOperatorDaily.setLoan_amt(operationStatBean.getLoan_amt());
             tbReportCheckOperatorDaily.setPass_rate(operationStatBean.getPass_rate());
             tbReportCheckOperatorDaily.setLoan_rate(operationStatBean.getLoan_rate());
+            tbReportCheckOperatorDaily.setUpdate_time(new Date());
             if (names != null && names.containsKey(operator)) {
                 tbReportCheckOperatorDaily.setOperator_name(names.get(operator));
             }
