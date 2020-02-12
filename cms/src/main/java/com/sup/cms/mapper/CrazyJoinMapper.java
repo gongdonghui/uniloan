@@ -732,5 +732,14 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  and  data_dt>='${start}' and data_dt<= '${end}' order  by  data_dt desc limit ${offset}, ${rows} ")
     List<TbReportCheckOperatorDaily> getOperatorReport(String start, String end, String conditions, Integer offset, Integer rows);
 
-
+    @Select("select " +
+            "a.id as id, a.apply_id as applyId, a.create_time as createTime, a.task_type as taskType," +
+            "a.status as taskStatus, a.operator_id as operatorId,a.has_owner as  hasOwner," +
+            "a.update_time as updateTime," +
+            "b.status as applyStatus, b.grant_quota as  loanAmt" +
+            " from tb_operation_task a" +
+            " join tb_apply_info b on a.apply_id=b.id" +
+            " where " +
+            "  a.create_time >='${start}' and a.create_time< '${end}' ")
+    List<OperationTaskJoinBean> getOperationTaskJoin(String start, String end);
 }

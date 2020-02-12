@@ -73,6 +73,7 @@ public interface ReportFacade {
 
     /**
      * 信审进度报表
+     *
      * @param param
      * @return
      */
@@ -82,10 +83,21 @@ public interface ReportFacade {
 
     /**
      * 信审员报表
+     *
      * @param param
      * @return
      */
     @ResponseBody
     @RequestMapping(value = "operator", produces = "application/json;charset=UTF-8")
     String operator(@RequestBody CheckOverviewParam param);
+
+    /**
+     * 信审员实时报表
+     *
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "operator_cur", produces = "application/json;charset=UTF-8")
+    Result<List<TbReportCheckOperatorDaily>> operator_cur(@RequestBody CheckOverviewParam param);
 }
