@@ -484,6 +484,8 @@ public class ReportImplFacade implements ReportFacade {
             tbReportCheckOperatorDaily.setUpdate_time(new Date());
             if (names != null && names.containsKey(operator)) {
                 tbReportCheckOperatorDaily.setOperator_name(names.get(operator));
+            } else {
+                continue;
             }
             ret.add(tbReportCheckOperatorDaily);
         }
