@@ -23,7 +23,7 @@ public class ApplyManagementGetListParams {
     private String cidNo;
     private String mobile;
     private String appName;
-    private Integer merchant;
+    private Integer channelId;
     @Min(0)
     private Integer pageSize;
     @Min(0)
