@@ -27,6 +27,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -385,7 +386,7 @@ public class CertController {
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = {"contact/add", "contact/update"}, produces = "application/json;charset=UTF-8")
-  public Object updateEmergencyContact(@LoginInfo LoginInfoCtx li, @RequestBody List<TbUserEmergencyContactBean> beans) {
+  public Object updateEmergencyContact(@LoginInfo LoginInfoCtx li, @RequestBody List<TbUserEmergencyContactBean> beans, HttpServletRequest req) {
     logger.info("----- recv bean: " + JSON.toJSONString(beans));
     if (!CheckDuplicateSubmit("contact", li.getUser_id())) {
       return ToolUtils.fail(1, "duplicate_submit");
@@ -402,6 +403,12 @@ public class CertController {
         break;
       }
     }
+
+    boolean check_failed = beans.stream().anyMatch(x -> (x.getRelationship() == null));
+    if (check_failed) {
+      logger.error(String.format("[update_contract_error]: user_id => %d, app-id: %s, channel-id: %s, info: %s", li.getUser_id(),  req.getHeader("app-id"), req.getHeader("channel-id"), JSON.toJSONString(beans)));
+    }
+
     Date new_create_time = new Date();
     final String the_info_id = info_id;
     beans.forEach(bean -> {
@@ -537,7 +544,7 @@ public class CertController {
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = {"bank/add", "bank/update"}, produces = "application/json;charset=UTF-8")
-  public Object updateEmergencyContact(@LoginInfo LoginInfoCtx li, @RequestBody TbUserBankAccountInfoBean bean) {
+  public Object updateUserBankInfo(@LoginInfo LoginInfoCtx li, @RequestBody TbUserBankAccountInfoBean bean) {
     logger.info("----- recv bean: " + JSON.toJSONString(bean));
     if (!CheckDuplicateSubmit("bank", li.getUser_id())) {
       return ToolUtils.fail(1, "duplicate_submit");
