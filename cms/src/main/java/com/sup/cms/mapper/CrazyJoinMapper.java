@@ -680,7 +680,7 @@ public interface CrazyJoinMapper extends BaseMapper {
     @Select("select" +
             "  DATE(loan_time) as dt" +
             "  ,count(apply_id) as loanNum" +
-            "  ,sum(need_principal) as principal" +
+            "  ,sum(inhand_amount) as principal" +
             "  ,sum(contract_amount) as contractAmt" +
             "  ,sum(normal_repay) as normalRepayAmt" +
             "  ,sum(case when is_overdue=0 and act_total>0 then 1 else 0 END) as normalRepayNum" +
