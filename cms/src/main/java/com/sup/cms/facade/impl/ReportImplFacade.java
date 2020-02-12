@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.LoanStatBean;
 import com.sup.cms.bean.po.ReportCollectorBean;
+import com.sup.cms.bean.po.TbCollectionRecordBean;
 import com.sup.cms.bean.vo.CollectorReportParam;
 import com.sup.cms.facade.ReportFacade;
 import com.sup.cms.mapper.*;
 import com.sup.common.bean.*;
 import com.sup.common.loan.ApplyStatusEnum;
-import com.sup.common.loan.OperationTaskStatusEnum;
 import com.sup.common.loan.OperationTaskTypeEnum;
 import com.sup.common.param.CheckOverviewParam;
 import com.sup.common.param.OperationReportParam;
@@ -18,8 +18,7 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * gongshuai
@@ -47,6 +46,9 @@ public class ReportImplFacade implements ReportFacade {
 
     @Autowired
     private ReportOperatorDailyMapper reportOperatorDailyMapper;
+
+    @Autowired
+    private AuthUserBeanMapper  authUserBeanMapper;
 
 
     @Override
@@ -102,7 +104,7 @@ public class ReportImplFacade implements ReportFacade {
         int loan_num = 0;
         int loan_failed = 0;
         int loan_pending = 0;
-        int  register = 0;
+        int register = 0;
 
         for (OperationReportBean operationReportBean : operationReportBeans) {
             apply_num += operationReportBean.getApply_num();
@@ -112,7 +114,7 @@ public class ReportImplFacade implements ReportFacade {
             loan_num += operationReportBean.getLoan_num();
             loan_failed = operationReportBean.getLoan_failed() == null ? 0 : operationReportBean.getLoan_failed();
             loan_pending = operationReportBean.getLoan_pending() == null ? 0 : operationReportBean.getLoan_pending();
-            register +=   operationReportBean.getRegister();
+            register += operationReportBean.getRegister();
         }
         overallReportBean.setApply_num(apply_num);
         overallReportBean.setAuto_pass(auto_pass);
@@ -408,22 +410,22 @@ public class ReportImplFacade implements ReportFacade {
             QueryWrapper<TbReportCheckOperatorDaily> wrapper = new QueryWrapper<>();
             wrapper.le("data_dt", end_str);
             wrapper.ge("data_dt", start_str);
-            StringBuilder  conditions  =new StringBuilder();
+            StringBuilder conditions = new StringBuilder();
 
-            if(operator!=null&& !operator.isEmpty()) {
+            if (operator != null && !operator.isEmpty()) {
                 try {
                     Integer val = Integer.parseInt(operator);
                     wrapper.eq("operator", val);
                     conditions.append(" and   operator = ");
                     conditions.append(val);
-                }catch (Exception  e) {
+                } catch (Exception e) {
                     log.info("operator is invalid integer");
                 }
             }
 
             Integer total = this.reportOperatorDailyMapper.selectCount(wrapper);
 
-            List<TbReportCheckOperatorDaily> tbReportCheckOperatorDailyList = this.crazyJoinMapper.getOperatorReport(start_str, end_str,conditions.toString(),offset,rows);
+            List<TbReportCheckOperatorDaily> tbReportCheckOperatorDailyList = this.crazyJoinMapper.getOperatorReport(start_str, end_str, conditions.toString(), offset, rows);
             Map m = Maps.newHashMap();
             m.put("total", total);
             m.put("list", tbReportCheckOperatorDailyList);
@@ -433,5 +435,60 @@ public class ReportImplFacade implements ReportFacade {
         } else {
             return ResponseUtil.failed("input param is null");
         }
+    }
+
+    /**
+     * 信审员实时报表
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public Result<List<TbReportCheckOperatorDaily>> operator_cur(CheckOverviewParam param) {
+
+        Date cur = new Date();
+        String start_str = DateUtil.startOf(cur);
+        String end_str = DateUtil.endOf(cur);
+        List<TbReportCheckOperatorDaily> ret = new ArrayList<>();
+
+        List<AuthUserBean> users = this.authUserBeanMapper.selectList(new QueryWrapper<AuthUserBean>());
+        Map<Integer, String> names = new HashMap<Integer, String>();
+        for (AuthUserBean authUserBean : users) {
+            names.put(authUserBean.getId(), authUserBean.getName());
+
+        }
+        List<OperationTaskJoinBean> list = this.crazyJoinMapper.getOperationTaskJoin(start_str, end_str);
+        Map<Integer, List<OperationTaskJoinBean>> map = new HashMap<>();
+        for (OperationTaskJoinBean operationTaskJoinBean : list) {
+            Integer operator = operationTaskJoinBean.getOperatorId();
+            if (!map.containsKey(operator)) {
+                map.put(operator, new ArrayList<>());
+            }
+            map.get(operator).add(operationTaskJoinBean);
+        }
+        for (Integer operator : map.keySet()) {
+            if (map.get(operator).isEmpty()) {
+                continue;
+            }
+            OperationStatBean operationStatBean = CheckStatUtil.processList(map.get(operator));
+            TbReportCheckOperatorDaily tbReportCheckOperatorDaily = new TbReportCheckOperatorDaily();
+            tbReportCheckOperatorDaily.setData_dt(cur);
+            tbReportCheckOperatorDaily.setOperator(operator);
+            tbReportCheckOperatorDaily.setChecked(operationStatBean.getChecked());
+            tbReportCheckOperatorDaily.setPassed(operationStatBean.getPassed());
+            tbReportCheckOperatorDaily.setAllocated(operationStatBean.getAllocated());
+            tbReportCheckOperatorDaily.setLoan_num(operationStatBean.getLoan_num());
+            tbReportCheckOperatorDaily.setLoan_amt(operationStatBean.getLoan_amt());
+            tbReportCheckOperatorDaily.setPass_rate(operationStatBean.getPass_rate());
+            tbReportCheckOperatorDaily.setLoan_rate(operationStatBean.getLoan_rate());
+            tbReportCheckOperatorDaily.setUpdate_time(new Date());
+            if (names != null && names.containsKey(operator)) {
+                tbReportCheckOperatorDaily.setOperator_name(names.get(operator));
+            }
+            ret.add(tbReportCheckOperatorDaily);
+        }
+
+        return Result.succ(ret);
+
     }
 }
