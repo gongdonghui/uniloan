@@ -10,6 +10,7 @@ import java.util.Date;
  */
 @Data
 public class ApplyManagementGetListBean {
+    private Integer channelId;
     private Integer userId;
     private Integer applyId;
     private Integer status;
