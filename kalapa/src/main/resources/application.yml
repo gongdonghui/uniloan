@@ -1,0 +1,44 @@
+spring:
+  profiles:
+    active: online
+  application:
+    name: service-kalapa
+
+ribbon:
+  ReadTimeout: 60000
+  ConnectTimeout: 60000
+server:
+  port: 8110
+
+
+---
+spring:
+  profiles: test
+
+eureka:
+  client:
+    serviceUrl:
+      #defaultZone: http://192.168.78.32:51666/eureka/
+      defaultZone: http://127.0.0.1:51666/eureka/
+      #defaultZone: http://140.143.207.211:51666/eureka/
+
+---
+spring:
+  profiles: online
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://172.21.190.226:51666/eureka/
+
+---
+spring:
+  profiles: online_test
+
+eureka:
+  client:
+    serviceUrl:
+      #defaultZone: http://192.168.78.32:51666/eureka/
+      #defaultZone: http://127.0.0.1:51666/eureka/
+      #defaultZone: http://140.143.207.211:51666/eureka/
+      defaultZone: http://172.21.190.226:51666/eureka/
