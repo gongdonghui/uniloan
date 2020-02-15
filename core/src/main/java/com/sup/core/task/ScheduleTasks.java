@@ -718,8 +718,9 @@ public class ScheduleTasks {
 
     private void doCheckReportDaily(Date data_dt, Date current, Integer taskType, Map<Integer, String> names) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String start = dateFormat.format(data_dt);
-        String end = dateFormat.format(current);
+        String start = DateUtil.startOf(data_dt);
+        String end = DateUtil.endOf(data_dt);
+        log.info("operation task info start:"+ start+",end:"+end);
 
         List<OperationTaskJoinBean> operationTaskJoinBeanList = this.operationTaskJoinMapper.getOperationTaskJoinByTask(start, end, taskType);
         CheckReportBean checkReportBean = new CheckReportBean();
@@ -740,6 +741,7 @@ public class ScheduleTasks {
         try {
 
             this.doCheckOpertorDaily(operationTaskJoinBeanList, data_dt, names);  // operator report
+            this.updateOperatorReport(data_dt,current);
         } catch (Exception e) {
             log.error(e.getMessage());
         }

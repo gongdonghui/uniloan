@@ -3,6 +3,7 @@ package com.sup.cms.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.sup.cms.bean.po.*;
 import com.sup.common.bean.OperationTaskJoinBean;
+import com.sup.common.bean.OperatorInfoBean;
 import com.sup.common.bean.TbReportCheckOperatorDaily;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -743,4 +744,11 @@ public interface CrazyJoinMapper extends BaseMapper {
             " where (a.task_type =0 or a.task_type=2) and" +
             "  a.create_time >='${start}' and a.create_time< '${end}' ")
     List<OperationTaskJoinBean> getOperationTaskJoin(String start, String end);
+
+    @Select("select b.grant_quota as " +
+            "  loanAmt,  a.create_time as createTime, a.status as hisStatus, b.status as curStatus ,a.operator_id as operator" +
+            " from  tb_apply_info_history as  a  left join tb_apply_info as b  on a.apply_id = b.id   " +
+            " where   a.operator_id <> '' and (a.status =2 or  a.status =4 or  a.status =6 or  a.status =8)  " +
+            "and a.create_time > '${start}'")
+    List<OperatorInfoBean>     getOperatorInfo(String  start);
 }

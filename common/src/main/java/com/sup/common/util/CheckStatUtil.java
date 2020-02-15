@@ -2,6 +2,7 @@ package com.sup.common.util;
 
 import com.sup.common.bean.OperationStatBean;
 import com.sup.common.bean.OperationTaskJoinBean;
+import com.sup.common.bean.OperatorInfoBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.OperationTaskStatusEnum;
 
@@ -55,5 +56,7 @@ public class CheckStatUtil {
         return operationStatBean;
 
     }
+
+
 
 }
