@@ -12,4 +12,6 @@ import javax.validation.constraints.NotEmpty;
 public class GetCICBInfoParams {
     @NotEmpty
     private String id;
+    private Integer applyId;
+    private Integer userId;
 }
