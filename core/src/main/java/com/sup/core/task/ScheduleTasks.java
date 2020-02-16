@@ -30,6 +30,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -542,10 +543,51 @@ public class ScheduleTasks {
         }
     }
 
+    //@Scheduled(cron = "0 30 1 * * ?")
+    public void genDailyReport() {
+        try {
+            Date start = DateUtil.parseDate("2020-01-01");
+            Date end = DateUtil.parseDate("2020-02-16");
+            Date current = start;
+            Date data_dt;
+            while (current.before(end)) {
+                data_dt = current;
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(current);
+                calendar.add(Calendar.DATE, 1);
+                current = calendar.getTime();
+                dailyReport(data_dt, current);
+                // log.info("genDailyReport data_dt=" + DateUtil.formatDate(data_dt) + ", current=" + DateUtil.formatDate(current));
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+    }
+
 
     //@Scheduled(cron = "0 */5 * * * ?")
     @Scheduled(cron = "0 30 1 * * ?")   //T+1
-    public void dailyReport() {
+    public void genDailyReportInc() {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  //昨天
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, -24);
+            String strDate = dateFormat.format(calendar.getTime());
+            Date data_dt = dateFormat.parse(strDate);
+
+            String str2Date = dateFormat.format(new Date());
+            Date current = dateFormat.parse(str2Date);
+
+            dailyReport(data_dt, current);
+        }catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+
+    }
+
+    private void dailyReport(Date data_dt, Date current) {
         class ChannelContainer {
             public Map<ApplyStatusEnum, Integer> applyStatMap = new HashMap<>();
             public Set<Integer> userSet = new HashSet<>();
@@ -560,15 +602,7 @@ public class ScheduleTasks {
         }
 
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  //昨天
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.HOUR_OF_DAY, -24);
-            String strDate = dateFormat.format(calendar.getTime());
-            Date data_dt = dateFormat.parse(strDate);
-
-            String str2Date = dateFormat.format(new Date());
-            Date current = dateFormat.parse(str2Date);
-            log.info("dailyReport data_dt = " + strDate + ", current = " + str2Date);
+            log.info("dailyReport data_dt = " + DateUtil.formatDate(data_dt) + ", current = " + DateUtil.formatDate(current));
 
             List<TbUserRegistInfoBean> registInfoBeans = this.userRegisterInfoMapper.selectList(new QueryWrapper<TbUserRegistInfoBean>()
                     .ge("create_time", data_dt)
