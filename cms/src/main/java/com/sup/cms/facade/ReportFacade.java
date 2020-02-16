@@ -1,5 +1,6 @@
 package com.sup.cms.facade;
 
+import com.sup.cms.bean.po.RefuseStatBean;
 import com.sup.cms.bean.vo.CollectorReportParam;
 import com.sup.common.bean.*;
 import com.sup.common.param.CheckOverviewParam;
@@ -92,6 +93,7 @@ public interface ReportFacade {
     String operator(@RequestBody CheckOverviewParam param);
 
     /**
+     *
      * 信审员实时报表
      *
      * @param param
@@ -100,4 +102,14 @@ public interface ReportFacade {
     @ResponseBody
     @RequestMapping(value = "operator_cur", produces = "application/json;charset=UTF-8")
     Result<List<TbReportCheckOperatorDaily>> operator_cur(@RequestBody CheckOverviewParam param);
+
+    /**
+     * 拒贷统计
+     *
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "refuse_stat", produces = "application/json;charset=UTF-8")
+    Result<List<RefuseStatBean>> refuse_stat(@RequestBody CheckOverviewParam param);
 }

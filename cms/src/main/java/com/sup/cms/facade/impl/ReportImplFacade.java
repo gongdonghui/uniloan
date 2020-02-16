@@ -3,6 +3,7 @@ package com.sup.cms.facade.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.LoanStatBean;
+import com.sup.cms.bean.po.RefuseStatBean;
 import com.sup.cms.bean.po.ReportCollectorBean;
 import com.sup.cms.bean.po.TbCollectionRecordBean;
 import com.sup.cms.bean.vo.CollectorReportParam;
@@ -492,5 +493,26 @@ public class ReportImplFacade implements ReportFacade {
 
         return Result.succ(ret);
 
+    }
+
+    /**
+     * 拒贷统计
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public Result<List<RefuseStatBean>> refuse_stat(CheckOverviewParam param) {
+
+
+        if (param != null && param.getStart_date() != null && param.getEnd_date() != null) {
+            String start_str = DateUtil.startOf(param.getStart_date());
+            String end_str = DateUtil.endOf(param.getEnd_date());
+            List<RefuseStatBean>   ret=  this.crazyJoinMapper.getRefuseStat(start_str,end_str);
+            return   Result.succ(ret);
+        } else {
+
+                return  Result.fail("input param invalid");
+        }
     }
 }

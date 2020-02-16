@@ -750,5 +750,15 @@ public interface CrazyJoinMapper extends BaseMapper {
             " from  tb_apply_info_history as  a  left join tb_apply_info as b  on a.apply_id = b.id   " +
             " where   a.operator_id <> '' and (a.status =2 or  a.status =4 or  a.status =6 or  a.status =8)  " +
             "and a.create_time > '${start}'")
-    List<OperatorInfoBean>     getOperatorInfo(String  start);
+    List<OperatorInfoBean> getOperatorInfo(String start);
+
+
+    @Select(" select case when deny_code is  NULL  THEN 'r0001' else  deny_code end as deny_code, " +
+            "case  when deny_code is NULL  THEN 'manual_refuse' else variable_name end as variable, " +
+            " hit_size  " +
+            "from " +
+            "(select deny_code, count(*) as  hit_size from tb_apply_info  where create_time >'${start}'   and  create_time < '${end}'     and   deny_code <>'' or   ( status =6  or  status =8) group by  deny_code)  as  a" +
+            " left  join  tb_core_risk_rules  as b  on a.deny_code =  concat('r00',b.id) "
+    )
+    List<RefuseStatBean> getRefuseStat(String start, String end);
 }
