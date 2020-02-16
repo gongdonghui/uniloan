@@ -826,6 +826,7 @@ public class ScheduleTasks {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         Calendar calendar = Calendar.getInstance();
+        calendar.setTime(current);
         calendar.set(Calendar.HOUR_OF_DAY, -24 * 8);//last  week
 
         SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd");
