@@ -832,7 +832,7 @@ public class ScheduleTasks {
         SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
 
-            String start = dateFormat.format(DateUtil.startOf(calendar.getTime()));
+            String start = DateUtil.startOf(calendar.getTime());
 
             String end = DateUtil.startOf(current);
 
@@ -912,6 +912,7 @@ public class ScheduleTasks {
 
 
         } catch (Exception e) {
+            e.printStackTrace();
             log.error(e.getMessage());
         }
 
