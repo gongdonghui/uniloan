@@ -863,7 +863,7 @@ public class ScheduleTasks {
                 for (String loan_date : day_dis.keySet()) {
                     int fpd = 0, d3 = 0, d7 = 0;
 
-                    Date loan = dateFormat.parse(loan_date);
+                    Date loan = dayFormat.parse(loan_date);
                     int days = DateUtil.getDaysBetween(loan, current);
 
                     if (days == 1) {
