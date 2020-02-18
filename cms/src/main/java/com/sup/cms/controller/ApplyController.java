@@ -159,6 +159,7 @@ public class ApplyController {
             //修改task表审批状态
             bean.setStatus(1);
             bean.setComment(params.getComment());
+            bean.setUpdateTime(new Date());
             if (applyOperationTaskMapper.updateById(bean) <= 0) {
                 return ResponseUtil.failed();
             }
