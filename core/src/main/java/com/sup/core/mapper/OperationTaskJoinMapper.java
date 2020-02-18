@@ -25,7 +25,8 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             " from tb_operation_task a" +
             " join tb_apply_info b on a.apply_id=b.id" +
             " where a.task_type= ${taskType}" +
-            "  and a.update_time >='${start}' and a.update_time< '${end}' ")
+            " and b.status !=14  and b.status !=15 and b.status !=1 "+
+            " and b.update_time >='${start}' and b.update_time< '${end}' ")
     List<OperationTaskJoinBean> getOperationTaskJoinByTask(String start, String  end, Integer taskType );
 
 
