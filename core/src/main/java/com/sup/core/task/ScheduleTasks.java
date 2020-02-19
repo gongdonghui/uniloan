@@ -567,7 +567,7 @@ public class ScheduleTasks {
 
 
     //@Scheduled(cron = "0 */5 * * * ?")
-    @Scheduled(cron = "0 30 1 * * ?")   //T+1
+    @Scheduled(cron = "0 30 2 * * ?")   //T+1
     public void genDailyReportInc() {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  //昨天
