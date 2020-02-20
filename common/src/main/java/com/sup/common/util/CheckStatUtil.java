@@ -5,6 +5,7 @@ import com.sup.common.bean.OperationTaskJoinBean;
 import com.sup.common.bean.OperatorInfoBean;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.loan.OperationTaskStatusEnum;
+import com.sup.common.loan.OperationTaskTypeEnum;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
  */
 public class CheckStatUtil {
 
-    public static OperationStatBean processList(List<OperationTaskJoinBean> list) {
+    public static OperationStatBean processList(List<OperationTaskJoinBean> list, Integer taskType) {
         int deny = 0;
         int checked = 0;
         int allocated = 0;
@@ -26,8 +27,11 @@ public class CheckStatUtil {
 
         for (OperationTaskJoinBean joinBean : list) {
             if (joinBean != null) {
-                if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode() || joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode()) {
+                if (taskType == OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode() && joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode()) {
+                    ++deny;
 
+                }
+                if (taskType == OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode() && joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode()) {
                     ++deny;
                 }
                 if (joinBean.getTaskStatus() == OperationTaskStatusEnum.TASK_STATUS_DONE.getCode()) {

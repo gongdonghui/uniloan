@@ -49,7 +49,7 @@ public class ReportImplFacade implements ReportFacade {
     private ReportOperatorDailyMapper reportOperatorDailyMapper;
 
     @Autowired
-    private AuthUserBeanMapper  authUserBeanMapper;
+    private AuthUserBeanMapper authUserBeanMapper;
 
 
     @Override
@@ -381,7 +381,7 @@ public class ReportImplFacade implements ReportFacade {
                 return Result.fail("input check type invalid");
             }
             List<OperationTaskJoinBean> operationTaskJoinBeanList = this.crazyJoinMapper.getOperationTaskJoinByTask(start_str, end_str, taskType);
-            OperationStatBean operationStatBean = CheckStatUtil.processList(operationTaskJoinBeanList);
+            OperationStatBean operationStatBean = CheckStatUtil.processList(operationTaskJoinBeanList, taskType);
 
             return Result.succ(operationStatBean);
 
@@ -438,6 +438,45 @@ public class ReportImplFacade implements ReportFacade {
         }
     }
 
+
+    private List<TbReportCheckOperatorDaily> buildOperatorReport(List<OperationTaskJoinBean> list, Integer taskType, Map<Integer, String> names, Date data_dt) {
+        List<TbReportCheckOperatorDaily> ret = new ArrayList<>();
+        Map<Integer, List<OperationTaskJoinBean>> map = new HashMap<>();
+        for (OperationTaskJoinBean operationTaskJoinBean : list) {
+            Integer operator = operationTaskJoinBean.getOperatorId();
+            if (!map.containsKey(operator)) {
+                map.put(operator, new ArrayList<>());
+            }
+            map.get(operator).add(operationTaskJoinBean);
+        }
+        for (Integer operator : map.keySet()) {
+            if (map.get(operator).isEmpty()) {
+                continue;
+            }
+            OperationStatBean operationStatBean = CheckStatUtil.processList(map.get(operator), taskType);
+            TbReportCheckOperatorDaily tbReportCheckOperatorDaily = new TbReportCheckOperatorDaily();
+            tbReportCheckOperatorDaily.setData_dt(data_dt);
+            tbReportCheckOperatorDaily.setOperator(operator);
+            tbReportCheckOperatorDaily.setChecked(operationStatBean.getChecked());
+            tbReportCheckOperatorDaily.setPassed(operationStatBean.getPassed());
+            tbReportCheckOperatorDaily.setAllocated(operationStatBean.getAllocated());
+            tbReportCheckOperatorDaily.setLoan_num(operationStatBean.getLoan_num());
+            tbReportCheckOperatorDaily.setLoan_amt(operationStatBean.getLoan_amt());
+            tbReportCheckOperatorDaily.setPass_rate(operationStatBean.getPass_rate());
+            tbReportCheckOperatorDaily.setLoan_rate(operationStatBean.getLoan_rate());
+            tbReportCheckOperatorDaily.setUpdate_time(new Date());
+            if (names != null && names.containsKey(operator)) {
+                tbReportCheckOperatorDaily.setOperator_name(names.get(operator));
+            } else {
+                continue;
+            }
+            ret.add(tbReportCheckOperatorDaily);
+        }
+        return ret;
+
+
+    }
+
     /**
      * 信审员实时报表
      *
@@ -458,38 +497,15 @@ public class ReportImplFacade implements ReportFacade {
             names.put(authUserBean.getId(), authUserBean.getName());
 
         }
-        List<OperationTaskJoinBean> list = this.crazyJoinMapper.getOperationTaskJoin(start_str, end_str);
-        Map<Integer, List<OperationTaskJoinBean>> map = new HashMap<>();
-        for (OperationTaskJoinBean operationTaskJoinBean : list) {
-            Integer operator = operationTaskJoinBean.getOperatorId();
-            if (!map.containsKey(operator)) {
-                map.put(operator, new ArrayList<>());
-            }
-            map.get(operator).add(operationTaskJoinBean);
-        }
-        for (Integer operator : map.keySet()) {
-            if (map.get(operator).isEmpty()) {
-                continue;
-            }
-            OperationStatBean operationStatBean = CheckStatUtil.processList(map.get(operator));
-            TbReportCheckOperatorDaily tbReportCheckOperatorDaily = new TbReportCheckOperatorDaily();
-            tbReportCheckOperatorDaily.setData_dt(cur);
-            tbReportCheckOperatorDaily.setOperator(operator);
-            tbReportCheckOperatorDaily.setChecked(operationStatBean.getChecked());
-            tbReportCheckOperatorDaily.setPassed(operationStatBean.getPassed());
-            tbReportCheckOperatorDaily.setAllocated(operationStatBean.getAllocated());
-            tbReportCheckOperatorDaily.setLoan_num(operationStatBean.getLoan_num());
-            tbReportCheckOperatorDaily.setLoan_amt(operationStatBean.getLoan_amt());
-            tbReportCheckOperatorDaily.setPass_rate(operationStatBean.getPass_rate());
-            tbReportCheckOperatorDaily.setLoan_rate(operationStatBean.getLoan_rate());
-            tbReportCheckOperatorDaily.setUpdate_time(new Date());
-            if (names != null && names.containsKey(operator)) {
-                tbReportCheckOperatorDaily.setOperator_name(names.get(operator));
-            } else {
-                continue;
-            }
-            ret.add(tbReportCheckOperatorDaily);
-        }
+        List<OperationTaskJoinBean> list = this.crazyJoinMapper.getOperationTaskJoin(start_str, end_str, OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode());
+        List<TbReportCheckOperatorDaily> first_ret = this.buildOperatorReport(list, OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode(), names, cur);
+        if (!first_ret.isEmpty())
+            ret.addAll(first_ret);  //初审统计
+
+        List<OperationTaskJoinBean> final_list = this.crazyJoinMapper.getOperationTaskJoin(start_str, end_str, OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode());
+        List<TbReportCheckOperatorDaily> final_ret = this.buildOperatorReport(final_list, OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode(), names, cur);
+        if (!final_ret.isEmpty())
+            ret.addAll(final_ret);   //终审统计
 
         return Result.succ(ret);
 
@@ -508,11 +524,11 @@ public class ReportImplFacade implements ReportFacade {
         if (param != null && param.getStart_date() != null && param.getEnd_date() != null) {
             String start_str = DateUtil.startOf(param.getStart_date());
             String end_str = DateUtil.endOf(param.getEnd_date());
-            List<RefuseStatBean>   ret=  this.crazyJoinMapper.getRefuseStat(start_str,end_str);
-            return   Result.succ(ret);
+            List<RefuseStatBean> ret = this.crazyJoinMapper.getRefuseStat(start_str, end_str);
+            return Result.succ(ret);
         } else {
 
-                return  Result.fail("input param invalid");
+            return Result.fail("input param invalid");
         }
     }
 }

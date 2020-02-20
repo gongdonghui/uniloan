@@ -559,7 +559,7 @@ public class ScheduleTasks {
                 dailyReport(data_dt, current);
                 // log.info("genDailyReport data_dt=" + DateUtil.formatDate(data_dt) + ", current=" + DateUtil.formatDate(current));
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
         }
@@ -580,7 +580,7 @@ public class ScheduleTasks {
             Date current = dateFormat.parse(str2Date);
 
             dailyReport(data_dt, current);
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
         }
@@ -754,7 +754,7 @@ public class ScheduleTasks {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String start = DateUtil.startOf(data_dt);
         String end = DateUtil.endOf(data_dt);
-        log.info("operation task info start:"+ start+",end:"+end);
+        log.info("operation task info start:" + start + ",end:" + end);
 
         List<OperationTaskJoinBean> operationTaskJoinBeanList = this.operationTaskJoinMapper.getOperationTaskJoinByTask(start, end, taskType);
         CheckReportBean checkReportBean = new CheckReportBean();
@@ -764,7 +764,7 @@ public class ScheduleTasks {
         checkReportBean.setTotal(total);
 
 
-        OperationStatBean operationStatBean = CheckStatUtil.processList(operationTaskJoinBeanList);
+        OperationStatBean operationStatBean = CheckStatUtil.processList(operationTaskJoinBeanList, taskType);
         log.info("operationStatBean=" + GsonUtil.toJson(operationStatBean));
 
         checkReportBean.setDenyed(operationStatBean.getDenyed());
@@ -774,8 +774,8 @@ public class ScheduleTasks {
         this.checkReportMapper.insert(checkReportBean);
         try {
 
-            this.doCheckOpertorDaily(operationTaskJoinBeanList, data_dt, names);  // operator report
-            this.updateOperatorReport(data_dt,current);
+            this.doCheckOpertorDaily(operationTaskJoinBeanList, data_dt, names, taskType);  // operator report
+            this.updateOperatorReport(data_dt, current);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
@@ -783,9 +783,8 @@ public class ScheduleTasks {
 
     /**
      * 计算每一位信审员，  截止昨天的审核情况汇总
-     *
      */
-    private void doCheckOpertorDaily(List<OperationTaskJoinBean> list, Date data_dt, Map<Integer, String> names) {
+    private void doCheckOpertorDaily(List<OperationTaskJoinBean> list, Date data_dt, Map<Integer, String> names, Integer taskType) {
         Map<Integer, List<OperationTaskJoinBean>> map = new HashMap<>();
         if (list == null || list.isEmpty()) return;
         for (OperationTaskJoinBean operationTaskJoinBean : list) {
@@ -799,10 +798,10 @@ public class ScheduleTasks {
             map.get(operator).add(operationTaskJoinBean);
         }
         for (Integer operator : map.keySet()) {
-            if(map.get(operator).isEmpty()) {
+            if (map.get(operator).isEmpty()) {
                 continue;
             }
-            OperationStatBean operationStatBean = CheckStatUtil.processList(map.get(operator));
+            OperationStatBean operationStatBean = CheckStatUtil.processList(map.get(operator), taskType);
             TbReportCheckOperatorDaily tbReportCheckOperatorDaily = new TbReportCheckOperatorDaily();
             tbReportCheckOperatorDaily.setData_dt(data_dt);
             tbReportCheckOperatorDaily.setOperator(operator);
