@@ -12,7 +12,6 @@ import com.sup.kalapa.util.OkBang;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -33,20 +32,24 @@ public class KalapaController {
 
     @Value("${kalapa.token}")
     private String token;
-    private String baseUrl = "http://api.kalapa.vn/user-profile";
-    private static final Long EXPIRE = 90l;
+    private String baseUrl = "https://api.kalapa.vn/user-profile";
+    private static final Long EXPIRE = 90L;
 
     private String getKey(Integer userId, String type) {
-
         StringBuilder key = new StringBuilder("user_");
         key.append(userId);
         key.append("_");
         key.append(type);
         return key.toString();
-
-
     }
 
+    private String get(Integer userId, String type) {
+        return redisClient.Get(getKey(userId, type));
+    }
+
+    private void put(Integer userId, String type, String msg) {
+        redisClient.Set(getKey(userId, type), msg, EXPIRE, TimeUnit.DAYS);
+    }
 
     @GetMapping(value = "getVSSInfo")
     public Result<VSSResult> getVSSInfo(@RequestBody GetVSSInfoParams params) {
@@ -59,81 +62,57 @@ public class KalapaController {
             params1.put("hr_info", params.getGetHRInfo().toString());
         }
         params1.put("id", params.getId());
-        String familyResult = "";
-        String incomeResult = "";
-        if (params.getUserId() != null) {
-            String key = getKey(params.getUserId(), "vssinfo_income");
-            incomeResult = this.redisClient.Get(key);
-
-            String key2 = getKey(params.getUserId(), "vssinfo_family");
-            familyResult = this.redisClient.Get(key2);
-
-            if (Strings.isNullOrEmpty(incomeResult)) {
-                incomeResult = OkBang.get(baseUrl + "/income/get/", params1, header);
-                if (Strings.isNullOrEmpty(incomeResult)) {
-                    return Result.fail(Result.kError, "外部服务异常");
-                }
-                this.redisClient.Set(key, incomeResult, EXPIRE, TimeUnit.DAYS);
+        String incomeResult = get(params.getUserId(), "vssinfo_income");
+        if (Strings.isNullOrEmpty(incomeResult)) {
+            incomeResult = OkBang.get(baseUrl + "/income/get/", params1, header);
+            if (Strings.isNullOrEmpty(incomeResult) || incomeResult.contains("error")) {
+                return Result.fail(Result.kError, "外部服务异常");
             }
-            IncomeInfo incomeInfo = GsonUtil.fromJson(incomeResult, IncomeInfo.class);
-
-            if (Strings.isNullOrEmpty(familyResult)) {
-                Map<String, String> params2 = Maps.newHashMap();
-                params2.put("id", params.getId());
-                familyResult = OkBang.get(baseUrl + "/family/get/", params2, header);
-                if (Strings.isNullOrEmpty(familyResult)) {
-                    return Result.fail(Result.kError, "外部服务异常");
-                }
-                this.redisClient.Set(key2, familyResult, EXPIRE, TimeUnit.DAYS);
-            }
-            FamilyInfo familyInfo = GsonUtil.fromJson(familyResult, FamilyInfo.class);
-            VSSResult vss = new VSSResult();
-            vss.setIncomeInfo(incomeInfo);
-            vss.setFamilyInfo(familyInfo);
-            return Result.succ(vss);
-        } else {
-           return Result.fail(Result.kError, "not input userid");
+            put(params.getUserId(), "vssinfo_income", incomeResult);
         }
+        String familyResult = get(params.getUserId(), "vssinfo_family");
+        if (Strings.isNullOrEmpty(familyResult)) {
+            Map<String, String> params2 = ImmutableMap.of("id", params.getId());
+            familyResult = OkBang.get(baseUrl + "/family/get/", params2, header);
+            if (Strings.isNullOrEmpty(familyResult) || familyResult.contains("error")) {
+                return Result.fail(Result.kError, "外部服务异常");
+            }
+            put(params.getUserId(), "vssinfo_family", familyResult);
+        }
+        IncomeInfo incomeInfo = GsonUtil.fromJson(incomeResult, IncomeInfo.class);
+        FamilyInfo familyInfo = GsonUtil.fromJson(familyResult, FamilyInfo.class);
+        VSSResult vss = new VSSResult();
+        vss.setIncomeInfo(incomeInfo);
+        vss.setFamilyInfo(familyInfo);
+        return Result.succ(vss);
     }
 
     @GetMapping(value = "getCICBInfo")
     public Result<CICBResult> getCICBInfo(@RequestBody GetCICBInfoParams params) {
         Map header = ImmutableMap.of("Authorization", token);
-        Map<String, String> params1 = Maps.newHashMap();
-        params1.put("id", params.getId());
-
-        if (params.getUserId() != null) {
-            String scoreResult = "";
-            String creditResult = "";
-            String key = getKey(params.getUserId(), "cicb_score");
-            String key2 = getKey(params.getUserId(), "cicb_credit");
-            scoreResult = this.redisClient.Get(key);
-            creditResult = this.redisClient.Get(key2);
-
-            if (Strings.isNullOrEmpty(scoreResult)) {
-                scoreResult = OkBang.get(baseUrl + "/scoring/get/", params1, header);
-                if (Strings.isNullOrEmpty(scoreResult)) {
-                    return Result.fail(Result.kError, "外部服务异常");
-                }
-                this.redisClient.Set(key, scoreResult, EXPIRE, TimeUnit.DAYS);
-
+        Map<String, String> params1 = ImmutableMap.of("id", params.getId());
+        String scoreResult = get(params.getUserId(), "cicb_score");
+        if (Strings.isNullOrEmpty(scoreResult)) {
+            scoreResult = OkBang.get(baseUrl + "/scoring/get/", params1, header);
+            if (Strings.isNullOrEmpty(scoreResult) || scoreResult.contains("error")) {
+                return Result.fail(Result.kError, "外部服务异常");
             }
-            CreditScore creditScore = GsonUtil.fromJson(scoreResult, CreditScore.class);
-            if (Strings.isNullOrEmpty(creditResult)) {
-                creditResult = OkBang.get(baseUrl + "/credit/get/", params1, header);
-                if (Strings.isNullOrEmpty(creditResult)) {
-                    return Result.fail(Result.kError, "外部服务异常");
-                }
-                this.redisClient.Set(key2, creditResult, EXPIRE, TimeUnit.DAYS);
-            }
-            CreditStatus creditStatus = GsonUtil.fromJson(creditResult, CreditStatus.class);
-            CICBResult cicbResult = new CICBResult();
-            cicbResult.setCreditScore(creditScore);
-            cicbResult.setCreditStatus(creditStatus);
-            return Result.succ(cicbResult);
-        } else {
-            return Result.fail(Result.kError, "not input userid");
+            put(params.getUserId(), "cicb_score", scoreResult);
         }
+        String creditResult = get(params.getUserId(), "cicb_credit");
+        if (Strings.isNullOrEmpty(creditResult)) {
+            creditResult = OkBang.get(baseUrl + "/credit/get/", params1, header);
+            if (Strings.isNullOrEmpty(creditResult) || creditResult.contains("error")) {
+                return Result.fail(Result.kError, "外部服务异常");
+            }
+            put(params.getUserId(), "cicb_credit", creditResult);
+        }
+        CreditScore creditScore = GsonUtil.fromJson(scoreResult, CreditScore.class);
+        CreditStatus creditStatus = GsonUtil.fromJson(creditResult, CreditStatus.class);
+        CICBResult cicbResult = new CICBResult();
+        cicbResult.setCreditScore(creditScore);
+        cicbResult.setCreditStatus(creditStatus);
+        return Result.succ(cicbResult);
     }
 
     @GetMapping(value = "getFBInfo")
@@ -145,22 +124,16 @@ public class KalapaController {
         } else {
             params1.put("mobile", params.getMobile());
         }
-        if (params.getUserId() != null) {
-            String key = this.getKey(params.getUserId(), "fb");
-            String socialResult = "";
-            socialResult = this.redisClient.Get(key);
-            if (Strings.isNullOrEmpty(socialResult)) {
-                socialResult = OkBang.get(baseUrl + "/social/get/", params1, header);
-                if (Strings.isNullOrEmpty(socialResult)) {
-                    return Result.fail(Result.kError, "外部服务异常");
-                }
-                this.redisClient.Set(key, socialResult, EXPIRE, TimeUnit.DAYS);
+        String socialResult = get(params.getUserId(), "fb");
+        if (Strings.isNullOrEmpty(socialResult)) {
+            socialResult = OkBang.get(baseUrl + "/social/get/", params1, header);
+            if (Strings.isNullOrEmpty(socialResult) || socialResult.contains("error")) {
+                return Result.fail(Result.kError, "外部服务异常");
             }
-            SocialNetworkInfo socialNetworkInfo = GsonUtil.fromJson(socialResult, SocialNetworkInfo.class);
-            return Result.succ(socialNetworkInfo);
-        } else {
-            return Result.fail(Result.kError, "not input userid");
+            put(params.getUserId(), "fb", socialResult);
         }
+        SocialNetworkInfo socialNetworkInfo = GsonUtil.fromJson(socialResult, SocialNetworkInfo.class);
+        return Result.succ(socialNetworkInfo);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.sup.kalapa.bean.dto;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 /**
  * @Author: kouichi
@@ -14,6 +15,7 @@ public class GetVSSInfoParams {
     private String id;
     private Boolean getMaxLatestJobs;
     private Boolean getHRInfo;
-    private Integer  applyId;
-    private Integer  userId;
+    private Integer applyId;
+    @NotNull
+    private Integer userId;
 }
