@@ -289,17 +289,17 @@ public class ReportImplFacade implements ReportFacade {
         log.info("Report collector param:" + GsonUtil.toJson(param));
         StringBuilder sb = new StringBuilder();
         if (param.getStartDate() != null) {
-            sb.append(" and data_dt>='" + DateUtil.formatDate(param.getStartDate()) + "'");
+            sb.append(" and oth.data_dt>='" + DateUtil.formatDate(param.getStartDate()) + "'");
         }
         if (param.getEndDate() != null) {
-            sb.append(" and data_dt<='" + DateUtil.formatDate(param.getEndDate()) + "'");
+            sb.append(" and oth.data_dt<='" + DateUtil.formatDate(param.getEndDate()) + "'");
         }
         Integer offset = (param.getPage() - 1) * param.getPageSize();
         Integer rows = param.getPageSize();
         List<ReportCollectorBean> result;
         Integer resultCount = 0;
         if (param.getOperatorId() != null) {
-            sb.append(" and operator_id=" + param.getOperatorId());
+            sb.append(" and oth.operator_id=" + param.getOperatorId());
             result = crazyJoinMapper.getCollectorReport(sb.toString(), offset, rows);
             resultCount = crazyJoinMapper.getCollectorReportCount(sb.toString());
         } else {

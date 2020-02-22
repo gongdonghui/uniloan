@@ -9,8 +9,10 @@ import com.sup.cms.bean.vo.OverdueRecallListParams;
 import com.sup.cms.bean.vo.OverdueTaskAllocateParams;
 import com.sup.cms.bean.vo.OverdueTaskRecycleParams;
 import com.sup.cms.mapper.CrazyJoinMapper;
+import com.sup.cms.mapper.OperationTaskHistoryMapper;
 import com.sup.cms.mapper.OperationTaskMapper;
 import com.sup.common.bean.TbOperationTaskBean;
+import com.sup.common.bean.TbOperationTaskHistoryBean;
 import com.sup.common.loan.OperationTaskStatusEnum;
 import com.sup.common.loan.OperationTaskTypeEnum;
 import com.sup.common.util.DateUtil;
@@ -42,6 +44,8 @@ public class OverdueController {
 
     @Autowired
     private OperationTaskMapper operationTaskMapper;
+    @Autowired
+    private OperationTaskHistoryMapper operationTaskHistoryMapper;
 
 
     /**
@@ -155,6 +159,7 @@ public class OverdueController {
                 needUpdate = true;
                 if (taskBean == null) {
                     taskBean = new TbOperationTaskBean();
+                    taskBean.setCreate_time(now);
                     needUpdate = false;
                 }
                 taskBean.setApply_id(applyId);
@@ -164,6 +169,8 @@ public class OverdueController {
                 taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
                 taskBean.setTask_type(OperationTaskTypeEnum.TASK_OVERDUE.getCode());
                 taskBean.setUpdate_time(now);
+
+                recordOperationTask(taskBean);
                 if (needUpdate) {
                     if (operationTaskMapper.updateById(taskBean) <= 0) {
                         log.error("Failed to update task: " + GsonUtil.toJson(taskBean));
@@ -171,7 +178,6 @@ public class OverdueController {
                     }
 
                 } else {
-                    taskBean.setCreate_time(now);
                     if (operationTaskMapper.insert(taskBean) <= 0) {
                         log.error("Failed to add new task: " + GsonUtil.toJson(taskBean));
                         return ResponseUtil.failed();
@@ -252,4 +258,49 @@ public class OverdueController {
         return ResponseUtil.success(m);
     }
 
+
+    private void recordOperationTask(TbOperationTaskBean operationTaskBean) {
+
+        QueryWrapper<TbOperationTaskHistoryBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("apply_id", operationTaskBean.getApply_id());
+        wrapper.eq("task_type", operationTaskBean.getTask_type());
+        List<TbOperationTaskHistoryBean> taskBeans = operationTaskHistoryMapper.selectList(wrapper);
+        TbOperationTaskHistoryBean fromBean = null;    // 订单任务拥有者
+        TbOperationTaskHistoryBean taskBean = null;    // 订单任务新任拥有着
+        for (TbOperationTaskHistoryBean bean : taskBeans) {
+            if (bean.getHas_owner() == 1) {
+                if (fromBean != null) {
+                    log.error("Invalid task allocation! bean1=" + GsonUtil.toJson(fromBean) +
+                            ", bean2=" + GsonUtil.toJson(bean));
+                    return;
+                }
+                fromBean = bean;
+            }
+            if (bean.getOperator_id().equals(operationTaskBean.getOperator_id())) { // 再次分配给以往的催收员
+                taskBean = bean;
+            }
+        }
+
+        if (fromBean != null) {
+            fromBean.setHas_owner(0);
+            fromBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_CANCEL.getCode());
+            fromBean.setUpdate_time(new Date());
+            if (operationTaskHistoryMapper.updateById(fromBean) <= 0) {
+                log.error("Failed to update task: " + GsonUtil.toJson(fromBean));
+            }
+        }
+
+        if (taskBean == null) {
+            taskBean = new TbOperationTaskHistoryBean();
+            taskBean.copy(operationTaskBean);
+            if (operationTaskHistoryMapper.insert(taskBean) <= 0) {
+                log.error("Failed to add new task: " + GsonUtil.toJson(taskBean));
+            }
+        } else {
+            taskBean.copy(operationTaskBean);
+            if (operationTaskHistoryMapper.updateById(taskBean) <= 0) {
+                log.error("Failed to update task: " + GsonUtil.toJson(taskBean));
+            }
+        }
+    }
 }

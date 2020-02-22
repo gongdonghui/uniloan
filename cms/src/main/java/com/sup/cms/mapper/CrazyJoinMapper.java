@@ -556,51 +556,94 @@ public interface CrazyJoinMapper extends BaseMapper {
     Integer getTaskListCount(@Param(value = "conditions") String conditions);
 
 
-    @Select("select" +
-            "  data_dt as allocDate" +
-            "  ,count(apply_id) as taskNum" +
-            "  ,sum(need_total-normal_repay) as taskAmount" +
-            "  ,sum(case when status=14 then 1 else 0 end) as collectNum" +
-            "  ,sum(case when status=14 then act_total-normal_repay else 0 end) as collectAmt" +
-            "  ,sum(case when status!=14 and act_total>normal_repay then 1 else 0 end) as partialCollectNum" +
-            "  ,sum(case when status!=14 and act_total>normal_repay then act_total-normal_repay else 0 end) as partialCollectAmt" +
-            "  ,sum(case when status!=14 and act_total=normal_repay then 1 else 0 end) as noCollectNum" +
-            " from tb_report_overdue_detail" +
+    @Select("select\n" +
+            "  oth.data_dt as allocDate\n" +
+            "  ,oth.taskNum as taskNum\n" +
+            "  ,(case when taskAmount is null then 0 else taskAmount end) as taskAmount\n" +
+            "  ,(case when collectNum is null then 0 else collectNum end) as collectNum\n" +
+            "  ,(case when collectAmt is null then 0 else collectAmt end) as collectAmt\n" +
+            "  ,(case when partialCollectNum is null then 0 else partialCollectNum end) as partialCollectNum\n" +
+            "  ,(case when partialCollectAmt is null then 0 else partialCollectAmt end) as partialCollectAmt\n" +
+            "  ,(case when noCollectNum is null then 0 else noCollectNum end) as noCollectNum\n" +
+            "from (\n" +
+            "     select date(create_time) as data_dt, count(distinct apply_id) as taskNum\n" +
+            "     from tb_operation_task_history\n" +
+            "     where task_type=3 and operator_id is not null\n" +
+            "     group by data_dt\n" +
+            ") oth\n" +
+            "left join (\n" +
+            "  select data_dt\n" +
+            "   ,sum(need_total-normal_repay) as taskAmount\n" +
+            "   ,sum(case when status=14 then 1 else 0 end) as collectNum\n" +
+            "   ,sum(case when status=14 then act_total-normal_repay else 0 end) as collectAmt\n" +
+            "   ,sum(case when status!=14 and act_total>normal_repay then 1 else 0 end) as partialCollectNum\n" +
+            "   ,sum(case when status!=14 and act_total>normal_repay then act_total-normal_repay else 0 end) as partialCollectAmt\n" +
+            "   ,sum(case when status!=14 and act_total=normal_repay then 1 else 0 end) as noCollectNum\n" +
+            "  from tb_report_overdue_detail\n" +
+            "  group by data_dt\n" +
+            ") rod \n" +
+            "on oth.data_dt=rod.data_dt " +
             " where 1=1 " +
             " ${conditions}" +
-            " group by data_dt order by data_dt desc" +
+            " order by oth.data_dt desc" +
             " limit #{offset},#{rows}")
     List<ReportCollectorBean> getCollectorReportAll(String conditions, Integer offset, Integer rows);
 
-    @Select("select count(*) from (" +
-            " select * from tb_report_overdue_detail" +
+    @Select("select count(*)\n" +
+            "from (\n" +
+            "     select date(create_time) as data_dt, count(distinct apply_id) as taskNum\n" +
+            "     from tb_operation_task_history\n" +
+            "     where task_type=3 and operator_id is not null\n" +
+            "     group by data_dt\n" +
+            ") oth" +
             " where 1=1 " +
-            " ${conditions}" +
-            " group by data_dt order by data_dt desc) tb")
+            " ${conditions}")
     Integer getCollectorReportAllCount(@Param(value = "conditions") String conditions);
 
-    @Select("select" +
-            "  data_dt as allocDate" +
-            "  ,operator_id as operatorId" +
-            "  ,count(apply_id) as taskNum" +
-            "  ,sum(need_total-normal_repay) as taskAmount" +
-            "  ,sum(case when status=14 then 1 else 0 end) as collectNum" +
-            "  ,sum(case when status=14 then act_total-normal_repay else 0 end) as collectAmt" +
-            "  ,sum(case when status!=14 and act_total>normal_repay then 1 else 0 end) as partialCollectNum" +
-            "  ,sum(case when status!=14 and act_total>normal_repay then act_total-normal_repay else 0 end) as partialCollectAmt" +
-            "  ,sum(case when status!=14 and act_total=normal_repay then 1 else 0 end) as noCollectNum" +
-            " from tb_report_overdue_detail" +
+    @Select("select\n" +
+            "  oth.data_dt as allocDate\n" +
+            "  ,oth.operator_id as operatorId\n" +
+            "  ,oth.taskNum as taskNum\n" +
+            "  ,(case when taskAmount is null then 0 else taskAmount end) as taskAmount\n" +
+            "  ,(case when collectNum is null then 0 else collectNum end) as collectNum\n" +
+            "  ,(case when collectAmt is null then 0 else collectAmt end) as collectAmt\n" +
+            "  ,(case when partialCollectNum is null then 0 else partialCollectNum end) as partialCollectNum\n" +
+            "  ,(case when partialCollectAmt is null then 0 else partialCollectAmt end) as partialCollectAmt\n" +
+            "  ,(case when noCollectNum is null then 0 else noCollectNum end) as noCollectNum\n" +
+            "from (\n" +
+            "     select operator_id, date(create_time) as data_dt, count(distinct apply_id) as taskNum\n" +
+            "     from tb_operation_task_history\n" +
+            "     where task_type=3 and operator_id is not null\n" +
+            "     group by operator_id, data_dt\n" +
+            ") oth\n" +
+            "left join (\n" +
+            "  select data_dt\n" +
+            "   ,operator_id\n" +
+            "   ,sum(need_total-normal_repay) as taskAmount\n" +
+            "   ,sum(case when status=14 then 1 else 0 end) as collectNum\n" +
+            "   ,sum(case when status=14 then act_total-normal_repay else 0 end) as collectAmt\n" +
+            "   ,sum(case when status!=14 and act_total>normal_repay then 1 else 0 end) as partialCollectNum\n" +
+            "   ,sum(case when status!=14 and act_total>normal_repay then act_total-normal_repay else 0 end) as partialCollectAmt\n" +
+            "   ,sum(case when status!=14 and act_total=normal_repay then 1 else 0 end) as noCollectNum\n" +
+            "  from tb_report_overdue_detail\n" +
+            "  group by data_dt,operator_id order by data_dt desc\n" +
+            ") rod \n" +
+            "on oth.operator_id=rod.operator_id and oth.data_dt=rod.data_dt" +
             " where 1=1 " +
             " ${conditions}" +
-            " group by data_dt,operator_id order by data_dt desc" +
+            " order by oth.data_dt desc" +
             " limit #{offset},#{rows}")
     List<ReportCollectorBean> getCollectorReport(String conditions, Integer offset, Integer rows);
 
-    @Select("select count(*) from (" +
-            " select * from tb_report_overdue_detail" +
+    @Select("select count(*)\n" +
+            "from (\n" +
+            "     select operator_id, date(create_time) as data_dt, count(distinct apply_id) as taskNum\n" +
+            "     from tb_operation_task_history\n" +
+            "     where task_type=3 and operator_id is not null\n" +
+            "     group by operator_id, data_dt\n" +
+            ") oth" +
             " where 1=1 " +
-            " ${conditions}" +
-            " group by data_dt,operator_id order by data_dt desc) tb")
+            " ${conditions}")
     Integer getCollectorReportCount(@Param(value = "conditions") String conditions);
 
 
