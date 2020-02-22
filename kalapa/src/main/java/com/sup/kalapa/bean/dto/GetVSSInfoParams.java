@@ -14,4 +14,6 @@ public class GetVSSInfoParams {
     private String id;
     private Boolean getMaxLatestJobs;
     private Boolean getHRInfo;
+    private Integer  applyId;
+    private Integer  userId;
 }

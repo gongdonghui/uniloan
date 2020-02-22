@@ -10,4 +10,6 @@ import lombok.Data;
 public class GetFBInfoParams {
     private String fbid;
     private String mobile;
+    private Integer applyId;
+    private Integer userId;
 }
