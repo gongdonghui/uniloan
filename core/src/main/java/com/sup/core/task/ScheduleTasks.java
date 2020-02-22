@@ -86,9 +86,6 @@ public class ScheduleTasks {
     private OperationReportMapper operationReportMapper;
 
     @Autowired
-    private OperationTaskMapper operationTaskMapper;
-
-    @Autowired
     private OperationTaskJoinMapper operationTaskJoinMapper;
 
     @Autowired
