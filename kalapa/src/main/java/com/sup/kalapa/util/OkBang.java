@@ -25,8 +25,8 @@ public class OkBang {
     private static final MediaType FILE = MediaType.parse("File/*");
 
     static {
-        builder.connectTimeout(60, TimeUnit.SECONDS);
-        builder.readTimeout(60, TimeUnit.SECONDS);
+        builder.connectTimeout(60*5, TimeUnit.SECONDS);
+        builder.readTimeout(60*5, TimeUnit.SECONDS);
     }
 
     public static String get(String url) {
@@ -67,7 +67,7 @@ public class OkBang {
             sb.append("&");
         }));
         sb.deleteCharAt(sb.length() - 1);
-        return doHttp(url + sb.toString(), null, null, proxyHost, proxyPort);
+        return doHttp(url + sb.toString(), null, headers, proxyHost, proxyPort);
     }
 
     public static String postJson(String url, String json, String proxyHost, Integer proxyPort) {

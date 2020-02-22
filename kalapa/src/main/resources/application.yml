@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: online
+    active: test
   application:
     name: service-kalapa
 
@@ -14,27 +14,28 @@ server:
 ---
 spring:
   profiles: test
-
 eureka:
   client:
     serviceUrl:
       #defaultZone: http://192.168.78.32:51666/eureka/
       defaultZone: http://127.0.0.1:51666/eureka/
       #defaultZone: http://140.143.207.211:51666/eureka/
-
+kalapa:
+  #免费
+  token: 5bb42ea331ee010001a0b7d70abc93bc81bd4117aaa696747c30dc90
 ---
 spring:
   profiles: online
-
 eureka:
   client:
     serviceUrl:
       defaultZone: http://172.21.190.226:51666/eureka/
-
+kalapa:
+  #收费
+  token: 5bb42ea331ee010001a0b7d786d07e765e274286811aa9a7ebbb0be2
 ---
 spring:
   profiles: online_test
-
 eureka:
   client:
     serviceUrl:
@@ -42,3 +43,6 @@ eureka:
       #defaultZone: http://127.0.0.1:51666/eureka/
       #defaultZone: http://140.143.207.211:51666/eureka/
       defaultZone: http://172.21.190.226:51666/eureka/
+kalapa:
+  #每月50次免费
+  token: 5bb42ea331ee010001a0b7d7724ea04f33ed44e69a15d090125624cc

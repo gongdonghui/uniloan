@@ -1,4 +1,4 @@
-package com.sup.paycenter;
+package com.sup.kalapa;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,10 +9,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableEurekaClient
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @EnableFeignClients(basePackages = {"com.sup.common.service"})
-public class PaycenterApplication {
+public class KalapaApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(PaycenterApplication.class, args);
+        SpringApplication.run(KalapaApplication.class, args);
     }
 
 }

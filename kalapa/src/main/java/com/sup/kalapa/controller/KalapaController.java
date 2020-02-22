@@ -26,7 +26,7 @@ public class KalapaController {
 
     @Value("${kalapa.token}")
     private String token;
-    private String baseUrl = "http://api.kalapa.vn/user-profile";
+    private String baseUrl = "https://api.kalapa.vn/user-profile";
 
     @GetMapping(value = "getVSSInfo")
     public Result<VSSResult> getVSSInfo(@RequestBody GetVSSInfoParams params) {
