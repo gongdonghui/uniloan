@@ -24,6 +24,8 @@ public class AuthUserBean {
     private String mobile;
     private String email;
     private String comment;
+    @TableField(value = "group_id")
+    private Integer  groupId;
     @TableField(value = "is_valid")
     private Integer isValid;
     @TableField(value = "create_time")
