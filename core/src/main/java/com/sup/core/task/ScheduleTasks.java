@@ -525,15 +525,15 @@ public class ScheduleTasks {
 
 
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
-                if (days >= assetsLevelRuleBean.getBetween_paydays() && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
+                if (days >= assetsLevelRuleBean.getBetween_paydays() && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getLevel()))) {
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
                     tbApplyInfoBean.setUpdate_time(date);
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
-                    if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
-                        // assert level changed
-                        //applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
-                        applyService.addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
-                    }
+                    //if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
+                    // assert level changed
+                    //applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
+                    //applyService.addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
+                    //}
                     break;
                 }
             }
