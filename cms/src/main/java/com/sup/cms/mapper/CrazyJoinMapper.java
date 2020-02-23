@@ -801,7 +801,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             "case  when deny_code is NULL  THEN 'manual_refuse' else variable_name end as variable, " +
             " hit_size  " +
             "from " +
-            "(select deny_code, count(*) as  hit_size from tb_apply_info  where create_time >'${start}'   and  create_time < '${end}'     and   deny_code <>'' or   ( status =6  or  status =8) group by  deny_code)  as  a" +
+            "(select deny_code, count(*) as  hit_size from tb_apply_info  where create_time >'${start}'   and  create_time < '${end}'     and  (deny_code <>'' or   ( status =6  or  status =8)) group by  deny_code)  as  a" +
             " left  join  tb_core_risk_rules  as b  on a.deny_code =  concat('r00',b.id) "
     )
     List<RefuseStatBean> getRefuseStat(String start, String end);
