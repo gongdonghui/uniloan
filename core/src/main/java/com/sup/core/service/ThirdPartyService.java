@@ -342,7 +342,7 @@ public class ThirdPartyService {
         if (!Strings.isNullOrEmpty(mobile)) {
             subWrapper.or().eq("mobile", mobile);
         }
-        wrapper.ge("expire_time", new Date());
+        //wrapper.ge("expire_time", new Date());
         wrapper.eq("status", BlackListStatusEnum.BL_BLACK.getCode());
         wrapper.and(
                 new Function<QueryWrapper<BlackListBean>, QueryWrapper<BlackListBean>>() {
@@ -357,15 +357,8 @@ public class ThirdPartyService {
         //          AND status = #{ew.paramNameValuePairs.MPGENVAL2}
         //          AND ( cid_no = #{ew.paramNameValuePairs.MPGENVAL1} OR mobile = #{ew.paramNameValuePairs.MPGENVAL2} )
         List<BlackListBean> beans = blackListMapper.selectList(wrapper);
-        if (beans == null || beans.size() == 0) {
-            return false;
-        }
-        for (BlackListBean bean : beans) {
-            if (bean.getStatus() == BlackListStatusEnum.BL_BLACK.getCode()) {
-                return true;
-            }
-        }
-        return false;
+        log.info("query local black list: " + GsonUtil.toJson(beans));
+        return beans != null && beans.size() > 0;
     }
 
     public static String getSign_Jirong(String secretKey,Map<String, String> map) {
