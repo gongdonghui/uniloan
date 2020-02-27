@@ -1,6 +1,6 @@
 package com.sup.cms.facade;
 
-import com.sup.cms.bean.po.AuthUserGroupBean;
+import com.sup.common.bean.AuthUserGroupBean;
 import com.sup.cms.bean.vo.AddUserGroupMemParams;
 import com.sup.cms.bean.vo.UserGroupParams;
 import com.sup.common.bean.AuthUserBean;

@@ -1,7 +1,7 @@
 package com.sup.cms.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.sup.cms.bean.po.OperationTaskConfigBean;
+import com.sup.common.bean.OperationTaskConfigBean;
 import com.sup.cms.bean.vo.GetOptConfigParams;
 import com.sup.cms.facade.OperationTaskConfigFacade;
 import com.sup.cms.mapper.OperationTaskConfigBeanMapper;

@@ -2,7 +2,7 @@ package com.sup.cms.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.base.Strings;
-import com.sup.cms.bean.po.AuthUserGroupBean;
+import com.sup.common.bean.AuthUserGroupBean;
 import com.sup.cms.bean.vo.AddUserGroupMemParams;
 import com.sup.cms.bean.vo.UserGroupParams;
 import com.sup.cms.facade.UserGroupConfigFacade;

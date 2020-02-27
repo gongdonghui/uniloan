@@ -1,6 +1,6 @@
 package com.sup.cms.facade;
 
-import com.sup.cms.bean.po.OperationTaskConfigBean;
+import com.sup.common.bean.OperationTaskConfigBean;
 import com.sup.cms.bean.vo.GetOptConfigParams;
 import com.sup.common.util.Result;
 import org.springframework.web.bind.annotation.RequestBody;
