@@ -196,7 +196,7 @@ public class ThirdPartyService {
             String response = null;
             JSONObject responseObj = null;
             for (int i = 1; i <= QUERY_RETRY_NUM; ++i) {
-                response = HttpClient.httpPostWithParams(jirongBlackListUrlV2, params);
+                response = HttpClient.httpPost(jirongBlackListUrlV2, GsonUtil.toJson(params));
                 responseObj = (JSONObject) JSON.parse(response);
                 if (responseObj.getString("code").equals("0")) {
                     break;
@@ -210,41 +210,28 @@ public class ThirdPartyService {
             }
             log.info("Query jirong blacklist_v2 response: " + response);
             JSONObject resultObj = (JSONObject)JSON.parse(responseObj.getString("result"));
-            boolean isReject = false;
-            boolean isBlack = false;
 
-            String hitResult = resultObj.getString("hitResult").toUpperCase();
-            String gradeLevel = resultObj.getString("gradeLevel").toUpperCase();
-
-            BlackListBean blackListBean = new BlackListBean();
-            if (!Strings.isNullOrEmpty(apply_id)) {
-                blackListBean.setApply_id(Integer.valueOf(apply_id));
-            }
-            blackListBean.setCid_no(id);
-            blackListBean.setName(name.toUpperCase());
-            blackListBean.setMobile(phone);
-
-            if (hitResult.equals("PASS")) {
-                blackListBean.setStatus(BlackListStatusEnum.BL_NORMAL.getCode());
-            } else if (hitResult.equals("REJECT")) {
-                isReject = true;
-                blackListBean.setStatus(BlackListStatusEnum.BL_GRAY.getCode());
-            } else {
-                blackListBean.setStatus(BlackListStatusEnum.BL_GRAY.getCode());
+            String hitResult = resultObj.getString("hitResult");
+            if (hitResult == null || !hitResult.toUpperCase().equals("REJECT")) {
+                return false;
             }
 
-            if (gradeLevel.equals("HIGH")) {
-                isBlack = true;
+            String gradeLevel = resultObj.getString("gradeLevel");
+            if (gradeLevel != null && gradeLevel.toUpperCase().equals("HIGH")) {
+                BlackListBean blackListBean = new BlackListBean();
+                if (!Strings.isNullOrEmpty(apply_id)) {
+                    blackListBean.setApply_id(Integer.valueOf(apply_id));
+                }
+                blackListBean.setCid_no(id);
+                blackListBean.setName(name.toUpperCase());
+                blackListBean.setMobile(phone);
+                blackListBean.setPlatform("JIRONG");
+                blackListBean.setOrigin_message(response);
+                blackListBean.setCreate_time(new Date());
                 blackListBean.setStatus(BlackListStatusEnum.BL_BLACK.getCode());
-            }
-
-            blackListBean.setPlatform("JIRONG");
-            blackListBean.setOrigin_message(response);
-            blackListBean.setCreate_time(new Date());
-            if (isReject) {
                 this.blackListMapper.insert(blackListBean);
+                return true;
             }
-            return isBlack;
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -253,7 +240,7 @@ public class ThirdPartyService {
         return false;
     }
 
-        public boolean checkBlackListInXingtan(String id, String name, String phone, String apply_id) {
+    public boolean checkBlackListInXingtan(String id, String name, String phone, String apply_id) {
         if (Strings.isNullOrEmpty(id + name + phone)) {
             log.error("Param is null!");
             return false;
