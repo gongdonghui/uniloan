@@ -344,15 +344,17 @@ public class ThirdPartyService {
         }
         //wrapper.ge("expire_time", new Date());
         wrapper.eq("status", BlackListStatusEnum.BL_BLACK.getCode());
-        wrapper.and(
-                new Function<QueryWrapper<BlackListBean>, QueryWrapper<BlackListBean>>() {
-                    @Override
-                    public QueryWrapper<BlackListBean> apply(QueryWrapper<BlackListBean> blackListBeanQueryWrapper) {
-                        return subWrapper;
-                    }
-                }
-        );
-        // log.info("hitLocalBlackList sql: " + wrapper.getSqlSegment());
+        wrapper.and(w -> w.eq("cid_no", cid).or().eq("name", name.toUpperCase()).or().eq("mobile", mobile));
+
+//        wrapper.and(
+//                new Function<QueryWrapper<BlackListBean>, QueryWrapper<BlackListBean>>() {
+//                    @Override
+//                    public QueryWrapper<BlackListBean> apply(QueryWrapper<BlackListBean> blackListBeanQueryWrapper) {
+//                        return subWrapper;
+//                    }
+//                }
+//        );
+        log.info("hitLocalBlackList sql: " + wrapper.getSqlSegment());
         //      expire_time >= #{ew.paramNameValuePairs.MPGENVAL1}
         //          AND status = #{ew.paramNameValuePairs.MPGENVAL2}
         //          AND ( cid_no = #{ew.paramNameValuePairs.MPGENVAL1} OR mobile = #{ew.paramNameValuePairs.MPGENVAL2} )
