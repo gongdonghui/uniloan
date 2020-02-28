@@ -238,27 +238,11 @@ public class ThirdPartyService {
 
     private boolean hitLocalBlackList(String cid, String name, String mobile) {
         QueryWrapper<BlackListBean> wrapper = new QueryWrapper<>();
-        QueryWrapper<BlackListBean> subWrapper = new QueryWrapper<>();
-        // TODO: using or ??
-        if (!Strings.isNullOrEmpty(cid)) {
-            subWrapper.or().eq("cid_no", cid);
-        }
-        if (!Strings.isNullOrEmpty(name)) {
-            subWrapper.or().eq("name", name.toUpperCase());
-        }
-        if (!Strings.isNullOrEmpty(mobile)) {
-            subWrapper.or().eq("mobile", mobile);
-        }
+
         wrapper.ge("expire_time", new Date());
         wrapper.eq("status", BlackListStatusEnum.BL_BLACK.getCode());
-        wrapper.and(
-                new Function<QueryWrapper<BlackListBean>, QueryWrapper<BlackListBean>>() {
-                    @Override
-                    public QueryWrapper<BlackListBean> apply(QueryWrapper<BlackListBean> blackListBeanQueryWrapper) {
-                        return subWrapper;
-                    }
-                }
-        );
+        wrapper.and(w -> w.eq("cid_no", cid).or().eq("name", name.toUpperCase()).or().eq("mobile", mobile));
+
         // log.info("hitLocalBlackList sql: " + wrapper.getSqlSegment());
         //      expire_time >= #{ew.paramNameValuePairs.MPGENVAL1}
         //          AND status = #{ew.paramNameValuePairs.MPGENVAL2}
