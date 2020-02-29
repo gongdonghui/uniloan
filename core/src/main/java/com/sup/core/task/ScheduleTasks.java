@@ -527,7 +527,7 @@ public class ScheduleTasks {
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
                 if (days >= assetsLevelRuleBean.getBetween_paydays() && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getLevel()))) {
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
-                    tbApplyInfoBean.setUpdate_time(date);
+                    //tbApplyInfoBean.setUpdate_time(date);
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
                     //if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
                     // assert level changed
