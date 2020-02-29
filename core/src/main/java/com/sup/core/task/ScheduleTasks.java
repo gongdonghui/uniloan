@@ -753,7 +753,18 @@ public class ScheduleTasks {
         String end = DateUtil.endOf(data_dt);
         log.info("operation task info start:" + start + ",end:" + end);
 
-        List<OperationTaskJoinBean> operationTaskJoinBeanList = this.operationTaskJoinMapper.getOperationTaskJoinByTask(start, end, taskType);
+        List<OperationTaskJoinBean> operationTaskJoinBeanList = null;
+
+        if (taskType == OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode()) {
+            operationTaskJoinBeanList =
+                    this.operationTaskJoinMapper.getOperationTaskJoinByStatus(start, end, ApplyStatusEnum.APPLY_FIRST_PASS.getCode(), ApplyStatusEnum.APPLY_FIRST_DENY.getCode());
+        } else if (taskType == OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode()) {
+            operationTaskJoinBeanList =
+                    this.operationTaskJoinMapper.getOperationTaskJoinByStatus(start, end, ApplyStatusEnum.APPLY_FINAL_PASS.getCode(), ApplyStatusEnum.APPLY_FINAL_DENY.getCode());
+        }
+        if (operationTaskJoinBeanList == null || operationTaskJoinBeanList.isEmpty())
+            return;
+
         CheckReportBean checkReportBean = new CheckReportBean();
         int total = operationTaskJoinBeanList.size();
         checkReportBean.setTask_type(taskType);

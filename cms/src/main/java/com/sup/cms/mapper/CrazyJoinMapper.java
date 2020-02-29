@@ -785,7 +785,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " from tb_operation_task a" +
             " join tb_apply_info b on a.apply_id=b.id" +
             " where a.task_type =${taskType} and" +
-            " b.status !=14  and b.status !=15 and b.status !=1 "+
+            " b.status !=14  and b.status !=15 and b.status !=16 and b.status !=17 "+
             " and b.update_time >='${start}' and b.update_time< '${end}' ")
     List<OperationTaskJoinBean> getOperationTaskJoin(String start, String end,Integer taskType);
 
@@ -805,4 +805,10 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left  join  tb_core_risk_rules  as b  on a.deny_code =  concat('r00',b.id) "
     )
     List<RefuseStatBean> getRefuseStat(String start, String end);
+
+    @Select("select a.apply_id as  applyId,  a.operator_id as  operatorId, (b.grant_quota) as  loanAmt, b.status as applyStatus, a.status as  checkStatus" +
+            " from" +
+            "  (select  apply_id, status, operator_id  from tb_apply_info_history  where  create_time  > '${start}' and  create_time <  '${end}'  and  status in  (${pass},${deny},9) and  operator_id <> '' ) as a  " +
+            "left join tb_apply_info as  b  on  b.id = a.apply_id ;")
+    List<OperationTaskJoinBean> getOperationTaskJoinByStatus(String start, String end, Integer pass, Integer deny);
 }
