@@ -66,26 +66,11 @@ public class ThirdPartyService {
 
     public boolean checkInnerBlackList(String cid, String name, String mobile, String apply_id) {
         QueryWrapper<BlackListBean> wrapper = new QueryWrapper<>();
-        QueryWrapper<BlackListBean> subWrapper = new QueryWrapper<>();
-        if (!Strings.isNullOrEmpty(cid)) {
-            subWrapper.or().eq("cid_no", cid);
-        }
-        if (!Strings.isNullOrEmpty(name)) {
-            subWrapper.or().eq("name", name.toUpperCase());
-        }
-        if (!Strings.isNullOrEmpty(mobile)) {
-            subWrapper.or().eq("mobile", mobile);
-        }
-        subWrapper.eq("platform", "inner"); //inner   plaftform
-        wrapper.and(
-                new Function<QueryWrapper<BlackListBean>, QueryWrapper<BlackListBean>>() {
-                    @Override
-                    public QueryWrapper<BlackListBean> apply(QueryWrapper<BlackListBean> blackListBeanQueryWrapper) {
-                        return subWrapper;
-                    }
-                }
-        );
+        wrapper.eq("status", BlackListStatusEnum.BL_BLACK.getCode());
+        wrapper.and(w -> w.eq("cid_no", cid).or().eq("name", name.toUpperCase()).or().eq("mobile", mobile));
+
         List<BlackListBean> beans = blackListMapper.selectList(wrapper);
+        log.info("checkInnerBlackList beans:" + GsonUtil.toJson(beans));
         return beans != null && beans.size() > 0;
     }
 
@@ -248,6 +233,7 @@ public class ThirdPartyService {
         //          AND status = #{ew.paramNameValuePairs.MPGENVAL2}
         //          AND ( cid_no = #{ew.paramNameValuePairs.MPGENVAL1} OR mobile = #{ew.paramNameValuePairs.MPGENVAL2} )
         List<BlackListBean> beans = blackListMapper.selectList(wrapper);
+        log.info("hitLocalBlackList beans:" + GsonUtil.toJson(beans));
         return beans != null && beans.size() > 0;
     }
 }
