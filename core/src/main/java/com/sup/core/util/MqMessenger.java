@@ -67,6 +67,7 @@ public class MqMessenger {
         try {
             RepayHistoryStatusEnum status = RepayHistoryStatusEnum.getStatusByCode(repayHistoryBean.getRepay_status());
             String state_desc = status.getCodeDesc();
+            String repay_time = DateUtil.formatDateTime(repayHistoryBean.getRepay_time());
             UserStateMessage message = new UserStateMessage();
             message.setUser_id(repayHistoryBean.getUser_id());
             message.setRel_id(repayHistoryBean.getApply_id());
@@ -76,7 +77,7 @@ public class MqMessenger {
                     ImmutableMap.of(
                             "order_id", repayHistoryBean.getApply_id().toString(),
                             "repay_amount", repayHistoryBean.getRepay_amount(),
-                            "repay_time", DateUtil.formatDateTime(repayHistoryBean.getRepay_time())
+                            "repay_time", repay_time == null ? "null" : repay_time
                     )));
             log.info("bean: " + GsonUtil.toJson(repayHistoryBean));
             log.info("MQ message: " + GsonUtil.toJson(message));

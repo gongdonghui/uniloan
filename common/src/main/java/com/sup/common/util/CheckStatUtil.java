@@ -26,25 +26,20 @@ public class CheckStatUtil {
         OperationStatBean operationStatBean = new OperationStatBean();
 
         for (OperationTaskJoinBean joinBean : list) {
+            checked = allocated  =  list.size();
             if (joinBean != null) {
-                if (taskType == OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode() && joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode()) {
+                if (taskType == OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode() && joinBean.getCheckStatus() == ApplyStatusEnum.APPLY_FIRST_DENY.getCode()) {
                     ++deny;
 
                 }
-                if (taskType == OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode() && joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode()) {
+                if (taskType == OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode() && joinBean.getCheckStatus() == ApplyStatusEnum.APPLY_FINAL_DENY.getCode()) {
                     ++deny;
-                }
-                if (joinBean.getTaskStatus() == OperationTaskStatusEnum.TASK_STATUS_DONE.getCode()) {
-                    ++checked;
-                }
-                if (joinBean.getHasOwner() == 1) {
-                    ++allocated;
                 }
                 if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()) {
                     ++loan;
                     loan_amt += joinBean.getLoanAmt();
                 }
-                if (joinBean.getApplyStatus() == ApplyStatusEnum.APPLY_CANCEL.getCode()) {
+                if (joinBean.getCheckStatus() == ApplyStatusEnum.APPLY_CANCEL.getCode()) {
                     ++closed;
                 }
             }

@@ -289,17 +289,17 @@ public class ReportImplFacade implements ReportFacade {
         log.info("Report collector param:" + GsonUtil.toJson(param));
         StringBuilder sb = new StringBuilder();
         if (param.getStartDate() != null) {
-            sb.append(" and data_dt>='" + DateUtil.formatDate(param.getStartDate()) + "'");
+            sb.append(" and oth.data_dt>='" + DateUtil.formatDate(param.getStartDate()) + "'");
         }
         if (param.getEndDate() != null) {
-            sb.append(" and data_dt<='" + DateUtil.formatDate(param.getEndDate()) + "'");
+            sb.append(" and oth.data_dt<='" + DateUtil.formatDate(param.getEndDate()) + "'");
         }
         Integer offset = (param.getPage() - 1) * param.getPageSize();
         Integer rows = param.getPageSize();
         List<ReportCollectorBean> result;
         Integer resultCount = 0;
         if (param.getOperatorId() != null) {
-            sb.append(" and operator_id=" + param.getOperatorId());
+            sb.append(" and oth.operator_id=" + param.getOperatorId());
             result = crazyJoinMapper.getCollectorReport(sb.toString(), offset, rows);
             resultCount = crazyJoinMapper.getCollectorReportCount(sb.toString());
         } else {
@@ -497,12 +497,14 @@ public class ReportImplFacade implements ReportFacade {
             names.put(authUserBean.getId(), authUserBean.getName());
 
         }
-        List<OperationTaskJoinBean> list = this.crazyJoinMapper.getOperationTaskJoin(start_str, end_str, OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode());
+        List<OperationTaskJoinBean> list = this.crazyJoinMapper.getOperationTaskJoinByStatus(start_str, end_str, ApplyStatusEnum.APPLY_FIRST_PASS.getCode(),
+                ApplyStatusEnum.APPLY_FIRST_DENY.getCode());
         List<TbReportCheckOperatorDaily> first_ret = this.buildOperatorReport(list, OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode(), names, cur);
         if (!first_ret.isEmpty())
             ret.addAll(first_ret);  //初审统计
 
-        List<OperationTaskJoinBean> final_list = this.crazyJoinMapper.getOperationTaskJoin(start_str, end_str, OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode());
+        List<OperationTaskJoinBean> final_list = this.crazyJoinMapper.getOperationTaskJoinByStatus(start_str, end_str, ApplyStatusEnum.APPLY_FINAL_PASS.getCode(),
+                ApplyStatusEnum.APPLY_FINAL_DENY.getCode());
         List<TbReportCheckOperatorDaily> final_ret = this.buildOperatorReport(final_list, OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode(), names, cur);
         if (!final_ret.isEmpty())
             ret.addAll(final_ret);   //终审统计

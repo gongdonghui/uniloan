@@ -1,39 +1,18 @@
 package com.sup.core.service;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
-import com.sup.common.bean.TbApplyInfoBean;
-import com.sup.common.bean.TbApplyInfoHistoryBean;
-import com.sup.common.bean.TbApplyQuickpassRulesBean;
-import com.sup.common.bean.TbOperationTaskBean;
+import com.sup.common.bean.*;
 import com.sup.common.loan.*;
-import com.sup.common.mq.ApplyStateMessage;
-import com.sup.common.mq.MqTag;
-import com.sup.common.mq.MqTopic;
-import com.sup.common.mq.UserStateMessage;
 import com.sup.common.param.LoanCalculatorParam;
-import com.sup.common.util.DateUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
-import com.sup.core.mapper.ApplyInfoHistoryMapper;
-import com.sup.core.mapper.ApplyInfoMapper;
-import com.sup.core.mapper.ApplyQuickpassRulesMapper;
-import com.sup.core.mapper.OperationTaskMapper;
+import com.sup.core.mapper.*;
 import com.sup.core.util.MqMessenger;
-import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 import lombok.extern.log4j.Log4j;
-import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
@@ -54,6 +33,8 @@ public class ApplyService {
     private ApplyInfoHistoryMapper applyInfoHistoryMapper;
     @Autowired
     private OperationTaskMapper operationTaskMapper;
+    @Autowired
+    private OperationTaskHistoryMapper operationTaskHistoryMapper;
 
     @Autowired
     private LoanService loanService;
@@ -205,6 +186,7 @@ public class ApplyService {
         taskBean.setComment(comment);
         taskBean.setUpdate_time(new Date());
         operationTaskMapper.updateById(taskBean);
+        recordOperationTask(taskBean);
     }
 
     public synchronized void addOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {
@@ -227,6 +209,7 @@ public class ApplyService {
         taskBean.setCreate_time(now);
         taskBean.setUpdate_time(now);
         operationTaskMapper.insert(taskBean);
+        recordOperationTask(taskBean);
     }
 
     public synchronized void cancelOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {
@@ -242,46 +225,9 @@ public class ApplyService {
             taskBean.setComment(comment);
             taskBean.setUpdate_time(new Date());
             operationTaskMapper.updateById(taskBean);
+            recordOperationTask(taskBean);
         }
     }
-
-//    protected void sendMessage(TbApplyInfoBean bean) throws Exception {
-//        String state_desc = ApplyStatusEnum.getStatusByCode(bean.getStatus()).getCodeDesc();
-//        UserStateMessage message = new UserStateMessage();
-//        message.setUser_id(bean.getUser_id());
-//        message.setRel_id(bean.getApp_id());
-//        message.setState(state_desc);
-//        message.setCreate_time(DateUtil.format(new Date(), DateUtil.DEFAULT_DATETIME_FORMAT));
-//        message.setExt(JSON.toJSONString(ImmutableMap.of("order_id", bean.getApp_id().toString())));
-//        mqProducerService.sendMessage(new Message(MqTopic.USER_STATE, state_desc, "", GsonUtil.toJson(message).getBytes()));
-//    }
-
-//    protected int getInhandQuota(TbApplyInfoBean bean) {
-//        LoanFeeTypeEnum feeType = LoanFeeTypeEnum.getStatusByCode(bean.getFee_type());
-//        if (feeType == null) {
-//            log.error("Invalid feeType = " + bean.getFee_type() + ", applyId = " + bean.getId());
-//            return 0;
-//        }
-//        int loanAmount = bean.getGrant_quota();
-//        int feeTotal = (int)(loanAmount * bean.getFee());    // service fee
-//        int interestTotal = (int)(loanAmount * bean.getRate() * bean.getPeriod());
-//
-//        int quotaInhand = 0;
-//        switch (feeType) {
-//            case LOAN_PRE_FEE:
-//                quotaInhand = loanAmount - feeTotal;
-//                break;
-//            case LOAN_PRE_FEE_PRE_INTEREST:
-//                quotaInhand = loanAmount - feeTotal - interestTotal;
-//                break;
-//            case LOAN_POST_FEE_POST_INTEREST:
-//                quotaInhand = loanAmount;
-//                break;
-//            default:
-//                break;
-//        }
-//        return quotaInhand;
-//    }
 
     /**
      *
@@ -305,5 +251,50 @@ public class ApplyService {
         }
 
         return status;
+    }
+
+    private void recordOperationTask(TbOperationTaskBean operationTaskBean) {
+
+        QueryWrapper<TbOperationTaskHistoryBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("apply_id", operationTaskBean.getApply_id());
+        wrapper.eq("task_type", operationTaskBean.getTask_type());
+        List<TbOperationTaskHistoryBean> taskBeans = operationTaskHistoryMapper.selectList(wrapper);
+        TbOperationTaskHistoryBean fromBean = null;    // 订单任务拥有者
+        TbOperationTaskHistoryBean taskBean = null;    // 订单任务新任拥有着
+        for (TbOperationTaskHistoryBean bean : taskBeans) {
+            if (bean.getHas_owner() == 1) {
+                if (fromBean != null) {
+                    log.error("Invalid task allocation! bean1=" + GsonUtil.toJson(fromBean) +
+                            ", bean2=" + GsonUtil.toJson(bean));
+                    return;
+                }
+                fromBean = bean;
+            }
+            if (bean.getOperator_id().equals(operationTaskBean.getOperator_id())) { // 再次分配给以往的催收员
+                taskBean = bean;
+            }
+        }
+
+        if (fromBean != null) {
+            fromBean.setHas_owner(0);
+            fromBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_CANCEL.getCode());
+            fromBean.setUpdate_time(new Date());
+            if (operationTaskHistoryMapper.updateById(fromBean) <= 0) {
+                log.error("Failed to update task: " + GsonUtil.toJson(fromBean));
+            }
+        }
+
+        if (taskBean == null) {
+            taskBean = new TbOperationTaskHistoryBean();
+            taskBean.copy(operationTaskBean);
+            if (operationTaskHistoryMapper.insert(taskBean) <= 0) {
+                log.error("Failed to add new task: " + GsonUtil.toJson(taskBean));
+            }
+        } else {
+            taskBean.copy(operationTaskBean);
+            if (operationTaskHistoryMapper.updateById(taskBean) <= 0) {
+                log.error("Failed to update task: " + GsonUtil.toJson(taskBean));
+            }
+        }
     }
 }

@@ -40,6 +40,27 @@ CREATE TABLE if NOT EXISTS `tb_operation_task` (
   KEY `idx_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE tb_operation_task_history;
+CREATE TABLE IF NOT EXISTS `tb_operation_task_history` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `apply_id` int(10) NOT NULL COMMENT '进件申请id',
+  `operator_id` int(11) DEFAULT NULL COMMENT '操作者id',
+  `distributor_id` int(10) DEFAULT NULL COMMENT '指派人id',
+  `task_type` tinyint(4) NOT NULL COMMENT '任务类型，0:初审，1:复审，2:终审，3:逾期（未还）',
+  `status` int(10) NOT NULL COMMENT '任务状态：0:未审，1:已审，2:回收',
+  `has_owner` int(11) NOT NULL DEFAULT '0' COMMENT '是否被指派或领取 0 不是 1 是',
+  `comment` varchar(256) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL COMMENT '记录创建时间',
+  `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '操作截止时间',
+  `update_time` datetime NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_apply_id` (`apply_id`),
+  KEY `idx_operator_id` (`operator_id`),
+  KEY `idx_task_type` (`task_type`),
+  KEY `idx_status` (`status`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 -- Create syntax for TABLE 'tb_apply_info'
 DROP TABLE tb_apply_info;
 CREATE TABLE if NOT EXISTS `tb_apply_info` (

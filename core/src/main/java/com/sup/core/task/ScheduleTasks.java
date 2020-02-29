@@ -86,9 +86,6 @@ public class ScheduleTasks {
     private OperationReportMapper operationReportMapper;
 
     @Autowired
-    private OperationTaskMapper operationTaskMapper;
-
-    @Autowired
     private OperationTaskJoinMapper operationTaskJoinMapper;
 
     @Autowired
@@ -528,15 +525,15 @@ public class ScheduleTasks {
 
 
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
-                if (days >= assetsLevelRuleBean.getBetween_paydays() && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
+                if (days >= assetsLevelRuleBean.getBetween_paydays() && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getLevel()))) {
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
-                    tbApplyInfoBean.setUpdate_time(date);
+                    //tbApplyInfoBean.setUpdate_time(date);
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
-                    if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
-                        // assert level changed
-                        //applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
-                        applyService.addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
-                    }
+                    //if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
+                    // assert level changed
+                    //applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
+                    //applyService.addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
+                    //}
                     break;
                 }
             }
@@ -756,7 +753,18 @@ public class ScheduleTasks {
         String end = DateUtil.endOf(data_dt);
         log.info("operation task info start:" + start + ",end:" + end);
 
-        List<OperationTaskJoinBean> operationTaskJoinBeanList = this.operationTaskJoinMapper.getOperationTaskJoinByTask(start, end, taskType);
+        List<OperationTaskJoinBean> operationTaskJoinBeanList = null;
+
+        if (taskType == OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode()) {
+            operationTaskJoinBeanList =
+                    this.operationTaskJoinMapper.getOperationTaskJoinByStatus(start, end, ApplyStatusEnum.APPLY_FIRST_PASS.getCode(), ApplyStatusEnum.APPLY_FIRST_DENY.getCode());
+        } else if (taskType == OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode()) {
+            operationTaskJoinBeanList =
+                    this.operationTaskJoinMapper.getOperationTaskJoinByStatus(start, end, ApplyStatusEnum.APPLY_FINAL_PASS.getCode(), ApplyStatusEnum.APPLY_FINAL_DENY.getCode());
+        }
+        if (operationTaskJoinBeanList == null || operationTaskJoinBeanList.isEmpty())
+            return;
+
         CheckReportBean checkReportBean = new CheckReportBean();
         int total = operationTaskJoinBeanList.size();
         checkReportBean.setTask_type(taskType);

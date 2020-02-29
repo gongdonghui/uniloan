@@ -25,9 +25,9 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             " from tb_operation_task a" +
             " join tb_apply_info b on a.apply_id=b.id" +
             " where a.task_type= ${taskType}" +
-            " and b.status !=14  and b.status !=15 and b.status !=1 "+
+            " and b.status !=14  and b.status !=15 and b.status !=1 " +
             " and b.update_time >='${start}' and b.update_time< '${end}' ")
-    List<OperationTaskJoinBean> getOperationTaskJoinByTask(String start, String  end, Integer taskType );
+    List<OperationTaskJoinBean> getOperationTaskJoinByTask(String start, String end, Integer taskType);
 
 
     @Select("select " +
@@ -40,7 +40,7 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             " where   repay_time > '${start}' and  repay_time < '${end}' and repay_status =1 group by apply_id) as b " +
             " on a.apply_id=b.apply_id" +
             " where  a.create_time >='${start}' and a.create_time< '${end}' ")
-    List<CollectionRepayBean> getCollectionRepay(String start, String  end);
+    List<CollectionRepayBean> getCollectionRepay(String start, String end);
 
     @Select("select " +
             "a.apply_id as applyId, a.create_time as create_time, " +
@@ -49,7 +49,7 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             " join tb_repay_stat b on a.apply_id=b.apply_id" +
             " where a.task_type= ${taskType}" +
             " and create_time< '${end}' ")
-    List<CollectionStatBean>  getCollectionStats(String end, Integer taskType);
+    List<CollectionStatBean> getCollectionStats(String end, Integer taskType);
 
     @Select("select " +
             "a.repay_start_date  as  repay_start_date, a.repay_end_date  as repay_end_date, " +
@@ -57,10 +57,11 @@ public interface OperationTaskJoinMapper extends BaseMapper {
             " from (select * from  tb_repay_plan  where is_overdue = 1 and  repay_start_date >='${start}'  and   repay_start_date <'${end}') as  a " +
             " left join tb_apply_info as b on a.apply_id=b.id" +
             " left join  tb_operation_task as c on  a.apply_id = c.apply_id ")
-    List<RepayJoinBean>  getRepayJoinByDate(String start , String end );
+    List<RepayJoinBean> getRepayJoinByDate(String start, String end);
 
-
-
-
-
+    @Select("select a.apply_id as  applyId,  a.operator_id as  operatorId, (b.grant_quota) as  loanAmt, b.status as applyStatus, a.status as  checkStatus" +
+            " from" +
+            "  (select  apply_id, status, operator_id  from tb_apply_info_history  where  create_time  > '${start}' and  create_time <  '${end}'  and  status in  (${pass},${deny},9) and  operator_id <> '' ) as a  " +
+            "left join tb_apply_info as  b  on  b.id = a.apply_id ;")
+    List<OperationTaskJoinBean> getOperationTaskJoinByStatus(String start, String end, Integer pass, Integer deny);
 }
