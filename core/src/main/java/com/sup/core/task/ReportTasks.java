@@ -42,6 +42,7 @@ public class ReportTasks {
     private LoanInfoMapper loanInfoMapper;
 
 
+
     /**
      * 更新催收明细表(tb_report_overdue_detail)
      */
@@ -80,6 +81,7 @@ public class ReportTasks {
             if (bean.getStatus() == ApplyStatusEnum.APPLY_REPAY_ALL.getCode()) {
                 // 已还清，关闭逾期任务
                 applyService.closeOperationTask(bean.getApply_id(), OperationTaskTypeEnum.TASK_OVERDUE, "pay off");
+
             }
         }
     }

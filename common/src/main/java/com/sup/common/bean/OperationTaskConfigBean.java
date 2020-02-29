@@ -19,7 +19,7 @@ public class OperationTaskConfigBean {
     private Integer group_id;
     private Integer credit_level;
     private String strategy;
-    private boolean enabled;
+    private Integer enabled;   //1启用，  0  停用
     private Date create_time;
 
 }
