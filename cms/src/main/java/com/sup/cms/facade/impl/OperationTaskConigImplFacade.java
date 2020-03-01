@@ -83,8 +83,8 @@ public class OperationTaskConigImplFacade implements OperationTaskConfigFacade {
 
         if (getOptConfigParams != null) {
             QueryWrapper<OperationTaskConfigBean> queryWrapper = new QueryWrapper<>();
-            if (getOptConfigParams.getCreditLevel() != null) {
-                queryWrapper.eq("credit_level", getOptConfigParams.getCreditLevel());
+            if (getOptConfigParams.getAssetLevel() != null) {
+                queryWrapper.eq("asset_level", getOptConfigParams.getAssetLevel());
             }
             if (getOptConfigParams.getGroup() != null) {
                 queryWrapper.eq("group", getOptConfigParams.getGroup());

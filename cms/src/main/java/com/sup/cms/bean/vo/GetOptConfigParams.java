@@ -9,7 +9,7 @@ import lombok.Data;
  */
 @Data
 public class GetOptConfigParams {   // operation task config
-    private Integer creditLevel;
+    private Integer assetLevel;
     private Integer group;
 
 }

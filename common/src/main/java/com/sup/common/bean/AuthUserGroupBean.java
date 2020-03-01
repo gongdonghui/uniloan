@@ -18,8 +18,8 @@ public class AuthUserGroupBean {
 
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private String name;
-    private String type;
+    private String name;   // 组名
+    private String type;    //0 表示催收 1 表示信审
     private Date  create_time;
 
 }

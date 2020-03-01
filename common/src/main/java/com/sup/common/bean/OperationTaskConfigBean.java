@@ -17,7 +17,7 @@ public class OperationTaskConfigBean {
     @TableId
     private Integer id;
     private Integer group_id;
-    private Integer credit_level;
+    private Integer asset_level;
     private String strategy;
     private Integer enabled;   //1启用，  0  停用
     private Date create_time;
