@@ -360,7 +360,7 @@ public class ReportImplFacade implements ReportFacade {
      */
     @Override
     public Result<OperationStatBean> checkoverview(CheckOverviewParam param) {
-
+        log.info("checkoverview param:" + GsonUtil.toJson(param));
         if (param != null && param.getStart_date() != null && param.getEnd_date() != null && param.getType() != null) {
 
             String start_str = DateUtil.startOf(param.getStart_date());
