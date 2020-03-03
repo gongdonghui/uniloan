@@ -10,7 +10,9 @@ import com.sup.cms.mapper.AuthUserBeanMapper;
 import com.sup.cms.mapper.AuthUserGroupBeanMapper;
 import com.sup.common.bean.AuthUserBean;
 import com.sup.common.util.Result;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -19,6 +21,8 @@ import java.util.List;
  * <p>
  * 2020/2/22
  */
+@Log4j
+@RestController
 public class UserGroupConfigImplFacade implements UserGroupConfigFacade {
     @Autowired
     private AuthUserGroupBeanMapper authUserGroupBeanMapper;

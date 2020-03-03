@@ -74,6 +74,7 @@ CREATE TABLE `tb_cms_auth_user` (
   `is_valid` int(11) DEFAULT '1' COMMENT '是否生效',
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
+   `group_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

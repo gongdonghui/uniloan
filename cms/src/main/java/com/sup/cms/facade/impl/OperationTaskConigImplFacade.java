@@ -6,7 +6,9 @@ import com.sup.cms.bean.vo.GetOptConfigParams;
 import com.sup.cms.facade.OperationTaskConfigFacade;
 import com.sup.cms.mapper.OperationTaskConfigBeanMapper;
 import com.sup.common.util.Result;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -15,6 +17,8 @@ import java.util.List;
  * <p>
  * 2020/2/22
  */
+@Log4j
+@RestController
 public class OperationTaskConigImplFacade implements OperationTaskConfigFacade {
     @Autowired
     private OperationTaskConfigBeanMapper operationTaskConfigBeanMapper;
