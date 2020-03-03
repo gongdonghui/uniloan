@@ -43,6 +43,25 @@ public class ProductController {
   @ResponseBody
   @RequestMapping(value = "list", produces = "application/json;charset=UTF-8")
   public Object getProduct(@LoginInfo LoginInfoCtx li, HttpServletRequest req) {
+    if (li == null) {
+      List<AppProductInfo> r = tb_channel_product_mapper.selectList(new QueryWrapper<TbChannelProductBean>().eq("channel_id", 1)).stream().map(x -> tb_product_info_mapper.selectById(x.getProduct_id())).map(bean -> {
+        AppProductInfo api = new AppProductInfo();
+        api.setId(bean.getId());
+        api.setName(bean.getName());
+        api.setMin_period(bean.getMin_period());
+        api.setMax_period(bean.getMax_period());
+        api.setMin_quota(bean.getMin_quota());
+        api.setMax_quota(bean.getMax_quota());
+        api.setRate(ToolUtils.formatRate(bean.getRate()));
+        api.setStatus(1);
+        api.setPeriod_type(bean.getPeriod_type());
+        api.setDesc(bean.getProduct_desc());
+        api.setMaterial_needed(bean.getMaterial_needed());
+        return api;
+      }).collect(Collectors.toList());
+      return ToolUtils.succ(r);
+    }
+
     int credit_level = tb_user_regist_info_mapper.selectById(li.getUser_id()).getCredit_level();
     List<TbProductInfoBean> beans = tb_product_info_mapper.selectList(new QueryWrapper<TbProductInfoBean>().eq("status", 1));
 
