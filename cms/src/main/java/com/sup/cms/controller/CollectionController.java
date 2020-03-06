@@ -6,8 +6,10 @@ import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.*;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.*;
+import com.sup.common.loan.OperationTaskTypeEnum;
 import com.sup.common.util.ResponseUtil;
 import com.sup.common.util.GsonUtil;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +35,7 @@ import java.util.Map;
  */
 @RequestMapping("/collection")
 @RestController
+@Log4j
 public class CollectionController {
 
     @Autowired
@@ -69,7 +72,17 @@ public class CollectionController {
     @PostMapping("/addRecord")
     public String addRecord(@Valid @RequestBody CollectionAddAllocateRecordParams params) {
         //添加催收记录时把最新的催收状态 存入task的comment中
-        ApplyOperationTaskBean task = applyOperationTaskMapper.selectById(params.getApplyId());
+        log.info("addRecord param:" + GsonUtil.toJson(params));
+        QueryWrapper<ApplyOperationTaskBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("apply_id", params.getApplyId());
+        wrapper.eq("task_type", OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+        wrapper.eq("operator_id", params.getOperatorId());
+
+        ApplyOperationTaskBean task = applyOperationTaskMapper.selectOne(wrapper);
+        if (task == null) {
+            log.error("No task for param:" + GsonUtil.toJson(params));
+            return ResponseUtil.failed();
+        }
         task.setComment(params.getStatus());
         task.setUpdateTime(new Date());
         if (applyOperationTaskMapper.updateById(task) <= 0) {

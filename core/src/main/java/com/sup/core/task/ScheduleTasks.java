@@ -720,8 +720,8 @@ public class ScheduleTasks {
                 Integer loan_pending = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_LOANING, 0);
                 Integer first_ovedue = c.repayNum - c.repayActualNum;
                 Integer final_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FINAL_PASS, 0) + loan_failed + loan_pending + loan_num;
-                Integer first_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_PASS, 0) + final_pass + first_deny;
-                Integer auto_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_PASS, 0) + final_pass + final_deny;
+                Integer first_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_FIRST_PASS, 0) + final_pass + final_deny;
+                Integer auto_pass = c.applyStatMap.getOrDefault(ApplyStatusEnum.APPLY_AUTO_PASS, 0) + first_pass + first_deny;
                 double forate = c.repayNum > 0 ? (first_ovedue + 0.00001f) / (c.repayNum + 0.00001f) : 0;
 
                 OperationReportBean operationReportBean = new OperationReportBean();
