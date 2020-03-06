@@ -25,6 +25,7 @@ public class WebConfigurer implements WebMvcConfigurer {
     inter.excludePathPatterns("/user/login**");
     inter.excludePathPatterns("/file/upload**");
     inter.excludePathPatterns("/file/image/get**");
+    inter.excludePathPatterns("/product/list**");
   }
 
   @Override
