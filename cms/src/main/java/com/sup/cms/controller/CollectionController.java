@@ -8,6 +8,7 @@ import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.*;
 import com.sup.common.util.ResponseUtil;
 import com.sup.common.util.GsonUtil;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,7 @@ import java.util.Map;
  */
 @RequestMapping("/collection")
 @RestController
+@Log4j
 public class CollectionController {
 
     @Autowired
@@ -69,6 +71,7 @@ public class CollectionController {
     @PostMapping("/addRecord")
     public String addRecord(@Valid @RequestBody CollectionAddAllocateRecordParams params) {
         //添加催收记录时把最新的催收状态 存入task的comment中
+        log.info("addRecord param:" + GsonUtil.toJson(params));
         ApplyOperationTaskBean task = applyOperationTaskMapper.selectById(params.getApplyId());
         task.setComment(params.getStatus());
         task.setUpdateTime(new Date());
