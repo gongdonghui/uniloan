@@ -41,7 +41,7 @@ public interface LoanInfoMapper extends BaseMapper<TbLoanInfoBean> {
             " ,rs.reduction_fee as reduction_fee" +
             " ,rs.need_penalty_interest as need_penalty_interest" +
             " ,rs.act_penalty_interest as act_penalty_interest" +
-            " ,case when rp.is_overdue=1 then (rs.need_total - rs.normal_repay) else 0 end as overdue_amount" +
+            " ,case when rp.is_overdue=1 then (ai.grant_quota - rs.normal_repay) else 0 end as overdue_amount" +
             " ,rs.need_total - rs.act_total as remain_overdue_amount" +
             " from tb_repay_stat rs" +
             " left join tb_repay_plan rp on rs.apply_id=rp.apply_id and rs.current_seq=rp.seq_no" +
