@@ -2,18 +2,20 @@ package com.sup.cms.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.base.Strings;
-import com.sup.common.bean.AuthUserGroupBean;
 import com.sup.cms.bean.vo.AddUserGroupMemParams;
+import com.sup.cms.bean.vo.GroupIdParam;
 import com.sup.cms.bean.vo.UserGroupParams;
 import com.sup.cms.facade.UserGroupConfigFacade;
 import com.sup.cms.mapper.AuthUserBeanMapper;
 import com.sup.cms.mapper.AuthUserGroupBeanMapper;
 import com.sup.common.bean.AuthUserBean;
+import com.sup.common.bean.AuthUserGroupBean;
 import com.sup.common.util.Result;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,6 +41,8 @@ public class UserGroupConfigImplFacade implements UserGroupConfigFacade {
     @Override
     public Result createGroup(AuthUserGroupBean authUserGroupBean) {
         if (authUserGroupBean != null) {
+            Date   now  =  new Date();
+            authUserGroupBean.setCreate_time(now);
             this.authUserGroupBeanMapper.insert(authUserGroupBean);
             return Result.succ();
         } else {
@@ -54,9 +58,9 @@ public class UserGroupConfigImplFacade implements UserGroupConfigFacade {
      * @return
      */
     @Override
-    public Result deleteGroup(Integer group_id) {
-        if (group_id != null) {
-            this.authUserGroupBeanMapper.deleteById(group_id);
+    public Result deleteGroup(GroupIdParam  param) {
+        if (param!= null &&   param.getGroup_id()!=null) {
+            this.authUserGroupBeanMapper.deleteById(param.getGroup_id());
             return Result.succ();
 
         } else {
@@ -147,10 +151,10 @@ public class UserGroupConfigImplFacade implements UserGroupConfigFacade {
      * @return
      */
     @Override
-    public Result<List<AuthUserBean>> listMem(Integer group_id) {
-        if (group_id != null) {
+    public Result<List<AuthUserBean>> listMem(GroupIdParam param) {
+        if (param!= null && param.getGroup_id()!= null) {
             QueryWrapper<AuthUserBean> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("group_id", group_id);
+            queryWrapper.eq("group_id", param.getGroup_id());
             List<AuthUserBean> userBeanList = this.authUserBeanMapper.selectList(queryWrapper);
             return Result.succ(userBeanList);
         } else {

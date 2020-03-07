@@ -1,5 +1,6 @@
 package com.sup.cms.facade;
 
+import com.sup.cms.bean.vo.GroupIdParam;
 import com.sup.common.bean.AuthUserGroupBean;
 import com.sup.cms.bean.vo.AddUserGroupMemParams;
 import com.sup.cms.bean.vo.UserGroupParams;
@@ -36,7 +37,7 @@ public interface UserGroupConfigFacade {
      */
     @ResponseBody
     @RequestMapping(value = "delete", produces = "application/json;charset=UTF-8")
-    Result deleteGroup(@RequestBody Integer group_id);
+    Result deleteGroup(@RequestBody GroupIdParam  param);
 
 
     /**
@@ -76,5 +77,5 @@ public interface UserGroupConfigFacade {
      */
     @ResponseBody
     @RequestMapping(value = "Mem", produces = "application/json;charset=UTF-8")
-    Result<List<AuthUserBean>> listMem(@RequestBody Integer group_id);
+    Result<List<AuthUserBean>> listMem(@RequestBody GroupIdParam  param);
 }
