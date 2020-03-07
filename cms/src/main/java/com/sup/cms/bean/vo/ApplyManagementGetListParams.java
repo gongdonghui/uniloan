@@ -19,6 +19,7 @@ public class ApplyManagementGetListParams {
     private Integer stage;
     private Integer status;
     private Integer applyId;
+    private Integer appId;
     private String name;
     private String cidNo;
     private String mobile;

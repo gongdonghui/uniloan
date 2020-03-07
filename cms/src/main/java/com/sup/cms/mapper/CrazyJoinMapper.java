@@ -47,6 +47,7 @@ public interface CrazyJoinMapper extends BaseMapper {
     @Select("select " +
             "a.user_id as userId" +
             ",a.channel_id as channelId" +
+            ",a.app_id as appId" +
             ",a.id as applyId" +
             ",a.status as status" +
             ",a.apply_quota as amount" +

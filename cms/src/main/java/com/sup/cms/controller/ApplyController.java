@@ -219,6 +219,7 @@ public class ApplyController {
         sb.append(null != params.getEndTime() ? " and a.create_time<='" + DateUtil.endOf(params.getEndTime()) + "'" : "");
         sb.append(null != params.getStatus() ? " and a.status=" + params.getStatus() : "");
         sb.append(null != params.getApplyId() ? " and a.id=" + params.getApplyId() : "");
+        sb.append(null != params.getAppId() ? " and a.app_id=" + params.getAppId() : "");
         sb.append(null != params.getChannelId() ? " and a.channel_id=" + params.getChannelId() : "");
         sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and d.name='" + params.getName() + "'" : "");
         sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and d.cid_no='" + params.getCidNo() + "'" : "");
