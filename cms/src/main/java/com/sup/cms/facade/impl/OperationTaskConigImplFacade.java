@@ -1,6 +1,7 @@
 package com.sup.cms.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.sup.cms.bean.vo.ConfigIdParam;
 import com.sup.common.bean.OperationTaskConfigBean;
 import com.sup.cms.bean.vo.GetOptConfigParams;
 import com.sup.cms.facade.OperationTaskConfigFacade;
@@ -48,9 +49,9 @@ public class OperationTaskConigImplFacade implements OperationTaskConfigFacade {
      * @return
      */
     @Override
-    public Result delete(Integer configId) {
-        if (configId != null) {
-            this.operationTaskConfigBeanMapper.deleteById(configId);
+    public Result delete(ConfigIdParam param) {
+        if (param!= null && param.getConfigId() != null) {
+            this.operationTaskConfigBeanMapper.deleteById(param.getConfigId());
             return Result.succ();
 
         } else {

@@ -1,5 +1,6 @@
 package com.sup.cms.facade;
 
+import com.sup.cms.bean.vo.ConfigIdParam;
 import com.sup.common.bean.OperationTaskConfigBean;
 import com.sup.cms.bean.vo.GetOptConfigParams;
 import com.sup.common.util.Result;
@@ -31,7 +32,7 @@ public interface OperationTaskConfigFacade {
      */
     @ResponseBody
     @RequestMapping(value = "delete", produces = "application/json;charset=UTF-8")
-    Result delete(@RequestBody Integer configId);
+    Result delete(@RequestBody ConfigIdParam param);
 
     /**
      * 修改配置
