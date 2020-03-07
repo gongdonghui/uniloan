@@ -13,6 +13,7 @@ public class ApplyManagementGetListBean {
     private Integer channelId;
     private Integer userId;
     private Integer applyId;
+    private Integer appId;
     private Integer status;
     private String name;
     private String productName;
