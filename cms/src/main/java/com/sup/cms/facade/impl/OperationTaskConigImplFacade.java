@@ -2,15 +2,16 @@ package com.sup.cms.facade.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.cms.bean.vo.ConfigIdParam;
-import com.sup.common.bean.OperationTaskConfigBean;
 import com.sup.cms.bean.vo.GetOptConfigParams;
 import com.sup.cms.facade.OperationTaskConfigFacade;
 import com.sup.cms.mapper.OperationTaskConfigBeanMapper;
+import com.sup.common.bean.OperationTaskConfigBean;
 import com.sup.common.util.Result;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,10 +34,10 @@ public class OperationTaskConigImplFacade implements OperationTaskConfigFacade {
     @Override
     public Result create(OperationTaskConfigBean operationTaskConfigBean) {
         if (operationTaskConfigBean != null) {
+            Date   now =new Date();
+            operationTaskConfigBean.setCreate_time(now);
             this.operationTaskConfigBeanMapper.insert(operationTaskConfigBean);
             return Result.succ();
-
-
         } else {
             return Result.fail("input error");
         }
