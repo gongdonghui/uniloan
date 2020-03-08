@@ -1,5 +1,6 @@
 package com.sup.common.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.util.Date;
 @Data
 @TableName("tb_cms_operation_task_config")
 public class OperationTaskConfigBean {
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Integer id;
     private Integer group_id;
     private Integer asset_level;
