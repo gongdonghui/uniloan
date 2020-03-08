@@ -812,4 +812,8 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  (select  apply_id, status, operator_id  from tb_apply_info_history  where  create_time  > '${start}' and  create_time <  '${end}'  and  status in  (${pass},${deny},9) and  operator_id <> '' ) as a  " +
             "left join tb_apply_info as  b  on  b.id = a.apply_id ;")
     List<OperationTaskJoinBean> getOperationTaskJoinByStatus(String start, String end, Integer pass, Integer deny);
+
+
+    @Select("select  a.id as applyId from tb_apply_info as a     left join  (select * from  tb_operation_task where   task_type = 3)   as b  on  b.apply_id = a.id  where  a.asset_level =${level};")
+    List<Integer>   getOperationTaskByAssetLevel(Integer level );
 }

@@ -3,14 +3,17 @@ package com.sup.cms.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import com.sup.cms.bean.po.ApplyAssetJoinBean;
 import com.sup.cms.bean.po.OverdueGetListBean;
 import com.sup.cms.bean.vo.OverdueGetListParams;
 import com.sup.cms.bean.vo.OverdueRecallListParams;
 import com.sup.cms.bean.vo.OverdueTaskAllocateParams;
 import com.sup.cms.bean.vo.OverdueTaskRecycleParams;
 import com.sup.cms.mapper.CrazyJoinMapper;
+import com.sup.cms.mapper.OperationTaskConfigBeanMapper;
 import com.sup.cms.mapper.OperationTaskHistoryMapper;
 import com.sup.cms.mapper.OperationTaskMapper;
+import com.sup.common.bean.OperationTaskConfigBean;
 import com.sup.common.bean.TbOperationTaskBean;
 import com.sup.common.bean.TbOperationTaskHistoryBean;
 import com.sup.common.loan.OperationTaskStatusEnum;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -47,10 +51,14 @@ public class OverdueController {
     @Autowired
     private OperationTaskHistoryMapper operationTaskHistoryMapper;
 
+    @Autowired
+    private OperationTaskConfigBeanMapper operationTaskConfigBeanMapper;
+
 
     /**
      * 催收待指派任务列表（查询所有非完成状态的任务）
      * 催收列表查询（查询个人催收任务，包含已完成任务）
+     *
      * @param params
      * @return
      */
@@ -94,8 +102,8 @@ public class OverdueController {
         Integer rows = params.getPageSize();
         List<OverdueGetListBean> l = crazyJoinMapper.getPoolList(sb.toString(), offset, rows);
         Map m = Maps.newHashMap();
-        m.put("total",crazyJoinMapper.getPoolListCount(sb.toString()));
-        m.put("list",l);
+        m.put("total", crazyJoinMapper.getPoolListCount(sb.toString()));
+        m.put("list", l);
         return ResponseUtil.success(m);
     }
 
@@ -135,8 +143,8 @@ public class OverdueController {
         Integer rows = params.getPageSize();
         List<OverdueGetListBean> l = crazyJoinMapper.getTaskList(sb.toString(), offset, rows);
         Map m = Maps.newHashMap();
-        m.put("total",crazyJoinMapper.getTaskListCount(sb.toString()));
-        m.put("list",l);
+        m.put("total", crazyJoinMapper.getTaskListCount(sb.toString()));
+        m.put("list", l);
         return ResponseUtil.success(m);
     }
 
@@ -151,46 +159,67 @@ public class OverdueController {
 
         if (params.getApplyIdList() != null && params.getApplyIdList().size() > 0) {
             for (Integer applyId : params.getApplyIdList()) {
-                QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
-                wrapper.eq("apply_id", applyId);
-                wrapper.eq("task_type", OperationTaskTypeEnum.TASK_OVERDUE.getCode());
-                // wrapper.eq("has_owner", 0);
-                TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
-                needUpdate = true;
-                if (taskBean == null) {
-                    taskBean = new TbOperationTaskBean();
-                    taskBean.setCreate_time(now);
-                    needUpdate = false;
-                }
-                taskBean.setApply_id(applyId);
-                taskBean.setOperator_id(params.getOperatorId());
-                taskBean.setDistributor_id(params.getDistributor_id());
-                taskBean.setHas_owner(1);
-                taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
-                taskBean.setTask_type(OperationTaskTypeEnum.TASK_OVERDUE.getCode());
-                taskBean.setUpdate_time(now);
+                this.assignSingleTask(applyId, params.getOperatorId(), params.getDistributor_id());
+            }
+        } else {
+            Integer assetLevel = params.getAsset_level();
+            if (assetLevel != null) {
 
-                recordOperationTask(taskBean);
-                if (needUpdate) {
-                    if (operationTaskMapper.updateById(taskBean) <= 0) {
-                        log.error("Failed to update task: " + GsonUtil.toJson(taskBean));
-                        return ResponseUtil.failed();
-                    }
+                List<Integer> applyList = this.crazyJoinMapper.getOperationTaskByAssetLevel(assetLevel);
 
-                } else {
-                    if (operationTaskMapper.insert(taskBean) <= 0) {
-                        log.error("Failed to add new task: " + GsonUtil.toJson(taskBean));
-                        return ResponseUtil.failed();
+                List<Integer> operators = this.operationTaskConfigBeanMapper.getOperatorsByLevel(assetLevel);
+                if (operators != null && !operators.isEmpty()) {
+
+                    LinkedList<Integer> queue = new LinkedList<>();
+                    queue.addAll(applyList);
+                    int next = 0;
+                    while (!queue.isEmpty() && next < operators.size()) {
+                        Integer operator = operators.get(next++);
+                        Integer applyId = queue.pop();
+                        assignSingleTask(operator, applyId, -1001);
+                        next = next % operators.size();
                     }
                 }
             }
-        } else {
-            // auto allocate
-            // TODO
-
         }
 
         return ResponseUtil.success();
+    }
+
+
+    private void assignSingleTask(Integer applyId, Integer operatorId, Integer distributorId) {
+
+        Date  now  = new  Date();
+        QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("apply_id", applyId);
+        wrapper.eq("task_type", OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+        // wrapper.eq("has_owner", 0);
+        TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
+        boolean needUpdate = true;
+        if (taskBean == null) {
+            taskBean = new TbOperationTaskBean();
+            taskBean.setCreate_time(now);
+            needUpdate = false;
+        }
+        taskBean.setApply_id(applyId);
+        taskBean.setOperator_id(operatorId);
+        taskBean.setDistributor_id(distributorId);
+        taskBean.setHas_owner(1);
+        taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
+        taskBean.setTask_type(OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+        taskBean.setUpdate_time(now);
+
+        recordOperationTask(taskBean);
+        if (needUpdate) {
+            if (operationTaskMapper.updateById(taskBean) <= 0) {
+                log.error("Failed to update task: " + GsonUtil.toJson(taskBean));
+            }
+
+        } else {
+            if (operationTaskMapper.insert(taskBean) <= 0) {
+                log.error("Failed to add new task: " + GsonUtil.toJson(taskBean));
+            }
+        }
     }
 
     /**
@@ -253,8 +282,8 @@ public class OverdueController {
         Integer rows = params.getPageSize();
         List<OverdueGetListBean> l = crazyJoinMapper.getRecallList(sb.toString(), offset, rows);
         Map m = Maps.newHashMap();
-        m.put("total",crazyJoinMapper.getRecallListCount(sb.toString()));
-        m.put("list",l);
+        m.put("total", crazyJoinMapper.getRecallListCount(sb.toString()));
+        m.put("list", l);
         return ResponseUtil.success(m);
     }
 

@@ -11,10 +11,7 @@ import com.sup.common.bean.paycenter.vo.RepayStatusVO;
 import com.sup.common.loan.*;
 import com.sup.common.service.PayCenterService;
 import com.sup.common.util.*;
-import com.sup.core.bean.CollectionRepayBean;
-import com.sup.core.bean.CollectionStatBean;
-import com.sup.core.bean.RepayJoinBean;
-import com.sup.core.bean.RiskDecisionResultBean;
+import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.ApplyService;
@@ -30,7 +27,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -98,11 +94,16 @@ public class ScheduleTasks {
     private RuleConfigService ruleConfigService;
 
 
+
     @Autowired
     private ReportOperatorDailyMapper reportOperatorDailyMapper;
 
     @Autowired
     private AuthUserMapper authUserMapper;
+
+
+    @Autowired
+    private AssetLevelHistoryMapper assetLevelHistoryMapper;
 
     @Scheduled(cron = "0 */5 * * * ?")
     public void checkApplyInfo() {
@@ -515,6 +516,7 @@ public class ScheduleTasks {
             log.info("Nothing to do in updating asset levels.");
             return;
         }
+        Map<Integer, List<Integer>> needAssign = new HashMap<>();
         for (TbApplyInfoBean tbApplyInfoBean : applyInfoBeanList) {
 
             TbRepayPlanBean repayPlanBean = this.repayPlanMapper.selectOne(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", tbApplyInfoBean.getId()));
@@ -526,6 +528,7 @@ public class ScheduleTasks {
 
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
                 if (days >= assetsLevelRuleBean.getBetween_paydays() && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getLevel()))) {
+                    Integer newLevel = assetsLevelRuleBean.getLevel();
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
                     //tbApplyInfoBean.setUpdate_time(date);
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
@@ -534,9 +537,30 @@ public class ScheduleTasks {
                     //applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
                     //applyService.addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
                     //}
+                    if (!needAssign.containsKey(newLevel)) {
+                        needAssign.put(newLevel, new ArrayList<>());
+
+                    }
+                    needAssign.get(newLevel).add(applyId);
+
+
                     break;
                 }
             }
+        }
+        this.assignTasks(needAssign, date);
+    }
+
+    private void assignTasks(Map<Integer, List<Integer>> needAssign, Date data_dt) {
+
+        this.applyService.autoassignTask(needAssign);
+        for (Integer assetLevel : needAssign.keySet()) {
+            log.info("update assetlevel "+assetLevel + "," + DateUtil.formatDate(data_dt) + ", apply size:" + needAssign.get(assetLevel).size());
+            AssetLevelHistoryBean assetLevelHistoryBean = new AssetLevelHistoryBean();
+            assetLevelHistoryBean.setAsset_level(assetLevel);
+            String content = GsonUtil.toJson(needAssign.get(assetLevel));
+            assetLevelHistoryBean.setApply_list(content);
+            this.assetLevelHistoryMapper.insert(assetLevelHistoryBean);
         }
     }
 

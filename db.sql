@@ -988,3 +988,31 @@ CREATE TABLE if not exists `tb_report_check_operator_daily` (
   `operator_name` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+drop table tb_asset_level_history;
+CREATE TABLE if not exists  `tb_asset_level_history` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `asset_level` int(11) DEFAULT NULL,
+  `data_dt` datetime DEFAULT NULL,
+  `apply_list` varchar(10240) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+drop table tb_cms_auth_user_group;
+CREATE TABLE if not exists  `tb_cms_auth_user_group` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+drop table   tb_cms_operation_task_config;
+CREATE TABLE if not exists `tb_cms_operation_task_config` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `group_id` int(11) DEFAULT NULL,
+  `asset_level` int(11) DEFAULT NULL,
+  `enabled` int(11) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `strategy` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

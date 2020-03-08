@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Project:uniloan
@@ -46,6 +48,9 @@ public class ApplyService {
 
     @Autowired
     private ApplyQuickpassRulesMapper applyQuickpassRulesMapper;
+
+    @Autowired
+    private OperationTaskConfigBeanMapper taskConfigBeanMapper;
 
 
     public boolean addApplyInfo(TbApplyInfoBean bean) {
@@ -297,4 +302,65 @@ public class ApplyService {
             }
         }
     }
+
+    public synchronized void autoassignTask(Map<Integer, List<Integer>> needAssign) {
+
+        for (Integer credit_level : needAssign.keySet()) {
+
+
+            List<Integer> operators = taskConfigBeanMapper.getOperatorsByLevel(credit_level);
+            if (operators != null && !operators.isEmpty()) {
+
+                List<Integer> applyList = needAssign.get(credit_level);
+                LinkedList<Integer> queue = new LinkedList<>();
+                queue.addAll(applyList);
+                int next = 0;
+
+                while (!queue.isEmpty() && next < operators.size()) {
+                    Integer operator = operators.get(next++);
+                    Integer applyId = queue.pop();
+                    assignSingleTask(operator, applyId, -1000);
+                    next = next % operators.size();
+                }
+            }
+        }
+    }
+
+
+    public synchronized void assignSingleTask(Integer operator_id, Integer applyId, Integer distributor_id) {
+
+
+        Date now = new Date();
+        QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("apply_id", applyId);
+        wrapper.eq("task_type", OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+        // wrapper.eq("has_owner", 0);
+        TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
+        boolean needUpdate = true;
+        if (taskBean == null) {
+            taskBean = new TbOperationTaskBean();
+            taskBean.setCreate_time(now);
+            needUpdate = false;
+        }
+        taskBean.setApply_id(applyId);
+        taskBean.setOperator_id(operator_id);
+        taskBean.setDistributor_id(distributor_id);
+        taskBean.setHas_owner(1);
+        taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
+        taskBean.setTask_type(OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+        taskBean.setUpdate_time(now);
+
+        recordOperationTask(taskBean);
+        if (needUpdate) {
+            if (operationTaskMapper.updateById(taskBean) <= 0) {
+                log.error("Failed to update task: " + GsonUtil.toJson(taskBean));
+            }
+
+        } else {
+            if (operationTaskMapper.insert(taskBean) <= 0) {
+                log.error("Failed to add new task: " + GsonUtil.toJson(taskBean));
+            }
+        }
+    }
+
 }
