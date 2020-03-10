@@ -499,10 +499,9 @@ public class ScheduleTasks {
     /**
      * 每天更新资产等级，
      */
-    @Scheduled(cron = "0 42 23 * * ?")
+    @Scheduled(cron = "0 47 23 * * ?")
     public void updateAssertLevel() {
         log.info("AssetLevel update...");
-
         List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
                 .eq("status", ApplyStatusEnum.APPLY_LOAN_SUCC.getCode())
                 .or().eq("status", ApplyStatusEnum.APPLY_REPAY_PART.getCode())
