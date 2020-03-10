@@ -21,6 +21,8 @@ public class CollectorReportParam {
 
     private Integer operatorId;
 
+    private Integer groupId;
+
     @Min(0)
     private Integer page;
 

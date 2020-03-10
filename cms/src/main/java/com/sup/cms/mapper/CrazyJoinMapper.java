@@ -724,6 +724,7 @@ public interface CrazyJoinMapper extends BaseMapper {
 
     @Select("select" +
             "  DATE(loan_time) as dt" +
+            "  ${headers}" +
             "  ,count(apply_id) as loanNum" +
             "  ,sum(inhand_amount) as principal" +
             "  ,sum(contract_amount) as contractAmt" +
@@ -742,9 +743,9 @@ public interface CrazyJoinMapper extends BaseMapper {
             " from tb_loan_info" +
             " where 1=1 " +
             " ${conditions}" +
-            " group by DATE(loan_time) having loanNum>0 order by dt desc"
+            " having loanNum>0 order by dt desc"
     )
-    List<LoanStatBean> getOperationReport(String conditions, Integer offset, Integer rows);
+    List<LoanStatBean> getOperationReport(String headers, String conditions, Integer offset, Integer rows);
 
     @Select("select count(*) from (" +
             "  select" +
