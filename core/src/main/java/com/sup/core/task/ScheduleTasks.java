@@ -499,7 +499,7 @@ public class ScheduleTasks {
     /**
      * 每天更新资产等级，
      */
-    @Scheduled(cron = "0 39 23 * * ?")
+    @Scheduled(cron = "0 57 23 * * ?")
     public void updateAssertLevel() {
         log.info("AssetLevel update...");
         List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
@@ -527,7 +527,7 @@ public class ScheduleTasks {
 
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
                 if (days >= assetsLevelRuleBean.getBetween_paydays()
-                        //&& (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getLevel()))
+                    //&& (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getLevel()))
                         ) {
                     Integer newLevel = assetsLevelRuleBean.getLevel();
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
@@ -550,21 +550,29 @@ public class ScheduleTasks {
                 }
             }
         }
-        log.info("need  assign tasks:"+needAssign.size());
+        log.info("need  assign tasks:" + needAssign.size());
 
         this.assignTasks(needAssign, date);
     }
 
     private void assignTasks(Map<Integer, List<Integer>> needAssign, Date data_dt) {
+        try {
 
-        this.applyService.autoassignTask(needAssign);
+            this.applyService.autoassignTask(needAssign);
+        } catch (Exception e) {
+            log.error("AutoTaskAssign Failed ", e);
+        }
         for (Integer assetLevel : needAssign.keySet()) {
             log.info("update assetlevel " + assetLevel + "," + DateUtil.formatDate(data_dt) + ", apply size:" + needAssign.get(assetLevel).size());
             AssetLevelHistoryBean assetLevelHistoryBean = new AssetLevelHistoryBean();
             assetLevelHistoryBean.setAsset_level(assetLevel);
             String content = GsonUtil.toJson(needAssign.get(assetLevel));
             assetLevelHistoryBean.setApply_list(content);
-            this.assetLevelHistoryMapper.insert(assetLevelHistoryBean);
+            try {
+                this.assetLevelHistoryMapper.insert(assetLevelHistoryBean);
+            } catch (Exception e) {
+                log.error("AssetLevelRecord Faield", e);
+            }
         }
     }
 

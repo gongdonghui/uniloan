@@ -1,5 +1,6 @@
 package com.sup.core.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.util.Date;
 @Data
 @TableName(value = "tb_asset_level_history")
 public class AssetLevelHistoryBean {
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Integer id;
     private Date data_dt;
     private Integer asset_level;

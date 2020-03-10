@@ -267,7 +267,7 @@ public class ApplyService {
         TbOperationTaskHistoryBean fromBean = null;    // 订单任务拥有者
         TbOperationTaskHistoryBean taskBean = null;    // 订单任务新任拥有着
         for (TbOperationTaskHistoryBean bean : taskBeans) {
-            if(bean== null)  continue;
+            if (bean == null) continue;
             if (bean.getHas_owner() == 1) {
                 if (fromBean != null) {
                     log.error("Invalid task allocation! bean1=" + GsonUtil.toJson(fromBean) +
@@ -276,7 +276,7 @@ public class ApplyService {
                 }
                 fromBean = bean;
             }
-            if (bean.getOperator_id()!= null) {
+            if (bean.getOperator_id() != null) {
                 if (bean.getOperator_id().equals(operationTaskBean.getOperator_id())) { // 再次分配给以往的催收员
                     taskBean = bean;
                 }
@@ -307,9 +307,11 @@ public class ApplyService {
     }
 
     public synchronized void autoassignTask(Map<Integer, List<Integer>> needAssign) {
+        int total = 0;
         for (Integer credit_level : needAssign.keySet()) {
             List<Integer> operators = taskConfigBeanMapper.getOperatorsByLevel(credit_level);
-            log.info("AutoTaskAssign operator size :" + operators.size()+", for  asset level:"+credit_level);
+            log.info("AutoTaskAssign operator size :" + operators.size() + ", for  asset level:" + credit_level);
+
             if (operators != null && !operators.isEmpty()) {
 
                 List<Integer> applyList = needAssign.get(credit_level);
@@ -320,15 +322,18 @@ public class ApplyService {
                 while (!queue.isEmpty() && next < operators.size()) {
                     Integer operator = operators.get(next++);
                     Integer applyId = queue.pop();
-                    assignSingleTask(operator, applyId, -1000);
+                    boolean ret = assignSingleTask(operator, applyId, -1000);
+                    if (ret)
+                        ++total;
                     next = next % operators.size();
                 }
             }
         }
+        log.info("AutoTaskAssign total assign:" + total);
     }
 
 
-    public synchronized void assignSingleTask(Integer operator_id, Integer applyId, Integer distributor_id) {
+    public synchronized boolean assignSingleTask(Integer operator_id, Integer applyId, Integer distributor_id) {
 
 
         Date now = new Date();
@@ -345,7 +350,7 @@ public class ApplyService {
         }
         if (taskBean.getOperator_id() != null) {
             log.info("Ignore AutoTaskAssign for operation task has assigned, applyid:" + applyId);
-            return;
+            return false;
         }
 
         taskBean.setApply_id(applyId);
@@ -363,19 +368,20 @@ public class ApplyService {
             if (needUpdate) {
                 if (operationTaskMapper.updateById(taskBean) <= 0) {
                     log.error("Failed to update task: " + GsonUtil.toJson(taskBean));
+                    return false;
                 }
-
             } else {
                 if (operationTaskMapper.insert(taskBean) <= 0) {
                     log.error("Failed to add new task: " + GsonUtil.toJson(taskBean));
+                    return false;
                 }
             }
-        }catch  (Exception e) {
-
+        } catch (Exception e) {
             log.error("Failed to AutoTaskAssign: " + GsonUtil.toJson(taskBean));
+            return false;
         }
-
-        log.info("AutoTaskAssign for operation task has assigned, applyid:" + applyId+",succeed");
+        log.info("AutoTaskAssign for operation task has assigned, applyid:" + applyId + ",succeed");
+        return true;
 
     }
 
