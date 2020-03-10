@@ -16,7 +16,7 @@ public interface OperationTaskConfigBeanMapper extends BaseMapper<OperationTaskC
 
     @Select("select a.id " +
             "from tb_cms_auth_user as a" +
-            "left join (select * from  tb_cms_operation_task_config  where asset_level=${asset_level}  and enable =1) as b" +
+            "left join (select * from  tb_cms_operation_task_config  where asset_level=${asset_level}  and enabled =1) as b" +
             "on a.group_id =b.group_id")
     public List<Integer> getOperatorsByLevel(@Param(value ="asset_level") Integer asset_level);
 }
