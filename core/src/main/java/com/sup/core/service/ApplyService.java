@@ -267,6 +267,7 @@ public class ApplyService {
         TbOperationTaskHistoryBean fromBean = null;    // 订单任务拥有者
         TbOperationTaskHistoryBean taskBean = null;    // 订单任务新任拥有着
         for (TbOperationTaskHistoryBean bean : taskBeans) {
+            if(bean== null)  continue;
             if (bean.getHas_owner() == 1) {
                 if (fromBean != null) {
                     log.error("Invalid task allocation! bean1=" + GsonUtil.toJson(fromBean) +
@@ -275,8 +276,10 @@ public class ApplyService {
                 }
                 fromBean = bean;
             }
-            if (bean.getOperator_id().equals(operationTaskBean.getOperator_id())) { // 再次分配给以往的催收员
-                taskBean = bean;
+            if (bean.getOperator_id()!= null) {
+                if (bean.getOperator_id().equals(operationTaskBean.getOperator_id())) { // 再次分配给以往的催收员
+                    taskBean = bean;
+                }
             }
         }
 
@@ -341,7 +344,7 @@ public class ApplyService {
             needUpdate = false;
         }
         if (taskBean.getOperator_id() != null) {
-            log.info("Ignore AutoTaskAssign for operation task has assigned, applyid" + applyId);
+            log.info("Ignore AutoTaskAssign for operation task has assigned, applyid:" + applyId);
             return;
         }
 
@@ -353,19 +356,27 @@ public class ApplyService {
         taskBean.setTask_type(OperationTaskTypeEnum.TASK_OVERDUE.getCode());
         taskBean.setUpdate_time(now);
 
-        log.info("AutoTaskAssign for operation task has assigned, applyid" + applyId);
+        log.info("AutoTaskAssign for operation task has assigned, applyid:" + applyId);
+        try {
 
-        recordOperationTask(taskBean);
-        if (needUpdate) {
-            if (operationTaskMapper.updateById(taskBean) <= 0) {
-                log.error("Failed to update task: " + GsonUtil.toJson(taskBean));
-            }
+            recordOperationTask(taskBean);
+            if (needUpdate) {
+                if (operationTaskMapper.updateById(taskBean) <= 0) {
+                    log.error("Failed to update task: " + GsonUtil.toJson(taskBean));
+                }
 
-        } else {
-            if (operationTaskMapper.insert(taskBean) <= 0) {
-                log.error("Failed to add new task: " + GsonUtil.toJson(taskBean));
+            } else {
+                if (operationTaskMapper.insert(taskBean) <= 0) {
+                    log.error("Failed to add new task: " + GsonUtil.toJson(taskBean));
+                }
             }
+        }catch  (Exception e) {
+
+            log.error("Failed to AutoTaskAssign: " + GsonUtil.toJson(taskBean));
         }
+
+        log.info("AutoTaskAssign for operation task has assigned, applyid:" + applyId+",succeed");
+
     }
 
 }
