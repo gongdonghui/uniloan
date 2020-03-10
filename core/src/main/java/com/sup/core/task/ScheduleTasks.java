@@ -94,7 +94,6 @@ public class ScheduleTasks {
     private RuleConfigService ruleConfigService;
 
 
-
     @Autowired
     private ReportOperatorDailyMapper reportOperatorDailyMapper;
 
@@ -500,8 +499,9 @@ public class ScheduleTasks {
     /**
      * 每天更新资产等级，
      */
-    @Scheduled(cron = "0 0 3 * * ?")
+    @Scheduled(cron = "0 42 23 * * ?")
     public void updateAssertLevel() {
+        log.info("AssetLevel update...");
 
         List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
                 .eq("status", ApplyStatusEnum.APPLY_LOAN_SUCC.getCode())
@@ -527,7 +527,9 @@ public class ScheduleTasks {
 
 
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
-                if (days >= assetsLevelRuleBean.getBetween_paydays() && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getLevel()))) {
+                if (days >= assetsLevelRuleBean.getBetween_paydays()
+                        //&& (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getLevel()))
+                        ) {
                     Integer newLevel = assetsLevelRuleBean.getLevel();
                     tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
                     //tbApplyInfoBean.setUpdate_time(date);
@@ -535,7 +537,8 @@ public class ScheduleTasks {
                     //if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
                     // assert level changed
                     //applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
-                    //applyService.addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
+                    //applyService.】】
+                    // addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
                     //}
                     if (!needAssign.containsKey(newLevel)) {
                         needAssign.put(newLevel, new ArrayList<>());
@@ -548,6 +551,7 @@ public class ScheduleTasks {
                 }
             }
         }
+        log.info("need  assign tasks:"+needAssign.size());
         this.assignTasks(needAssign, date);
     }
 
@@ -555,7 +559,7 @@ public class ScheduleTasks {
 
         this.applyService.autoassignTask(needAssign);
         for (Integer assetLevel : needAssign.keySet()) {
-            log.info("update assetlevel "+assetLevel + "," + DateUtil.formatDate(data_dt) + ", apply size:" + needAssign.get(assetLevel).size());
+            log.info("update assetlevel " + assetLevel + "," + DateUtil.formatDate(data_dt) + ", apply size:" + needAssign.get(assetLevel).size());
             AssetLevelHistoryBean assetLevelHistoryBean = new AssetLevelHistoryBean();
             assetLevelHistoryBean.setAsset_level(assetLevel);
             String content = GsonUtil.toJson(needAssign.get(assetLevel));
@@ -588,7 +592,7 @@ public class ScheduleTasks {
 
 
     //@Scheduled(cron = "0 */5 * * * ?")
-    @Scheduled(cron = "0 30 2 * * ?")   //T+1
+    @Scheduled(cron = "0 30 5 * * ?")   //T+1
     public void genDailyReportInc() {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  //昨天
