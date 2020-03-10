@@ -1,4 +1,4 @@
-package com.sup.core.service;
+package com.sup.common.util;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;

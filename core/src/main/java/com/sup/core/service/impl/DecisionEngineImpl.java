@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.*;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.DateUtil;
+import com.sup.common.util.RedisClient;
 import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
@@ -25,7 +26,7 @@ public class DecisionEngineImpl implements DecesionEngine {
     private RiskRulesMapper riskRulesMapper;
 
     @Autowired
-    private com.sup.core.service.RedisClient redisClient;
+    private RedisClient redisClient;
 
     @Autowired
     private RepayPlanMapper repayPlanInfoMapper;
