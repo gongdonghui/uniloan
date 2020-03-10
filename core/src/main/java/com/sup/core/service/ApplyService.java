@@ -87,7 +87,7 @@ public class ApplyService {
                 , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
                 , ApplyStatusEnum.APPLY_REPAY_PART.getCode()
                 , ApplyStatusEnum.APPLY_OVERDUE.getCode()
-                );
+        );
         return applyInfoMapper.selectList(wrapper);
     }
 
@@ -175,6 +175,7 @@ public class ApplyService {
         }
         return Result.succ();
     }
+
     public synchronized void closeOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {
         // 将任务状态置为完成
         QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
@@ -235,7 +236,6 @@ public class ApplyService {
     }
 
     /**
-     *
      * @param userId
      * @return
      */
@@ -304,11 +304,9 @@ public class ApplyService {
     }
 
     public synchronized void autoassignTask(Map<Integer, List<Integer>> needAssign) {
-
         for (Integer credit_level : needAssign.keySet()) {
-
-
             List<Integer> operators = taskConfigBeanMapper.getOperatorsByLevel(credit_level);
+            log.info("AutoTaskAssign operator size :" + operators.size()+", for  asset level:"+credit_level);
             if (operators != null && !operators.isEmpty()) {
 
                 List<Integer> applyList = needAssign.get(credit_level);
@@ -342,6 +340,11 @@ public class ApplyService {
             taskBean.setCreate_time(now);
             needUpdate = false;
         }
+        if (taskBean.getOperator_id() != null) {
+            log.info("Ignore AutoTaskAssign for operation task has assigned, applyid" + applyId);
+            return;
+        }
+
         taskBean.setApply_id(applyId);
         taskBean.setOperator_id(operator_id);
         taskBean.setDistributor_id(distributor_id);
@@ -349,6 +352,8 @@ public class ApplyService {
         taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
         taskBean.setTask_type(OperationTaskTypeEnum.TASK_OVERDUE.getCode());
         taskBean.setUpdate_time(now);
+
+        log.info("AutoTaskAssign for operation task has assigned, applyid" + applyId);
 
         recordOperationTask(taskBean);
         if (needUpdate) {
