@@ -3,7 +3,6 @@ package com.sup.kalapa.controller;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.sup.common.util.RedisClient;
 import com.sup.common.util.Result;
 import com.sup.kalapa.bean.dto.*;
 import com.sup.kalapa.bean.kalapa.*;
@@ -12,6 +11,7 @@ import com.sup.kalapa.util.OkBang;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class KalapaController {
 
     @Autowired
-    private RedisClient redisClient;
+    private StringRedisTemplate redis;
 
     @Value("${kalapa.token}")
     private String token;
@@ -44,11 +44,11 @@ public class KalapaController {
     }
 
     private String get(Integer userId, String type) {
-        return redisClient.Get(getKey(userId, type));
+        return redis.opsForValue().get(getKey(userId, type));
     }
 
     private void put(Integer userId, String type, String msg) {
-        redisClient.Set(getKey(userId, type), msg, EXPIRE, TimeUnit.DAYS);
+        redis.opsForValue().set(getKey(userId, type), msg, EXPIRE, TimeUnit.DAYS);
     }
 
     @GetMapping(value = "getVSSInfo")
