@@ -499,7 +499,7 @@ public class ScheduleTasks {
     /**
      * 每天更新资产等级，
      */
-    @Scheduled(cron = "0 57 23 * * ?")
+    @Scheduled(cron = "0 0 1 * * ?")
     public void updateAssertLevel() {
         log.info("AssetLevel update...");
         List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
@@ -567,6 +567,7 @@ public class ScheduleTasks {
             AssetLevelHistoryBean assetLevelHistoryBean = new AssetLevelHistoryBean();
             assetLevelHistoryBean.setAsset_level(assetLevel);
             String content = GsonUtil.toJson(needAssign.get(assetLevel));
+            assetLevelHistoryBean.setData_dt(data_dt);
             assetLevelHistoryBean.setApply_list(content);
             try {
                 this.assetLevelHistoryMapper.insert(assetLevelHistoryBean);
@@ -600,7 +601,7 @@ public class ScheduleTasks {
 
 
     //@Scheduled(cron = "0 */5 * * * ?")
-    @Scheduled(cron = "0 30 5 * * ?")   //T+1
+    @Scheduled(cron = "0 30 2 * * ?")   //T+1
     public void genDailyReportInc() {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  //昨天
