@@ -287,18 +287,21 @@ public class ReportImplFacade implements ReportFacade {
     @Override
     public String collector(CollectorReportParam param) {
         log.info("Report collector param:" + GsonUtil.toJson(param));
+        String begin = DateUtil.formatDate(param.getStartDate());
+        String end = DateUtil.formatDate(param.getEndDate());
+
         StringBuilder sb = new StringBuilder();
-        if (param.getStartDate() != null) {
-            sb.append(" and oth.data_dt>='" + DateUtil.formatDate(param.getStartDate()) + "'");
-        }
-        if (param.getEndDate() != null) {
-            sb.append(" and oth.data_dt<='" + DateUtil.formatDate(param.getEndDate()) + "'");
-        }
+        sb.append(" and oth.data_dt>='" + begin + "'");
+        sb.append(" and oth.data_dt<='" + end + "'");
+
         Integer offset = (param.getPage() - 1) * param.getPageSize();
         Integer rows = param.getPageSize();
         List<ReportCollectorBean> result;
         Integer resultCount = 0;
-        if (param.getOperatorId() != null) {
+        if (param.getGroupId() != null) {
+            result = crazyJoinMapper.getCollectorGroupReport(param.getGroupId(), begin, end, offset, rows);
+            resultCount = crazyJoinMapper.getCollectorGroupReportCount(param.getGroupId(), begin, end);
+        } else if (param.getOperatorId() != null) {
             sb.append(" and oth.operator_id=" + param.getOperatorId());
             result = crazyJoinMapper.getCollectorReport(sb.toString(), offset, rows);
             resultCount = crazyJoinMapper.getCollectorReportCount(sb.toString());
