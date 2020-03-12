@@ -298,13 +298,13 @@ public class ReportImplFacade implements ReportFacade {
         Integer rows = param.getPageSize();
         List<ReportCollectorBean> result;
         Integer resultCount = 0;
-        if (param.getGroupId() != null) {
-            result = crazyJoinMapper.getCollectorGroupReport(param.getGroupId(), begin, end, offset, rows);
-            resultCount = crazyJoinMapper.getCollectorGroupReportCount(param.getGroupId(), begin, end);
-        } else if (param.getOperatorId() != null) {
+        if (param.getOperatorId() != null) {
             sb.append(" and oth.operator_id=" + param.getOperatorId());
             result = crazyJoinMapper.getCollectorReport(sb.toString(), offset, rows);
             resultCount = crazyJoinMapper.getCollectorReportCount(sb.toString());
+        } else if (param.getGroupId() != null) {
+            result = crazyJoinMapper.getCollectorGroupReport(param.getGroupId(), begin, end, offset, rows);
+            resultCount = crazyJoinMapper.getCollectorGroupReportCount(param.getGroupId(), begin, end);
         } else {
             result = crazyJoinMapper.getCollectorReportAll(sb.toString(), offset, rows);
             resultCount = crazyJoinMapper.getCollectorReportAllCount(sb.toString());
