@@ -22,6 +22,7 @@ public class TbChannelProductBean {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private Integer channel_id;
+    private Integer app_id;
     private Integer product_id;
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")

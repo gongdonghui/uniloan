@@ -95,6 +95,7 @@ public class ChannelController {
         log.info("addProduct param:" + GsonUtil.toJson(param));
         TbChannelProductBean bean = new TbChannelProductBean();
         bean.setChannel_id(param.getChannelId());
+        bean.setApp_id(param.getAppId());
         bean.setCreate_time(new Date());
         for (Integer productId: param.getProductIdList()) {
             bean.setId(null);
@@ -113,6 +114,7 @@ public class ChannelController {
         for (Integer productId: param.getProductIdList()) {
             QueryWrapper<TbChannelProductBean> wrapper = new QueryWrapper<>();
             wrapper.eq("channel_id", param.getChannelId());
+            wrapper.eq("app_id", param.getAppId());
             wrapper.eq("product_id", productId);
             channelProductMapper.delete(wrapper);
         }
@@ -120,10 +122,11 @@ public class ChannelController {
     }
 
     @PostMapping("/getProduct")
-    public String getProduct(@RequestParam("channelId") Integer channelId) {
-        log.info("getProduct channelId:" + channelId);
+    public String getProduct(@Valid @RequestBody ChannelProductParams param) {
+        log.info("getProduct param:" + GsonUtil.toJson(param));
         QueryWrapper<TbChannelProductBean> wrapper = new QueryWrapper<>();
-        wrapper.eq("channel_id", channelId);
+        wrapper.eq("channel_id", param.getChannelId());
+        wrapper.eq("app_id", param.getAppId());
         List<TbChannelProductBean> productBeans = channelProductMapper.selectList(wrapper);
 
         return ResponseUtil.success(productBeans);

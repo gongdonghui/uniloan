@@ -20,6 +20,7 @@ public class OperationReportParam {
     private Date end_date;
 
     private Integer channel_id;
+    private Integer app_id;
     private Integer product_id;
     private Integer type;   //0  渠道日报   2   运营日报   3     审批日报，  4  催收日报
 

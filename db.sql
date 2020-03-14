@@ -868,12 +868,14 @@ DROP TABLE tb_channel_product;
 CREATE TABLE IF NOT EXISTS `tb_channel_product` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `channel_id` int(11) NOT NULL COMMENT '渠道id',
+  `app_id` int(11) NOT NULL DEFAULT '20000' COMMENT 'App id',
   `product_id` int(11) NOT NULL COMMENT '产品id',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_type` (`channel_id`),
   KEY `idx_name` (`product_id`),
-  KEY `idx_create_time` (`create_time`)
+  KEY `idx_create_time` (`create_time`),
+  KEY `app_id` (`app_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE tb_report_overdue_detail;
