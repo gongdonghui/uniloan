@@ -502,12 +502,20 @@ public class ReportImplFacade implements ReportFacade {
         List<TbReportCheckOperatorDaily> first_ret = this.buildOperatorReport(list, OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode(), names, cur);
         if (!first_ret.isEmpty())
             ret.addAll(first_ret);  //初审统计
+        Set<Integer>   first_ops  = new HashSet<>();
+        for(TbReportCheckOperatorDaily    tbReportCheckOperatorDaily:first_ret) {
+            first_ops.add(tbReportCheckOperatorDaily.getOperator());
+        }
 
         List<OperationTaskJoinBean> final_list = this.crazyJoinMapper.getOperationTaskJoinByStatus(start_str, end_str, ApplyStatusEnum.APPLY_FINAL_PASS.getCode(),
                 ApplyStatusEnum.APPLY_FINAL_DENY.getCode());
         List<TbReportCheckOperatorDaily> final_ret = this.buildOperatorReport(final_list, OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode(), names, cur);
-        if (!final_ret.isEmpty())
-            ret.addAll(final_ret);   //终审统计
+        for(TbReportCheckOperatorDaily     tbReportCheckOperatorDaily :   final_ret) {
+            if( !first_ops.contains(tbReportCheckOperatorDaily.getOperator())) {
+                   ret.add(tbReportCheckOperatorDaily);
+            }
+
+        }
 
         return Result.succ(ret);
 
