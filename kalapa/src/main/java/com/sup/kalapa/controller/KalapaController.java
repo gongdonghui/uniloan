@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2019/9/11 21:35
  */
 @RestController
-@RequestMapping("/")
+@RequestMapping("/kalapa")
 @Slf4j
 public class KalapaController {
 
