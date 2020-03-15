@@ -7,6 +7,7 @@ spring:
 ribbon:
   ReadTimeout: 60000
   ConnectTimeout: 60000
+
 server:
   port: 10084
 
@@ -33,6 +34,7 @@ eureka:
 kalapa:
   #免费
   token: 5bb42ea331ee010001a0b7d70abc93bc81bd4117aaa696747c30dc90
+
 ---
 spring:
   profiles: online
@@ -53,6 +55,7 @@ eureka:
 kalapa:
   #收费
   token: 5bb42ea331ee010001a0b7d786d07e765e274286811aa9a7ebbb0be2
+
 ---
 spring:
   profiles: online_test
@@ -76,3 +79,30 @@ eureka:
 kalapa:
   #每月50次免费
   token: 5bb42ea331ee010001a0b7d7724ea04f33ed44e69a15d090125624cc
+
+
+
+---
+spring:
+  profiles: online2
+  redis:
+    database: 0
+    host: 172.21.190.226
+    port: 7789
+    jedis:
+      pool:
+        max-active: 8
+    timeout: 60000
+    password: 13JPTmkZT5QmAV4s
+
+server:
+  port: 20086
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://172.21.190.226:20087/eureka/
+kalapa:
+  #收费
+  token: 5bb42ea331ee010001a0b7d786d07e765e274286811aa9a7ebbb0be2
+

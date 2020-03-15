@@ -6,6 +6,12 @@ server:
   tomcat:
     max-threads: 10
   connection-timeout: 180000
+
+cache:
+  redis:
+    key-pre: CMS-
+
+
 #mybatis:
 #  configuration:
 #    map-underscore-to-camel-case: false
@@ -29,9 +35,6 @@ ribbon:
   eureka:
     enable: true
 
-cache:
-  redis:
-    key-pre: CMS-
 
 
 ---
@@ -121,3 +124,61 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://172.21.190.226:51666/eureka/
+
+
+---
+spring:
+  profiles: online2
+  datasource:
+    name: mydb
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+    username: dev_online
+    password: Dwl12#$%^
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    initialSize: 1
+    maxActive: 100
+    minIdle: 20
+    maxWait: 30000
+    validationQuery: SELECT 1
+    testOnBorrow: true
+    testOnReturn: true
+    testWhileIdle: true
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 25200000
+    removeAbandoned: true
+    removeAbandonedTimeout: 1800
+    logAbandoned: true
+    filters: mergeStat
+  redis:
+    database: 0
+    host: 172.21.190.226
+    port: 7789
+    jedis:
+      pool:
+        max-active: 8
+    timeout: 60000
+    password: 13JPTmkZT5QmAV4s
+
+server:
+  port: 20085
+  tomcat:
+    max-threads: 10
+  connection-timeout: 180000
+
+cache:
+  redis:
+    key-pre: CMS-2-
+
+ssdb:
+  host: 172.21.190.226
+  port: 13288
+  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
+  timeout: 300000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://172.21.190.226:20087/eureka/
+
+

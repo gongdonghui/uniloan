@@ -90,3 +90,42 @@ rocket:
   producer:
     endpoint: uniloan03:9976;uniloan04:9976
     group: market
+
+
+---
+spring:
+  profiles: online2
+  datasource:
+    dynamic:
+      hikari:
+        connection-timeout: 3000
+
+      primary: online
+      datasource:
+        online:
+          username: dev_online
+          password: Dwl12#$%^
+          url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          driver-class-name: com.mysql.jdbc.Driver
+          hikari:
+            max-lifetime: 300000
+server:
+  port: 20083
+  tomcat:
+    max-threads: 4
+  connection-timeout: 180000
+
+ontime-delivery:
+  redisson:
+    host: uniloan04
+    port: 6388
+    auth: 13JPTmkZT5QmAV4s
+
+rocket:
+  consumer:
+    endpoint: uniloan03:9976;uniloan04:9976
+    group: market
+  producer:
+    endpoint: uniloan03:9976;uniloan04:9976
+    group: market
+

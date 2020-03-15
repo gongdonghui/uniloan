@@ -1,3 +1,11 @@
+spring:
+  profiles:
+    active: online
+
+
+---
+spring:
+  profiles: online
 server:
   port: 51666
 
@@ -9,3 +17,19 @@ eureka:
     fetchRegistry: false
     serviceUrl:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+---
+spring:
+  profiles: online2
+server:
+  port: 20087
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
