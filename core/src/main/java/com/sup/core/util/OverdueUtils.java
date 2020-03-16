@@ -6,6 +6,7 @@ import com.sup.common.util.DateUtil;
 import com.sup.core.bean.OverdueInfoBean;
 import com.sup.core.mapper.RepayPlanMapper;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,14 +17,38 @@ import java.util.List;
  */
 public class OverdueUtils {
 
-
-    public static OverdueInfoBean getMaxOverdueDays(Integer userId, RepayPlanMapper   repayPlanMapper) {
+    public static OverdueInfoBean getMaxOverdueDays(Integer userId, RepayPlanMapper repayPlanMapper) {
 
 
         List<TbRepayPlanBean> plans = repayPlanMapper.selectList(new QueryWrapper<TbRepayPlanBean>().eq("user_id", userId).orderByAsc("repay_start_date"));
-        if (plans.isEmpty()) {
+        if (plans == null || plans.isEmpty()) {
             return null;
         }
+        return getOvderdueInfo(plans);
+
+
+    }
+
+
+    public static OverdueInfoBean getMaxOverdueDays(List<Integer> userIds, RepayPlanMapper repayPlanMapper) {
+
+
+        List<TbRepayPlanBean> plans = new ArrayList<>();
+        for (Integer userId : userIds) {
+            List<TbRepayPlanBean> ret = repayPlanMapper.selectList(new QueryWrapper<TbRepayPlanBean>().eq("user_id", userId).orderByAsc("repay_start_date"));
+            if (ret != null) {
+                plans.addAll(ret);
+            }
+        }
+        if (plans == null || plans.isEmpty()) {
+            return null;
+        }
+        return getOvderdueInfo(plans);
+
+
+    }
+
+    private static OverdueInfoBean getOvderdueInfo(List<TbRepayPlanBean> plans) {
         int times = 0;
         int max_days = 0;
         int latest_days = -1;
@@ -45,6 +70,5 @@ public class OverdueUtils {
         ret.setMax_days(max_days);
         ret.setLatest_days(latest_days);
         return ret;
-
     }
 }
