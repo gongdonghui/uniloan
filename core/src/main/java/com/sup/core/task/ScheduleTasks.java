@@ -496,6 +496,8 @@ public class ScheduleTasks {
     }
 
 
+    
+
     /**
      * 每天更新资产等级，
      */
