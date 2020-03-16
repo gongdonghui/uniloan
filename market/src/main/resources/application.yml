@@ -100,7 +100,7 @@ spring:
       hikari:
         connection-timeout: 3000
 
-      primary: online
+      primary: online2
       datasource:
         online:
           username: dev_online
@@ -117,15 +117,15 @@ server:
 
 ontime-delivery:
   redisson:
-    host: uniloan04
+    host: uniloan03
     port: 6388
     auth: 13JPTmkZT5QmAV4s
 
 rocket:
   consumer:
-    endpoint: uniloan03:9976;uniloan04:9976
+    endpoint: uniloan01:9976
     group: market
   producer:
-    endpoint: uniloan03:9976;uniloan04:9976
+    endpoint: uniloan01:9976
     group: market
 

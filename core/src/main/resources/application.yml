@@ -197,7 +197,7 @@ spring:
   profiles: online2
   redis:
     database: 0
-    host: 172.21.190.226
+    host: uniloan03
     port: 7789
     jedis:
       pool:
@@ -210,7 +210,7 @@ spring:
       hikari:
         connection-timeout: 3000
 
-      primary: online
+      primary: online2
       datasource:
         online:
           username: dev_online
@@ -227,7 +227,7 @@ server:
   connection-timeout: 180000
 
 ssdb:
-  host: 172.21.190.226
+  host: uniloan03
   port: 13288
   auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
   timeout: 300000
@@ -235,11 +235,11 @@ ssdb:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://172.21.190.226:20087/eureka/
+      defaultZone: http://uniloan04:20087/eureka/
 
 rocket:
   producer:
-    endpoint: 172.21.190.226:9976;172.21.190.225:9976
+    endpoint: uniloan01:9976
     group: user_state_group
 
 thirdparty:
