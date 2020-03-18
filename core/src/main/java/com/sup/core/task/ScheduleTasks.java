@@ -496,12 +496,10 @@ public class ScheduleTasks {
     }
 
 
-
-
     /**
      * 每天更新资产等级，
      */
-    @Scheduled(cron = "0 42 22 * * ?")
+    @Scheduled(cron = "0 03 23 * * ?")
     public void updateAssertLevel() {
         log.info("AssetLevel update...");
         List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
@@ -520,20 +518,22 @@ public class ScheduleTasks {
         Map<Integer, List<Integer>> needAssign = new HashMap<>();
         for (TbApplyInfoBean tbApplyInfoBean : applyInfoBeanList) {
 
-            TbRepayPlanBean repayPlanBean = this.repayPlanMapper.selectOne(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", tbApplyInfoBean.getId()));
+            List<TbRepayPlanBean> repayPlanBeans = this.repayPlanMapper.selectList(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", tbApplyInfoBean.getId()));
+            if(repayPlanBeans==null || repayPlanBeans.isEmpty()) continue;
+            TbRepayPlanBean repayPlanBean =repayPlanBeans.get(0);
             Date replay_end = repayPlanBean.getRepay_end_date();
             int days = DateUtil.getDaysBetween(replay_end, date);
             Integer assetLevel = tbApplyInfoBean.getAsset_level();
             Integer applyId = tbApplyInfoBean.getId();
 
 
-            log.info("UpdateAssetLevel"+applyId+",days:"+days);
+            log.info("UpdateAssetLevel" + applyId + ",days:" + days);
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
                 if (days >= assetsLevelRuleBean.getBetween_paydays()
-                       // && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getId()))
+                    // && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getId()))
                         ) {
                     Integer newLevel = assetsLevelRuleBean.getId();
-                    log.info("UpdateAssetLevel"+applyId+",days:"+days+",newlevel:"+newLevel);
+                    log.info("UpdateAssetLevel" + applyId + ",days:" + days + ",newlevel:" + newLevel);
                     tbApplyInfoBean.setAsset_level(newLevel);
                     //tbApplyInfoBean.setUpdate_time(date);
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
