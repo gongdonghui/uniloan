@@ -533,13 +533,13 @@ public class ScheduleTasks {
             Integer applyId = tbApplyInfoBean.getId();
 
 
-            log.info("UpdateAssetLevel" + applyId + ",days:" + days);
+            log.info("UpdateAssetLevel" + applyId + ",days:" + days+",old level:"+ assetLevel);
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
                 if (days >= assetsLevelRuleBean.getBetween_paydays()
-                    // && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getId()))
+                     && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getId()))
                         ) {
                     Integer newLevel = assetsLevelRuleBean.getId();
-                    log.info("UpdateAssetLevel" + applyId + ",days:" + days + ",newlevel:" + newLevel);
+                    log.info("UpdateAssetLevel" + applyId + ",days:" + days + ",new level:" + newLevel);
                     tbApplyInfoBean.setAsset_level(newLevel);
                     //tbApplyInfoBean.setUpdate_time(date);
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
