@@ -496,12 +496,12 @@ public class ScheduleTasks {
     }
 
 
-    
+
 
     /**
      * 每天更新资产等级，
      */
-    @Scheduled(cron = "0 0 1 * * ?")
+    @Scheduled(cron = "0 10 22 * * ?")
     public void updateAssertLevel() {
         log.info("AssetLevel update...");
         List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
@@ -527,11 +527,13 @@ public class ScheduleTasks {
             Integer applyId = tbApplyInfoBean.getId();
 
 
+            log.info("UpdateAssetLevel"+applyId+",days:"+days);
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
                 if (days >= assetsLevelRuleBean.getBetween_paydays()
-                        && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getLevel()))
+                        && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getId()))
                         ) {
                     Integer newLevel = assetsLevelRuleBean.getId();
+                    log.info("UpdateAssetLevel"+applyId+",days:"+days+",newlevel:"+newLevel);
                     tbApplyInfoBean.setAsset_level(newLevel);
                     //tbApplyInfoBean.setUpdate_time(date);
                     this.applyInfoMapper.updateById(tbApplyInfoBean);
