@@ -304,7 +304,7 @@ public class ApplyService {
             }
         }
     }
-    private  void  record
+    //private  void  record
 
     public synchronized void autoassignTask(Map<Integer, List<Integer>> needAssign) {
         int total = 0;
