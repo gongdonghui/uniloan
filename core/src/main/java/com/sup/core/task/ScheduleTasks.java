@@ -530,7 +530,7 @@ public class ScheduleTasks {
             log.info("UpdateAssetLevel"+applyId+",days:"+days);
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
                 if (days >= assetsLevelRuleBean.getBetween_paydays()
-                        && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getId()))
+                       // && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getId()))
                         ) {
                     Integer newLevel = assetsLevelRuleBean.getId();
                     log.info("UpdateAssetLevel"+applyId+",days:"+days+",newlevel:"+newLevel);
