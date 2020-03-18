@@ -353,7 +353,7 @@ public class ApplyService {
             log.info("Ignore AutoTaskAssign for operation task has assigned, applyid:" + applyId);
             return false;
         }
-        if( taskBean.getOperator)
+        //if( taskBean.getOperator)
 
         taskBean.setApply_id(applyId);
         taskBean.setOperator_id(operator_id);
