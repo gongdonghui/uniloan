@@ -499,12 +499,13 @@ public class ScheduleTasks {
     /**
      * 每天更新资产等级，
      */
-    @Scheduled(cron = "0 03 23 * * ?")
+    @Scheduled(cron = "0 35 23 * * ?")
     public void updateAssertLevel() {
         log.info("AssetLevel update...");
         List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
                 .eq("status", ApplyStatusEnum.APPLY_LOAN_SUCC.getCode())
                 .or().eq("status", ApplyStatusEnum.APPLY_REPAY_PART.getCode())
+                .or().eq("status", ApplyStatusEnum.APPLY_REPAY_ALL.getCode())
                 .or().eq("status", ApplyStatusEnum.APPLY_OVERDUE.getCode()));
 
         //TODO 结清的问题
@@ -517,6 +518,11 @@ public class ScheduleTasks {
         }
         Map<Integer, List<Integer>> needAssign = new HashMap<>();
         for (TbApplyInfoBean tbApplyInfoBean : applyInfoBeanList) {
+            if(tbApplyInfoBean.getStatus()== ApplyStatusEnum.APPLY_REPAY_ALL.getCode()) {
+                tbApplyInfoBean.setAsset_level(-1000);
+                this.applyInfoMapper.updateById(tbApplyInfoBean);
+                continue;
+            }//reset  asset level
 
             List<TbRepayPlanBean> repayPlanBeans = this.repayPlanMapper.selectList(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", tbApplyInfoBean.getId()));
             if(repayPlanBeans==null || repayPlanBeans.isEmpty()) continue;
