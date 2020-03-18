@@ -238,7 +238,7 @@ public class LoanService {
         return Result.fail("System error!");
     }
 
-    public boolean addRepayPlan(TbApplyInfoBean applyInfoBean) {
+    public synchronized boolean addRepayPlan(TbApplyInfoBean applyInfoBean) {
 
         ApplyStatusEnum status = ApplyStatusEnum.getStatusByCode(applyInfoBean.getStatus());
         if (status != ApplyStatusEnum.APPLY_LOAN_SUCC) {
@@ -258,12 +258,10 @@ public class LoanService {
             return false;
         }
         boolean ret = true;
-        synchronized (this) {
-            for (TbRepayPlanBean bean : plans) {
-                if (repayPlanMapper.insert(bean) <= 0) {
-                    ret = false;
-                    log.error("Failed to add repay plan: " + GsonUtil.toJson(bean));
-                }
+        for (TbRepayPlanBean bean : plans) {
+            if (repayPlanMapper.insert(bean) <= 0) {
+                ret = false;
+                log.error("Failed to add repay plan: " + GsonUtil.toJson(bean));
             }
         }
         return ret;
