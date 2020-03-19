@@ -18,14 +18,15 @@ jar_dir=$2
 
 version="-0.0.1-SNAPSHOT"
 bin="${jar_nm}${version}.jar"
+pattern_profile="spring.profiles.active=${profile} "
 
-cnt=`ps aux | grep "${bin}" | grep "spring.profiles.active=${profile}" | grep -v "grep" | wc -l`
+cnt=`ps aux | grep "${bin}" | grep "${pattern_profile}" | grep -v "grep" | wc -l`
 if [ $cnt -eq 0 ]; then
     LOG "No ${bin} found."
     exit 0
 fi
 
-ps aux | grep "${bin}" | grep "spring.profiles.active=${profile}" | grep -v "grep" | awk {'print $2'} | xargs kill -9
+ps aux | grep "${bin}" | grep "${pattern_profile}" | grep -v "grep" | awk {'print $2'} | xargs kill -9
 
 if [ $? -ne 0 ]; then
     LOG "[ERROR] stop ${bin} failed!"
