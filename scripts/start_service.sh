@@ -22,10 +22,10 @@ bin="${jar_nm}${version}.jar"
 #ps aux | grep "${bin}" | grep "spring.profiles.active=${profile}" | grep -v "grep" | awk {'print $2'} | xargs kill -9
 
 cd ${jar_dir}
-base="${work_path}/${jar_dir}"
+
 #java -Xms256m -Xmx512m -Dspring.profiles.active=${profile} -jar $bin >>log.txt 2>&1 &
 java -Xms256m -Xmx512m \
-     -Drocketmq.client.logRoot="${base}/../logs/$bin" \
+     -Drocketmq.client.logRoot="${work_path}/logs/$bin" \
      -Drocketmq.client.logLevel="WARN" \
      -Dspring.profiles.active=${profile} \
      -jar $bin >>log.txt 2>&1 &
