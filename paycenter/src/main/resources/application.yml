@@ -3,12 +3,12 @@ spring:
     active: online
   application:
     name: service-paycenter
+server:
+  port: 8110
 
 ribbon:
   ReadTimeout: 60000
   ConnectTimeout: 60000
-server:
-  port: 8110
 
 
 ---
@@ -89,7 +89,35 @@ paycenter:
 eureka:
   client:
     serviceUrl:
-      #defaultZone: http://192.168.78.32:51666/eureka/
-      #defaultZone: http://127.0.0.1:51666/eureka/
-      #defaultZone: http://140.143.207.211:51666/eureka/
       defaultZone: http://172.21.190.226:51666/eureka/
+
+
+---
+spring:
+  profiles: online2
+server:
+  port: 20082
+
+paycenter:
+  payReturnUrl: "https://www.mdongdongvi.online/paycenter/payCallBack"
+  repayReturnUrl: "https://www.mdongdongvi.online/paycenter/repayCallBack"
+  secretKey: "IIyc8477VSOLtbobbM9nhQiN5Z7HAsga6NWZK4Tw"
+  merchantId: "1610"
+  businessId: "303"
+  feeId: "282"
+  version:  "1.3"
+  url:  "https://payment.funpay.asia"
+  method:
+    getBankList: "/fun/transfer/getBankList"
+    verifyBankInfo: "/fun/transfer/verifyBankInfo"
+    transferMoney: "/fun/transfer/transferMoney"
+    offlinePay: "/fun/payment/offlinePay"
+    payCheck: "/fun/payment/check"
+    transferCheck: "/fun/transfer/check"
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://uniloan04:20087/eureka/
+
+
