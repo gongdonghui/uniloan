@@ -135,7 +135,7 @@ public class DecisionEngineImpl implements DecesionEngine {
     }
 
 
-    private Map<String, Double> prepareRiskVariables(String userId, String user_mobile, String basic_info_id, String bank_info_id, String eme_info_id) {
+    private Map<String, Double> prepareRiskVariables(String userId, String user_mobile, String basic_info_id, String bank_info_id, String eme_info_id,String  cid) {
 
 
         Map<String, Double> riskBean = new HashMap<>();
@@ -178,12 +178,18 @@ public class DecisionEngineImpl implements DecesionEngine {
 
 
 
-            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(Integer.parseInt(userId), this.repayPlanInfoMapper);
-            if (overdueInfoBean != null) { //overdue  days
 
-                riskBean.put(RiskVariableConstants.MAX_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getMax_days()));
-                riskBean.put(RiskVariableConstants.OVERDUE_TIMES, Double.valueOf(overdueInfoBean.getTimes()));
-                riskBean.put(RiskVariableConstants.LATEST_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getLatest_days()));
+            List<Integer> userIds  =this.getUsersIdsByCid(cid);
+            if(userIds!= null && !userIds.isEmpty()) {
+                OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(userIds, this.repayPlanInfoMapper);
+                if (overdueInfoBean != null) { //overdue  days
+
+                    riskBean.put(RiskVariableConstants.MAX_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getMax_days()));
+                    riskBean.put(RiskVariableConstants.OVERDUE_TIMES, Double.valueOf(overdueInfoBean.getTimes()));
+                    riskBean.put(RiskVariableConstants.LATEST_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getLatest_days()));
+                }
+            } else {
+                log.error("user id is empty");
             }
         }
         // log.info(">>>> prepareRiskVariables.bank_info_id...");
@@ -294,6 +300,18 @@ public class DecisionEngineImpl implements DecesionEngine {
         return "";
     }
 
+    private  List<Integer>  getUsersIdsByCid(String cid) {
+        List<UserIdCardInfoBean>  userIdCardInfoBeans = this.userIdCardInfoMapper.selectList(new QueryWrapper<UserIdCardInfoBean>().eq("cid_no",cid));
+        List<Integer> userIds = new ArrayList<>();
+        for(UserIdCardInfoBean   userIdCardInfoBean: userIdCardInfoBeans) {
+            userIds.add(userIdCardInfoBean.getUser_id());
+
+        }
+        return  userIds;
+
+
+    }
+
 
     @Override
     public RiskDecisionResultBean applyRules(AutoDecisionParam param) {
@@ -337,13 +355,13 @@ public class DecisionEngineImpl implements DecesionEngine {
 
         }
 
-        Map<String, Double> riskBean = prepareRiskVariables(param.getUserId(), user_mobile, basic_info_id, bank_info_id, eme_info_id);
-
         String cid = this.getUserIdentity(id_info_id);
         if (cid.isEmpty()) {
             log.info("cid is null");
             return null;
         }
+        Map<String, Double> riskBean = prepareRiskVariables(param.getUserId(), user_mobile, basic_info_id, bank_info_id, eme_info_id,cid);
+
 
         RiskDecisionResultBean result = new RiskDecisionResultBean();
         result.setRet(0);

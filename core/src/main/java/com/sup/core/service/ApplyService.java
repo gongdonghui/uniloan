@@ -2,7 +2,9 @@ package com.sup.core.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.*;
-import com.sup.common.loan.*;
+import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.loan.OperationTaskStatusEnum;
+import com.sup.common.loan.OperationTaskTypeEnum;
 import com.sup.common.param.LoanCalculatorParam;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
@@ -12,10 +14,7 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Project:uniloan
@@ -305,13 +304,15 @@ public class ApplyService {
             }
         }
     }
+    //private  void  record
 
     public synchronized void autoassignTask(Map<Integer, List<Integer>> needAssign) {
         int total = 0;
+
         for (Integer credit_level : needAssign.keySet()) {
             List<Integer> operators = taskConfigBeanMapper.getOperatorsByLevel(credit_level);
             log.info("AutoTaskAssign operator size :" + operators.size() + ", for  asset level:" + credit_level);
-
+            //HasetSet<Integer>  group =
             if (operators != null && !operators.isEmpty()) {
 
                 List<Integer> applyList = needAssign.get(credit_level);
@@ -349,9 +350,9 @@ public class ApplyService {
             needUpdate = false;
         }
         if (taskBean.getOperator_id() != null) {
-            log.info("Ignore AutoTaskAssign for operation task has assigned, applyid:" + applyId);
-            return false;
+            log.info("Change AutoTaskAssign for operation task has assigned, applyid:" + applyId+","+taskBean.getOperator_id());
         }
+
 
         taskBean.setApply_id(applyId);
         taskBean.setOperator_id(operator_id);
