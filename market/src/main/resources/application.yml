@@ -117,7 +117,7 @@ server:
 
 ontime-delivery:
   redisson:
-    host: uniloan03
+    host: 172.21.190.225
     port: 6388
     auth: 13JPTmkZT5QmAV4s
 

@@ -152,7 +152,7 @@ spring:
     filters: mergeStat
   redis:
     database: 0
-    host: uniloan03
+    host: 172.21.190.225
     port: 7789
     jedis:
       pool:
@@ -171,7 +171,7 @@ cache:
     key-pre: CMS-2-
 
 ssdb:
-  host: uniloan03
+  host: 172.21.190.225
   port: 13288
   auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
   timeout: 300000
@@ -179,6 +179,6 @@ ssdb:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://uniloan04:20087/eureka/
+      defaultZone: http://172.21.190.226:20087/eureka/
 
 

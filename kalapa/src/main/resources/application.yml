@@ -87,7 +87,7 @@ spring:
   profiles: online2
   redis:
     database: 0
-    host: uniloan03
+    host: 172.21.190.225
     port: 7789
     jedis:
       pool:
@@ -101,7 +101,7 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://uniloan04:20087/eureka/
+      defaultZone: http://172.21.190.226:20087/eureka/
 kalapa:
   #收费
   token: 5bb42ea331ee010001a0b7d786d07e765e274286811aa9a7ebbb0be2
