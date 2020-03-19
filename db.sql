@@ -414,7 +414,7 @@ CREATE TABLE if NOT EXISTS `tb_user_bank_account_info` (
 
 -- Create syntax for TABLE 'tb_user_basic_info'
 DROP TABLE tb_user_basic_info;
-CREATE TABLE `tb_user_basic_info` (
+CREATE TABLE IF NOT EXISTS `tb_user_basic_info` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `info_id` varchar(32) NOT NULL COMMENT '资料标识id',
   `user_id` int(10) NOT NULL COMMENT '关联用户id',
@@ -541,7 +541,7 @@ CREATE TABLE if NOT EXISTS `tb_user_sns_info` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_app_sdk_location_info;
-CREATE TABLE `tb_app_sdk_location_info` (
+CREATE TABLE if NOT EXISTS `tb_app_sdk_location_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `info_id` varchar(32) NOT NULL DEFAULT '' COMMENT '资料标识id',
   `apply_long` varchar(32) DEFAULT NULL COMMENT 'gps经度',
@@ -557,7 +557,7 @@ CREATE TABLE `tb_app_sdk_location_info` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_app_sdk_contract_info;
-CREATE TABLE `tb_app_sdk_contract_info` (
+CREATE TABLE if NOT EXISTS `tb_app_sdk_contract_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `info_id` varchar(32) NOT NULL DEFAULT '' COMMENT '资料标识id',
   `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
@@ -575,7 +575,7 @@ CREATE TABLE `tb_app_sdk_contract_info` (
 
 
 DROP TABLE IF EXISTS tb_app_sdk_applist_info;
-CREATE TABLE `tb_app_sdk_applist_info` (
+CREATE TABLE if NOT EXISTS `tb_app_sdk_applist_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `info_id` varchar(32) NOT NULL DEFAULT '' COMMENT '资料标识id',
   `device_id` varchar(255) DEFAULT NULL COMMENT '设备号',
@@ -595,7 +595,7 @@ CREATE TABLE `tb_app_sdk_applist_info` (
 
 
 DROP TABLE IF EXISTS tb_core_risk_rules;
-CREATE TABLE `tb_core_risk_rules` (
+CREATE TABLE if NOT EXISTS `tb_core_risk_rules` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `product_id` int(11) DEFAULT NULL,
   `hit_type` int(11) DEFAULT NULL COMMENT '1表示必须通过的规则， 0 表示提示信审规则',
@@ -612,7 +612,7 @@ CREATE TABLE `tb_core_risk_rules` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_core_credit_level_rules;
-CREATE TABLE `tb_core_credit_level_rules` (
+CREATE TABLE if NOT EXISTS `tb_core_credit_level_rules` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `reloan_times` int(11) DEFAULT NULL COMMENT '复贷次数',
   `max_overdue_days` int(11) DEFAULT NULL COMMENT '历史最大逾期天数',
@@ -622,7 +622,7 @@ CREATE TABLE `tb_core_credit_level_rules` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_core_risk_decesion_result;
-CREATE TABLE `tb_core_risk_decesion_result` (
+CREATE TABLE if NOT EXISTS `tb_core_risk_decesion_result` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `apply_time` datetime DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
@@ -634,7 +634,7 @@ CREATE TABLE `tb_core_risk_decesion_result` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_core_risk_decesion_result_detail;
-CREATE TABLE `tb_core_risk_decesion_result_detail` (
+CREATE TABLE if NOT EXISTS `tb_core_risk_decesion_result_detail` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `rule_id` int(11) DEFAULT NULL,
   `rule_status` int(11) DEFAULT NULL,
@@ -648,7 +648,7 @@ CREATE TABLE `tb_core_risk_decesion_result_detail` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_core_risk_variables;
-CREATE TABLE `tb_core_risk_variables` (
+CREATE TABLE if NOT EXISTS `tb_core_risk_variables` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL COMMENT '变量名称',
   `value_type` int(11) DEFAULT NULL COMMENT '1表示名单   0表示数值',
@@ -692,7 +692,7 @@ CREATE TABLE IF NOT EXISTS `tb_manual_repay` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_core_assets_level_rules;
-CREATE TABLE `tb_core_assets_level_ruels` (
+CREATE TABLE if NOT EXISTS `tb_core_assets_level_ruels` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `between_paydays` int(11) DEFAULT NULL COMMENT '距离还款日的天数',
   `level` int(11) DEFAULT NULL COMMENT '资产等级',
@@ -775,7 +775,7 @@ CREATE TABLE IF NOT EXISTS `tb_report_operation_daily` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_report_check_daily;
-CREATE TABLE `tb_report_check_daily` (
+CREATE TABLE if NOT EXISTS `tb_report_check_daily` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `data_dt` date DEFAULT NULL,
   `task_type` int(11) DEFAULT NULL,
@@ -784,11 +784,11 @@ CREATE TABLE `tb_report_check_daily` (
   `checked` int(11) DEFAULT NULL,
   `denyed` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `date_dt` (`date_dt`)
+  KEY `data_dt` (`data_dt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_report_collection_daily;
-CREATE TABLE `tb_report_collection_daily` (
+CREATE TABLE if NOT EXISTS `tb_report_collection_daily` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `data_dt` date DEFAULT NULL COMMENT '日期',
   `in_apply` int(11) DEFAULT 0 COMMENT '在库合同数',
@@ -805,7 +805,7 @@ CREATE TABLE `tb_report_collection_daily` (
 
 
 DROP TABLE IF EXISTS tb_blacklist;
-CREATE TABLE `tb_blacklist` (
+CREATE TABLE if NOT EXISTS `tb_blacklist` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `cid_no` varchar(64) DEFAULT NULL COMMENT '身份证号',
   `name` varchar(32) DEFAULT NULL COMMENT '姓名',
@@ -971,7 +971,7 @@ CREATE TABLE IF NOT EXISTS `tb_apply_quickpass_rules` (
   UNIQUE KEY `stage_from` (`stage_from`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table tb_report_check_operator_daily;
+DROP table tb_report_check_operator_daily;
 CREATE TABLE if not exists `tb_report_check_operator_daily` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `operator` int(11) DEFAULT NULL,
@@ -991,7 +991,7 @@ CREATE TABLE if not exists `tb_report_check_operator_daily` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table tb_asset_level_history;
+DROP table tb_asset_level_history;
 CREATE TABLE if not exists  `tb_asset_level_history` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `asset_level` int(11) DEFAULT NULL,
@@ -999,7 +999,8 @@ CREATE TABLE if not exists  `tb_asset_level_history` (
   `apply_list` varchar(10240) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-drop table tb_cms_auth_user_group;
+
+DROP table tb_cms_auth_user_group;
 CREATE TABLE if not exists  `tb_cms_auth_user_group` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
@@ -1008,7 +1009,7 @@ CREATE TABLE if not exists  `tb_cms_auth_user_group` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table   tb_cms_operation_task_config;
+DROP table   tb_cms_operation_task_config;
 CREATE TABLE if not exists `tb_cms_operation_task_config` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `group_id` int(11) DEFAULT NULL,

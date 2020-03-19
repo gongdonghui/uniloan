@@ -88,7 +88,7 @@ public class RepayController {
         List<Integer> ids = params.getRepayInfoIds();
         List<String> tradeNos = params.getTradeNos();
 
-        if (confirm && (ids == null || tradeNos == null || ids.size() != tradeNos.size())) {
+        if (confirm && (ids == null || tradeNos == null || ids.size() != tradeNos.size() || params.getRepayAmount() <= 0)) {
             log.error("Invalid params:" + GsonUtil.toJson(params));
             return ResponseUtil.failed("Invalid params.");
         }
