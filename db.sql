@@ -784,7 +784,7 @@ CREATE TABLE `tb_report_check_daily` (
   `checked` int(11) DEFAULT NULL,
   `denyed` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `date_dt` (`date_dt`)
+  KEY `data_dt` (`data_dt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS tb_report_collection_daily;
