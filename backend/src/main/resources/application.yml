@@ -175,7 +175,7 @@ spring:
 
       primary: online2
       datasource:
-        online:
+        online2:
           username: dev_online
           password: Dwl12#$%^
           url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
