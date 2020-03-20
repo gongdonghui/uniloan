@@ -166,14 +166,20 @@ public class DecisionEngineImpl implements DecesionEngine {
             denyStatus.add(ApplyStatusEnum.APPLY_FINAL_DENY.getCode());
             denyStatus.add(ApplyStatusEnum.APPLY_FIRST_DENY.getCode());
 
+            List<Integer> userids =this.getUsersIdsByCid(cid);
             List<TbApplyInfoBean> applyInfoBean = applyInfoMapper.selectList(
-                    materialWrapper.eq("user_id", userId).in("status", denyStatus).
+                    materialWrapper.in("user_id", userids).in("status", denyStatus).
                             orderByDesc("update_time"));  // deny  date
             if (applyInfoBean != null &&  !applyInfoBean.isEmpty()) {
-
-                Date deny_date = applyInfoBean.get(0).getUpdate_time();
-                int last_dey_days = DateUtil.getDaysBetween(deny_date, new Date());
-                riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(last_dey_days));
+                Integer last_deny_days =  Integer.MAX_VALUE;
+                for(TbApplyInfoBean   info :applyInfoBean) {
+                    Date deny_date = applyInfoBean.get(0).getUpdate_time();
+                    int  days = DateUtil.getDaysBetween(deny_date, new Date());
+                    if( days < last_deny_days) {
+                        last_deny_days = days;
+                    }
+                }
+                riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(last_deny_days));
             }
 
 
