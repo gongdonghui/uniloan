@@ -518,43 +518,42 @@ public class ScheduleTasks {
         }
         Map<Integer, List<Integer>> needAssign = new HashMap<>();
         for (TbApplyInfoBean tbApplyInfoBean : applyInfoBeanList) {
-            if(tbApplyInfoBean.getStatus()== ApplyStatusEnum.APPLY_REPAY_ALL.getCode()) {
+            if (tbApplyInfoBean.getStatus() == ApplyStatusEnum.APPLY_REPAY_ALL.getCode()) {
                 tbApplyInfoBean.setAsset_level(-1000);
                 this.applyInfoMapper.updateById(tbApplyInfoBean);
                 continue;
             }//reset  asset level
 
             List<TbRepayPlanBean> repayPlanBeans = this.repayPlanMapper.selectList(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", tbApplyInfoBean.getId()));
-            if(repayPlanBeans==null || repayPlanBeans.isEmpty()) continue;
-            TbRepayPlanBean repayPlanBean =repayPlanBeans.get(0);
+            if (repayPlanBeans == null || repayPlanBeans.isEmpty()) continue;
+            TbRepayPlanBean repayPlanBean = repayPlanBeans.get(0);
             Date replay_end = repayPlanBean.getRepay_end_date();
             int days = DateUtil.getDaysBetween(replay_end, date);
             Integer assetLevel = tbApplyInfoBean.getAsset_level();
             Integer applyId = tbApplyInfoBean.getId();
 
 
-            log.info("UpdateAssetLevel" + applyId + ",days:" + days+",old level:"+ assetLevel);
+            log.info("UpdateAssetLevel" + applyId + ",days:" + days + ",old level:" + assetLevel);
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
-                if (days >= assetsLevelRuleBean.getBetween_paydays()
-                     && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getId()))
-                        ) {
-                    Integer newLevel = assetsLevelRuleBean.getId();
-                    log.info("UpdateAssetLevel" + applyId + ",days:" + days + ",new level:" + newLevel);
-                    tbApplyInfoBean.setAsset_level(newLevel);
-                    //tbApplyInfoBean.setUpdate_time(date);
-                    this.applyInfoMapper.updateById(tbApplyInfoBean);
-                    //if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
-                    // assert level changed
-                    //applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
-                    //applyService.】】
-                    // addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
-                    //}
-                    if (!needAssign.containsKey(newLevel)) {
-                        needAssign.put(newLevel, new ArrayList<>());
+                if (days >= assetsLevelRuleBean.getBetween_paydays()) {
+                    if (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getId())) {
+                        Integer newLevel = assetsLevelRuleBean.getId();
+                        log.info("UpdateAssetLevel" + applyId + ",days:" + days + ",new level:" + newLevel);
+                        tbApplyInfoBean.setAsset_level(newLevel);
+                        //tbApplyInfoBean.setUpdate_time(date);
+                        this.applyInfoMapper.updateById(tbApplyInfoBean);
+                        //if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
+                        // assert level changed
+                        //applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
+                        //applyService.】】
+                        // addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
+                        //}
+                        if (!needAssign.containsKey(newLevel)) {
+                            needAssign.put(newLevel, new ArrayList<>());
 
+                        }
+                        needAssign.get(newLevel).add(applyId);
                     }
-                    needAssign.get(newLevel).add(applyId);
-
 
                     break;
                 }
