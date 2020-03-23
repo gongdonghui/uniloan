@@ -122,5 +122,5 @@ if [ "$target" = "online2" -o "$target" = "all" ]; then
 
 fi
 
-LOG "Finished building & deploaying $target."
+LOG "Finished building & deploying $target."
 
