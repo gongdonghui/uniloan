@@ -287,13 +287,13 @@ public class ReportImplFacade implements ReportFacade {
     @Override
     public String collector(CollectorReportParam param) {
         log.info("Report collector param:" + GsonUtil.toJson(param));
+        String begin = DateUtil.formatDate(param.getStartDate());
+        String end = DateUtil.formatDate(param.getEndDate());
+
         StringBuilder sb = new StringBuilder();
-        if (param.getStartDate() != null) {
-            sb.append(" and oth.data_dt>='" + DateUtil.formatDate(param.getStartDate()) + "'");
-        }
-        if (param.getEndDate() != null) {
-            sb.append(" and oth.data_dt<='" + DateUtil.formatDate(param.getEndDate()) + "'");
-        }
+        sb.append(" and oth.data_dt>='" + begin + "'");
+        sb.append(" and oth.data_dt<='" + end + "'");
+
         Integer offset = (param.getPage() - 1) * param.getPageSize();
         Integer rows = param.getPageSize();
         List<ReportCollectorBean> result;
@@ -302,6 +302,9 @@ public class ReportImplFacade implements ReportFacade {
             sb.append(" and oth.operator_id=" + param.getOperatorId());
             result = crazyJoinMapper.getCollectorReport(sb.toString(), offset, rows);
             resultCount = crazyJoinMapper.getCollectorReportCount(sb.toString());
+        } else if (param.getGroupId() != null) {
+            result = crazyJoinMapper.getCollectorGroupReport(param.getGroupId(), begin, end, offset, rows);
+            resultCount = crazyJoinMapper.getCollectorGroupReportCount(param.getGroupId(), begin, end);
         } else {
             result = crazyJoinMapper.getCollectorReportAll(sb.toString(), offset, rows);
             resultCount = crazyJoinMapper.getCollectorReportAllCount(sb.toString());
@@ -329,6 +332,9 @@ public class ReportImplFacade implements ReportFacade {
     @Override
     public String operationReport(OperationReportParam param) {
         StringBuilder sb = new StringBuilder();
+        StringBuilder headers = new StringBuilder();
+        StringBuilder groupBy = new StringBuilder(" group by dt");
+
         if (param.getStart_date() != null) {
             sb.append(" and loan_time>='" + DateUtil.startOf(param.getStart_date()) + "'");
         }
@@ -337,15 +343,26 @@ public class ReportImplFacade implements ReportFacade {
         }
         if (param.getChannel_id() != null && param.getChannel_id() >= 0) {
             sb.append(" and channel_id=" + param.getChannel_id());
+            headers.append(",channel_id as channelId");
+            groupBy.append(",channel_id");
+        }
+        if (param.getApp_id() != null && param.getApp_id() >= 0) {
+            sb.append(" and app_id=" + param.getApp_id());
+            headers.append(",app_id as appId");
+            groupBy.append(",app_id");
         }
         if (param.getProduct_id() != null && param.getProduct_id() >= 0) {
             sb.append(" and product_id=" + param.getProduct_id());
+            headers.append(",product_id as productId");
+            groupBy.append(",product_id");
         }
+
+        sb.append(groupBy);
 
         log.info("operationReport conditions=" + sb.toString());
         Integer offset = (param.getPage() - 1) * param.getPageSize();
         Integer rows = param.getPageSize();
-        List<LoanStatBean> l = crazyJoinMapper.getOperationReport(sb.toString(), offset, rows);
+        List<LoanStatBean> l = crazyJoinMapper.getOperationReport(headers.toString(), sb.toString(), offset, rows);
         Map m = Maps.newHashMap();
         m.put("total", crazyJoinMapper.getOperationReportCount(sb.toString()));
         m.put("list", l);
@@ -502,12 +519,20 @@ public class ReportImplFacade implements ReportFacade {
         List<TbReportCheckOperatorDaily> first_ret = this.buildOperatorReport(list, OperationTaskTypeEnum.TASK_FIRST_AUDIT.getCode(), names, cur);
         if (!first_ret.isEmpty())
             ret.addAll(first_ret);  //初审统计
+        Set<Integer>   first_ops  = new HashSet<>();
+        for(TbReportCheckOperatorDaily    tbReportCheckOperatorDaily:first_ret) {
+            first_ops.add(tbReportCheckOperatorDaily.getOperator());
+        }
 
         List<OperationTaskJoinBean> final_list = this.crazyJoinMapper.getOperationTaskJoinByStatus(start_str, end_str, ApplyStatusEnum.APPLY_FINAL_PASS.getCode(),
                 ApplyStatusEnum.APPLY_FINAL_DENY.getCode());
         List<TbReportCheckOperatorDaily> final_ret = this.buildOperatorReport(final_list, OperationTaskTypeEnum.TASK_FINAL_AUDIT.getCode(), names, cur);
-        if (!final_ret.isEmpty())
-            ret.addAll(final_ret);   //终审统计
+        for(TbReportCheckOperatorDaily     tbReportCheckOperatorDaily :   final_ret) {
+            if( !first_ops.contains(tbReportCheckOperatorDaily.getOperator())) {
+                   ret.add(tbReportCheckOperatorDaily);
+            }
+
+        }
 
         return Result.succ(ret);
 

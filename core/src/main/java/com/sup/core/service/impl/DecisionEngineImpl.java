@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.*;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.DateUtil;
+import com.sup.common.util.RedisClient;
 import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
@@ -25,7 +26,7 @@ public class DecisionEngineImpl implements DecesionEngine {
     private RiskRulesMapper riskRulesMapper;
 
     @Autowired
-    private com.sup.core.service.RedisClient redisClient;
+    private RedisClient redisClient;
 
     @Autowired
     private RepayPlanMapper repayPlanInfoMapper;
@@ -135,7 +136,7 @@ public class DecisionEngineImpl implements DecesionEngine {
     }
 
 
-    private Map<String, Double> prepareRiskVariables(String userId, String user_mobile, String basic_info_id, String bank_info_id, String eme_info_id) {
+    private Map<String, Double> prepareRiskVariables(String userId, String user_mobile, String basic_info_id, String bank_info_id, String eme_info_id,String  cid) {
 
 
         Map<String, Double> riskBean = new HashMap<>();
@@ -166,24 +167,36 @@ public class DecisionEngineImpl implements DecesionEngine {
             denyStatus.add(ApplyStatusEnum.APPLY_FINAL_DENY.getCode());
             denyStatus.add(ApplyStatusEnum.APPLY_FIRST_DENY.getCode());
 
+            List<Integer> userids =this.getUsersIdsByCid(cid);
             List<TbApplyInfoBean> applyInfoBean = applyInfoMapper.selectList(
-                    materialWrapper.eq("user_id", userId).in("status", denyStatus).
+                    materialWrapper.in("user_id", userids).in("status", denyStatus).
                             orderByDesc("update_time"));  // deny  date
             if (applyInfoBean != null &&  !applyInfoBean.isEmpty()) {
-
-                Date deny_date = applyInfoBean.get(0).getUpdate_time();
-                int last_dey_days = DateUtil.getDaysBetween(deny_date, new Date());
-                riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(last_dey_days));
+                Integer last_deny_days =  Integer.MAX_VALUE;
+                for(TbApplyInfoBean   info :applyInfoBean) {
+                    Date deny_date = applyInfoBean.get(0).getUpdate_time();
+                    int  days = DateUtil.getDaysBetween(deny_date, new Date());
+                    if( days < last_deny_days) {
+                        last_deny_days = days;
+                    }
+                }
+                riskBean.put(RiskVariableConstants.DAYS_BETWEEN_LAST_REFUSE, Double.valueOf(last_deny_days));
             }
 
 
 
-            OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(Integer.parseInt(userId), this.repayPlanInfoMapper);
-            if (overdueInfoBean != null) { //overdue  days
 
-                riskBean.put(RiskVariableConstants.MAX_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getMax_days()));
-                riskBean.put(RiskVariableConstants.OVERDUE_TIMES, Double.valueOf(overdueInfoBean.getTimes()));
-                riskBean.put(RiskVariableConstants.LATEST_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getLatest_days()));
+            List<Integer> userIds  =this.getUsersIdsByCid(cid);
+            if(userIds!= null && !userIds.isEmpty()) {
+                OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(userIds, this.repayPlanInfoMapper);
+                if (overdueInfoBean != null) { //overdue  days
+
+                    riskBean.put(RiskVariableConstants.MAX_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getMax_days()));
+                    riskBean.put(RiskVariableConstants.OVERDUE_TIMES, Double.valueOf(overdueInfoBean.getTimes()));
+                    riskBean.put(RiskVariableConstants.LATEST_OVERDUE_DAYS, Double.valueOf(overdueInfoBean.getLatest_days()));
+                }
+            } else {
+                log.error("user id is empty");
             }
         }
         // log.info(">>>> prepareRiskVariables.bank_info_id...");
@@ -294,6 +307,18 @@ public class DecisionEngineImpl implements DecesionEngine {
         return "";
     }
 
+    private  List<Integer>  getUsersIdsByCid(String cid) {
+        List<UserIdCardInfoBean>  userIdCardInfoBeans = this.userIdCardInfoMapper.selectList(new QueryWrapper<UserIdCardInfoBean>().eq("cid_no",cid));
+        List<Integer> userIds = new ArrayList<>();
+        for(UserIdCardInfoBean   userIdCardInfoBean: userIdCardInfoBeans) {
+            userIds.add(userIdCardInfoBean.getUser_id());
+
+        }
+        return  userIds;
+
+
+    }
+
 
     @Override
     public RiskDecisionResultBean applyRules(AutoDecisionParam param) {
@@ -337,13 +362,13 @@ public class DecisionEngineImpl implements DecesionEngine {
 
         }
 
-        Map<String, Double> riskBean = prepareRiskVariables(param.getUserId(), user_mobile, basic_info_id, bank_info_id, eme_info_id);
-
         String cid = this.getUserIdentity(id_info_id);
         if (cid.isEmpty()) {
             log.info("cid is null");
             return null;
         }
+        Map<String, Double> riskBean = prepareRiskVariables(param.getUserId(), user_mobile, basic_info_id, bank_info_id, eme_info_id,cid);
+
 
         RiskDecisionResultBean result = new RiskDecisionResultBean();
         result.setRet(0);

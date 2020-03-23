@@ -47,6 +47,7 @@ public interface CrazyJoinMapper extends BaseMapper {
     @Select("select " +
             "a.user_id as userId" +
             ",a.channel_id as channelId" +
+            ",a.app_id as appId" +
             ",a.id as applyId" +
             ",a.status as status" +
             ",a.apply_quota as amount" +
@@ -647,6 +648,69 @@ public interface CrazyJoinMapper extends BaseMapper {
     Integer getCollectorReportCount(@Param(value = "conditions") String conditions);
 
 
+    @Select("select\n" +
+            "  a.data_dt as allocDate\n" +
+            "  ,a.group_id as groupId\n" +
+            "  ,a.taskNum as taskNum\n" +
+            "  ,(case when taskAmount is null then 0 else taskAmount end) as taskAmount\n" +
+            "  ,(case when collectNum is null then 0 else collectNum end) as collectNum\n" +
+            "  ,(case when collectAmt is null then 0 else collectAmt end) as collectAmt\n" +
+            "  ,(case when partialCollectNum is null then 0 else partialCollectNum end) as partialCollectNum\n" +
+            "  ,(case when partialCollectAmt is null then 0 else partialCollectAmt end) as partialCollectAmt\n" +
+            "  ,(case when noCollectNum is null then 0 else noCollectNum end) as noCollectNum\n" +
+            "from (\n" +
+            " select group_id, data_dt, count(distinct apply_id) as taskNum\n" +
+            " from (\n" +
+            "   select operator_id, date(create_time) as data_dt, apply_id\n" +
+            "   from tb_operation_task_history where task_type=3 and operator_id is not null\n" +
+            "   and date(create_time)>='${begin}' and date(create_time)<='${end}'\n" +
+            " ) oth left join (\n" +
+            "   select id, group_id from tb_cms_auth_user\n" +
+            "   where group_id=#{groupId}\n" +
+            " ) cau on oth.operator_id=cau.id\n" +
+            " where group_id is not null\n" +
+            " group by data_dt, group_id\n" +
+            ") a\n" +
+            "left join (\n" +
+            "  select data_dt\n" +
+            "   ,group_id\n" +
+            "   ,sum(need_total-normal_repay) as taskAmount\n" +
+            "   ,sum(case when status=14 then 1 else 0 end) as collectNum\n" +
+            "   ,sum(case when status=14 then act_total-normal_repay else 0 end) as collectAmt\n" +
+            "   ,sum(case when status!=14 and act_total>normal_repay then 1 else 0 end) as partialCollectNum\n" +
+            "   ,sum(case when status!=14 and act_total>normal_repay then act_total-normal_repay else 0 end) as partialCollectAmt\n" +
+            "   ,sum(case when status!=14 and act_total=normal_repay then 1 else 0 end) as noCollectNum\n" +
+            "  from (\n" +
+            "    select * from tb_report_overdue_detail\n" +
+            "    where data_dt>='${begin}' and data_dt<='${end}'\n" +
+            "  ) rod left join (\n" +
+            "   select id, group_id from tb_cms_auth_user\n" +
+            "   where group_id=#{groupId}\n" +
+            "  ) cau on rod.operator_id=cau.id\n" +
+            "  group by data_dt, group_id\n" +
+            ") b\n" +
+            "on a.group_id=b.group_id and a.data_dt = b.data_dt\n" +
+            "order by a.data_dt desc\n" +
+            "limit #{offset},#{rows}")
+    List<ReportCollectorBean> getCollectorGroupReport(Integer groupId, String begin, String end, Integer offset, Integer rows);
+
+    @Select("select count(*)\n" +
+            "from (\n" +
+            " select group_id, data_dt, count(distinct apply_id) as taskNum\n" +
+            " from (\n" +
+            "   select operator_id, date(create_time) as data_dt, apply_id\n" +
+            "   from tb_operation_task_history where task_type=3 and operator_id is not null\n" +
+            "   and date(create_time)>='${begin}' and date(create_time)<='${end}'\n" +
+            " ) oth left join (\n" +
+            "   select id, group_id from tb_cms_auth_user\n" +
+            "   where group_id=#{groupId}\n" +
+            " ) cau on oth.operator_id=cau.id\n" +
+            " where group_id is not null\n" +
+            " group by data_dt, group_id\n" +
+            ") tmp")
+    Integer getCollectorGroupReportCount(Integer groupId, String begin, String end);
+
+
     @Select("select" +
             "  rod.apply_id as applyId" +
             "  ,rod.repay_end_date as shouldRepayDate" +
@@ -723,6 +787,7 @@ public interface CrazyJoinMapper extends BaseMapper {
 
     @Select("select" +
             "  DATE(loan_time) as dt" +
+            "  ${headers}" +
             "  ,count(apply_id) as loanNum" +
             "  ,sum(inhand_amount) as principal" +
             "  ,sum(contract_amount) as contractAmt" +
@@ -741,18 +806,18 @@ public interface CrazyJoinMapper extends BaseMapper {
             " from tb_loan_info" +
             " where 1=1 " +
             " ${conditions}" +
-            " group by DATE(loan_time) having loanNum>0 order by dt desc"
+            " having loanNum>0 order by dt desc"
     )
-    List<LoanStatBean> getOperationReport(String conditions, Integer offset, Integer rows);
+    List<LoanStatBean> getOperationReport(String headers, String conditions, Integer offset, Integer rows);
 
     @Select("select count(*) from (" +
             "  select" +
-            "    substr(loan_time,1,10) as dt" +
+            "    DATE(loan_time) as dt" +
             "    ,count(apply_id) as loanNum" +
             "  from tb_loan_info" +
             "  where 1=1 " +
             "  ${conditions}" +
-            "  group by substr(loan_time,1,10) having loanNum>0 order by dt desc" +
+            "  having loanNum>0 order by dt desc" +
             ") tb"
     )
     Integer getOperationReportCount(@Param(value = "conditions") String conditions);
@@ -811,4 +876,8 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  (select  apply_id, status, operator_id  from tb_apply_info_history  where  create_time  > '${start}' and  create_time <  '${end}'  and  status in  (${pass},${deny},9) and  operator_id <> '' ) as a  " +
             "left join tb_apply_info as  b  on  b.id = a.apply_id ;")
     List<OperationTaskJoinBean> getOperationTaskJoinByStatus(String start, String end, Integer pass, Integer deny);
+
+
+    @Select("select  a.id as applyId from tb_apply_info as a     left join  (select * from  tb_operation_task where   task_type = 3)   as b  on  b.apply_id = a.id  where  a.asset_level =${level};")
+    List<Integer>   getOperationTaskByAssetLevel(Integer level );
 }

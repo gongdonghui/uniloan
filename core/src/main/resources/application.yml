@@ -12,6 +12,11 @@ spring:
       enabled: true
       max-file-size: 100MB
       max-request-size: 100MB
+server:
+  port: 10083
+  tomcat:
+    max-threads: 10
+  connection-timeout: 180000
 
 feign:
   hystrix:
@@ -27,12 +32,6 @@ ribbon:
   ConnectTimeout: 60000
   eureka:
     enable: true
-
-server:
-  port: 10083
-  tomcat:
-    max-threads: 10
-  connection-timeout: 180000
 
 mybatis-plus:
   configuration:
@@ -99,6 +98,7 @@ spring:
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
             max-lifetime: 300000
+
 ssdb:
   host: 127.0.0.1
   port: 13288
@@ -162,6 +162,7 @@ spring:
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
             max-lifetime: 300000
+
 ssdb:
   host: 172.21.190.226
   port: 13288
@@ -199,38 +200,75 @@ thirdparty:
       url: "https://rest.star-detector.vn.starwin.tech/single-pre-rc-report/prc-blacklist"
 
 
+---
+spring:
+  profiles: online2
+  redis:
+    database: 0
+    host: 172.21.190.225
+    port: 7789
+    jedis:
+      pool:
+        max-active: 8
+    timeout: 60000
+    password: 13JPTmkZT5QmAV4s
+
+  datasource:
+    dynamic:
+      hikari:
+        connection-timeout: 3000
+
+      primary: online2
+      datasource:
+        online2:
+          username: dev_online
+          password: Dwl12#$%^
+          url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          driver-class-name: com.mysql.jdbc.Driver
+          hikari:
+            max-lifetime: 300000
+
+server:
+  port: 20084
+  tomcat:
+    max-threads: 10
+  connection-timeout: 180000
+
+ssdb:
+  host: 172.21.190.225
+  port: 13288
+  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
+  timeout: 300000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://172.21.190.226:20087/eureka/
+
+rocket:
+  producer:
+    endpoint: uniloan01:9976
+    group: user_state_group
+
+thirdparty:
+  max-retry: 3
+  jirong:
+    blacklist:
+      url: "https://api.geerongcloud.com/credit/v2/blacklist"
+    token: 735506dbda0040bab7d473f7027cd6fd
+    secretKey: 5967f91866e8452eb12dfd07bad43b76
+    countryCode: 84
+  xingtan:
+    accessKey: b7354a93ba194e9c8dbab5b6ef3d62d0
+    accessSecret: 2BD2397E05F491DB49FCAD6CE65E76386684C54FCFC98DEFBEBE924EBC5F44A6
+    #sha256: a3467f397bcabcbc4f0dea3be1334fef3b368d933cdb631946eca53f332bd5ce
+    token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJiNzM1NGE5M2JhMTk0ZTljOGRiYWI1YjZlZjNkNjJkMCIsImV4cCI6MTg4OTA5MDg3Niwib3duZXJJZCI6MTE5NDU2NzAzNzEzNzk4MTQ0MX0.iX3tKj2DDgLsziTI26tuA8-pkORNjVYEekYUgwFsxVCFxmc-8PnI0-Aj86G6W_G3DB7V8GjRlGZJ_8ovWpXT8g
+    blacklist:
+      url: "https://rest.star-detector.vn.starwin.tech/single-pre-rc-report/prc-blacklist"
 
 
 
 
-
-#spring:
-#  messages:
-#    basename: static/i18n/messages
-#
-#  application:
-#    name: service-core
-#
-#  datasource:
-#    dynamic:
-#      hikari:
-#        connection-timeout: 3000
-#
-#      primary: test
-#      datasource:
-#        test:
-#          username: uniloan_test
-#          password: 13JPTmkZT5QmAV4s
-#          url: 'jdbc:mysql://140.143.207.211:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
-#          driver-class-name: com.mysql.jdbc.Driver
-#          hikari:
-#            max-lifetime: 600000
-
-#        online:
-#          username: dev
-#          password: Ict123465
-#          url: 'jdbc:mysql://47.92.200.47:3306/test_uniloan?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
-#          driver-class-name: com.mysql.jdbc.Driver
 
 
 

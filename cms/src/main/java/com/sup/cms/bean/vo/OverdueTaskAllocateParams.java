@@ -2,8 +2,6 @@ package com.sup.cms.bean.vo;
 
 import lombok.Data;
 
-import javax.validation.constraints.Min;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,4 +17,7 @@ public class OverdueTaskAllocateParams {
     // 以下为自动分配时使用的参数
     private List<Integer>   operatorsForM1;
     private List<Integer>   operatorsForM2;
+
+
+    private Integer  asset_level;
 }

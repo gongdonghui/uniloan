@@ -15,5 +15,7 @@ public class ChannelProductParams {
     @NotNull
     private Integer channelId;
     @NotNull
+    private Integer appId;
+
     private List<Integer> productIdList;
 }

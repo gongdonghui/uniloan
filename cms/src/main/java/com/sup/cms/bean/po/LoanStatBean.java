@@ -17,6 +17,9 @@ import java.util.Date;
 public class LoanStatBean {
 
     private Date    dt;
+    private Integer channelId;
+    private Integer appId;
+    private Integer productId;
     private Integer loanNum;                // 放款数
     private Long    principal;              // 放款本金
     private Long    contractAmt;            // 合同金额

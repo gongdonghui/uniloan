@@ -11,10 +11,7 @@ import com.sup.common.bean.paycenter.vo.RepayStatusVO;
 import com.sup.common.loan.*;
 import com.sup.common.service.PayCenterService;
 import com.sup.common.util.*;
-import com.sup.core.bean.CollectionRepayBean;
-import com.sup.core.bean.CollectionStatBean;
-import com.sup.core.bean.RepayJoinBean;
-import com.sup.core.bean.RiskDecisionResultBean;
+import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.ApplyService;
@@ -30,7 +27,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -103,6 +99,10 @@ public class ScheduleTasks {
 
     @Autowired
     private AuthUserMapper authUserMapper;
+
+
+    @Autowired
+    private AssetLevelHistoryMapper assetLevelHistoryMapper;
 
     @Scheduled(cron = "0 */5 * * * ?")
     public void checkApplyInfo() {
@@ -499,12 +499,13 @@ public class ScheduleTasks {
     /**
      * 每天更新资产等级，
      */
-    @Scheduled(cron = "0 0 3 * * ?")
+    @Scheduled(cron = "0 0 1 * * ?")
     public void updateAssertLevel() {
-
+        log.info("AssetLevel update...");
         List<TbApplyInfoBean> applyInfoBeanList = this.applyInfoMapper.selectList(new QueryWrapper<TbApplyInfoBean>()
                 .eq("status", ApplyStatusEnum.APPLY_LOAN_SUCC.getCode())
                 .or().eq("status", ApplyStatusEnum.APPLY_REPAY_PART.getCode())
+                .or().eq("status", ApplyStatusEnum.APPLY_REPAY_ALL.getCode())
                 .or().eq("status", ApplyStatusEnum.APPLY_OVERDUE.getCode()));
 
         //TODO 结清的问题
@@ -515,27 +516,72 @@ public class ScheduleTasks {
             log.info("Nothing to do in updating asset levels.");
             return;
         }
+        Map<Integer, List<Integer>> needAssign = new HashMap<>();
         for (TbApplyInfoBean tbApplyInfoBean : applyInfoBeanList) {
+            if (tbApplyInfoBean.getStatus() == ApplyStatusEnum.APPLY_REPAY_ALL.getCode()) {
+                tbApplyInfoBean.setAsset_level(-1000);
+                this.applyInfoMapper.updateById(tbApplyInfoBean);
+                continue;
+            }//reset  asset level
 
-            TbRepayPlanBean repayPlanBean = this.repayPlanMapper.selectOne(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", tbApplyInfoBean.getId()));
+            List<TbRepayPlanBean> repayPlanBeans = this.repayPlanMapper.selectList(new QueryWrapper<TbRepayPlanBean>().eq("apply_id", tbApplyInfoBean.getId()));
+            if (repayPlanBeans == null || repayPlanBeans.isEmpty()) continue;
+            TbRepayPlanBean repayPlanBean = repayPlanBeans.get(0);
             Date replay_end = repayPlanBean.getRepay_end_date();
             int days = DateUtil.getDaysBetween(replay_end, date);
             Integer assetLevel = tbApplyInfoBean.getAsset_level();
             Integer applyId = tbApplyInfoBean.getId();
 
 
+            log.info("UpdateAssetLevel" + applyId + ",days:" + days + ",old level:" + assetLevel);
             for (AssetsLevelRuleBean assetsLevelRuleBean : assetsLevelRuleBeans) {
-                if (days >= assetsLevelRuleBean.getBetween_paydays() && (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getLevel()))) {
-                    tbApplyInfoBean.setAsset_level(assetsLevelRuleBean.getLevel());
-                    //tbApplyInfoBean.setUpdate_time(date);
-                    this.applyInfoMapper.updateById(tbApplyInfoBean);
-                    //if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
-                    // assert level changed
-                    //applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
-                    //applyService.addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
-                    //}
+                if (days >= assetsLevelRuleBean.getBetween_paydays()) {
+                    if (assetLevel == null || !assetLevel.equals(assetsLevelRuleBean.getId())) {
+                        Integer newLevel = assetsLevelRuleBean.getId();
+                        log.info("UpdateAssetLevel" + applyId + ",days:" + days + ",new level:" + newLevel);
+                        tbApplyInfoBean.setAsset_level(newLevel);
+                        //tbApplyInfoBean.setUpdate_time(date);
+                        this.applyInfoMapper.updateById(tbApplyInfoBean);
+                        //if (assetLevel != null && !assetLevel.equals(assetsLevelRuleBean.getLevel())) {
+                        // assert level changed
+                        //applyService.cancelOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "asset level changed from " + assetLevel + " to " + assetsLevelRuleBean.getLevel());
+                        //applyService.】】
+                        // addOperationTask(applyId, OperationTaskTypeEnum.TASK_OVERDUE, "");
+                        //}
+                        if (!needAssign.containsKey(newLevel)) {
+                            needAssign.put(newLevel, new ArrayList<>());
+
+                        }
+                        needAssign.get(newLevel).add(applyId);
+                    }
+
                     break;
                 }
+            }
+        }
+        log.info("need  assign tasks:" + needAssign.size());
+
+        this.assignTasks(needAssign, date);
+    }
+
+    private void assignTasks(Map<Integer, List<Integer>> needAssign, Date data_dt) {
+        try {
+
+            this.applyService.autoassignTask(needAssign);
+        } catch (Exception e) {
+            log.error("AutoTaskAssign Failed ", e);
+        }
+        for (Integer assetLevel : needAssign.keySet()) {
+            log.info("update assetlevel " + assetLevel + "," + DateUtil.formatDate(data_dt) + ", apply size:" + needAssign.get(assetLevel).size());
+            AssetLevelHistoryBean assetLevelHistoryBean = new AssetLevelHistoryBean();
+            assetLevelHistoryBean.setAsset_level(assetLevel);
+            String content = GsonUtil.toJson(needAssign.get(assetLevel));
+            assetLevelHistoryBean.setData_dt(data_dt);
+            assetLevelHistoryBean.setApply_list(content);
+            try {
+                this.assetLevelHistoryMapper.insert(assetLevelHistoryBean);
+            } catch (Exception e) {
+                log.error("AssetLevelRecord Faield", e);
             }
         }
     }

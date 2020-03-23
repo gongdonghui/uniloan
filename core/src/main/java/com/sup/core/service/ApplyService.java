@@ -2,7 +2,9 @@ package com.sup.core.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.*;
-import com.sup.common.loan.*;
+import com.sup.common.loan.ApplyStatusEnum;
+import com.sup.common.loan.OperationTaskStatusEnum;
+import com.sup.common.loan.OperationTaskTypeEnum;
 import com.sup.common.param.LoanCalculatorParam;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
@@ -12,8 +14,7 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Project:uniloan
@@ -46,6 +47,9 @@ public class ApplyService {
 
     @Autowired
     private ApplyQuickpassRulesMapper applyQuickpassRulesMapper;
+
+    @Autowired
+    private OperationTaskConfigBeanMapper taskConfigBeanMapper;
 
 
     public boolean addApplyInfo(TbApplyInfoBean bean) {
@@ -82,7 +86,7 @@ public class ApplyService {
                 , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
                 , ApplyStatusEnum.APPLY_REPAY_PART.getCode()
                 , ApplyStatusEnum.APPLY_OVERDUE.getCode()
-                );
+        );
         return applyInfoMapper.selectList(wrapper);
     }
 
@@ -170,6 +174,7 @@ public class ApplyService {
         }
         return Result.succ();
     }
+
     public synchronized void closeOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {
         // 将任务状态置为完成
         QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
@@ -230,7 +235,6 @@ public class ApplyService {
     }
 
     /**
-     *
      * @param userId
      * @return
      */
@@ -262,6 +266,7 @@ public class ApplyService {
         TbOperationTaskHistoryBean fromBean = null;    // 订单任务拥有者
         TbOperationTaskHistoryBean taskBean = null;    // 订单任务新任拥有着
         for (TbOperationTaskHistoryBean bean : taskBeans) {
+            if (bean == null) continue;
             if (bean.getHas_owner() == 1) {
                 if (fromBean != null) {
                     log.error("Invalid task allocation! bean1=" + GsonUtil.toJson(fromBean) +
@@ -270,8 +275,10 @@ public class ApplyService {
                 }
                 fromBean = bean;
             }
-            if (bean.getOperator_id().equals(operationTaskBean.getOperator_id())) { // 再次分配给以往的催收员
-                taskBean = bean;
+            if (bean.getOperator_id() != null) {
+                if (bean.getOperator_id().equals(operationTaskBean.getOperator_id())) { // 再次分配给以往的催收员
+                    taskBean = bean;
+                }
             }
         }
 
@@ -297,4 +304,86 @@ public class ApplyService {
             }
         }
     }
+    //private  void  record
+
+    public synchronized void autoassignTask(Map<Integer, List<Integer>> needAssign) {
+        int total = 0;
+
+        for (Integer credit_level : needAssign.keySet()) {
+            List<Integer> operators = taskConfigBeanMapper.getOperatorsByLevel(credit_level);
+            log.info("AutoTaskAssign operator size :" + operators.size() + ", for  asset level:" + credit_level);
+            //HasetSet<Integer>  group =
+            if (operators != null && !operators.isEmpty()) {
+
+                List<Integer> applyList = needAssign.get(credit_level);
+                LinkedList<Integer> queue = new LinkedList<>();
+                queue.addAll(applyList);
+                int next = 0;
+
+                while (!queue.isEmpty() && next < operators.size()) {
+                    Integer operator = operators.get(next++);
+                    Integer applyId = queue.pop();
+                    boolean ret = assignSingleTask(operator, applyId, -1000);
+                    if (ret)
+                        ++total;
+                    next = next % operators.size();
+                }
+            }
+        }
+        log.info("AutoTaskAssign total assign:" + total);
+    }
+
+
+    public synchronized boolean assignSingleTask(Integer operator_id, Integer applyId, Integer distributor_id) {
+
+
+        Date now = new Date();
+        QueryWrapper<TbOperationTaskBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("apply_id", applyId);
+        wrapper.eq("task_type", OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+        // wrapper.eq("has_owner", 0);
+        TbOperationTaskBean taskBean = operationTaskMapper.selectOne(wrapper);
+        boolean needUpdate = true;
+        if (taskBean == null) {
+            taskBean = new TbOperationTaskBean();
+            taskBean.setCreate_time(now);
+            needUpdate = false;
+        }
+        if (taskBean.getOperator_id() != null) {
+            log.info("Change AutoTaskAssign for operation task has assigned, applyid:" + applyId+","+taskBean.getOperator_id());
+        }
+
+
+        taskBean.setApply_id(applyId);
+        taskBean.setOperator_id(operator_id);
+        taskBean.setDistributor_id(distributor_id);
+        taskBean.setHas_owner(1);
+        taskBean.setStatus(OperationTaskStatusEnum.TASK_STATUS_NEW.getCode());
+        taskBean.setTask_type(OperationTaskTypeEnum.TASK_OVERDUE.getCode());
+        taskBean.setUpdate_time(now);
+
+        log.info("AutoTaskAssign for operation task has assigned, applyid:" + applyId);
+        try {
+
+            recordOperationTask(taskBean);
+            if (needUpdate) {
+                if (operationTaskMapper.updateById(taskBean) <= 0) {
+                    log.error("Failed to update task: " + GsonUtil.toJson(taskBean));
+                    return false;
+                }
+            } else {
+                if (operationTaskMapper.insert(taskBean) <= 0) {
+                    log.error("Failed to add new task: " + GsonUtil.toJson(taskBean));
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to AutoTaskAssign: " + GsonUtil.toJson(taskBean));
+            return false;
+        }
+        log.info("AutoTaskAssign for operation task has assigned, applyid:" + applyId + ",succeed");
+        return true;
+
+    }
+
 }
