@@ -12,6 +12,7 @@ import java.util.List;
  */
 @Data
 public class DetailsBasicInfoBean {
+    private Integer userId;
     //    姓名
     private String name;
     //            证件号

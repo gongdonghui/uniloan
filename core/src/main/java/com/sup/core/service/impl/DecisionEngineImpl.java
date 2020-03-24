@@ -73,7 +73,8 @@ public class DecisionEngineImpl implements DecesionEngine {
         log.info("apply rule for:" + variable_name);
         if (rule.getValue_type() == 1) {  //名单类
             if (variable_name.equals(RiskVariableConstants.BLACKLIST_JR)) {
-                boolean exists = this.thirdPartyService.checkBlackListInJirong(cid, "", mobile, applyId);
+                // boolean exists = this.thirdPartyService.checkBlackListInJirong(cid, "", mobile, applyId);
+                boolean exists = this.thirdPartyService.checkBlackListInJirong_v2(cid, "", mobile, applyId);
                 return !exists;   // 黑名单命中 表示规则不通过
             } else if (variable_name.equals(RiskVariableConstants.BLACKLIST_XT)) {
                 boolean exists = this.thirdPartyService.checkBlackListInXingtan(cid, "", mobile, applyId);

@@ -122,6 +122,7 @@ public class DetailsController {
         }
 
         DetailsBasicInfoBean bean = new DetailsBasicInfoBean();
+        bean.setUserId(citizenBean.getUser_id());
         bean.setName(citizenBean.getName());
         bean.setCidNo(citizenBean.getCid_no());
         bean.setGender(citizenBean.getGender());
