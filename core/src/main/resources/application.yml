@@ -261,6 +261,7 @@ thirdparty:
     token: 735506dbda0040bab7d473f7027cd6fd
     secretKey: 5967f91866e8452eb12dfd07bad43b76
     countryCode: 84
+    region: VIETNAM
   xingtan:
     accessKey: b7354a93ba194e9c8dbab5b6ef3d62d0
     accessSecret: 2BD2397E05F491DB49FCAD6CE65E76386684C54FCFC98DEFBEBE924EBC5F44A6
