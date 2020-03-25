@@ -99,8 +99,8 @@ server:
   port: 20082
 
 paycenter:
-  payReturnUrl: "https://www.mdongdongvi.online/paycenter/payCallBack"
-  repayReturnUrl: "https://www.mdongdongvi.online/paycenter/repayCallBack"
+  payReturnUrl: "https://www.2w.pub/paycenter/payCallBack"
+  repayReturnUrl: "https://www.2w.pub/paycenter/repayCallBack"
   secretKey: "IIyc8477VSOLtbobbM9nhQiN5Z7HAsga6NWZK4Tw"
   merchantId: "1610"
   businessId: "303"

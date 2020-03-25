@@ -253,8 +253,11 @@ rocket:
 thirdparty:
   max-retry: 3
   jirong:
+    merchantID: 12345
     blacklist:
-      url: "https://api.geerongcloud.com/credit/v2/blacklist"
+      url:
+        v1: "https://api.geerongcloud.com/credit/v2/blacklist"
+        v2: "http://harmony.as.geerong.com/credit/service/blackListCheck"
     token: 735506dbda0040bab7d473f7027cd6fd
     secretKey: 5967f91866e8452eb12dfd07bad43b76
     countryCode: 84
