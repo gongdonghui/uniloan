@@ -827,7 +827,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             "a.id as id, a.apply_id as applyId, a.create_time as createTime, a.task_type as taskType," +
             "a.status as taskStatus, a.operator_id as operatorId,a.has_owner as  hasOwner," +
             "a.update_time as updateTime," +
-            "b.status as applyStatus, a.operator_id as  operatorId, b.grant_quota as  loanAmt" +
+            "b.status as checkStatus, a.operator_id as  operatorId, b.grant_quota as  loanAmt" +
             " from tb_operation_task a" +
             " join tb_apply_info b on a.apply_id=b.id" +
             " where a.task_type= ${taskType}" +
