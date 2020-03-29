@@ -398,7 +398,6 @@ public class ReportImplFacade implements ReportFacade {
                 return Result.fail("input check type invalid");
             }
             List<OperationTaskJoinBean> operationTaskJoinBeanList = this.crazyJoinMapper.getOperationTaskJoinByTask(start_str, end_str, taskType);
-            // log.info("taskType=" + taskType + ", list=" + GsonUtil.toJson(operationTaskJoinBeanList));
             OperationStatBean operationStatBean = CheckStatUtil.processList(operationTaskJoinBeanList, taskType);
 
             return Result.succ(operationStatBean);
