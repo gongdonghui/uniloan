@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.*;
 import com.sup.common.loan.ApplyStatusEnum;
 import com.sup.common.util.DateUtil;
+import com.sup.common.util.GsonUtil;
 import com.sup.common.util.RedisClient;
 import com.sup.core.bean.*;
 import com.sup.core.mapper.*;
 import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.DecesionEngine;
+import com.sup.core.service.ModelManagentService;
 import com.sup.core.service.ThirdPartyService;
 import com.sup.core.util.OverdueUtils;
 import com.sup.common.util.RiskVariableConstants;
@@ -64,6 +66,12 @@ public class DecisionEngineImpl implements DecesionEngine {
 
     @Autowired
     private UserIdCardInfoMapper userIdCardInfoMapper;
+
+    @Autowired
+    private SdkAppListMapper sdkAppListMapper;
+
+    @Autowired
+    private ModelManagentService modelManagentService;
 
 
     private boolean applySingleRule(RiskRulesBean rule, String mobile, String cid, String applyId, Map<String, Double> riskBean) {
@@ -135,8 +143,74 @@ public class DecisionEngineImpl implements DecesionEngine {
 
     }
 
+    private static boolean isFapp(String appname) {
+        if (appname.contains("dong") || appname.contains("cash") || appname.contains("finance")
+                || appname.contains("vay")) {
+            if (!appname.contains("jingdong")) {
+                return true;
+            }
+        }
+        return false;
 
-    private Map<String, Double> prepareRiskVariables(String userId, String user_mobile, String basic_info_id, String bank_info_id, String eme_info_id,String  cid) {
+    }
+
+    private static double getRatio(double size, int total) {
+
+        return size / (total + 0.01f);
+    }
+
+    private Map<String, Double> prepareAppList(String mobile) {
+        Map<String, Double> ret = new HashMap<>();
+
+        List<TbAppSdkAppListInfoBean> list =
+                this.sdkAppListMapper.selectList(new QueryWrapper<TbAppSdkAppListInfoBean>().eq("mobile",mobile));
+        int appsize =  list.size();
+        double fapp_size = 0;
+        double ec = 0;
+        double fc = 0;
+        double wc = 0;
+        double pay = 0;
+        double didi = 0;
+        double wm = 0;
+        for (TbAppSdkAppListInfoBean appSdkAppListInfoBean : list) {
+            String app = appSdkAppListInfoBean.getApk_name();
+            if (app.contains("lazada") || app.contains("jingdong") || app.contains("shopee")) {
+                ++ec;
+            }
+            if (isFapp(app)) {
+                ++fapp_size;
+            }
+            if (app.contains("facebook")) {
+                fc++;
+            }
+            if (app.contains("zalo")) {
+                ++wc;
+            }
+            if (app.contains("momotransfer")) {
+                ++pay;
+            }
+            if (app.contains("goviet")) {
+                ++wm;
+            }
+            if (app.contains("grab")) {
+                ++didi;
+            }
+        }
+
+
+        //ret.put("app1", appsize);
+        ret.put("app2", getRatio(fapp_size, appsize));
+        ret.put("app3", getRatio(ec, appsize));
+        ret.put("app4", getRatio(fc, appsize));
+        ret.put("app5", getRatio(wc, appsize));
+        ret.put("ret6", getRatio(pay, appsize));
+        ret.put("ret7", getRatio(wm, appsize));
+        ret.put("ret8", getRatio(didi, appsize));
+        return ret;
+    }
+
+
+    private Map<String, Double> prepareRiskVariables(String userId, String user_mobile, String basic_info_id, String bank_info_id, String eme_info_id, String cid) {
 
 
         Map<String, Double> riskBean = new HashMap<>();
@@ -162,21 +236,21 @@ public class DecisionEngineImpl implements DecesionEngine {
             }//age
 
             QueryWrapper<TbApplyInfoBean> materialWrapper = new QueryWrapper<TbApplyInfoBean>();
-            List<Integer>     denyStatus =  new ArrayList<>();
+            List<Integer> denyStatus = new ArrayList<>();
             denyStatus.add(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
             denyStatus.add(ApplyStatusEnum.APPLY_FINAL_DENY.getCode());
             denyStatus.add(ApplyStatusEnum.APPLY_FIRST_DENY.getCode());
 
-            List<Integer> userids =this.getUsersIdsByCid(cid);
+            List<Integer> userids = this.getUsersIdsByCid(cid);
             List<TbApplyInfoBean> applyInfoBean = applyInfoMapper.selectList(
                     materialWrapper.in("user_id", userids).in("status", denyStatus).
                             orderByDesc("update_time"));  // deny  date
-            if (applyInfoBean != null &&  !applyInfoBean.isEmpty()) {
-                Integer last_deny_days =  Integer.MAX_VALUE;
-                for(TbApplyInfoBean   info :applyInfoBean) {
+            if (applyInfoBean != null && !applyInfoBean.isEmpty()) {
+                Integer last_deny_days = Integer.MAX_VALUE;
+                for (TbApplyInfoBean info : applyInfoBean) {
                     Date deny_date = applyInfoBean.get(0).getUpdate_time();
-                    int  days = DateUtil.getDaysBetween(deny_date, new Date());
-                    if( days < last_deny_days) {
+                    int days = DateUtil.getDaysBetween(deny_date, new Date());
+                    if (days < last_deny_days) {
                         last_deny_days = days;
                     }
                 }
@@ -184,10 +258,8 @@ public class DecisionEngineImpl implements DecesionEngine {
             }
 
 
-
-
-            List<Integer> userIds  =this.getUsersIdsByCid(cid);
-            if(userIds!= null && !userIds.isEmpty()) {
+            List<Integer> userIds = this.getUsersIdsByCid(cid);
+            if (userIds != null && !userIds.isEmpty()) {
                 OverdueInfoBean overdueInfoBean = OverdueUtils.getMaxOverdueDays(userIds, this.repayPlanInfoMapper);
                 if (overdueInfoBean != null) { //overdue  days
 
@@ -264,6 +336,13 @@ public class DecisionEngineImpl implements DecesionEngine {
             riskBean.put(RiskVariableConstants.NUM_OF_OVDUE_IN_CONTRACT, Double.valueOf(max_overdue_times));
         }
 
+        Map<String, Double> modelInput = this.prepareAppList(user_mobile);
+        modelInput.put("no_of_contract", riskBean.get(RiskVariableConstants.NUM_OF_CONTRACT));
+        double a001_score = this.modelManagentService.predict(modelInput);
+
+
+        String content = GsonUtil.toJson(riskBean);
+
 
         return riskBean;
 
@@ -307,14 +386,14 @@ public class DecisionEngineImpl implements DecesionEngine {
         return "";
     }
 
-    private  List<Integer>  getUsersIdsByCid(String cid) {
-        List<UserIdCardInfoBean>  userIdCardInfoBeans = this.userIdCardInfoMapper.selectList(new QueryWrapper<UserIdCardInfoBean>().eq("cid_no",cid));
+    private List<Integer> getUsersIdsByCid(String cid) {
+        List<UserIdCardInfoBean> userIdCardInfoBeans = this.userIdCardInfoMapper.selectList(new QueryWrapper<UserIdCardInfoBean>().eq("cid_no", cid));
         List<Integer> userIds = new ArrayList<>();
-        for(UserIdCardInfoBean   userIdCardInfoBean: userIdCardInfoBeans) {
+        for (UserIdCardInfoBean userIdCardInfoBean : userIdCardInfoBeans) {
             userIds.add(userIdCardInfoBean.getUser_id());
 
         }
-        return  userIds;
+        return userIds;
 
 
     }
@@ -367,7 +446,7 @@ public class DecisionEngineImpl implements DecesionEngine {
             log.info("cid is null");
             return null;
         }
-        Map<String, Double> riskBean = prepareRiskVariables(param.getUserId(), user_mobile, basic_info_id, bank_info_id, eme_info_id,cid);
+        Map<String, Double> riskBean = prepareRiskVariables(param.getUserId(), user_mobile, basic_info_id, bank_info_id, eme_info_id, cid);
 
 
         RiskDecisionResultBean result = new RiskDecisionResultBean();

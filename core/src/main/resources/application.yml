@@ -134,7 +134,9 @@ thirdparty:
     blacklist:
       url: "http://47.75.14.45/single-pre-rc-report/prc-blacklist"
 
-
+model:
+    name: A001
+    path:  /root/
 ---
 spring:
   profiles: online
