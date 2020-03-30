@@ -99,12 +99,12 @@ server:
   port: 20082
 
 paycenter:
-  payReturnUrl: "https://www.mdongdongvi.online/paycenter/payCallBack"
-  repayReturnUrl: "https://www.mdongdongvi.online/paycenter/repayCallBack"
-  secretKey: "IIyc8477VSOLtbobbM9nhQiN5Z7HAsga6NWZK4Tw"
-  merchantId: "1610"
-  businessId: "303"
-  feeId: "282"
+  payReturnUrl: "https://www.2w.pub/paycenter/payCallBack"
+  repayReturnUrl: "https://www.2w.pub/paycenter/repayCallBack"
+  secretKey: "pUoZtgB8mtG7mLPmh9RY4XtHJN1e4cN0092IPOPi"
+  merchantId: "1758"
+  businessId: "506"
+  feeId: "486"
   version:  "1.3"
   url:  "https://payment.funpay.asia"
   method:

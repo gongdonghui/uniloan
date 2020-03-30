@@ -118,11 +118,15 @@ rocket:
 thirdparty:
   max-retry: 3
   jirong:
+    merchantID: 12345
     blacklist:
-      url: "https://api.geerongcloud.com/credit/v2/blacklist"
+      url:
+        v1: "https://api.geerongcloud.com/credit/v2/blacklist"
+        v2: "http://harmony.as.geerong.com/credit/service/blackListCheck"
     token: testUser
     secretKey: 9437f92c2f774ceb95ea591fc10209e8
     countryCode: 84
+    region: VIETNAM
   xingtan:
     accessKey: 92d08e368374414bb5848134000460f5
     accessSecret: ABD5691CE596186FE2FDCE8ABE37CBE0996240CE88E580D8EE20F37FC303B14A
@@ -178,11 +182,15 @@ rocket:
 thirdparty:
   max-retry: 3
   jirong:
+    merchantID: 12345
     blacklist:
-      url: "https://api.geerongcloud.com/credit/v2/blacklist"
+      url:
+        v1: "https://api.geerongcloud.com/credit/v2/blacklist"
+        v2: "http://harmony.as.geerong.com/credit/service/blackListCheck"
     token: 735506dbda0040bab7d473f7027cd6fd
     secretKey: 5967f91866e8452eb12dfd07bad43b76
     countryCode: 84
+    region: VIETNAM
   xingtan:
     accessKey: b7354a93ba194e9c8dbab5b6ef3d62d0
     accessSecret: 2BD2397E05F491DB49FCAD6CE65E76386684C54FCFC98DEFBEBE924EBC5F44A6
@@ -245,11 +253,15 @@ rocket:
 thirdparty:
   max-retry: 3
   jirong:
+    merchantID: 12345
     blacklist:
-      url: "https://api.geerongcloud.com/credit/v2/blacklist"
+      url:
+        v1: "https://api.geerongcloud.com/credit/v2/blacklist"
+        v2: "http://harmony.as.geerong.com/credit/service/blackListCheck"
     token: 735506dbda0040bab7d473f7027cd6fd
     secretKey: 5967f91866e8452eb12dfd07bad43b76
     countryCode: 84
+    region: VIETNAM
   xingtan:
     accessKey: b7354a93ba194e9c8dbab5b6ef3d62d0
     accessSecret: 2BD2397E05F491DB49FCAD6CE65E76386684C54FCFC98DEFBEBE924EBC5F44A6

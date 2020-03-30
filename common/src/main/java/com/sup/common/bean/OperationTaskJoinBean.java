@@ -15,7 +15,7 @@ public class OperationTaskJoinBean {
     private Integer applyStatus;
     private Integer id;
     private Date    createTime;
-    private Integer checkStatus;
+    // private Integer checkStatus;
     private Integer operatorId;
     private Integer loanAmt;
 }

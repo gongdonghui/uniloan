@@ -32,7 +32,7 @@ public interface ReportOverdueDetailMapper extends BaseMapper<TbReportOverdueDet
             "  ,(rs.act_total - rs.normal_repay) as recall_amount" +
             "  ,rp.repay_end_date as repay_end_date" +
             " from (" +
-            "   select * from tb_operation_task where task_type=3 and has_owner=1" +
+            "   select * from tb_operation_task where task_type=3 and has_owner=1 and operator_id is not null" +
             " ) ot" +
             " left join tb_apply_info ai on ot.apply_id=ai.id" +
             " left join tb_repay_stat rs on ot.apply_id=rs.apply_id" +

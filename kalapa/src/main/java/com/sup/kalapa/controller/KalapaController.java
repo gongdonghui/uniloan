@@ -51,7 +51,7 @@ public class KalapaController {
         redis.opsForValue().set(getKey(userId, type), msg, EXPIRE, TimeUnit.DAYS);
     }
 
-    @GetMapping(value = "getVSSInfo")
+    @PostMapping(value = "getVSSInfo")
     public Result<VSSResult> getVSSInfo(@RequestBody GetVSSInfoParams params) {
         Map header = ImmutableMap.of("Authorization", token);
         Map<String, String> params1 = Maps.newHashMap();
@@ -87,7 +87,7 @@ public class KalapaController {
         return Result.succ(vss);
     }
 
-    @GetMapping(value = "getCICBInfo")
+    @PostMapping(value = "getCICBInfo")
     public Result<CICBResult> getCICBInfo(@RequestBody GetCICBInfoParams params) {
         Map header = ImmutableMap.of("Authorization", token);
         Map<String, String> params1 = ImmutableMap.of("id", params.getId());
@@ -115,7 +115,7 @@ public class KalapaController {
         return Result.succ(cicbResult);
     }
 
-    @GetMapping(value = "getFBInfo")
+    @PostMapping(value = "getFBInfo")
     public Result<SocialNetworkInfo> getFBInfo(@RequestBody GetFBInfoParams params) {
         Map header = ImmutableMap.of("Authorization", token);
         Map<String, String> params1 = Maps.newHashMap();
