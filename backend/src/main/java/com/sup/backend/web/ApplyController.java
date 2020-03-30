@@ -79,6 +79,7 @@ public class ApplyController {
   @Value("${repay.bankbranch}")
   private String repay_bank_branch;
 
+  @Autowired
   private LangUtil trans;
 
   private Set<Integer> repay_status = new HashSet<Integer>(){{
@@ -86,25 +87,6 @@ public class ApplyController {
     add(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
     add(ApplyStatusEnum.APPLY_OVERDUE.getCode());
   }};
-
-  private String LoadResourceFile(String path) throws Exception {
-    ClassPathResource resource = new ClassPathResource(path);
-    InputStream inputStream = resource.getInputStream();
-    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-    String line;
-    StringBuffer sb = new StringBuffer();
-    while ((line = br.readLine()) != null) {
-      sb.append(line);
-    }
-    br.close();
-    return sb.toString();
-  }
-
-  @PostConstruct
-  public void Init() throws Exception {
-    trans = LangUtil.of(JSON.parseObject(LoadResourceFile("app.dict")));
-    //System.out.println("json_obj => " + JSON.toJSONString(trans));
-  }
 
   private Boolean NeedToRepay(Integer code) {
     return repay_status.contains(code);
