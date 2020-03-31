@@ -191,8 +191,8 @@ public class CertController {
           old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
           tb_user_basic_info_mapper.insert(old_bean);
         }
+        ret.getCert_info().put(APPLY_MATERIAL_BASIC.getCode(), old_bean.getInfo_id());
       }
-      ret.getCert_info().put(APPLY_MATERIAL_BASIC.getCode(), old_bean.getInfo_id());
     }
 
     // fetch contact !
