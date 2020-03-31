@@ -154,7 +154,7 @@ public class CertController {
       ret.setForbidden_new_apply(true);
       ret.setCurrent_apply_status(trans.GetTrans("apply_status", apply.getStatus().toString(), lang));
       ret.setCert_info(new HashMap<>());
-      return ret;
+      return ToolUtils.succ(ret);
     }
 
     ret.setCurrent_apply_status("");
