@@ -74,20 +74,23 @@ public class ApplyService {
     }
 
     public List<TbApplyInfoBean> getApplyInprogress(Integer userId) {
-        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id", userId);
-        wrapper.in("status", ApplyStatusEnum.APPLY_INIT.getCode()
-                , ApplyStatusEnum.APPLY_AUTO_PASS.getCode()
-                , ApplyStatusEnum.APPLY_FIRST_PASS.getCode()
-                , ApplyStatusEnum.APPLY_SECOND_PASS.getCode()
-                , ApplyStatusEnum.APPLY_FINAL_PASS.getCode()
-                , ApplyStatusEnum.APPLY_AUTO_LOANING.getCode()
-                , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode()
-                , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
-                , ApplyStatusEnum.APPLY_REPAY_PART.getCode()
-                , ApplyStatusEnum.APPLY_OVERDUE.getCode()
-        );
-        return applyInfoMapper.selectList(wrapper);
+        List<TbApplyInfoBean> infoBeans = applyInfoMapper.getApplyInprogress(userId);
+        log.info("getApplyInprogress(userId=" + userId + "):" + (infoBeans == null ? 0 : infoBeans.size()));
+        return infoBeans;
+//        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
+//        wrapper.eq("user_id", userId);
+//        wrapper.in("status", ApplyStatusEnum.APPLY_INIT.getCode()
+//                , ApplyStatusEnum.APPLY_AUTO_PASS.getCode()
+//                , ApplyStatusEnum.APPLY_FIRST_PASS.getCode()
+//                , ApplyStatusEnum.APPLY_SECOND_PASS.getCode()
+//                , ApplyStatusEnum.APPLY_FINAL_PASS.getCode()
+//                , ApplyStatusEnum.APPLY_AUTO_LOANING.getCode()
+//                , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode()
+//                , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
+//                , ApplyStatusEnum.APPLY_REPAY_PART.getCode()
+//                , ApplyStatusEnum.APPLY_OVERDUE.getCode()
+//        );
+//        return applyInfoMapper.selectList(wrapper);
     }
 
     public Result updateApplyInfo(TbApplyInfoBean bean) {
