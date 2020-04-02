@@ -1,9 +1,14 @@
 package com.sup.backend.config;
 
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.sup.backend.core.AuthorityInterceptor;
 import com.sup.backend.core.LoginInfoArgumentResolver;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
@@ -41,6 +46,16 @@ public class WebConfigurer implements WebMvcConfigurer {
     exec.setThreadNamePrefix("mvc-task-cus-");
     exec.setMaxPoolSize(20);
     return exec;
+  }
+
+  @Bean
+  public HttpMessageConverters fastJsonConverter() {
+    FastJsonHttpMessageConverter fast_converter = new FastJsonHttpMessageConverter();
+    FastJsonConfig cfg = new FastJsonConfig();
+    cfg.setSerializerFeatures(SerializerFeature.PrettyFormat);
+    fast_converter.setFastJsonConfig(cfg);
+    HttpMessageConverter<?> converter = fast_converter;
+    return new HttpMessageConverters(converter);
   }
 
   @Bean
