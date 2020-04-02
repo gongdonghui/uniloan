@@ -174,7 +174,7 @@ public class CertController {
           old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
           tb_user_citizen_identity_card_info_mapper.insert(old_bean);
         }
-        ret.getCert_info().put(APPLY_MATERIAL_IDC.getCode(), old_bean.getInfo_id());
+        ret.getCert_info().put(Integer.valueOf(APPLY_MATERIAL_IDC.getCode()).toString(), old_bean.getInfo_id());
       }
     }
 
@@ -191,7 +191,7 @@ public class CertController {
           old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
           tb_user_basic_info_mapper.insert(old_bean);
         }
-        ret.getCert_info().put(APPLY_MATERIAL_BASIC.getCode(), old_bean.getInfo_id());
+        ret.getCert_info().put(Integer.valueOf(APPLY_MATERIAL_BASIC.getCode()).toString(), old_bean.getInfo_id());
       }
     }
 
@@ -212,7 +212,7 @@ public class CertController {
             tb_user_emergency_contact_mapper.insert(v);
           });
         }
-        ret.getCert_info().put(APPLY_MATERIAL_CONTACT.getCode(), cands.get(0).getInfo_id());
+        ret.getCert_info().put(Integer.valueOf(APPLY_MATERIAL_CONTACT.getCode()).toString(), cands.get(0).getInfo_id());
       }
     }
 
@@ -230,7 +230,7 @@ public class CertController {
           old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
           tb_user_employment_info_mapper.insert(old_bean);
         }
-        ret.getCert_info().put(APPLY_MATERIAL_EMPLOYMENT.getCode(), old_bean.getInfo_id());
+        ret.getCert_info().put(Integer.valueOf(APPLY_MATERIAL_EMPLOYMENT.getCode()).toString(), old_bean.getInfo_id());
       }
     }
 
@@ -247,7 +247,7 @@ public class CertController {
           old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
           tb_user_bank_account_mapper.insert(old_bean);
         }
-        ret.getCert_info().put(APPLY_MATERIAL_BANK.getCode(), old_bean.getInfo_id());
+        ret.getCert_info().put(Integer.valueOf(APPLY_MATERIAL_BANK.getCode()).toString(), old_bean.getInfo_id());
       }
     }
     return ToolUtils.succ(ret);

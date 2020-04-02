@@ -18,6 +18,6 @@ import java.util.Map;
 public class AppUserCertStatus {
   private boolean forbidden_new_apply;
   private String current_apply_status;
-  private Map<Integer, String> cert_info;
+  private Map<String, String> cert_info;
 
 }
