@@ -24,6 +24,8 @@ public class TbUserCitizenIdentityCardInfoBean {
   private String name;
   private String cid_no;
   private Integer gender;
+  private Date birthday;
+  private Integer age;
   private String pic_1;
   private String pic_2;
   private String pic_3;

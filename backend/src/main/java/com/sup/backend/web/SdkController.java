@@ -2,22 +2,17 @@ package com.sup.backend.web;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.netflix.discovery.converters.Auto;
 import com.sup.backend.bean.AppSdkAppListInfo;
 import com.sup.backend.bean.AppSdkContactInfo;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.ApplicationContextHelper;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
-import com.sup.backend.mapper.TbAppSdkAppListInfoMapper;
-import com.sup.backend.mapper.TbAppSdkContractInfoMapper;
-import com.sup.backend.mapper.TbAppSdkLocationInfoMapper;
-import com.sup.backend.mapper.TbUserRegistInfoMapper;
+import com.sup.backend.mapper.*;
 import com.sup.backend.service.BackgroundService;
 import com.sup.backend.util.ToolUtils;
-import com.sup.common.bean.TbAppSdkAppListInfoBean;
-import com.sup.common.bean.TbAppSdkContractInfoBean;
-import com.sup.common.bean.TbAppSdkLocationInfoBean;
-import com.sup.common.bean.TbUserRegistInfoBean;
+import com.sup.common.bean.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +50,17 @@ public class SdkController {
 
   @Autowired
   BackgroundService background_service;
+
+  @Autowired
+  TbInstallClickInfoMapper tb_install_click_mapper;
+
+  @ResponseBody
+  @RequestMapping(value = "install/report", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Object ReportInstall(@RequestBody TbInstallClickInfoBean install) {
+    logger.info("install_record: " + JSON.toJSONStringWithDateFormat(install, ToolUtils.DEFAULT_DATE_FORMAT));
+    tb_install_click_mapper.insert(install);
+    return ToolUtils.succ(null);
+  }
 
   @ResponseBody
   @RequestMapping(value = "loc/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

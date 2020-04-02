@@ -34,6 +34,8 @@ public class AppTbUserCitizenIdentityCardInfoBean {
   private String pic_2;
   @NotEmpty(message = "error_param")
   private String pic_3;
+  private Date birthday;
+  private Integer age;
   private String pic_4;
   Date create_time;
   Date expire_time;
