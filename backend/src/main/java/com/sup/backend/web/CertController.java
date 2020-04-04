@@ -434,7 +434,9 @@ public class CertController {
       old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
       mapper.insert(old_bean);
     }
-    return ToolUtils.succ(old_bean);
+    AppTbUserCitizenIdentityCardInfoBean app_id = new AppTbUserCitizenIdentityCardInfoBean();
+    BeanUtils.copyProperties(old_bean, app_id);
+    return ToolUtils.succ(app_id);
   }
 
   // add/update/get user basic info

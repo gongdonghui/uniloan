@@ -515,7 +515,7 @@ CREATE TABLE if NOT EXISTS `tb_user_employment_info` (
   `job_occupation` tinyint(4) NOT NULL COMMENT '职业类型 0|工程师  1|服务行业',
   `work_period` tinyint(4) default null COMMENT '工作时长',
   `income` tinyint(4) default null COMMENT '收入状态 0|1~100  1|100~1000',
-  `work_pic` varchar(128) NOT NULL COMMENT '工作照片',
+  `work_pic` varchar(128) default NULL COMMENT '工作照片',
   `create_time` datetime NOT NULL,
   `expire_time` datetime NOT NULL DEFAULT '2199-01-01 00:00:00' COMMENT '有效期',
   PRIMARY KEY (`id`),
