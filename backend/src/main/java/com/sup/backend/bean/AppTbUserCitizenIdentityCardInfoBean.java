@@ -3,6 +3,7 @@ package com.sup.backend.bean;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -34,6 +35,7 @@ public class AppTbUserCitizenIdentityCardInfoBean {
   private String pic_2;
   @NotEmpty(message = "error_param")
   private String pic_3;
+  @JsonFormat(pattern="yyyy-MM-dd")
   private Date birthday;
   private Integer age;
   private String pic_4;

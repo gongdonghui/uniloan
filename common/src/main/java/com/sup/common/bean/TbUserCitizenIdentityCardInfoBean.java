@@ -3,6 +3,7 @@ package com.sup.common.bean;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -24,6 +25,7 @@ public class TbUserCitizenIdentityCardInfoBean {
   private String name;
   private String cid_no;
   private Integer gender;
+  @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
   private Date birthday;
   private Integer age;
   private String pic_1;

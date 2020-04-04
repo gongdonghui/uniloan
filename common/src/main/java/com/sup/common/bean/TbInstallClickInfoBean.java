@@ -22,7 +22,9 @@ public class TbInstallClickInfoBean {
     @TableId(type = IdType.AUTO)
     private Integer id;         // apply_id
     private String install_referrer;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date referrer_click_date;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date install_begin_date;
     private String deviceid;
     private String mobile;

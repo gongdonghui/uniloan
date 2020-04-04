@@ -50,7 +50,6 @@ public class WebConfigurer implements WebMvcConfigurer {
     return exec;
   }
 
-  @Bean
   public HttpMessageConverters fastJsonConverter() {
     FastJsonHttpMessageConverter fast_converter = new FastJsonHttpMessageConverter();
     FastJsonConfig cfg = new FastJsonConfig();
