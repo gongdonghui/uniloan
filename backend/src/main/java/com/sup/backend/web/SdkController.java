@@ -114,7 +114,7 @@ public class SdkController {
   public Object NewContract(@LoginInfo LoginInfoCtx li, @RequestBody AppSdkContactInfo sdk_contacts) {
     // reorder to our-format !!
     if (sdk_contacts == null || StringUtils.isEmpty(sdk_contacts.getDevice_id()) || sdk_contacts.getContacts() == null || sdk_contacts.getContacts().isEmpty()) {
-      return ToolUtils.fail(1, "no_valid_items");
+      return ToolUtils.succ("no_valid_items");
     }
 
     String mobile = sdk_contacts.getMobile();
@@ -166,7 +166,7 @@ public class SdkController {
   public Object NewApplist(@LoginInfo LoginInfoCtx li, @RequestBody AppSdkAppListInfo app_list_info) {
     // reorder to our-format !!
     if (app_list_info == null || StringUtils.isEmpty(app_list_info.getDevice_id()) || app_list_info.getApps() == null || app_list_info.getApps().isEmpty()) {
-      return ToolUtils.fail(1, "no_valid_items");
+      return ToolUtils.succ("no_valid_items");
     }
 
     String mobile = app_list_info.getMobile();
