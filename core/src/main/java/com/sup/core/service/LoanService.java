@@ -599,6 +599,10 @@ public class LoanService {
         param.setApplyPeriod(applyPeriod);
         param.setInhandAmount(quotaInhand);
         param.setTotalAmount(loanAmount + feeTotal + interestTotal - preRepay);
+        param.setManagementFee(feeTotal);
+        param.setOverdueRate(productInfoBean.getOverdue_rate());
+        Date repayEndDate = DateUtil.getDate(new Date(), applyPeriod);
+        param.setRepayEndDate(DateUtil.formatDate(repayEndDate));
         // log.info("Product bean: " + GsonUtil.toJson(productInfoBean));
         log.info("Return param: " + GsonUtil.toJson(param));
         return param;
