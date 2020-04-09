@@ -142,3 +142,53 @@ rocket:
     endpoint: uniloan01:9976
     group: market
 
+
+---
+spring:
+  profiles: test2
+  datasource:
+    dynamic:
+      hikari:
+        connection-timeout: 3000
+
+      primary: test2
+      datasource:
+        test2:
+          username: dev_online
+          password: JPTmkZT5QmAV4s
+          url: 'jdbc:mysql://127.0.0.1/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          driver-class-name: com.mysql.jdbc.Driver
+          hikari:
+            max-lifetime: 300000
+
+sms:
+  skyline:
+    retry: 3
+    mock: false
+    pattern: '^\+?(0|84|084)?(\d+)$'
+    area-code: 84
+    uri: http://sms.skylinelabs.cc:20003/sendsmsV2
+    account: 123
+    password: 123
+    vip-account: 123
+    vip-password: 123
+
+server:
+  port: 20083
+  tomcat:
+    max-threads: 4
+  connection-timeout: 180000
+
+ontime-delivery:
+  redisson:
+    host: 127.0.0.1
+    port: 6388
+    auth: 13JPTmkZT5QmAV4s
+
+rocket:
+  consumer:
+    endpoint: 127.0.0.1:9976
+    group: market
+  producer:
+    endpoint: 127.0.0.1:9976
+    group: market

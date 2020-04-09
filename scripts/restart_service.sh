@@ -8,7 +8,7 @@ profile="test"
 
 if [ $# != 2 ]; then
     echo "Usage: $0 <spring profile> <jar name>"
-    echo "  spring profile  : test/online/online2"
+    echo "  spring profile  : test/test2/online/online2"
     echo "  jar name        : backend/cms/core/eureka/market/kalapa/paycenter"
     exit 1
 fi
