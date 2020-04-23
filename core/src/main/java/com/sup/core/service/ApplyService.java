@@ -118,8 +118,10 @@ public class ApplyService {
             case APPLY_INIT:
                 bean.setCreate_time(now);
                 break;
-            case APPLY_AUTO_PASS:   // 自动审核通过，添加初审任务
-                addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_FIRST_AUDIT, "");
+            case APPLY_AUTO_PASS:
+                // // 自动审核通过，添加初审任务
+                // addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_FIRST_AUDIT, "");
+                addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_FINAL_AUDIT, "");
                 break;
             case APPLY_FIRST_PASS:  // 初审通过，添加终审任务
                 addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_FINAL_AUDIT, "");
