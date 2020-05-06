@@ -136,7 +136,7 @@ thirdparty:
 
 model:
     name: A001
-    path:  /root/
+    path:  /root/models/A001.pmml
 ---
 spring:
   profiles: online
