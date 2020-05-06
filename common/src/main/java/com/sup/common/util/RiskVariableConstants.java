@@ -24,6 +24,7 @@ public class RiskVariableConstants {
     public static final String BLACKLIST_XT= "blacklist_xingtan";
     public static final String BLACKLIST_INNER = "blacklist_inner";
     public static final String USER_ID= "user_identity";
+    public static final String A001NegProb= "A001NegProb";
 
     public static List<String> getVariableList() {
         List<String> list = new ArrayList<>();
@@ -41,6 +42,7 @@ public class RiskVariableConstants {
         list.add(BLACKLIST_JR);
         list.add(BLACKLIST_XT);
         list.add(BLACKLIST_INNER);
+        list.add(A001NegProb);
         return list;
 
     }
