@@ -7,26 +7,25 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.google.common.collect.ImmutableMap;
-import com.sup.backend.bean.AppTbUserBasicInfoBean;
-import com.sup.backend.bean.AppTbUserCitizenIdentityCardInfoBean;
-import com.sup.backend.bean.AppVoucherImage;
-import com.sup.backend.bean.LoginInfoCtx;
+import com.sup.backend.bean.*;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
 import com.sup.backend.mapper.*;
 import com.sup.backend.service.RedisClient;
+import com.sup.backend.util.LangUtil;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.*;
-import com.sup.common.loan.ApplyMaterialTypeEnum;
-import com.sup.common.loan.DocumentaryImageCategoryEnum;
-import com.sup.common.loan.DocumentaryImageObjectEnum;
-import com.sup.common.loan.DocumentaryImageUploadTypeEnum;
+import com.sup.common.loan.*;
+import lombok.extern.java.Log;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -35,6 +34,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.sup.common.loan.ApplyMaterialTypeEnum.*;
 import static com.sup.common.loan.DocumentaryImageObjectEnum.*;
 
 /**
@@ -63,7 +63,10 @@ public class CertController {
   TbApplyMaterialInfoMapper tb_apply_info_material_mapper;
   @Autowired
   TbUserDocumentaryImageMapper tb_user_documentary_image_mapper;
-
+  @Autowired
+  TbApplyInfoMapper tb_apply_info_mapper;
+  @Autowired
+  private LangUtil trans;
 
   private boolean CheckDuplicateSubmit(String uri, Integer user_id) {
     String dup_key = String.format("submit|%d_%s", user_id, uri);
@@ -123,6 +126,131 @@ public class CertController {
       tb_user_documentary_image_mapper.updateById(user_img);
     }
     return user_img.getId();
+  }
+
+  @LoginRequired
+  @ResponseBody
+  @RequestMapping(value = "cert_status", produces = "application/json;charset=UTF-8")
+  public Object GetCertStatus(@LoginInfo LoginInfoCtx li) {
+    AppUserCertStatus ret = new AppUserCertStatus();
+    Integer user_id = li.getUser_id();
+    QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
+    wrapper.eq("user_id", user_id);
+    wrapper.in("status", ApplyStatusEnum.APPLY_INIT.getCode()
+        , ApplyStatusEnum.APPLY_AUTO_PASS.getCode()
+        , ApplyStatusEnum.APPLY_FIRST_PASS.getCode()
+        , ApplyStatusEnum.APPLY_SECOND_PASS.getCode()
+        , ApplyStatusEnum.APPLY_FINAL_PASS.getCode()
+        , ApplyStatusEnum.APPLY_AUTO_LOANING.getCode()
+        , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode()
+        , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
+        , ApplyStatusEnum.APPLY_REPAY_PART.getCode()
+        , ApplyStatusEnum.APPLY_OVERDUE.getCode()
+    );
+    wrapper.orderByDesc("create_time").last("limit 1");
+    String lang = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("lang");
+    TbApplyInfoBean apply = tb_apply_info_mapper.selectOne(wrapper);
+    if (apply != null) {
+      ret.setForbidden_new_apply(true);
+      ret.setCurrent_apply_status(trans.GetTrans("apply_status", apply.getStatus().toString(), lang));
+      ret.setCert_info(new HashMap<>());
+      return ToolUtils.succ(ret);
+    }
+
+    ret.setCurrent_apply_status("");
+    ret.setForbidden_new_apply(false);
+    ret.setCert_info(new HashMap<>());
+
+    // fetch idc info;
+    {
+      Wrapper<TbUserCitizenIdentityCardInfoBean> cond = new QueryWrapper<TbUserCitizenIdentityCardInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
+      TbUserCitizenIdentityCardInfoBean old_bean = tb_user_citizen_identity_card_info_mapper.selectOne(cond);
+      if (old_bean != null && old_bean.getExpire_time().getTime() > System.currentTimeMillis()) {
+        TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_type", APPLY_MATERIAL_IDC.getCode()).eq("info_id", old_bean.getInfo_id()).last("limit 1"));
+        if (apply_material != null) {
+          old_bean.setInfo_id(ToolUtils.getToken());
+          old_bean.setId(null);
+          old_bean.setCreate_time(new Date());
+          old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
+          tb_user_citizen_identity_card_info_mapper.insert(old_bean);
+        }
+        ret.getCert_info().put(Integer.valueOf(APPLY_MATERIAL_IDC.getCode()).toString(), old_bean.getInfo_id());
+      }
+    }
+
+    // fetch basic
+    {
+      Wrapper<TbUserBasicInfoBean> cond = new QueryWrapper<TbUserBasicInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
+      TbUserBasicInfoBean old_bean = tb_user_basic_info_mapper.selectOne(cond);
+      if (old_bean != null && old_bean.getExpire_time().getTime() > System.currentTimeMillis()) {
+        TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_type", APPLY_MATERIAL_BASIC.getCode()).eq("info_id", old_bean.getInfo_id()).last("limit 1"));
+        if (apply_material != null) {
+          old_bean.setId(null);
+          old_bean.setInfo_id(ToolUtils.getToken());
+          old_bean.setCreate_time(new Date());
+          old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
+          tb_user_basic_info_mapper.insert(old_bean);
+        }
+        ret.getCert_info().put(Integer.valueOf(APPLY_MATERIAL_BASIC.getCode()).toString(), old_bean.getInfo_id());
+      }
+    }
+
+    // fetch contact !
+    {
+      Wrapper<TbUserEmergencyContactBean> cond = new QueryWrapper<TbUserEmergencyContactBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
+      TbUserEmergencyContactBean old_bean = tb_user_emergency_contact_mapper.selectOne(cond);
+      if (old_bean != null && old_bean.getExpire_time().getTime() > System.currentTimeMillis()) {
+        List<TbUserEmergencyContactBean> cands = tb_user_emergency_contact_mapper.selectList(new QueryWrapper<TbUserEmergencyContactBean>().eq("info_id", old_bean.getInfo_id()));
+        TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_type", APPLY_MATERIAL_CONTACT.getCode()).eq("info_id", old_bean.getInfo_id()).last("limit 1"));
+        if (apply_material != null) {
+          final String new_info_id = ToolUtils.getToken();
+          cands.stream().forEach(v -> {
+            v.setId(null);
+            v.setInfo_id(new_info_id);
+            v.setCreate_time(new Date());
+            v.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
+            tb_user_emergency_contact_mapper.insert(v);
+          });
+        }
+        ret.getCert_info().put(Integer.valueOf(APPLY_MATERIAL_CONTACT.getCode()).toString(), cands.get(0).getInfo_id());
+      }
+    }
+
+    // fetch employment
+    {
+      //APPLY_MATERIAL_EMPLOYMENT
+      Wrapper<TbUserEmploymentInfoBean> cond = new QueryWrapper<TbUserEmploymentInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
+      TbUserEmploymentInfoBean old_bean = tb_user_employment_info_mapper.selectOne(cond);
+      if (old_bean != null && old_bean.getExpire_time().getTime() > System.currentTimeMillis()) {
+        TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_type", APPLY_MATERIAL_EMPLOYMENT.getCode()).eq("info_id", old_bean.getInfo_id()).last("limit 1"));
+        if (apply_material != null) {
+          old_bean.setId(null);
+          old_bean.setInfo_id(ToolUtils.getToken());
+          old_bean.setCreate_time(new Date());
+          old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
+          tb_user_employment_info_mapper.insert(old_bean);
+        }
+        ret.getCert_info().put(Integer.valueOf(APPLY_MATERIAL_EMPLOYMENT.getCode()).toString(), old_bean.getInfo_id());
+      }
+    }
+
+    // fetch APPLY_MATERIAL_BANK
+    {
+      Wrapper<TbUserBankAccountInfoBean> cond = new QueryWrapper<TbUserBankAccountInfoBean>().eq("user_id", li.getUser_id()).orderByDesc("create_time").last("limit 1");
+      TbUserBankAccountInfoBean old_bean = tb_user_bank_account_mapper.selectOne(cond);
+      if (old_bean != null && old_bean.getExpire_time().getTime() > System.currentTimeMillis()) {
+        TbApplyMaterialInfoBean apply_material = tb_apply_info_material_mapper.selectOne(new QueryWrapper<TbApplyMaterialInfoBean>().eq("info_type", APPLY_MATERIAL_BANK.getCode()).eq("info_id", old_bean.getInfo_id()).last("limit 1"));
+        if (apply_material != null) {
+          old_bean.setId(null);
+          old_bean.setInfo_id(ToolUtils.getToken());
+          old_bean.setCreate_time(new Date());
+          old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
+          tb_user_bank_account_mapper.insert(old_bean);
+        }
+        ret.getCert_info().put(Integer.valueOf(APPLY_MATERIAL_BANK.getCode()).toString(), old_bean.getInfo_id());
+      }
+    }
+    return ToolUtils.succ(ret);
   }
 
   @LoginRequired
@@ -306,7 +434,9 @@ public class CertController {
       old_bean.setExpire_time(Date.from(LocalDateTime.now().plusYears(1l).atZone(ZoneId.systemDefault()).toInstant()));
       mapper.insert(old_bean);
     }
-    return ToolUtils.succ(old_bean);
+    AppTbUserCitizenIdentityCardInfoBean app_id = new AppTbUserCitizenIdentityCardInfoBean();
+    BeanUtils.copyProperties(old_bean, app_id);
+    return ToolUtils.succ(app_id);
   }
 
   // add/update/get user basic info

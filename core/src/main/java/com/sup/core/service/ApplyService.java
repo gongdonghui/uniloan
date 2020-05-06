@@ -74,20 +74,23 @@ public class ApplyService {
     }
 
     public List<TbApplyInfoBean> getApplyInprogress(Integer userId) {
-        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id", userId);
-        wrapper.in("status", ApplyStatusEnum.APPLY_INIT.getCode()
-                , ApplyStatusEnum.APPLY_AUTO_PASS.getCode()
-                , ApplyStatusEnum.APPLY_FIRST_PASS.getCode()
-                , ApplyStatusEnum.APPLY_SECOND_PASS.getCode()
-                , ApplyStatusEnum.APPLY_FINAL_PASS.getCode()
-                , ApplyStatusEnum.APPLY_AUTO_LOANING.getCode()
-                , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode()
-                , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
-                , ApplyStatusEnum.APPLY_REPAY_PART.getCode()
-                , ApplyStatusEnum.APPLY_OVERDUE.getCode()
-        );
-        return applyInfoMapper.selectList(wrapper);
+        List<TbApplyInfoBean> infoBeans = applyInfoMapper.getApplyInprogress(userId);
+        log.info("getApplyInprogress(userId=" + userId + "):" + (infoBeans == null ? 0 : infoBeans.size()));
+        return infoBeans;
+//        QueryWrapper<TbApplyInfoBean> wrapper = new QueryWrapper<>();
+//        wrapper.eq("user_id", userId);
+//        wrapper.in("status", ApplyStatusEnum.APPLY_INIT.getCode()
+//                , ApplyStatusEnum.APPLY_AUTO_PASS.getCode()
+//                , ApplyStatusEnum.APPLY_FIRST_PASS.getCode()
+//                , ApplyStatusEnum.APPLY_SECOND_PASS.getCode()
+//                , ApplyStatusEnum.APPLY_FINAL_PASS.getCode()
+//                , ApplyStatusEnum.APPLY_AUTO_LOANING.getCode()
+//                , ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED.getCode()
+//                , ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()
+//                , ApplyStatusEnum.APPLY_REPAY_PART.getCode()
+//                , ApplyStatusEnum.APPLY_OVERDUE.getCode()
+//        );
+//        return applyInfoMapper.selectList(wrapper);
     }
 
     public Result updateApplyInfo(TbApplyInfoBean bean) {
@@ -115,8 +118,10 @@ public class ApplyService {
             case APPLY_INIT:
                 bean.setCreate_time(now);
                 break;
-            case APPLY_AUTO_PASS:   // 自动审核通过，添加初审任务
-                addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_FIRST_AUDIT, "");
+            case APPLY_AUTO_PASS:
+                // // 自动审核通过，添加初审任务
+                // addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_FIRST_AUDIT, "");
+                addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_FINAL_AUDIT, "");
                 break;
             case APPLY_FIRST_PASS:  // 初审通过，添加终审任务
                 addOperationTask(bean.getId(), OperationTaskTypeEnum.TASK_FINAL_AUDIT, "");

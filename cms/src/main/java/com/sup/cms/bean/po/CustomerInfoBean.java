@@ -1,5 +1,6 @@
 package com.sup.cms.bean.po;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -15,5 +16,6 @@ public class CustomerInfoBean {
     private String mobile;
     private String cidNo;
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date registDate;
 }

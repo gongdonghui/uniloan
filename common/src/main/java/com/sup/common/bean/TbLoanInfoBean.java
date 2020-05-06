@@ -3,6 +3,7 @@ package com.sup.common.bean;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sup.common.loan.RepayPlanOverdueEnum;
 import lombok.Data;
 
@@ -48,7 +49,9 @@ public class TbLoanInfoBean {
     private Long    overdue_amount = 0L;        // 逾期金额
     private Long    remain_overdue_amount = 0L; // 剩余逾期金额
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date create_time;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date update_time;
 
 }
