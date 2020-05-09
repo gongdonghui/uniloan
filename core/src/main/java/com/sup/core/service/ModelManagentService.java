@@ -23,7 +23,7 @@ import java.util.Map;
  */
 @Service
 public class ModelManagentService {
-    @Value("${mode.name}")
+    @Value("${model.name}")
     private String modelName;
     @Value("${model.path}")
     private String modelPath;
