@@ -2,7 +2,10 @@ package com.sup.core.service;
 
 import org.dmg.pmml.FieldName;
 import org.dmg.pmml.PMML;
-import org.jpmml.evaluator.*;
+import org.jpmml.evaluator.Evaluator;
+import org.jpmml.evaluator.FieldValue;
+import org.jpmml.evaluator.InputField;
+import org.jpmml.evaluator.ModelEvaluatorFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
@@ -29,6 +32,8 @@ public class ModelManagentService {
     private String modelPath;
 
     private  Evaluator  evaluator;
+
+    private static final Double  DEFAULT_VALUE = -9999.0;
 
     @PostConstruct
     private void loadPmml() {
@@ -64,7 +69,7 @@ public class ModelManagentService {
 
     public double predict( Map<String, Double> featuremap) {
         if(this.evaluator ==null) {
-            return  -9999.0f;
+            return  DEFAULT_VALUE;
         }
 
         List<InputField> inputFields = evaluator.getInputFields();
@@ -77,21 +82,18 @@ public class ModelManagentService {
         }
 
         Map<FieldName, ?> results = evaluator.evaluate(arguments);
-        List<TargetField> targetFields = evaluator.getTargetFields();
 
-        TargetField targetField = targetFields.get(0);
-        FieldName targetFieldName = targetField.getName();
-
-        Object targetFieldValue = results.get(targetFieldName);
-        System.out.println("target: " + targetFieldName.getValue() + " value: " + targetFieldValue);
-        double primitiveValue = -1.0f;
-        if (targetFieldValue instanceof Computable) {
-            Computable computable = (Computable) targetFieldValue;
-            System.out.println(computable.getResult());
-
-            primitiveValue = (double) computable.getResult();
+        for (FieldName fieldName : results.keySet()) {
+            if (fieldName.toString().equals("probability(1)")) {
+                Object ret = results.get(fieldName);
+                if (ret instanceof Float || ret instanceof   Double) {
+                    return (Float) ret;
+                } else {
+                    return  DEFAULT_VALUE;
+                }
+            }
         }
-        return primitiveValue;
+        return  DEFAULT_VALUE;
     }
 
 
