@@ -342,7 +342,9 @@ thirdparty:
     blacklist:
       url: "https://rest.star-detector.vn.starwin.tech/single-pre-rc-report/prc-blacklist"
 
-
+model:
+    name: A001
+    path:  /root/models/A001.pmml
 
 
 
