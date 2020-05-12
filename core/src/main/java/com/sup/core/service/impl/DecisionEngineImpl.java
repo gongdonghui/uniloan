@@ -341,7 +341,9 @@ public class DecisionEngineImpl implements DecesionEngine {
         riskBean.put(RiskVariableConstants.A001NegProb, a001_score);
 
 
-        //String content = GsonUtil.toJson(riskBean);
+        String content = GsonUtil.toJson(riskBean);
+
+        log.info("userid:"+userId+",risk bean:"+content);
 
 
         return riskBean;

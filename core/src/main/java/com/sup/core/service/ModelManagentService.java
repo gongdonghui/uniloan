@@ -1,5 +1,6 @@
 package com.sup.core.service;
 
+import lombok.extern.log4j.Log4j;
 import org.dmg.pmml.FieldName;
 import org.dmg.pmml.PMML;
 import org.jpmml.evaluator.Evaluator;
@@ -18,12 +19,13 @@ import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+import com.sup.common.util.GsonUtil;
 /**
  * gongshuai
  * <p>
  * 2020/3/29
  */
+@Log4j
 @Service
 public class ModelManagentService {
     @Value("${model.name}")
@@ -87,6 +89,7 @@ public class ModelManagentService {
             if (fieldName.toString().equals("probability(1)")) {
                 Object ret = results.get(fieldName);
                 if (ret instanceof Float || ret instanceof   Double) {
+                    log.info("A001NegProb Score:"+ ret+",Input:"+ GsonUtil.toJson(featuremap));
                     return (Float) ret;
                 } else {
                     return  DEFAULT_VALUE;
