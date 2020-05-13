@@ -203,9 +203,9 @@ public class DecisionEngineImpl implements DecesionEngine {
         ret.put("app3", getRatio(ec, appsize));
         ret.put("app4", getRatio(fc, appsize));
         ret.put("app5", getRatio(wc, appsize));
-        ret.put("ret6", getRatio(pay, appsize));
-        ret.put("ret7", getRatio(wm, appsize));
-        ret.put("ret8", getRatio(didi, appsize));
+        ret.put("app6", getRatio(pay, appsize));
+        ret.put("app7", getRatio(wm, appsize));
+        ret.put("app8", getRatio(didi, appsize));
         return ret;
     }
 
