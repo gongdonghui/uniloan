@@ -16,10 +16,11 @@ ssdb:
     h: 600
     w: 800
 
+
 repay:
-  accountno: 315832828
-  bankaccount: 'CÔNG TY TNHH ĐÔNG NAM PRIMA'
-  bankbranch: 'NGÂN HÀNG Á CHÂU – CHI NHÁNH BẾN THÀNH'
+  accountno: 0660111344008
+  bankaccount: 'NGUYEN THI NHUNG'
+  bankbranch: 'MB Bank(Hai Phong)'
 
 feign:
   hystrix:
