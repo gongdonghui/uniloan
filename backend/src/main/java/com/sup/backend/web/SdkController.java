@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.netflix.discovery.converters.Auto;
 import com.sup.backend.bean.AppSdkAppListInfo;
 import com.sup.backend.bean.AppSdkContactInfo;
+import com.sup.backend.bean.AppTbInstallClickInfo;
 import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.ApplicationContextHelper;
 import com.sup.backend.core.LoginInfo;
@@ -56,8 +57,18 @@ public class SdkController {
 
   @ResponseBody
   @RequestMapping(value = "install/report", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  public Object ReportInstall(@RequestBody TbInstallClickInfoBean install) {
-    logger.info("install_record: " + JSON.toJSONStringWithDateFormat(install, ToolUtils.DEFAULT_DATE_FORMAT));
+  public Object ReportInstall(@RequestBody AppTbInstallClickInfo param) {
+    logger.info("install_record: " + JSON.toJSONStringWithDateFormat(param, ToolUtils.DEFAULT_DATE_FORMAT));
+    TbInstallClickInfoBean install = new TbInstallClickInfoBean();
+    install.setDeviceid(param.getDevice_id());
+    install.setMobile(param.getMobile());
+    install.setInstall_referrer(param.getInstall_referrer());
+    if (param.getInstall_begin_date() != null) {
+      install.setInstall_begin_date(new Date(param.getInstall_begin_date()*1000l));
+    }
+    if (param.getReferrer_click_date() != null) {
+      install.setReferrer_click_date(new Date(param.getReferrer_click_date()*1000l));
+    }
     tb_install_click_mapper.insert(install);
     return ToolUtils.succ(null);
   }
@@ -77,7 +88,7 @@ public class SdkController {
   @LoginRequired
   @ResponseBody
   @RequestMapping(value = "loc/new", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  public Object NewLocation(@LoginInfo LoginInfoCtx li, @RequestBody TbAppSdkLocationInfoBean bean) {
+    public Object NewLocation(@LoginInfo LoginInfoCtx li, @RequestBody TbAppSdkLocationInfoBean bean) {
     if (StringUtils.isEmpty(bean.getApply_lat()) || StringUtils.isEmpty(bean.getApply_long())) {
       return ToolUtils.succ(null);
     }
@@ -184,7 +195,7 @@ public class SdkController {
       bean.setMobile(app_list_info.getMobile());
       bean.setDevice_id(app_list_info.getDevice_id());
       bean.setApk_name(item.getApk_name());
-      bean.setInstall_time(ToolUtils.NormTime(item.getInstall_time()));
+      bean.setInstall_time(new Date(item.getInstall_time()*1000l));
       bean.setApk_label(item.getApk_label());
       bean.setSignature(bean.calcSignature());
       bean.setCreate_time(dt);
