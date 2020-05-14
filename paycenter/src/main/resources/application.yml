@@ -135,7 +135,7 @@ paycenter:
   businessId: "506"
   feeId: "486"
   version:  "1.3"
-  url:  "https://sandbox.funpay.asia"
+  url:  "https://payment.funpay.asia"
   method:
     getBankList: "/fun/transfer/getBankList"
     verifyBankInfo: "/fun/transfer/verifyBankInfo"
