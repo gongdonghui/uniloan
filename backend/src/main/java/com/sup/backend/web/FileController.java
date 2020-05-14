@@ -4,6 +4,7 @@ import com.sup.backend.bean.LoginInfoCtx;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
 import com.sup.backend.service.SSDBClient;
+import com.sup.backend.util.LangUtil;
 import com.sup.backend.util.ToolUtils;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.lang3.RandomUtils;
@@ -36,6 +37,15 @@ public class FileController {
 
   @Autowired
   SSDBClient ssdbClient;
+
+  @Autowired
+  private LangUtil trans;
+
+  @ResponseBody
+  @RequestMapping(value = "lang/get", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Object GetLang() {
+    return trans.getTrans_map();
+  }
 
   @ResponseBody
   @RequestMapping(value = "image/get", produces = MediaType.IMAGE_JPEG_VALUE)
