@@ -10,8 +10,8 @@ import java.util.Date;
 @Data
 public class AppTbInstallClickInfo {
   private String install_referrer;
-  private Long referrer_click_date;
-  private Long install_begin_date;
+  private String referrer_click_date;
+  private String install_begin_date;
   private String device_id;
   private String mobile;
 }

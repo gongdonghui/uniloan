@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,7 +39,11 @@ public class ToolUtils {
   public static Date NormTime(String p) {
     synchronized (sdf) {
       try {
-        return sdf.parse(p);
+        Date d = sdf.parse(p);
+        if (Integer.valueOf(p.substring(0, p.indexOf('-'))) > 2020) {
+          d = new Date(d.getTime()/1000l);
+        }
+        return d;
       } catch (Exception e) {
         return null;
       }

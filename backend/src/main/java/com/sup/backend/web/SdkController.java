@@ -64,10 +64,10 @@ public class SdkController {
     install.setMobile(param.getMobile());
     install.setInstall_referrer(param.getInstall_referrer());
     if (param.getInstall_begin_date() != null) {
-      install.setInstall_begin_date(new Date(param.getInstall_begin_date()*1000l));
+      install.setInstall_begin_date(ToolUtils.NormTime(param.getInstall_begin_date()));
     }
     if (param.getReferrer_click_date() != null) {
-      install.setReferrer_click_date(new Date(param.getReferrer_click_date()*1000l));
+      install.setReferrer_click_date(ToolUtils.NormTime(param.getReferrer_click_date()));
     }
     tb_install_click_mapper.insert(install);
     return ToolUtils.succ(null);
