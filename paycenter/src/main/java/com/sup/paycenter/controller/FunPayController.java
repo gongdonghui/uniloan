@@ -83,7 +83,7 @@ public class FunPayController {
         m.put("version", version);
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_getBankList + "?param=" + param);
-        log.info("getBankList:::result=" + result);
+        log.info("getBankList:::result=" + result + ", param=" + param);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
