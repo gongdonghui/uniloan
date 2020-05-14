@@ -18,7 +18,7 @@ public class AppSdkAppListInfo {
   public static class SingleItem {
     private String apk_name;
     private String apk_label;
-    private Long install_time;
+    private String install_time;
   }
   private String device_id;
   private String mobile;

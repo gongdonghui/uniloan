@@ -195,7 +195,7 @@ public class SdkController {
       bean.setMobile(app_list_info.getMobile());
       bean.setDevice_id(app_list_info.getDevice_id());
       bean.setApk_name(item.getApk_name());
-      bean.setInstall_time(new Date(item.getInstall_time()*1000l));
+      bean.setInstall_time(ToolUtils.NormTime(item.getInstall_time()));
       bean.setApk_label(item.getApk_label());
       bean.setSignature(bean.calcSignature());
       bean.setCreate_time(dt);
