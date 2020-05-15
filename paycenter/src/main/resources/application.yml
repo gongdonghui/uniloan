@@ -139,7 +139,7 @@ paycenter:
   method:
     getBankList: "/fun/transfer/getBankList"
     verifyBankInfo: "/fun/transfer/verifyBankInfo"
-    transferMoney: "/sandbox/customer/getTransferPay.action"
+    transferMoney: "/fun/transfer/transferMoney"
     offlinePay: "/fun/payment/offlinePay"
     payCheck: "/fun/payment/check"
     transferCheck: "/fun/transfer/check"
