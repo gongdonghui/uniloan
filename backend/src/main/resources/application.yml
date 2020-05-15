@@ -18,7 +18,7 @@ ssdb:
 
 
 repay:
-  accountno: 0660111344008
+  accountno: '0660111344008'
   bankaccount: 'NGUYEN THI NHUNG'
   bankbranch: 'MB Bank(Hai Phong)'
 
