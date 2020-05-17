@@ -18,6 +18,7 @@ spring:
 paycenter:
   payReturnUrl: "https://d45582e9.ngrok.io/payCallBack"
   repayReturnUrl: "https://d45582e9.ngrok.io/repayCallBack"
+  vcReturnUrl: "https://d45582e9.ngrok.io/vcCallBack"
   secretKey: "2p1opUXzhAsUaX5zaQF451gKvl9303wQGM6542c3"
   merchantId: "1473"
   businessId: "104"
@@ -31,6 +32,8 @@ paycenter:
     offlinePay: "/fun/payment/offlinePay"
     payCheck: "/fun/payment/check"
     transferCheck: "/fun/transfer/check"
+    createVC: "/fun/payment/virtualCard/create"
+    destroyVC: "/fun/payment/virtualCard/destory"
 
 eureka:
   client:
@@ -46,6 +49,7 @@ spring:
 paycenter:
   payReturnUrl: "https://www.mdongdongvi.online/paycenter/payCallBack"
   repayReturnUrl: "https://www.mdongdongvi.online/paycenter/repayCallBack"
+  vcReturnUrl: "https://www.mdongdongvi.online/paycenter/vcCallBack"
   secretKey: "IIyc8477VSOLtbobbM9nhQiN5Z7HAsga6NWZK4Tw"
   merchantId: "1610"
   businessId: "303"
@@ -59,6 +63,8 @@ paycenter:
     offlinePay: "/fun/payment/offlinePay"
     payCheck: "/fun/payment/check"
     transferCheck: "/fun/transfer/check"
+    createVC: "/fun/payment/virtualCard/create"
+    destroyVC: "/fun/payment/virtualCard/destory"
 
 eureka:
   client:
@@ -72,6 +78,7 @@ spring:
 paycenter:
   payReturnUrl: "https://d45582e9.ngrok.io/payCallBack"
   repayReturnUrl: "https://d45582e9.ngrok.io/repayCallBack"
+  vcReturnUrl: "https://d45582e9.ngrok.io/vcCallBack"
   secretKey: "2p1opUXzhAsUaX5zaQF451gKvl9303wQGM6542c3"
   merchantId: "1473"
   businessId: "104"
@@ -85,6 +92,8 @@ paycenter:
     offlinePay: "/fun/payment/offlinePay"
     payCheck: "/fun/payment/check"
     transferCheck: "/fun/transfer/check"
+    createVC: "/fun/payment/virtualCard/create"
+    destroyVC: "/fun/payment/virtualCard/destory"
 
 eureka:
   client:
@@ -101,6 +110,7 @@ server:
 paycenter:
   payReturnUrl: "https://www.2w.pub/paycenter/payCallBack"
   repayReturnUrl: "https://www.2w.pub/paycenter/repayCallBack"
+  vcReturnUrl: "https://www.2w.pub/paycenter/vcCallBack"
   secretKey: "pUoZtgB8mtG7mLPmh9RY4XtHJN1e4cN0092IPOPi"
   merchantId: "1758"
   businessId: "506"
@@ -114,6 +124,8 @@ paycenter:
     offlinePay: "/fun/payment/offlinePay"
     payCheck: "/fun/payment/check"
     transferCheck: "/fun/transfer/check"
+    createVC: "/fun/payment/virtualCard/create"
+    destroyVC: "/fun/payment/virtualCard/destory"
 
 eureka:
   client:
@@ -130,6 +142,7 @@ server:
 paycenter:
   payReturnUrl: "https://www.2w.pub/paycenter/payCallBack"
   repayReturnUrl: "https://www.2w.pub/paycenter/repayCallBack"
+  vcReturnUrl: "https://www.2w.pub/paycenter/vcCallBack"
   secretKey: "pUoZtgB8mtG7mLPmh9RY4XtHJN1e4cN0092IPOPi"
   merchantId: "1758"
   businessId: "506"
@@ -143,6 +156,8 @@ paycenter:
     offlinePay: "/fun/payment/offlinePay"
     payCheck: "/fun/payment/check"
     transferCheck: "/fun/transfer/check"
+    createVC: "/fun/payment/virtualCard/create"
+    destroyVC: "/fun/payment/virtualCard/destory"
 
 eureka:
   client:

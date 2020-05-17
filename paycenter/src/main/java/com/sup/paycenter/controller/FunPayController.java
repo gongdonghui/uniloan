@@ -48,6 +48,8 @@ public class FunPayController {
     private String payReturnUrl;
     @Value("${paycenter.repayReturnUrl}")
     private String repayReturnUrl;
+    @Value("${paycenter.vcReturnUrl}")
+    private String vcReturnUrl;
 
     @Value("${paycenter.url}")
     private String funPayUrl;
@@ -63,6 +65,10 @@ public class FunPayController {
     private String method_transferCheck;
     @Value("${paycenter.method.payCheck}")
     private String method_payCheck;
+    @Value("${paycenter.method.createVC}")
+    private String method_createVC;
+    @Value("${paycenter.method.destroyVC}")
+    private String method_destroyVC;
 
     @Autowired
     private CoreService coreService;
@@ -306,6 +312,85 @@ public class FunPayController {
         f.setTradeNo(bean.getResult().getTradeNo());
         coreService.repayCallBack(f);
         return "";
+    }
+
+    @PostMapping("createVC")
+    public Result<CreateVCVO> createVC(@RequestBody CreateVCInfo info) {
+        Map<String, String> m = Maps.newHashMap();
+        m.put("merchantID", merchantId);
+        m.put("businessID", businessId);
+        m.put("feeID", feeId);
+        m.put("clientID", info.getUserId());
+        m.put("timestamp", System.currentTimeMillis() + "");
+        m.put("amount", info.getAmount() + "");
+        m.put("currency", "VND");
+        m.put("orderNo", info.getOrderNo());
+        m.put("expireDate", "");
+        m.put("returnUrl", vcReturnUrl);
+        m.put("bankType", "VIB");
+        m.put("accountNo", info.getId());
+        m.put("userName", info.getUserName() + "");
+        m.put("version", version);
+        String param = FunPayParamsUtil.params4Get(m, secretKey);
+        String result = OkBang.get(funPayUrl + method_createVC + "?param=" + param);
+        log.info("createVC:::result=" + result);
+        if (Strings.isNullOrEmpty(result)) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        ReturnBean<CreateVCBean> resultBean = GsonUtil.fromJson(result, new TypeToken<ReturnBean<CreateVCBean>>() {
+        }.getType());
+        if (resultBean.getCode() != FUNPAY_SUCCESS_FLAG) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        CreateVCVO c = new CreateVCVO();
+        c.setAccountNo(resultBean.getResult().getAccountNo());
+        c.setAccountName(resultBean.getResult().getAccountName());
+        c.setBankLink(resultBean.getResult().getBankLink());
+        c.setBankName(resultBean.getResult().getBankName());
+        c.setBranchBankName(resultBean.getResult().getBranchBankName());
+        c.setServiceFee(resultBean.getResult().getServiceFee());
+        return Result.succ(c);
+    }
+
+    @PostMapping(value = "vcCallBack")
+    public String vcCallBack(@RequestBody ReturnBean<VCBackBean> bean) {
+        if (bean == null || bean.getCode() != FUNPAY_SUCCESS_FLAG || bean.getResult() == null) {
+            log.error("vcCallBack: param is null!");
+            return "";
+        }
+        log.info("vcCallBack:::params=" + bean);
+        FunpayCallBackParam f = new FunpayCallBackParam();
+        f.setAmount(bean.getResult().getPurchaseAmount());
+        f.setOrderNo(bean.getResult().getOrderNo());
+        f.setFinishTime(DateUtil.parse(bean.getResult().getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT));
+        f.setStatus(0);
+        f.setTradeNo(bean.getResult().getTradeNo());
+        coreService.repayCallBack(f);
+        return "";
+    }
+
+    @PostMapping(value = "destroyVC")
+    public Result destroyVC(@RequestBody DestroyVCInfo info) {
+        Map<String, String> m = Maps.newHashMap();
+        m.put("merchantID", merchantId);
+        m.put("businessID", businessId);
+        m.put("feeID", feeId);
+        m.put("timestamp", System.currentTimeMillis() + "");
+        m.put("orderNo", info.getOrderNo());
+        m.put("accountNo", info.getAccountNo());
+        m.put("version", version);
+        m.put("bankeType", "VIB");
+        String param = FunPayParamsUtil.params4Get(m, secretKey);
+        String result = OkBang.get(funPayUrl + method_destroyVC + "?param=" + param);
+        log.info("destroyVC:::result=" + result);
+        if (Strings.isNullOrEmpty(result)) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        ReturnBean resultBean = GsonUtil.fromJson(result, ReturnBean.class);
+        if (resultBean.getCode() != FUNPAY_SUCCESS_FLAG) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        return Result.succ();
     }
 
 }
