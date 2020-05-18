@@ -48,6 +48,8 @@ public class DetailsBasicInfoBean {
 
     private Integer work_period;
 
+    private String  facebookLink;
+
     // 紧急联系人
     private List<DetailsEmergencyContact> list;
 }
