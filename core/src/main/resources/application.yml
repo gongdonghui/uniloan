@@ -207,7 +207,7 @@ spring:
   profiles: online2
   redis:
     database: 0
-    host: 172.21.190.225
+    host: 127.0.0.1
     port: 7789
     jedis:
       pool:
@@ -220,12 +220,12 @@ spring:
       hikari:
         connection-timeout: 3000
 
-      primary: online2
+      primary: test2
       datasource:
-        online2:
+        test2:
           username: dev_online
-          password: Dwl12#$%^
-          url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          password: JPTmkZT5QmAV4s
+          url: 'jdbc:mysql://127.0.0.1/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
             max-lifetime: 300000
@@ -237,7 +237,7 @@ server:
   connection-timeout: 180000
 
 ssdb:
-  host: 172.21.190.225
+  host: 127.0.0.1
   port: 13288
   auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
   timeout: 300000
@@ -245,11 +245,11 @@ ssdb:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://172.21.190.226:20087/eureka/
+      defaultZone: http://127.0.0.1:20087/eureka/
 
 rocket:
   producer:
-    endpoint: uniloan01:9976
+    endpoint: 127.0.0.1:9976
     group: user_state_group
 
 thirdparty:
@@ -260,17 +260,20 @@ thirdparty:
       url:
         v1: "https://api.geerongcloud.com/credit/v2/blacklist"
         v2: "http://harmony.as.geerong.com/credit/service/blackListCheck"
-    token: 735506dbda0040bab7d473f7027cd6fd
-    secretKey: 5967f91866e8452eb12dfd07bad43b76
+    token: 123
+    secretKey: 456
     countryCode: 84
     region: VIETNAM
   xingtan:
-    accessKey: b7354a93ba194e9c8dbab5b6ef3d62d0
-    accessSecret: 2BD2397E05F491DB49FCAD6CE65E76386684C54FCFC98DEFBEBE924EBC5F44A6
-    #sha256: a3467f397bcabcbc4f0dea3be1334fef3b368d933cdb631946eca53f332bd5ce
-    token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJiNzM1NGE5M2JhMTk0ZTljOGRiYWI1YjZlZjNkNjJkMCIsImV4cCI6MTg4OTA5MDg3Niwib3duZXJJZCI6MTE5NDU2NzAzNzEzNzk4MTQ0MX0.iX3tKj2DDgLsziTI26tuA8-pkORNjVYEekYUgwFsxVCFxmc-8PnI0-Aj86G6W_G3DB7V8GjRlGZJ_8ovWpXT8g
+    accessKey: 123
+    accessSecret: 456
+    token: 123456
     blacklist:
       url: "https://rest.star-detector.vn.starwin.tech/single-pre-rc-report/prc-blacklist"
+
+model:
+    name: A001
+    path:  /root/models/A001.pmml
 
 
 ---

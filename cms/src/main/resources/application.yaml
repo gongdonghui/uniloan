@@ -188,9 +188,9 @@ spring:
   datasource:
     name: mydb
     type: com.alibaba.druid.pool.DruidDataSource
-    url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+    url: 'jdbc:mysql://127.0.0.1/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
     username: dev_online
-    password: Dwl12#$%^
+    password: JPTmkZT5QmAV4s
     driver-class-name: com.mysql.cj.jdbc.Driver
     initialSize: 1
     maxActive: 100
@@ -208,7 +208,7 @@ spring:
     filters: mergeStat
   redis:
     database: 0
-    host: 172.21.190.225
+    host: 127.0.0.1
     port: 7789
     jedis:
       pool:
@@ -227,7 +227,7 @@ cache:
     key-pre: CMS-2-
 
 ssdb:
-  host: 172.21.190.225
+  host: 127.0.0.1
   port: 13288
   auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
   timeout: 300000
@@ -235,6 +235,6 @@ ssdb:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://172.21.190.226:20087/eureka/
+      defaultZone: http://127.0.0.1:20087/eureka/
 
 

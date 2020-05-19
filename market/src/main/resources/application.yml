@@ -104,8 +104,8 @@ spring:
       datasource:
         online2:
           username: dev_online
-          password: Dwl12#$%^
-          url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          password: JPTmkZT5QmAV4s
+          url: 'jdbc:mysql://127.0.0.1/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
             max-lifetime: 300000
@@ -130,17 +130,18 @@ server:
 
 ontime-delivery:
   redisson:
-    host: uniloan03
+    host: 127.0.0.1
     port: 6388
     auth: 13JPTmkZT5QmAV4s
 
 rocket:
   consumer:
-    endpoint: uniloan01:9976
+    endpoint: 127.0.0.1:9976
     group: market
   producer:
-    endpoint: uniloan01:9976
+    endpoint: 127.0.0.1:9976
     group: market
+
 
 
 ---
@@ -168,10 +169,10 @@ sms:
     pattern: '^\+?(0|84|084)?(\d+)$'
     area-code: 84
     uri: http://sms.skylinelabs.cc:20003/sendsmsV2
-    account: cs_6gey4q
-    password: b4myElNk
-    vip-account: cs_jprt7v
-    vip-password: srxkxMUg
+    account: aaa
+    password: bbb
+    vip-account: ccc
+    vip-password: ddd
 
 server:
   port: 20083

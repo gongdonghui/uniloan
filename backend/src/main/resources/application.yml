@@ -105,7 +105,7 @@ rocket:
 
 ---
 login:
-  fake_verify_code: false
+  fake_verify_code: true
 
 spring:
   profiles: test2
@@ -211,13 +211,13 @@ rocket:
 
 ---
 login:
-  fake_verify_code: true
+  fake_verify_code: false
 
 spring:
   profiles: online2
   redis:
     database: 0
-    host: uniloan03
+    host: 127.0.0.1
     port: 7789
     jedis:
       pool:
@@ -230,12 +230,12 @@ spring:
       hikari:
         connection-timeout: 3000
 
-      primary: online2
+      primary: test2
       datasource:
-        online2:
+        test2:
           username: dev_online
-          password: Dwl12#$%^
-          url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          password: JPTmkZT5QmAV4s
+          url: 'jdbc:mysql://127.0.0.1/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
             max-lifetime: 300000
@@ -246,7 +246,7 @@ server:
   connection-timeout: 180000
 
 ssdb:
-  host: uniloan03
+  host: 127.0.0.1
   port: 13288
   auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
   timeout: 300000
@@ -254,13 +254,14 @@ ssdb:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://uniloan04:20087/eureka/
+      defaultZone: http://127.0.0.1:20087/eureka/
 
 rocket:
   consumer:
-    endpoint: uniloan01:9976
+    endpoint: 127.0.0.1:9976
     group: app_backend
   producer:
-    endpoint: uniloan01:9976
+    endpoint: 127.0.0.1:9976
     group: app_backend
+
 
