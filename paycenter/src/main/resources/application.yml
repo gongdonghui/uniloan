@@ -118,7 +118,7 @@ paycenter:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://uniloan04:20087/eureka/
+      defaultZone: http://127.0.0.1:20087/eureka/
 
 
 ---
