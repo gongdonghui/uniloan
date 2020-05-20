@@ -45,7 +45,7 @@ SCP_AND_DEPLOY() {
     bash services_control.sh restart $_target $_proj_dir
 }
 
-target="test2"
+target="online2"
 if [ $# == 1 ]; then
     #echo "Usage: $0 [online|online2|all|test|test2]"
     target=$1
@@ -89,22 +89,31 @@ if [ "$target" = "online" -o "$target" = "all" ]; then
     SCP_AND_DEPLOY "online" $proj_dir "$services" "$services_hosts"
 fi
 
-if [ "$target" = "online2" -o "$target" = "all" ]; then
+if [ "$target" = "online2"  ]; then
     echo ""
     LOG "start to deploy(online2)..."
-    proj_dir="/root/server2"
+    proj_dir="/root/server"
     services=("eureka" "backend" "paycenter" "kalapa" "market" "core" "cms")
-    services_hosts=("uniloan04" \
-                   "uniloan01,uniloan02" \
-                   "uniloan01,uniloan02" \
-                   "uniloan01,uniloan02" \
-                   "uniloan01" \
-                   "uniloan03" \
-                   "uniloan04")
 
-    SCP_AND_DEPLOY "online2" $proj_dir "$services" "$services_hosts"
-
+    CP_AND_DEPLOY_TEST "$target" $proj_dir "$services"
 fi
+
+#if [ "$target" = "online2" -o "$target" = "all" ]; then
+#    echo ""
+#    LOG "start to deploy(online2)..."
+#    proj_dir="/root/server2"
+#    services=("eureka" "backend" "paycenter" "kalapa" "market" "core" "cms")
+#    services_hosts=("uniloan04" \
+#                   "uniloan01,uniloan02" \
+#                   "uniloan01,uniloan02" \
+#                   "uniloan01,uniloan02" \
+#                   "uniloan01" \
+#                   "uniloan03" \
+#                   "uniloan04")
+#
+#    SCP_AND_DEPLOY "online2" $proj_dir "$services" "$services_hosts"
+#
+#fi
 
 LOG "Finished building & deploying $target."
 
