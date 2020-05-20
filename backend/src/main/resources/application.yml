@@ -18,7 +18,7 @@ ssdb:
 
 
 repay:
-  accountno: 0660111344008
+  accountno: '0660111344008'
   bankaccount: 'NGUYEN THI NHUNG'
   bankbranch: 'MB Bank(Hai Phong)'
 
@@ -211,13 +211,13 @@ rocket:
 
 ---
 login:
-  fake_verify_code: true
+  fake_verify_code: false
 
 spring:
   profiles: online2
   redis:
     database: 0
-    host: uniloan03
+    host: 127.0.0.1
     port: 7789
     jedis:
       pool:
@@ -233,8 +233,8 @@ spring:
       primary: online2
       datasource:
         online2:
-          username: dev_online
-          password: Dwl12#$%^
+          username: dev2
+          password: Old57!@@^
           url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
@@ -246,7 +246,7 @@ server:
   connection-timeout: 180000
 
 ssdb:
-  host: uniloan03
+  host: 127.0.0.1
   port: 13288
   auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
   timeout: 300000
@@ -254,13 +254,13 @@ ssdb:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://uniloan04:20087/eureka/
+      defaultZone: http://127.0.0.1:20087/eureka/
 
 rocket:
   consumer:
-    endpoint: uniloan01:9976
+    endpoint: 127.0.0.1:9976
     group: app_backend
   producer:
-    endpoint: uniloan01:9976
+    endpoint: 127.0.0.1:9976
     group: app_backend
 
