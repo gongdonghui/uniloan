@@ -143,6 +143,6 @@ public interface CoreService {
      * @return  虚拟卡号、收款单位、收款银行名称、支行名称、银行地图URL、虚拟卡费用
      */
     @ResponseBody
-    @RequestMapping(value = "virtualCard/get", produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/loan/virtualCard/get", produces = "application/json;charset=UTF-8")
     Result<CreateVCVO> getVirtualCard(@RequestBody RepayInfo repayInfo);
 }
