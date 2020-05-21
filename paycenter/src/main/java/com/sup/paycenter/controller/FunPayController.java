@@ -365,6 +365,7 @@ public class FunPayController {
         f.setFinishTime(DateUtil.parse(bean.getResult().getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT));
         f.setStatus(0);
         f.setTradeNo(bean.getResult().getTradeNo());
+        f.setIsVC(true);
         coreService.repayCallBack(f);
         return "";
     }

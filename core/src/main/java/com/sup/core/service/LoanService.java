@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.*;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.RepayInfo;
+import com.sup.common.bean.paycenter.vo.CreateVCVO;
 import com.sup.common.bean.paycenter.vo.PayVO;
 import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.*;
@@ -430,7 +431,12 @@ public class LoanService {
             return Result.fail("Repay failed!");
         }
 
-        return repayAndUpdate(param.getOrderNo(), Long.valueOf(param.getAmount()), param.getFinishTime(), false);
+        Result ret = repayAndUpdate(param.getOrderNo(), Long.valueOf(param.getAmount()), param.getFinishTime(), false);
+        if (ret.isSucc() && param.getIsVC()) {
+            // TODO: 虚拟卡还款成功，销毁虚拟卡，待下次还款时再申请
+
+        }
+        return ret;
     }
 
     public Result manualLoan(ManualLoanParam param) {
@@ -791,4 +797,21 @@ public class LoanService {
 
         return statBean;
     }
+
+    /**
+     * 获取还款使用的虚拟卡
+     *
+     * @param repayInfo 还款参数
+     * @return 虚拟卡号、收款单位、收款银行名称、支行名称、银行地图URL、虚拟卡费用
+     */
+    public Result<CreateVCVO> getVirtualCard(RepayInfo repayInfo) {
+        // TODO
+        // 1. 检查虚拟卡: 是否可用 && 订单是否一致。如订单不一致需要先销毁，再申请新的虚拟卡
+
+        // 2. 没有虚拟卡或者虚拟卡已经销毁，重新获取虚拟卡
+
+        return null;
+    }
+
+
 }
