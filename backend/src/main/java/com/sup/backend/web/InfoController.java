@@ -61,7 +61,7 @@ public class InfoController {
   public void Init() throws Exception {
     dict = JSON.parseObject(LoadResourceFile("app.dict"));
     const_map = JSON.parseObject(LoadResourceFile("const_map.dict"));
-    bank_trans = JSON.parseObject(LoadResourceFile("bank_trans.dcit"));
+    bank_trans = JSON.parseObject(LoadResourceFile("bank_trans.dict"));
   }
 
   @ResponseBody
