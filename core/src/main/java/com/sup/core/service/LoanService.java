@@ -2,6 +2,8 @@ package com.sup.core.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.common.bean.*;
+import com.sup.common.bean.paycenter.CreateVCInfo;
+import com.sup.common.bean.paycenter.DestroyVCInfo;
 import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.CreateVCVO;
@@ -14,6 +16,7 @@ import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
+import com.sup.core.bean.VCInfo;
 import com.sup.core.mapper.*;
 import com.sup.core.util.MqMessenger;
 import com.sup.core.util.ToolUtils;
@@ -52,6 +55,13 @@ public class LoanService {
     private ProductInfoMapper productInfoMapper;
     @Autowired
     private RepayHistoryMapper  repayHistoryMapper;
+
+    @Autowired
+    private VirtualCardBankInfoMapper virtualCardBankInfoMapper;
+    @Autowired
+    private VirtualCardInfoHistoryMapper virtualCardInfoHistoryMapper;
+    @Autowired
+    private VirtualCardInfoMapper   virtualCardInfoMapper;
 
     @Autowired
     private ApplyService applyService;
@@ -155,6 +165,37 @@ public class LoanService {
         return applyService.updateApplyInfo(applyInfoBean);
     }
 
+    private TbRepayHistoryBean getOrNewRepayHistoryBean(RepayInfo repayInfo, Integer repayPlanId) {
+        Date now = new Date();
+        // 检查还款记录表，还款处理中的记录
+        QueryWrapper<TbRepayHistoryBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("apply_id", repayInfo.getAmount());
+        wrapper.eq("repay_plan_id", repayPlanId);
+        wrapper.eq("repay_status", RepayHistoryStatusEnum.REPAY_STATUS_PROCESSING.getCode());
+        // wrapper.ge("expire_time", now);
+        wrapper.orderByDesc("id").last("limit 1");   // create_time
+
+        TbRepayHistoryBean repayHistoryBean = repayHistoryMapper.selectOne(wrapper);
+        if (repayHistoryBean != null) {
+            return repayHistoryBean;
+        }
+
+        // 创建还款记录
+        repayHistoryBean = new TbRepayHistoryBean();
+        repayHistoryBean.setUser_id(Integer.valueOf(repayInfo.getUserId()));
+        repayHistoryBean.setApply_id(Integer.valueOf(repayInfo.getApplyId()));
+        repayHistoryBean.setRepay_plan_id(repayPlanId);
+        repayHistoryBean.setRepay_amount(Long.valueOf(repayInfo.getAmount()));
+        repayHistoryBean.setRepay_status(RepayHistoryStatusEnum.REPAY_STATUS_PROCESSING.getCode());
+        repayHistoryBean.setCreate_time(now);
+        repayHistoryBean.setUpdate_time(now);
+        if (repayHistoryMapper.insert(repayHistoryBean) <= 0) {
+            log.error("Fail to add repay detail for bean: " + GsonUtil.toJson(repayInfo));
+            return null;
+        }
+        return repayHistoryBean;
+    }
+
     public Result getRepayInfo(@RequestBody RepayInfo repayInfo) {
         QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
         TbRepayPlanBean repayPlanBean = repayPlanMapper.selectOne(
@@ -166,22 +207,15 @@ public class LoanService {
         if (repayPlanBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
             return Result.fail("Nothing to repay.");
         }
-        Date now = new Date();
-        // 检查还款记录表，还款处理中的记录
-        QueryWrapper<TbRepayHistoryBean> historyWrapper = new QueryWrapper<>();
-        historyWrapper.eq("apply_id", repayPlanBean.getApply_id());
-        historyWrapper.eq("repay_plan_id", repayPlanBean.getId());
-        historyWrapper.eq("repay_status", RepayHistoryStatusEnum.REPAY_STATUS_PROCESSING.getCode());
-        historyWrapper.ge("expire_time", now);
-        historyWrapper.orderByDesc("id");   // create_time
 
-        List<TbRepayHistoryBean> repayHistoryBeans = repayHistoryMapper.selectList(historyWrapper);
-        TbRepayHistoryBean repayHistoryBean = null;
-        if (repayHistoryBeans != null && repayHistoryBeans.size() > 0) {
-            repayHistoryBean = repayHistoryBeans.get(0);
+        TbRepayHistoryBean repayHistoryBean = getOrNewRepayHistoryBean(repayInfo, repayPlanBean.getId());
+        if (repayHistoryBean == null) {
+            return Result.fail("");
         }
-        // TbRepayHistoryBean repayHistoryBean = repayHistoryMapper.selectOne(historyWrapper);
-        if (repayHistoryBean != null) {
+
+        Date expireDate = repayHistoryBean.getExpire_time();
+        boolean isExpire = expireDate != null && DateUtil.compareDate(new Date(), expireDate) > 0;
+        if (!isExpire && repayHistoryBean.getRepay_code() != null) {
             RepayVO r = new RepayVO();
             r.setCode(repayHistoryBean.getRepay_code());
             r.setShopLink(repayHistoryBean.getRepay_location());
@@ -190,18 +224,6 @@ public class LoanService {
             return Result.succ(r);
         }
 
-        // 创建还款记录
-        repayHistoryBean = new TbRepayHistoryBean();
-        repayHistoryBean.setUser_id(Integer.valueOf(repayInfo.getUserId()));
-        repayHistoryBean.setApply_id(Integer.valueOf(repayInfo.getApplyId()));
-        repayHistoryBean.setRepay_plan_id(repayPlanBean.getId());
-        repayHistoryBean.setRepay_amount(Long.valueOf(repayInfo.getAmount()));
-        repayHistoryBean.setCreate_time(now);
-        repayHistoryBean.setUpdate_time(now);
-        if (repayHistoryMapper.insert(repayHistoryBean) <= 0) {
-            log.error("Fail to add repay detail for bean: " + GsonUtil.toJson(repayInfo));
-            return Result.fail("");
-        }
         repayInfo.setOrderNo(String.valueOf(repayHistoryBean.getId()));
         try {
             Result<RepayVO> result = funpayService.repay(repayInfo);
@@ -226,7 +248,7 @@ public class LoanService {
             repayPlanBean.setTrade_number(r.getTradeNo());
             repayPlanBean.setExpire_time(DateUtil.parseDateTime(r.getExpireDate()));
             repayPlanBean.setRepay_status(RepayPlanStatusEnum.PLAN_PAID_PROCESSING.getCode());
-            repayPlanBean.setUpdate_time(now);
+            repayPlanBean.setUpdate_time(new Date());
             if (repayPlanMapper.updateById(repayPlanBean) <= 0) {
                 log.error("Failed to update repayPlan bean = " + GsonUtil.toJson(repayPlanBean));
             }
@@ -342,7 +364,7 @@ public class LoanService {
             return Result.fail("Invalid applyId!");
         }
         QueryWrapper<TbRepayPlanBean> wrapper = new QueryWrapper<>();
-        List<TbRepayPlanBean> plans = repayPlanMapper.getRepayPlan(wrapper.eq("applyId", applyId));
+        List<TbRepayPlanBean> plans = repayPlanMapper.getRepayPlan(wrapper.eq("apply_id", applyId));
 
         return Result.succ(plans);
     }
@@ -406,7 +428,7 @@ public class LoanService {
     }
 
     public Result repayCallBack(@RequestBody FunpayCallBackParam param) {
-
+        log.info("repayCallBack param=" + GsonUtil.toJson(param));
         if (param.getAmount() == null || param.getAmount() <= 0) {
             log.error("Invalid amount. param = " + GsonUtil.toJson(param));
             return Result.fail("");
@@ -431,12 +453,7 @@ public class LoanService {
             return Result.fail("Repay failed!");
         }
 
-        Result ret = repayAndUpdate(param.getOrderNo(), Long.valueOf(param.getAmount()), param.getFinishTime(), false);
-        if (ret.isSucc() && param.getIsVC()) {
-            // TODO: 虚拟卡还款成功，销毁虚拟卡，待下次还款时再申请
-
-        }
-        return ret;
+        return repayAndUpdate(param.getOrderNo(), Long.valueOf(param.getAmount()), param.getFinishTime(), false);
     }
 
     public Result manualLoan(ManualLoanParam param) {
@@ -805,13 +822,118 @@ public class LoanService {
      * @return 虚拟卡号、收款单位、收款银行名称、支行名称、银行地图URL、虚拟卡费用
      */
     public Result<CreateVCVO> getVirtualCard(RepayInfo repayInfo) {
-        // TODO
+        log.info("getVirtualCard repayInfo=" + GsonUtil.toJson(repayInfo));
         // 1. 检查虚拟卡: 是否可用 && 订单是否一致。如订单不一致需要先销毁，再申请新的虚拟卡
+        Date now = new Date();
+        VCInfo vcInfo = virtualCardInfoMapper.getVCInfo(repayInfo.getUserId());
+        if (vcInfo != null) {
+            boolean isValid = vcInfo.getStatus() == VirtualCardStatusEnum.VC_STATUS_VALID.getCode();
+            boolean isExpired = vcInfo.getExpireTime() != null && DateUtil.compareDate(now, vcInfo.getExpireTime()) > 0;
+            if (isValid && !isExpired && repayInfo.getApplyId().equals(vcInfo.getApplyId())) {
+                // 虚拟卡尚未失效
+                CreateVCVO obj = new CreateVCVO();
+                obj.setAccountName(vcInfo.getAccountName());
+                obj.setAccountNo(vcInfo.getAccountNo());
+                obj.setBankLink(vcInfo.getBankLink());
+                obj.setBankName(vcInfo.getBankName());
+                obj.setBranchBankName(vcInfo.getBranchName());
+                obj.setServiceFee(vcInfo.getServiceFee());
+                return Result.succ(obj);
+            }
 
-        // 2. 没有虚拟卡或者虚拟卡已经销毁，重新获取虚拟卡
+            // 需要先销毁已有虚拟卡
+            DestroyVCInfo _info = new DestroyVCInfo();
+            _info.setOrderNo(vcInfo.getOrderNo());
+            _info.setAccountNo(vcInfo.getAccountNo());
+            try {
+                Result ret = funpayService.destroyVC(_info);
+                log.info("destory virtual card, bean = " + GsonUtil.toJson(_info) + ", ret = " + GsonUtil.toJson(ret));
+                if (!ret.isSucc()) {
+                    return Result.fail("Failed to destory virtual card!");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Result.fail("Failed to destory virtual card!");
+            }
+        }
 
-        return null;
+        // 2. 重新获取虚拟卡
+        TbRepayPlanBean repayPlanBean = repayPlanMapper.selectOne(
+                new QueryWrapper<TbRepayPlanBean>().eq("apply_id", repayInfo.getApplyId())
+        );
+        if (repayPlanBean == null) {
+            log.error("getVirtualCard invalid RepayPlanBean!");
+            return Result.fail("");
+        }
+        // 获取or生成还款记录
+        TbRepayHistoryBean repayHistoryBean = getOrNewRepayHistoryBean(repayInfo, repayPlanBean.getId());
+        if (repayHistoryBean == null) {
+            log.error("getVirtualCard invalid RepayHistoryBean");
+            return Result.fail("");
+        }
+        Integer orderNo = repayHistoryBean.getId();
+
+        CreateVCInfo createVCInfo = virtualCardInfoMapper.getCreateVCInfo(repayInfo.getApplyId());
+        if (createVCInfo == null) {
+            log.error("Failed to get CreateVCInfo, repayInfo = " + GsonUtil.toJson(repayInfo));
+            return Result.fail("");
+        }
+        createVCInfo.setOrderNo(String.valueOf(orderNo));  // repay history id
+        createVCInfo.setAmount(repayInfo.getAmount());
+
+        try {
+            Result<CreateVCVO> vcResult = funpayService.createVC(createVCInfo);
+            log.info("create virtual card result: " + GsonUtil.toJson(vcResult));
+            if (vcResult.isSucc()) {
+                CreateVCVO vc = vcResult.getData();
+                TbVirtualCardInfo vcCardInfo = new TbVirtualCardInfo();
+                vcCardInfo.setUser_id(Integer.valueOf(repayInfo.getUserId()));
+                vcCardInfo.setBank_name(vc.getBankName());
+                vcCardInfo.setApply_id(Integer.valueOf(repayInfo.getApplyId()));
+                vcCardInfo.setOrder_no(orderNo);
+                vcCardInfo.setVc_no(vc.getAccountNo());
+                vcCardInfo.setStatus(VirtualCardStatusEnum.VC_STATUS_VALID.getCode());
+                vcCardInfo.setService_fee(vc.getServiceFee());
+                vcCardInfo.setExpire_time(vc.getExpireDate());
+                vcCardInfo.setCreate_time(now);
+
+                if (vcInfo != null) {
+                    vcCardInfo.setId(vcInfo.getId());
+                    virtualCardInfoMapper.updateById(vcCardInfo);
+                } else {
+                    virtualCardInfoMapper.insert(vcCardInfo);
+                }
+                TbVirtualCardInfoHistory virtualCardInfoHistory = new TbVirtualCardInfoHistory();
+                virtualCardInfoHistory.copy(vcCardInfo);
+                virtualCardInfoHistoryMapper.insert(virtualCardInfoHistory);
+
+                return vcResult;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return Result.fail("");
     }
 
+    public Result vcCallBack(@RequestBody FunpayCallBackParam param) {
+        Result ret = repayCallBack(param);
+        if (ret.isSucc()) {
+            // 还款成功，更新虚拟卡状态为不可用
+            TbVirtualCardInfo cardInfo = virtualCardInfoMapper.selectOne(
+                    new QueryWrapper<TbVirtualCardInfo>().eq("user_id", param.getUserId())
+            );
+            if (cardInfo != null) {
+                if (cardInfo.getOrder_no().equals(Integer.valueOf(param.getOrderNo()))) {
+                    cardInfo.setStatus(VirtualCardStatusEnum.VC_STATUS_INVALID.getCode());
+                    virtualCardInfoMapper.updateById(cardInfo);
+                } else {
+                    log.error("vcCallBack invalid orderNo?? cardInfo=" + GsonUtil.toJson(cardInfo)
+                            + ", param=" + GsonUtil.toJson(param));
+                }
+            }
+        }
+        return ret;
+    }
 
 }

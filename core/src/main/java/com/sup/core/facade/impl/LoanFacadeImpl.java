@@ -206,4 +206,15 @@ public class LoanFacadeImpl implements LoanFacade {
     public Result<CreateVCVO> getVirtualCard(RepayInfo repayInfo) {
         return loanService.getVirtualCard(repayInfo);
     }
+
+    /**
+     * 虚拟卡还款回调接口
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public Result vcCallBack(FunpayCallBackParam param) {
+        return loanService.vcCallBack(param);
+    }
 }

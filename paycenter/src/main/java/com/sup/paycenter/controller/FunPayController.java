@@ -314,7 +314,7 @@ public class FunPayController {
         return "";
     }
 
-    @PostMapping("createVC")
+    @PostMapping(value = "createVC")
     public Result<CreateVCVO> createVC(@RequestBody CreateVCInfo info) {
         Map<String, String> m = Maps.newHashMap();
         m.put("merchantID", merchantId);
@@ -349,6 +349,7 @@ public class FunPayController {
         c.setBankName(resultBean.getResult().getBankName());
         c.setBranchBankName(resultBean.getResult().getBranchBankName());
         c.setServiceFee(resultBean.getResult().getServiceFee());
+        c.setExpireDate(DateUtil.parse(resultBean.getResult().getExpireDate(), DateUtil.NS_DAY_ALL_NUM_FORMAT));
         return Result.succ(c);
     }
 
@@ -365,8 +366,7 @@ public class FunPayController {
         f.setFinishTime(DateUtil.parse(bean.getResult().getPurchaseTime(), DateUtil.NO_SPLIT_FORMAT));
         f.setStatus(0);
         f.setTradeNo(bean.getResult().getTradeNo());
-        f.setIsVC(true);
-        coreService.repayCallBack(f);
+        coreService.vcCallBack(f);
         return "";
     }
 

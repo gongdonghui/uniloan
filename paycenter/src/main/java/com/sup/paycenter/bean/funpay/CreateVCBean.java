@@ -12,7 +12,7 @@ public class CreateVCBean {
     private Integer businessID;
     private Integer feeID;
     private String orderNo;
-    private String expireDate;
+    private String expireDate;  // yyyyMMdd
     private Integer amount;
     private String currency;
     private String accountNo;

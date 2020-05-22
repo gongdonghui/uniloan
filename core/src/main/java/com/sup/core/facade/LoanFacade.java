@@ -142,4 +142,13 @@ public interface LoanFacade {
     @RequestMapping(value = "virtualCard/get", produces = "application/json;charset=UTF-8")
     Result<CreateVCVO> getVirtualCard(@RequestBody RepayInfo repayInfo);
 
+    /**
+     * 虚拟卡还款回调接口
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "vcCallBack", produces = "application/json;charset=UTF-8")
+    Result vcCallBack(@RequestBody FunpayCallBackParam param);
+
 }

@@ -145,4 +145,14 @@ public interface CoreService {
     @ResponseBody
     @RequestMapping(value = "/loan/virtualCard/get", produces = "application/json;charset=UTF-8")
     Result<CreateVCVO> getVirtualCard(@RequestBody RepayInfo repayInfo);
+
+    /**
+     * 虚拟卡还款回调接口
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/loan/vcCallBack", produces = "application/json;charset=UTF-8")
+    Result vcCallBack(@RequestBody FunpayCallBackParam param);
+
 }

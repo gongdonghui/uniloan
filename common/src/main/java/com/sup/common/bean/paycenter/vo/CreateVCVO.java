@@ -2,6 +2,8 @@ package com.sup.common.bean.paycenter.vo;
 
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @Author: kouichi
  * @Date: 2020/5/17 16:35
@@ -32,4 +34,6 @@ public class CreateVCVO {
      * 需要展示给用户 用户服务费 用户每次存钱都会扣取这个服务费
      */
     private Integer serviceFee;
+
+    private Date    expireDate;
 }

@@ -1162,16 +1162,17 @@ CREATE TABLE `tb_virtual_card_info` (
   `user_id` int(10) NOT NULL COMMENT '用户id',
   `bank_name` varchar(64) NOT NULL DEFAULT '' COMMENT '银行名称',
   `apply_id` int(10) NOT NULL COMMENT '订单号',
+  `order_no` int(10) DEFAULT NULL COMMENT '还款历史中的id作为订单号',
   `vc_no` varchar(128) NOT NULL DEFAULT '' COMMENT '虚拟卡号',
-  `status` int(11) NOT NULL COMMENT '虚拟卡状态，0:无效，1:有效',
+  `status` int(10) NOT NULL COMMENT '虚拟卡状态，0:无效，1:有效',
   `service_fee` int(10) NOT NULL DEFAULT '0' COMMENT '用户服务费',
   `create_time` datetime NOT NULL,
-  `update_time` datetime DEFAULT NULL,
   `expire_time` datetime DEFAULT NULL COMMENT '虚拟卡过期时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id_2` (`user_id`),
   KEY `user_id` (`user_id`),
-  KEY `apply_id` (`apply_id`)
+  KEY `apply_id` (`apply_id`),
+  KEY `order_no` (`order_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `tb_virtual_card_info_history` (
@@ -1179,15 +1180,16 @@ CREATE TABLE `tb_virtual_card_info_history` (
   `user_id` int(10) NOT NULL COMMENT '用户id',
   `bank_name` varchar(64) NOT NULL DEFAULT '' COMMENT '银行名称',
   `apply_id` int(10) NOT NULL COMMENT '订单号',
+  `order_no` int(10) DEFAULT NULL COMMENT '还款记录中的id作为订单号',
   `vc_no` varchar(128) NOT NULL DEFAULT '' COMMENT '虚拟卡号',
-  `status` int(11) NOT NULL COMMENT '虚拟卡状态，0:无效，1:有效',
+  `status` int(10) NOT NULL COMMENT '虚拟卡状态，0:无效，1:有效',
   `service_fee` int(10) NOT NULL DEFAULT '0' COMMENT '用户服务费',
   `create_time` datetime NOT NULL,
-  `update_time` datetime DEFAULT NULL,
   `expire_time` datetime DEFAULT NULL COMMENT '虚拟卡过期时间',
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
-  KEY `apply_id` (`apply_id`)
+  KEY `apply_id` (`apply_id`),
+  KEY `order_no` (`order_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

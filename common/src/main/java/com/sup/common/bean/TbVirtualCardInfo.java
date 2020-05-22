@@ -22,11 +22,11 @@ public class TbVirtualCardInfo {
     private Integer user_id;
     private String  bank_name;
     private Integer apply_id;
+    private Integer order_no;
     private String  vc_no;
     private Integer status;
     private Integer service_fee;
 
     private Date create_time;
-    private Date update_time;
     private Date expire_time;
 }
