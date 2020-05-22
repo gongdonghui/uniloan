@@ -77,7 +77,7 @@ public class RepayController {
     RepayWays payload = new RepayWays();
     {
       JSONArray mcs = new JSONArray();
-      mcs.add(JSONObject.toJSON(ImmutableMap.of("account", repay_account, "account_no", repay_account_no, "bank_branch", repay_bank_branch)));
+      mcs.add(JSONObject.toJSON(ImmutableMap.of("account", repay_account, "accountNo", repay_account_no, "bankBranch", repay_bank_branch)));
       payload.setManual_repay_configs(mcs);
     }
     {
