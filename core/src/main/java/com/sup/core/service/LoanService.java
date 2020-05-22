@@ -212,9 +212,9 @@ public class LoanService {
         if (repayHistoryBean == null) {
             return Result.fail("");
         }
-
         Date expireDate = repayHistoryBean.getExpire_time();
-        boolean isExpire = expireDate != null && DateUtil.compareDate(new Date(), expireDate) > 0;
+        boolean isExpire = (expireDate != null) && (DateUtil.compareDate(new Date(), expireDate) > 0);
+        log.info("repayHistoryBean=" + GsonUtil.toJson(repayHistoryBean) + ", isExpire=" + isExpire);
         if (!isExpire && repayHistoryBean.getRepay_code() != null) {
             RepayVO r = new RepayVO();
             r.setCode(repayHistoryBean.getRepay_code());
