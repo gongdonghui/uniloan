@@ -169,7 +169,7 @@ public class LoanService {
         Date now = new Date();
         // 检查还款记录表，还款处理中的记录
         QueryWrapper<TbRepayHistoryBean> wrapper = new QueryWrapper<>();
-        wrapper.eq("apply_id", repayInfo.getAmount());
+        wrapper.eq("apply_id", repayInfo.getApplyId());
         wrapper.eq("repay_plan_id", repayPlanId);
         wrapper.eq("repay_status", RepayHistoryStatusEnum.REPAY_STATUS_PROCESSING.getCode());
         // wrapper.ge("expire_time", now);
