@@ -195,6 +195,7 @@ public class LoanService {
         repayHistoryBean.setApply_id(Integer.valueOf(repayInfo.getApplyId()));
         repayHistoryBean.setRepay_plan_id(repayPlanBean.getId());
         repayHistoryBean.setRepay_amount(Long.valueOf(repayInfo.getAmount()));
+        repayHistoryBean.setRepay_status(RepayHistoryStatusEnum.REPAY_STATUS_PROCESSING.getCode());
         repayHistoryBean.setCreate_time(now);
         repayHistoryBean.setUpdate_time(now);
         if (repayHistoryMapper.insert(repayHistoryBean) <= 0) {
