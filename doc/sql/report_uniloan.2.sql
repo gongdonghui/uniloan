@@ -1,6 +1,9 @@
 
 use uniloan2;
 
+-- set yesterday=DATE_SUB(CURDATE(),INTERVAL -1 DAY);
+set @yesterday='2020-05-22';
+
 select ii.dt
   ,product_id
   ,download_num
@@ -20,14 +23,15 @@ select ii.dt
   ,repay_should_num
   ,contract_amount
   ,inhand_amount
+  ,repay_amount
 from (
   select date(install_begin_date) as dt, count(distinct deviceid) as download_num
-  from tb_install_click_info where date(install_begin_date) >= '2020-05-18'
+  from tb_install_click_info where date(install_begin_date)=@yesterday
   group by date(install_begin_date)
 ) ii
 left join (
   select date(create_time) as dt, count(distinct mobile) as regist_num
-  from tb_user_regist_info where date(create_time) >= '2020-05-18'
+  from tb_user_regist_info where date(create_time)=@yesterday
   group by date(create_time)
 ) ri on ii.dt=ri.dt
 left join (
@@ -48,12 +52,17 @@ left join (
   sum(case when status=12 then grant_quota end)  as contract_amount,
   sum(case when status=12 then inhand_quota end) as inhand_amount
   from (
-    select id, grant_quota, inhand_quota from tb_apply_info where date(create_time) >= '2020-05-18'
+    select id, grant_quota, inhand_quota from tb_apply_info where date(create_time)=@yesterday or date(update_time)=@yesterday
   ) ai
   left join (
-    select * from tb_apply_info_history where date(create_time) >= '2020-05-18'
+    select * from tb_apply_info_history where date(create_time)=@yesterday
   ) aih on ai.id = aih.apply_id
   group by date(create_time), product_id
 ) ai on ii.dt=ai.dt
+left join (
+  select date(repay_time) as dt, sum(act_total) as repay_amount from tb_repay_plan where date(repay_time)=@yesterday and repay_status=2
+  group by date(repay_time)
+) rp on ii.dt=rp.dt
 order by ii.dt
+\G;
 
