@@ -34,6 +34,7 @@ paycenter:
     transferCheck: "/fun/transfer/check"
     createVC: "/fun/payment/virtualCard/create"
     destroyVC: "/fun/payment/virtualCard/destory"
+    updateVC: "/fun/payment/virtualCard/enable"
 
 eureka:
   client:
@@ -65,6 +66,7 @@ paycenter:
     transferCheck: "/fun/transfer/check"
     createVC: "/fun/payment/virtualCard/create"
     destroyVC: "/fun/payment/virtualCard/destory"
+    updateVC: "/fun/payment/virtualCard/enable"
 
 eureka:
   client:
@@ -94,6 +96,7 @@ paycenter:
     transferCheck: "/fun/transfer/check"
     createVC: "/fun/payment/virtualCard/create"
     destroyVC: "/fun/payment/virtualCard/destory"
+    updateVC: "/fun/payment/virtualCard/enable"
 
 eureka:
   client:
@@ -126,6 +129,7 @@ paycenter:
     transferCheck: "/fun/transfer/check"
     createVC: "/fun/payment/virtualCard/create"
     destroyVC: "/fun/payment/virtualCard/destory"
+    updateVC: "/fun/payment/virtualCard/enable"
 
 eureka:
   client:
@@ -158,6 +162,7 @@ paycenter:
     transferCheck: "/fun/transfer/check"
     createVC: "/fun/payment/virtualCard/create"
     destroyVC: "/fun/payment/virtualCard/destory"
+    updateVC: "/fun/payment/virtualCard/enable"
 
 eureka:
   client:

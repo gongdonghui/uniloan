@@ -67,6 +67,8 @@ public class FunPayController {
     private String method_payCheck;
     @Value("${paycenter.method.createVC}")
     private String method_createVC;
+    @Value("${paycenter.method.updateVC}")
+    private String method_updateVC;
     @Value("${paycenter.method.destroyVC}")
     private String method_destroyVC;
 
@@ -327,8 +329,8 @@ public class FunPayController {
         m.put("orderNo", info.getOrderNo());
         m.put("expireDate", "");
         m.put("returnUrl", vcReturnUrl);
-        m.put("bankType", "VIB");
-        m.put("accountNo", info.getId());
+        m.put("bankType", "STB");
+        m.put("accountNo", info.getMobile());
         m.put("userName", info.getUserName() + "");
         m.put("version", version);
         String param = FunPayParamsUtil.params4Get(m, secretKey);
@@ -370,6 +372,42 @@ public class FunPayController {
         return "";
     }
 
+    @PostMapping(value = "updateVC")
+    public Result<CreateVCVO> updateVC(@RequestBody UpdateVCInfo info) {
+        Map<String, String> m = Maps.newHashMap();
+        m.put("merchantID", merchantId);
+        m.put("businessID", businessId);
+        m.put("feeID", feeId);
+        m.put("clientID", info.getUserId());
+        m.put("timestamp", System.currentTimeMillis() + "");
+        m.put("amount", info.getAmount() + "");
+        m.put("currency", "VND");
+        m.put("orderNo", info.getOrderNo());
+        m.put("bankType", "STB");
+        m.put("accountNo", info.getAccountNo());
+        m.put("version", version);
+        String param = FunPayParamsUtil.params4Get(m, secretKey);
+        String result = OkBang.get(funPayUrl + method_updateVC + "?param=" + param);
+        log.info("updateVC:::result=" + result);
+        if (Strings.isNullOrEmpty(result)) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        ReturnBean<CreateVCBean> resultBean = GsonUtil.fromJson(result, new TypeToken<ReturnBean<CreateVCBean>>() {
+        }.getType());
+        if (resultBean.getCode() != FUNPAY_SUCCESS_FLAG) {
+            return Result.fail(Result.kError, "外部服务异常");
+        }
+        CreateVCVO c = new CreateVCVO();
+        c.setAccountNo(resultBean.getResult().getAccountNo());
+        c.setAccountName(resultBean.getResult().getAccountName());
+        c.setBankLink(resultBean.getResult().getBankLink());
+        c.setBankName(resultBean.getResult().getBankName());
+        c.setBranchBankName(resultBean.getResult().getBranchBankName());
+        c.setServiceFee(resultBean.getResult().getServiceFee());
+        c.setExpireDate(DateUtil.parse(resultBean.getResult().getExpireDate(), DateUtil.NS_DAY_ALL_NUM_FORMAT));
+        return Result.succ(c);
+    }
+
     @PostMapping(value = "destroyVC")
     public Result destroyVC(@RequestBody DestroyVCInfo info) {
         Map<String, String> m = Maps.newHashMap();
@@ -380,7 +418,7 @@ public class FunPayController {
         m.put("orderNo", info.getOrderNo());
         m.put("accountNo", info.getAccountNo());
         m.put("version", version);
-        m.put("bankeType", "VIB");
+        m.put("bankType", "STB");
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_destroyVC + "?param=" + param);
         log.info("destroyVC:::result=" + result);
