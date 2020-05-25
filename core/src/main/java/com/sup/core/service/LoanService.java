@@ -169,7 +169,7 @@ public class LoanService {
         Date now = new Date();
         // 检查还款记录表，还款处理中的记录
         QueryWrapper<TbRepayHistoryBean> wrapper = new QueryWrapper<>();
-        wrapper.eq("apply_id", repayInfo.getAmount());
+        wrapper.eq("apply_id", repayInfo.getApplyId());
         wrapper.eq("repay_plan_id", repayPlanId);
         wrapper.eq("repay_status", RepayHistoryStatusEnum.REPAY_STATUS_PROCESSING.getCode());
         // wrapper.ge("expire_time", now);
@@ -212,9 +212,9 @@ public class LoanService {
         if (repayHistoryBean == null) {
             return Result.fail("");
         }
-
         Date expireDate = repayHistoryBean.getExpire_time();
-        boolean isExpire = expireDate != null && DateUtil.compareDate(new Date(), expireDate) > 0;
+        boolean isExpire = (expireDate != null) && (DateUtil.compareDate(new Date(), expireDate) > 0);
+        log.info("repayHistoryBean=" + GsonUtil.toJson(repayHistoryBean) + ", isExpire=" + isExpire);
         if (!isExpire && repayHistoryBean.getRepay_code() != null) {
             RepayVO r = new RepayVO();
             r.setCode(repayHistoryBean.getRepay_code());
