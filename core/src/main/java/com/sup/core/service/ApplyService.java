@@ -93,7 +93,7 @@ public class ApplyService {
 //        return applyInfoMapper.selectList(wrapper);
     }
 
-    public Result updateApplyInfo(TbApplyInfoBean bean) {
+    public Result<TbApplyInfoBean> updateApplyInfo(TbApplyInfoBean bean) {
         if (bean == null) {
             return Result.fail("Bean is null!");
         }
@@ -177,7 +177,7 @@ public class ApplyService {
         if (applyInfoHistoryMapper.insert(applyInfoHistoryBean) <= 0) {
             return Result.fail("insert into ApplyInfoHistory failed! bean = " + GsonUtil.toJson(applyInfoHistoryBean));
         }
-        return Result.succ();
+        return Result.succ(bean);
     }
 
     public synchronized void closeOperationTask(Integer applyId, OperationTaskTypeEnum taskType, String comment) {

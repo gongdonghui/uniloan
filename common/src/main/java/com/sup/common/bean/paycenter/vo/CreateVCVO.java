@@ -35,5 +35,5 @@ public class CreateVCVO {
      */
     private Integer serviceFee;
 
-    private Date    expireDate;
+    private Date    expireDate;  // yyyyMMdd
 }
