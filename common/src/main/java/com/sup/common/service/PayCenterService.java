@@ -95,6 +95,14 @@ public interface PayCenterService {
     Result<CreateVCVO> createVC(@RequestBody CreateVCInfo info);
 
     /**
+     * 更新虚拟卡
+     * @param info
+     * @return
+     */
+    @PostMapping(value = "updateVC")
+    public Result<CreateVCVO> updateVC(@RequestBody UpdateVCInfo info);
+
+    /**
      * 取消虚拟卡
      * @param info
      * @return
