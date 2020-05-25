@@ -55,7 +55,7 @@ public class CronTask {
   private TbUserRegistInfoMapper tb_regist_info_mapper;
 
 
-  @Scheduled(cron = "0 20 20 * * *")
+  @Scheduled(cron = "0 35 20 * * *")
   public void NotifyRepayUserToday() {
     QueryWrapper query = new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()).orderByAsc("create_time");
     List<TbApplyInfoBean> applies = tb_apply_info_mapper.selectList(query);
@@ -92,7 +92,7 @@ public class CronTask {
           user_msg.setUser_id(apply.getUser_id());
           user_msg.setRel_id(plan.getId());
           user_msg.setState(DAY_TO_REPAY_NOTIFY);
-          user_msg.setMobile(tb_regist_info_mapper.selectById(apply.getId()).getMobile());
+          user_msg.setMobile(tb_regist_info_mapper.selectById(apply.getUser_id()).getMobile());
           user_msg.setCreate_time(ToolUtils.NormTime(new Date()));
           user_msg.setExt(JSON.toJSONString(ImmutableMap.of("order_id", String.valueOf(apply.getId()), "amount", String.valueOf(plan.getNeed_total()))));
           producer.sendMessage(new Message(SYSTEM_NOTIFY, DAY_TO_REPAY_NOTIFY, "", JSON.toJSONString(user_msg).getBytes()));
@@ -143,7 +143,7 @@ public class CronTask {
           user_msg.setUser_id(apply.getUser_id());
           user_msg.setRel_id(plan.getId());
           user_msg.setState(ONEDAY_TO_REPAY_NOTIFY);
-          user_msg.setMobile(tb_regist_info_mapper.selectById(apply.getId()).getMobile());
+          user_msg.setMobile(tb_regist_info_mapper.selectById(apply.getUser_id()).getMobile());
           user_msg.setCreate_time(ToolUtils.NormTime(new Date()));
           user_msg.setExt(JSON.toJSONString(ImmutableMap.of("order_id", String.valueOf(apply.getId()), "amount", String.valueOf(plan.getNeed_total()))));
           producer.sendMessage(new Message(SYSTEM_NOTIFY, ONEDAY_TO_REPAY_NOTIFY, "", JSON.toJSONString(user_msg).getBytes()));
@@ -155,7 +155,7 @@ public class CronTask {
           user_msg.setUser_id(apply.getUser_id());
           user_msg.setRel_id(plan.getId());
           user_msg.setState(ONEDAY_OVERDUE_NOTIFY);
-          user_msg.setMobile(tb_regist_info_mapper.selectById(apply.getId()).getMobile());
+          user_msg.setMobile(tb_regist_info_mapper.selectById(apply.getUser_id()).getMobile());
           user_msg.setCreate_time(ToolUtils.NormTime(new Date()));
           user_msg.setExt(JSON.toJSONString(ImmutableMap.of("order_id", String.valueOf(apply.getId()), "amount", String.valueOf(plan.getNeed_total()))));
           producer.sendMessage(new Message(SYSTEM_NOTIFY, ONEDAY_OVERDUE_NOTIFY, "", JSON.toJSONString(user_msg).getBytes()));
