@@ -80,18 +80,21 @@ public class RepayController {
       mcs.add(JSONObject.toJSON(ImmutableMap.of("account", repay_account, "accountNo", repay_account_no, "bankBranch", repay_bank_branch)));
       payload.setManual_repay_configs(mcs);
       logger.info("query_manual: " + JSON.toJSONString(mcs));
+      payload.setManual_repay_configs(mcs);
     }
     {
       JSONArray acs = new JSONArray();
       Result<RepayVO> out = core.getRepayInfo(ri);
       logger.info(String.format("query_auto, param: %s, ret: %s", JSON.toJSONString(ri), JSON.toJSONString(out)));
       acs.add(out.getData());
+      payload.setAuto_repay_configs(acs);
     }
     {
       JSONArray vcs = new JSONArray();
       Result<CreateVCVO> out = core.getVirtualCard(ri);
       logger.info(String.format("query_vc, param: %s, ret: %s", JSON.toJSONString(ri), JSON.toJSONString(out)));
       vcs.add(out.getData());
+      payload.setVc_repay_configs(vcs);
     }
     return ToolUtils.succ(payload);
   }
