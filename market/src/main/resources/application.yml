@@ -164,7 +164,7 @@ spring:
 sms:
   skyline:
     retry: 3
-    mock: false
+    mock: true
     pattern: '^\+?(0|84|084)?(\d+)$'
     area-code: 84
     uri: http://sms.skylinelabs.cc:20003/sendsmsV2
