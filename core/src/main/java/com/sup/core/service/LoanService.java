@@ -970,7 +970,7 @@ public class LoanService {
         }
 
         TbRepayHistoryBean repayHistoryBean = getOrNewRepayHistoryBean(
-                Integer.valueOf(param.getUserId()), applyId, param.getAmount(), repayPlanBean.getId()
+                repayPlanBean.getUser_id(), applyId, param.getAmount(), repayPlanBean.getId()
         );
         if (repayHistoryBean == null) {
             return Result.fail("");
@@ -986,7 +986,7 @@ public class LoanService {
         if (ret.isSucc() && ret.getData() != null && ret.getData().getStatus() == ApplyStatusEnum.APPLY_REPAY_ALL.getCode()) {
             // 已还清，更新虚拟卡状态为不可用
             TbVirtualCardInfo cardInfo = virtualCardInfoMapper.selectOne(
-                    new QueryWrapper<TbVirtualCardInfo>().eq("user_id", param.getUserId())
+                    new QueryWrapper<TbVirtualCardInfo>().eq("user_id", repayPlanBean.getUser_id())
             );
             if (cardInfo != null && cardInfo.getStatus() == VirtualCardStatusEnum.VC_STATUS_VALID.getCode()) {
                 if (destoryVirtualCard(String.valueOf(cardInfo.getOrder_no()), cardInfo.getVc_no()).isSucc()) {
