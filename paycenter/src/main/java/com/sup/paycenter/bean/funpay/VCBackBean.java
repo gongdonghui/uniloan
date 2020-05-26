@@ -22,7 +22,7 @@ public class VCBackBean {
     private String branchBankName;
     private String bankLink;
     private Integer purchaseAmount;
-    private Integer purchaseCurrency;
+    private String purchaseCurrency;
     private String purchaseTime;
     private String remark;
     private Integer serviceFee;
