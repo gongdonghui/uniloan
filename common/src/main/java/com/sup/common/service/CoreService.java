@@ -3,6 +3,7 @@ package com.sup.common.service;
 import com.sup.common.bean.TbApplyInfoBean;
 import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.common.bean.paycenter.RepayInfo;
+import com.sup.common.bean.paycenter.vo.CreateVCVO;
 import com.sup.common.param.*;
 import com.sup.common.util.Result;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -135,4 +136,23 @@ public interface CoreService {
     @ResponseBody
     @RequestMapping(value = "/loan/updateUser", produces = "application/json;charset=UTF-8")
     Result updateUserCredit(Integer userId);
+
+    /**
+     * 获取还款使用的虚拟卡
+     * @param repayInfo    还款参数
+     * @return  虚拟卡号、收款单位、收款银行名称、支行名称、银行地图URL、虚拟卡费用
+     */
+    @ResponseBody
+    @RequestMapping(value = "/loan/virtualCard/get", produces = "application/json;charset=UTF-8")
+    Result<CreateVCVO> getVirtualCard(@RequestBody RepayInfo repayInfo);
+
+    /**
+     * 虚拟卡还款回调接口
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/loan/vcCallBack", produces = "application/json;charset=UTF-8")
+    Result vcCallBack(@RequestBody FunpayCallBackParam param);
+
 }

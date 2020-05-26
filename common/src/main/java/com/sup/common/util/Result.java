@@ -23,16 +23,16 @@ public class Result<T> {
         return status.equals(kSuccess);
     }
 
-    public static Result of(Integer status, Object data) {
-        return new Result().setStatus(status).setData(data).setMessage("");
+    public static <T> Result of(Integer status, T data) {
+        return new Result<>().setStatus(status).setData(data).setMessage("");
     }
 
-    public static Result of(Integer status, Object data, String message) {
-        return new Result().setStatus(status).setData(data).setMessage(message);
+    public static <T> Result of(Integer status, T data, String message) {
+        return new Result<>().setStatus(status).setData(data).setMessage(message);
     }
 
-    public static Result<String> succ() {
-        return new Result<String>().setStatus(kSuccess).setMessage("succ");
+    public static Result succ() {
+        return new Result<Object>().setStatus(kSuccess).setMessage("succ");
     }
 
     public static <T> Result succ(T data) {
@@ -40,11 +40,11 @@ public class Result<T> {
     }
 
     public static Result fail(String key) {
-        return new Result().setStatus(kError).setMessage(key);
+        return new Result<Object>().setStatus(kError).setMessage(key);
     }
 
     public static Result fail(Integer status, String msg) {
-        return new Result().setStatus(status).setMessage(msg);
+        return new Result<Object>().setStatus(status).setMessage(msg);
     }
 
 }
