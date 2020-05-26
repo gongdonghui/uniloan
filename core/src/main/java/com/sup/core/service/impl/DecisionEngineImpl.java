@@ -467,6 +467,8 @@ public class DecisionEngineImpl implements DecesionEngine {
             decisionResultBean.setUser_id(Integer.parseInt(param.getUserId()));
             decisionResultBean.setApply_date(new Date());
             decisionResultBean.setRule_hit_type(rule.getHit_type());
+            decisionResultBean.setVariable(rule.getVariable_name());
+            decisionResultBean.setVal(riskBean.get(rule.getVariable_name()));
 
             if (rule.getHit_type() == 1) {   //必须通过类
 

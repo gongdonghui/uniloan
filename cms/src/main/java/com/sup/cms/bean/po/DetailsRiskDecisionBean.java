@@ -10,5 +10,6 @@ import lombok.Data;
 public class DetailsRiskDecisionBean {
     private Integer ruleStatus;
     private Integer ruleHitType;
-    private String variableName;
+    private String  variableName;
+    private Double  val;
 }
