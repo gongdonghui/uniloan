@@ -15,7 +15,7 @@ import java.util.Date;
 
 @Data
 public class FunpayCallBackParam {
-    private String userId;
+    // private String userId;
     private String orderNo;     // 放款回调时为applyId，还款回调时为RepayHistoryId
     private String tradeNo;
     private Integer status;     // see code map in FunpayOrderUtil

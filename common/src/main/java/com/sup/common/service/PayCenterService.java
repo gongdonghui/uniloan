@@ -86,4 +86,28 @@ public interface PayCenterService {
     @PostMapping(value = "/repayStatus")
     Result<RepayStatusVO> repayStatus(@Valid @RequestBody RepayStatusInfo repayStatusInfo);
 
+    /**
+     * 申请虚拟卡
+     * @param info
+     * @return
+     */
+    @PostMapping(value = "createVC")
+    Result<CreateVCVO> createVC(@RequestBody CreateVCInfo info);
+
+    /**
+     * 更新虚拟卡
+     * @param info
+     * @return
+     */
+    @PostMapping(value = "updateVC")
+    public Result<CreateVCVO> updateVC(@RequestBody UpdateVCInfo info);
+
+    /**
+     * 取消虚拟卡
+     * @param info
+     * @return
+     */
+    @PostMapping(value = "destroyVC")
+    Result destroyVC(@RequestBody DestroyVCInfo info);
+
 }

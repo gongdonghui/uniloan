@@ -402,10 +402,10 @@ public class DateUtil {
         Date end    = new Date();
         //System.out.println("daysbetween: " + daysbetween(start, end));
         System.out.println("getDaysBetween: " + getDaysBetween(start, end));
-        Date dt = new Date();
+        Date dt = parse("2020-05-29 14:45:12", DEFAULT_DATETIME_FORMAT);
         Date now = new Date();
         int ret = compareDay(dt, now);
-        //System.out.println("ret=" + ret);
+        System.out.println("ret=" + ret);
         System.out.printf(Integer.toString(Integer.MAX_VALUE));
     }
 }
