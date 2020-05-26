@@ -103,9 +103,9 @@ spring:
       primary: online2
       datasource:
         online2:
-          username: dev_online
-          password: JPTmkZT5QmAV4s
-          url: 'jdbc:mysql://127.0.0.1/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          username: dev2
+          password: Old57!@@^
+          url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan2?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
           driver-class-name: com.mysql.jdbc.Driver
           hikari:
             max-lifetime: 300000
@@ -141,7 +141,6 @@ rocket:
   producer:
     endpoint: 127.0.0.1:9976
     group: market
-
 
 
 ---

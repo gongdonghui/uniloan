@@ -133,6 +133,7 @@ public class DetailsController {
         bean.setMarriage(basicBean.getMarriage());
         bean.setPurpose(basicBean.getPurpose());
         bean.setChildrenCount(basicBean.getChildren_count());
+        bean.setFacebookLink(basicBean.getFacebook_link());
         bean.setCompany(employmentBean.getCompany());
         bean.setCompanyCity(employmentBean.getCompany_city());
         bean.setCompanyAddr(employmentBean.getCompany_addr());
