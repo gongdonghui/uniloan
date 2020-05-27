@@ -294,7 +294,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_product_info e on a.product_id=e.id " +
             " left join tb_repay_plan f on a.id=f.apply_id " +
             " left join (select * from tb_manual_repay where status = 0) g on f.id = g.plan_id and f.apply_id = g.apply_id" +
-            " where a.status=12 and (g.status is null or g.status!=0) and b.info_type=0" +
+            " where a.status in (12,13,15) and (g.status is null or g.status!=0) and b.info_type=0" +
             " ${conditions}")
     Integer loanUnRepayInfoGetListForPaging(@Param(value = "conditions") String conditions);
 
