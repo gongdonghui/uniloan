@@ -661,8 +661,8 @@ CREATE TABLE if NOT EXISTS `tb_core_risk_decesion_result_detail` (
   `apply_id` int(11) DEFAULT NULL,
   `apply_date` datetime DEFAULT NULL,
   `decesion_id` int(11) DEFAULT NULL,
-  `val` int(11) DEFAULT NULL,
-  `variable` double  DEFAULT NULL,
+  `val` double DEFAULT NULL,
+  `variable` varchar(128)  DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
