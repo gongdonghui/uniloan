@@ -20,6 +20,8 @@ public class RiskDecisionResultDetailBean {
     private Integer user_id;
     private Integer product_id;
     private Integer apply_id;
+    private Double val;
+    private String variable;
     private Date apply_date;
 
 }

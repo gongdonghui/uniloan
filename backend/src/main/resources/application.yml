@@ -105,7 +105,7 @@ rocket:
 
 ---
 login:
-  fake_verify_code: false
+  fake_verify_code: true
 
 spring:
   profiles: test2

@@ -400,7 +400,9 @@ public class ScheduleTasks {
                 mqMessenger.applyStatusChange(applyInfoBean);
                 applyInfoBean.setStatus(ApplyStatusEnum.APPLY_OVERDUE.getCode());
                 applyInfoBean.setUpdate_time(now);
-                applyInfoMapper.updateById(applyInfoBean);
+                if (applyInfoMapper.updateById(applyInfoBean) <= 0) {
+                    log.error("Failed to update applyInfo=" + GsonUtil.toJson(applyInfoBean));
+                }
             }
         }
     }

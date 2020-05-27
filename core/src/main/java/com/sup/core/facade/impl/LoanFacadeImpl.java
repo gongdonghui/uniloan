@@ -9,10 +9,7 @@ import com.sup.common.bean.paycenter.PayInfo;
 import com.sup.common.bean.paycenter.PayStatusInfo;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.RepayStatusInfo;
-import com.sup.common.bean.paycenter.vo.PayStatusVO;
-import com.sup.common.bean.paycenter.vo.PayVO;
-import com.sup.common.bean.paycenter.vo.RepayStatusVO;
-import com.sup.common.bean.paycenter.vo.RepayVO;
+import com.sup.common.bean.paycenter.vo.*;
 import com.sup.common.loan.*;
 import com.sup.common.param.*;
 import com.sup.common.service.PayCenterService;
@@ -197,5 +194,27 @@ public class LoanFacadeImpl implements LoanFacade {
     public Result updateUserCredit(Integer userId) {
         ruleConfigService.updateCreditLevelForUser(userId);
         return Result.succ();
+    }
+
+    /**
+     * 获取还款使用的虚拟卡
+     *
+     * @param repayInfo 还款参数
+     * @return 虚拟卡号、收款单位、收款银行名称、支行名称、银行地图URL、虚拟卡费用
+     */
+    @Override
+    public Result<CreateVCVO> getVirtualCard(RepayInfo repayInfo) {
+        return loanService.getVirtualCard(repayInfo);
+    }
+
+    /**
+     * 虚拟卡还款回调接口
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public Result vcCallBack(FunpayCallBackParam param) {
+        return loanService.vcCallBack(param);
     }
 }

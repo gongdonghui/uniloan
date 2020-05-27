@@ -118,7 +118,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " where apply_id=#{applyId}")
     List<DetailsRepayRecordBean> detailsRepayRecord(@Param(value = "applyId") Integer applyId);
 
-    @Select("select a.rule_status as ruleStatus,a.rule_hit_type as ruleHitType,b.variable_name as variableName from tb_core_risk_decesion_result_detail a left join tb_core_risk_rules b on a.rule_id=b.id" +
+    @Select("select a.rule_status as ruleStatus,a.rule_hit_type as ruleHitType,b.variable_name as variableName, a.val as val from tb_core_risk_decesion_result_detail a left join tb_core_risk_rules b on a.rule_id=b.id" +
             " where a.apply_id=#{applyId}")
     List<DetailsRiskDecisionBean> detailsRiskDecision(@Param(value = "applyId") Integer applyId);
 
@@ -231,7 +231,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " a.grant_quota as loanAmount," +
             " f.need_total as shouldRepayAmount," +
             " f.act_total as repayAmount," +
-            " case when g.status = 0 then 1 else 0 end as repayNeedConfirm," +
+            " case when a.status!=14 and g.status = 0 then 1 else 0 end as repayNeedConfirm," +
             " a.loan_time as loanDate," +
             " f.repay_end_date as endDate," +
             " f.repay_time as repayDate," +
@@ -281,7 +281,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_product_info e on a.product_id=e.id " +
             " left join tb_repay_plan f on a.id=f.apply_id " +
             " left join (select * from tb_manual_repay where status = 0) g on f.id = g.plan_id and f.apply_id = g.apply_id" +
-            " where a.status=12 and (g.status is null or g.status!=0) and b.info_type=0" +
+            " where a.status in (12,13,15) and (g.status is null or g.status!=0) and b.info_type=0" +
             " ${conditions} " +
             " limit #{offset},#{rows}")
     List<LoanUnRepayInfoGetListBean> loanUnRepayInfoGetList(String conditions, Integer offset, Integer rows);
@@ -294,7 +294,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_product_info e on a.product_id=e.id " +
             " left join tb_repay_plan f on a.id=f.apply_id " +
             " left join (select * from tb_manual_repay where status = 0) g on f.id = g.plan_id and f.apply_id = g.apply_id" +
-            " where a.status=12 and (g.status is null or g.status!=0) and b.info_type=0" +
+            " where a.status in (12,13,15) and (g.status is null or g.status!=0) and b.info_type=0" +
             " ${conditions}")
     Integer loanUnRepayInfoGetListForPaging(@Param(value = "conditions") String conditions);
 
