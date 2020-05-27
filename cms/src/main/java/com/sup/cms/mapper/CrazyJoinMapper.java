@@ -231,7 +231,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " a.grant_quota as loanAmount," +
             " f.need_total as shouldRepayAmount," +
             " f.act_total as repayAmount," +
-            " case when g.status = 0 then 1 else 0 end as repayNeedConfirm," +
+            " case when a.status!=14 and g.status = 0 then 1 else 0 end as repayNeedConfirm," +
             " a.loan_time as loanDate," +
             " f.repay_end_date as endDate," +
             " f.repay_time as repayDate," +
