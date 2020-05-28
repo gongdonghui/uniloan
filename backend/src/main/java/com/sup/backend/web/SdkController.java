@@ -2,6 +2,7 @@ package com.sup.backend.web;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.sup.backend.bean.AppSdkAppListInfo;
 import com.sup.backend.bean.AppSdkContactInfo;
 import com.sup.backend.bean.AppTbInstallClickInfo;
@@ -58,8 +59,11 @@ public class SdkController {
   @RequestMapping(value = "token/report", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object ReportToken(@RequestBody TbSdkTokenMappingBean bean) {
     if (StringUtils.isNotEmpty(bean.getPhone()) && StringUtils.isNotEmpty(bean.getToken())) {
-      bean.setCreate_time(new Date());
-      tb_sdk_token_mapping_mapper.insert(bean);
+      int exist_cnt = tb_sdk_token_mapping_mapper.selectCount(Wrappers.lambdaQuery(new TbSdkTokenMappingBean().setPhone(bean.getPhone()).setToken(bean.getToken())));
+      if (exist_cnt == 0) {
+        bean.setCreate_time(new Date());
+        tb_sdk_token_mapping_mapper.insert(bean);
+      }
     }
     return Result.succ();
   }

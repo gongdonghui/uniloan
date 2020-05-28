@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
@@ -17,6 +18,7 @@ import java.util.Date;
  */
 
 @Data
+@Accessors(chain = true)
 @TableName("tb_sdk_token_mapping")
 public class TbSdkTokenMappingBean {
     @TableId(type = IdType.AUTO)
