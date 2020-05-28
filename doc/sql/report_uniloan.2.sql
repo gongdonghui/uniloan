@@ -1,11 +1,11 @@
 
 use uniloan2;
 
--- set yesterday=DATE_SUB(CURDATE(),INTERVAL -1 DAY);
-set @yesterday='2020-05-22';
+set @yesterday=DATE_SUB(CURDATE(),INTERVAL 1 DAY);
+-- set @yesterday='2020-05-25';
 
 select ii.dt
-  ,product_id
+  ,ai.product_id
   ,download_num
   ,regist_num
   ,apply_total_num
@@ -17,13 +17,15 @@ select ii.dt
   ,apply_cancel_num
   ,loan_num
   ,repay_total
+  ,repay_clear_total
   ,repay_early_num
   ,repay_normal_num
   ,repay_late_num
-  ,repay_should_num
   ,contract_amount
   ,inhand_amount
   ,repay_amount
+  ,repay_should_num
+  ,(repay_should_num - repay_normal_num) as first_overdue
 from (
   select date(install_begin_date) as dt, count(distinct deviceid) as download_num
   from tb_install_click_info where date(install_begin_date)=@yesterday
@@ -44,11 +46,6 @@ left join (
   count(distinct case when status in (6,8) then apply_id end) as manual_deny_num,
   count(distinct case when status=9 then apply_id end) as apply_cancel_num,
   count(distinct case when status=12 then apply_id end) as loan_num,
-  count(distinct case when status=14 then apply_id end) as repay_total,
-  count(distinct case when status=14 and date(expire_time)>date(create_time) then apply_id end) as repay_early_num,
-  count(distinct case when status=14 and date(expire_time)=date(create_time) then apply_id end) as repay_normal_num,
-  count(distinct case when status=14 and date(expire_time)<date(create_time) then apply_id end) as repay_late_num,
-  count(distinct case when status in (12, 13, 14) and date(expire_time)=date(create_time) then apply_id end) as repay_should_num,
   sum(case when status=12 then grant_quota end)  as contract_amount,
   sum(case when status=12 then inhand_quota end) as inhand_amount
   from (
@@ -60,9 +57,22 @@ left join (
   group by date(create_time), product_id
 ) ai on ii.dt=ai.dt
 left join (
-  select date(repay_time) as dt, sum(act_total) as repay_amount from tb_repay_plan where date(repay_time)=@yesterday and repay_status=2
-  group by date(repay_time)
-) rp on ii.dt=rp.dt
+  select @yesterday as dt, product_id
+  , sum(case when repay_status in (1,2) then act_total end) as repay_amount
+  ,count(case when repay_status in (1,2) then apply_id end) as repay_total
+  ,count(case when repay_status=2 then apply_id end) as repay_clear_total
+  ,count(case when repay_status=2 and date(repay_end_date)>@yesterday then apply_id end) as repay_early_num
+  ,count(case when repay_status=2 and date(repay_end_date)=@yesterday then apply_id end) as repay_normal_num
+  ,count(case when repay_status=2 and date(repay_end_date)<@yesterday then apply_id end) as repay_late_num
+  from tb_repay_plan where date(create_time)=@yesterday or date(update_time)=@yesterday or date(repay_time)=@yesterday
+  group by product_id
+) rp on ii.dt=rp.dt and ai.product_id = rp.product_id
+left join (
+  select @yesterday as dt, product_id
+  ,count(apply_id) as repay_should_num
+  from tb_repay_plan where date(repay_end_date)=@yesterday
+  group by product_id
+) rp2 on ii.dt=rp2.dt and ai.product_id = rp2.product_id
 order by ii.dt
 \G;
 
