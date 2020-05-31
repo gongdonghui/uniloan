@@ -7,6 +7,7 @@ import com.sup.cms.bean.po.*;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.*;
 import com.sup.common.loan.OperationTaskTypeEnum;
+import com.sup.common.util.DateUtil;
 import com.sup.common.util.ResponseUtil;
 import com.sup.common.util.GsonUtil;
 import lombok.extern.log4j.Log4j;
@@ -111,8 +112,8 @@ public class CollectionController {
     @PostMapping("/records/export")
     public String exportRecord(@Valid @RequestBody CollectionRecordsExportParam params) {
         StringBuilder sb = new StringBuilder();
-        sb.append(params.getStart() != null ? " and  date(alert_date)>=" + params.getStart() : "");
-        sb.append(params.getEnd() != null ? " and  date(alert_date)<=" + params.getStart() : "");
+        sb.append(params.getStart() != null ? " and  date(alert_date)>='" + DateUtil.startOf(params.getStart()) + "'" : "");
+        sb.append(params.getEnd() != null ? " and  date(alert_date)<='" + DateUtil.endOf(params.getStart()) + "'" : "");
         sb.append(params.getApplyId() != null ? " and apply_id=" + params.getApplyId() : "");
 
         log.info("export param=" + GsonUtil.toJson(params) + ", conditions=" + sb.toString());
