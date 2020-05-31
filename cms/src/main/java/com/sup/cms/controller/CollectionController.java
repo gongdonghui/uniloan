@@ -108,6 +108,18 @@ public class CollectionController {
         return ResponseUtil.success(l);
     }
 
+    @PostMapping("/records/export")
+    public String exportRecord(@Valid @RequestBody CollectionRecordsExportParam params) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(params.getStart() != null ? " and  date(alert_date)>=" + params.getStart() : "");
+        sb.append(params.getEnd() != null ? " and  date(alert_date)<=" + params.getStart() : "");
+        sb.append(params.getApplyId() != null ? " and apply_id=" + params.getApplyId() : "");
+
+        log.info("export param=" + GsonUtil.toJson(params) + ", conditions=" + sb.toString());
+        List<CollectionRecords> records = collectionRecordBeanMapper.exportRecords(sb.toString());
+        return ResponseUtil.success(records);
+    }
+
     /**
      * 逾期派单-列表
      *
