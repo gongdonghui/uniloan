@@ -53,7 +53,7 @@ public class CronTask {
   private TbUserRegistInfoMapper tb_regist_info_mapper;
 
 
-  @Scheduled(cron = "0 0 9,14 * * *")
+  @Scheduled(cron = "0 0 8,14 * * *")
   public void NotifyRepayUser() {
     QueryWrapper query = new QueryWrapper<TbApplyInfoBean>().eq("status", ApplyStatusEnum.APPLY_LOAN_SUCC.getCode()).orderByAsc("create_time");
     List<TbApplyInfoBean> applies = tb_apply_info_mapper.selectList(query);
