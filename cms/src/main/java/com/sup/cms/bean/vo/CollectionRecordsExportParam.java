@@ -17,7 +17,9 @@ public class CollectionRecordsExportParam {
      */
     private Integer applyId;
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date start;
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date end;
 }

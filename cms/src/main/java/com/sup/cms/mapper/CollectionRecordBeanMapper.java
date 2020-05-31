@@ -43,7 +43,7 @@ public interface CollectionRecordBeanMapper extends BaseMapper<TbCollectionRecor
             "  ,cr.operator_id as operatorId\n" +
             "  ,cau.name as operatorName\n" +
             "from (\n" +
-            "   select * from tb_cms_collection_record where 1=1 '\n" +
+            "   select * from tb_cms_collection_record where 1=1 \n" +
             "     ${conditions} \n" +
             ") cr\n" +
             "left join tb_cms_auth_user cau on cr.operator_id=cau.id\n" +
