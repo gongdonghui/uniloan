@@ -89,6 +89,7 @@ public class CollectionController {
             return ResponseUtil.failed();
         }
         TbCollectionRecordBean bean = GsonUtil.beanCopy(params, TbCollectionRecordBean.class);
+        bean.setCreateTime(new Date());
         if (collectionRecordBeanMapper.insert(bean) <= 0) {
             return ResponseUtil.failed();
         }

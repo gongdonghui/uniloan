@@ -2,27 +2,24 @@ package com.sup.backend.web;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.netflix.discovery.converters.Auto;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.sup.backend.bean.AppSdkAppListInfo;
 import com.sup.backend.bean.AppSdkContactInfo;
 import com.sup.backend.bean.AppTbInstallClickInfo;
 import com.sup.backend.bean.LoginInfoCtx;
-import com.sup.backend.core.ApplicationContextHelper;
 import com.sup.backend.core.LoginInfo;
 import com.sup.backend.core.LoginRequired;
 import com.sup.backend.mapper.*;
 import com.sup.backend.service.BackgroundService;
 import com.sup.backend.util.ToolUtils;
 import com.sup.common.bean.*;
+import com.sup.common.util.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -54,6 +51,22 @@ public class SdkController {
 
   @Autowired
   TbInstallClickInfoMapper tb_install_click_mapper;
+
+  @Autowired
+  TbSdkTokenMappingMapper tb_sdk_token_mapping_mapper;
+
+  @ResponseBody
+  @RequestMapping(value = "token/report", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Object ReportToken(@RequestBody TbSdkTokenMappingBean bean) {
+    if (StringUtils.isNotEmpty(bean.getPhone()) && StringUtils.isNotEmpty(bean.getToken())) {
+      int exist_cnt = tb_sdk_token_mapping_mapper.selectCount(Wrappers.lambdaQuery(new TbSdkTokenMappingBean().setPhone(bean.getPhone()).setToken(bean.getToken())));
+      if (exist_cnt == 0) {
+        bean.setCreate_time(new Date());
+        tb_sdk_token_mapping_mapper.insert(bean);
+      }
+    }
+    return Result.succ();
+  }
 
   @ResponseBody
   @RequestMapping(value = "install/report", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

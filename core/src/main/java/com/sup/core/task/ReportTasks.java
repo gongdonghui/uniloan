@@ -90,7 +90,7 @@ public class ReportTasks {
      * 更新还款信息表（tb_loan_info）
      * 该任务需在更新还款统计任务之后运行
      */
-    @Scheduled(cron = "0 0 2 * * ?")
+    @Scheduled(cron = "0 0 4 * * ?")
     public void updateLoanInfo() {
         List<TbLoanInfoBean> beans = loanInfoMapper.selectList(null);
         Map<Integer, TbLoanInfoBean> beanMap = new HashMap<>();

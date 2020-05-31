@@ -1194,7 +1194,15 @@ CREATE TABLE `tb_virtual_card_info_history` (
   KEY `order_no` (`order_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
+drop table if EXISTS `tb_sdk_token_mapping`;
+create table `tb_sdk_token_mapping` (
+  `id` int(10) not null auto_increment,
+  `phone` varchar(16) not null,
+  `token` varchar(1024) not null,
+  `create_time` datetime not null,
+  PRIMARY KEY (`id`),
+  key `idx_phone` (`phone`)
+) ENGINE = InnoDB DEFAULT CHARSET =utf8;
 
 
 
