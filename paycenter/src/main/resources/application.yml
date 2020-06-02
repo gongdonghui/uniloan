@@ -33,7 +33,7 @@ paycenter:
     payCheck: "/fun/payment/check"
     transferCheck: "/fun/transfer/check"
     createVC: "/fun/payment/virtualCard/create"
-    destroyVC: "/fun/payment/virtualCard/destory"
+    destroyVC: "/fun/payment/virtualCard/destroy"
     updateVC: "/fun/payment/virtualCard/enable"
 
 eureka:
@@ -65,7 +65,7 @@ paycenter:
     payCheck: "/fun/payment/check"
     transferCheck: "/fun/transfer/check"
     createVC: "/fun/payment/virtualCard/create"
-    destroyVC: "/fun/payment/virtualCard/destory"
+    destroyVC: "/fun/payment/virtualCard/destroy"
     updateVC: "/fun/payment/virtualCard/enable"
 
 eureka:
@@ -95,7 +95,7 @@ paycenter:
     payCheck: "/fun/payment/check"
     transferCheck: "/fun/transfer/check"
     createVC: "/fun/payment/virtualCard/create"
-    destroyVC: "/fun/payment/virtualCard/destory"
+    destroyVC: "/fun/payment/virtualCard/destroy"
     updateVC: "/fun/payment/virtualCard/enable"
 
 eureka:
@@ -128,7 +128,7 @@ paycenter:
     payCheck: "/fun/payment/check"
     transferCheck: "/fun/transfer/check"
     createVC: "/fun/payment/virtualCard/create"
-    destroyVC: "/fun/payment/virtualCard/destory"
+    destroyVC: "/fun/payment/virtualCard/destroy"
     updateVC: "/fun/payment/virtualCard/enable"
 
 eureka:
@@ -161,7 +161,7 @@ paycenter:
     payCheck: "/fun/payment/check"
     transferCheck: "/fun/transfer/check"
     createVC: "/fun/payment/virtualCard/create"
-    destroyVC: "/fun/payment/virtualCard/destory"
+    destroyVC: "/fun/payment/virtualCard/destroy"
     updateVC: "/fun/payment/virtualCard/enable"
 
 eureka:
