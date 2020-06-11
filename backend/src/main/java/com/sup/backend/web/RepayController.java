@@ -19,7 +19,6 @@ import com.sup.common.bean.TbRepayPlanBean;
 import com.sup.common.bean.TbUserRegistInfoBean;
 import com.sup.common.bean.paycenter.RepayInfo;
 import com.sup.common.bean.paycenter.vo.CreateVCVO;
-import com.sup.common.bean.paycenter.vo.RepayVO;
 import com.sup.common.loan.MaualRepayStatusEnum;
 import com.sup.common.service.CoreService;
 import com.sup.common.util.Result;
@@ -83,9 +82,9 @@ public class RepayController {
     }
     {
       JSONArray acs = new JSONArray();
-      Result<RepayVO> out = core.getRepayInfo(ri);
-      logger.info(String.format("query_auto, param: %s, ret: %s", JSON.toJSONString(ri), JSON.toJSONString(out)));
-      acs.add(out.getData());
+      //Result<RepayVO> out = core.getRepayInfo(ri);
+      //logger.info(String.format("query_auto, param: %s, ret: %s", JSON.toJSONString(ri), JSON.toJSONString(out)));
+      //acs.add(out.getData());
       payload.setAuto_repay_configs(acs);
     }
     {

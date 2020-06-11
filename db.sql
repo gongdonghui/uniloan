@@ -1206,6 +1206,38 @@ create table `tb_sdk_token_mapping` (
 
 
 
+drop table if exists `tb_sdk_dial_history`;
+create table `tb_sdk_dial_history` (
+  `id` int(11) not null auto_increment,
+  `user_id` int(11) not null comment '用户id',
+  `counterpart_number` varchar(32) not null comment '对方手机号',
+  `location` varchar(64) comment '对方电话区域',
+  `call_time` date not null comment '通话时间',
+  `duration` int(11) not null comment '通话时长，单位是秒',
+  `call_type` tinyint comment '通话类型',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  primary key (`id`),
+  key `idx_user_id` (`user_id`)
+) ENGINE = InnoDB default charset = utf8mb4;
+
+
+drop table if exists `tb_sdk_sms_history`;
+create table `tb_sdk_sms_history` (
+  `id` int(11) not null auto_increment,
+  `user_id` int(11) not null comment '用户id',
+  `name` varchar(64) not null comment '短信用户',
+  `address` varchar(36) not null comment '短信号码',
+  `body` varchar(512) comment '短信内容',
+  `sms_time` date not null comment '短信时间戳',
+  `read` tinyint,
+  `type` tinyint,
+  `status` tinyint,
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  primary key (`id`),
+  key `idx_user_id` (`user_id`)
+) ENGINE = InnoDB default charset = utf8mb;
+
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 
