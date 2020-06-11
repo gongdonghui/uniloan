@@ -130,10 +130,10 @@ public class FunPayController {
         m.put("accountName", bankInfo.getAccountName());
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_verifyBankInfo + "?param=" + param);
+        log.info("verifyBankInfo:::result=" + result + ", param=" + param);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
-        log.info("verifyBankInfo:::result=" + result);
         ReturnBean<VerifyBankInfoBean> resultBean = GsonUtil.fromJson(result, new TypeToken<ReturnBean<VerifyBankInfoBean>>() {
         }.getType());
         if (resultBean.getCode() != FUNPAY_SUCCESS_FLAG) {
@@ -169,7 +169,7 @@ public class FunPayController {
         m.put("isAsync", "1");
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_transferMoney + "?param=" + param);
-        log.info("pay:::result=" + result);
+        log.info("pay:::result=" + result + ", param=" + param);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
@@ -205,7 +205,7 @@ public class FunPayController {
         m.put("userName", repayInfo.getName());
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_offlinePay + "?param=" + param);
-        log.info("repay:::result=" + result);
+        log.info("repay:::result=" + result + ", param=" + param);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
@@ -233,7 +233,7 @@ public class FunPayController {
         m.put("orderNo", payStatusInfo.getOrderNo());
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_transferCheck + "?param=" + param);
-        log.info("payStatus:::result=" + result);
+        log.info("payStatus:::result=" + result + ", param=" + param);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
@@ -263,7 +263,7 @@ public class FunPayController {
         m.put("orderNo", repayStatusInfo.getOrderNo());
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_payCheck + "?param=" + param);
-        log.info("repayStatus:::result=" + result);
+        log.info("repayStatus:::result=" + result + ", param=" + param);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
@@ -335,7 +335,7 @@ public class FunPayController {
         m.put("version", version);
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_createVC + "?param=" + param);
-        log.info("createVC:::result=" + result);
+        log.info("createVC:::result=" + result + ", param=" + param);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
@@ -388,7 +388,7 @@ public class FunPayController {
         m.put("version", version);
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_updateVC + "?param=" + param);
-        log.info("updateVC:::result=" + result);
+        log.info("updateVC:::result=" + result + ", param=" + param);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
@@ -421,7 +421,7 @@ public class FunPayController {
         m.put("bankType", "STB");
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_destroyVC + "?param=" + param);
-        log.info("destroyVC:::result=" + result);
+        log.info("destroyVC:::result=" + result + ", param=" + param);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }

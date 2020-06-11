@@ -7,6 +7,7 @@ import com.sup.cms.bean.po.*;
 import com.sup.cms.bean.vo.*;
 import com.sup.cms.mapper.*;
 import com.sup.common.loan.OperationTaskTypeEnum;
+import com.sup.common.util.DateUtil;
 import com.sup.common.util.ResponseUtil;
 import com.sup.common.util.GsonUtil;
 import lombok.extern.log4j.Log4j;
@@ -89,6 +90,7 @@ public class CollectionController {
             return ResponseUtil.failed();
         }
         TbCollectionRecordBean bean = GsonUtil.beanCopy(params, TbCollectionRecordBean.class);
+        bean.setCreateTime(new Date());
         if (collectionRecordBeanMapper.insert(bean) <= 0) {
             return ResponseUtil.failed();
         }
@@ -105,6 +107,18 @@ public class CollectionController {
     public String records(@RequestParam("applyId") String applyId) {
         List<CollectionRecordBean> l = collectionRecordBeanMapper.getRecords(applyId);
         return ResponseUtil.success(l);
+    }
+
+    @PostMapping("/records/export")
+    public String exportRecord(@Valid @RequestBody CollectionRecordsExportParam params) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(params.getStart() != null ? " and  date(alert_date)>='" + DateUtil.startOf(params.getStart()) + "'" : "");
+        sb.append(params.getEnd() != null ? " and  date(alert_date)<='" + DateUtil.endOf(params.getStart()) + "'" : "");
+        sb.append(params.getApplyId() != null ? " and apply_id=" + params.getApplyId() : "");
+
+        log.info("export param=" + GsonUtil.toJson(params) + ", conditions=" + sb.toString());
+        List<CollectionRecords> records = collectionRecordBeanMapper.exportRecords(sb.toString());
+        return ResponseUtil.success(records);
     }
 
     /**

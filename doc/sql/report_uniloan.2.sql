@@ -18,6 +18,7 @@ select ii.dt
   ,loan_num
   ,repay_total
   ,repay_clear_total
+  ,repay_then_apply_num
   ,repay_early_num
   ,repay_normal_num
   ,repay_late_num
@@ -64,7 +65,7 @@ left join (
   ,count(case when repay_status=2 and date(repay_end_date)>@yesterday then apply_id end) as repay_early_num
   ,count(case when repay_status=2 and date(repay_end_date)=@yesterday then apply_id end) as repay_normal_num
   ,count(case when repay_status=2 and date(repay_end_date)<@yesterday then apply_id end) as repay_late_num
-  from tb_repay_plan where date(create_time)=@yesterday or date(update_time)=@yesterday or date(repay_time)=@yesterday
+  from tb_repay_plan where date(repay_time)=@yesterday
   group by product_id
 ) rp on ii.dt=rp.dt and ai.product_id = rp.product_id
 left join (
@@ -73,6 +74,17 @@ left join (
   from tb_repay_plan where date(repay_end_date)=@yesterday
   group by product_id
 ) rp2 on ii.dt=rp2.dt and ai.product_id = rp2.product_id
-order by ii.dt
+left join (
+-- 当日结清复贷数
+  select @yesterday as dt, product_id, count(apply_id) as repay_then_apply_num
+  from (
+    select user_id from tb_repay_plan where repay_status=2 and date(repay_time)=@yesterday
+  ) rp
+  left join (
+    select id as apply_id, user_id, product_id from tb_apply_info where date(create_time)=@yesterday
+  ) ai on rp.user_id=ai.user_id
+  where apply_id is not null
+  group by product_id
+) rp3 on ii.dt=rp3.dt and ai.product_id = rp3.product_id
 \G;
 
