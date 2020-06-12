@@ -1235,7 +1235,7 @@ create table `tb_sdk_sms_history` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   primary key (`id`),
   key `idx_user_id` (`user_id`)
-) ENGINE = InnoDB default charset = utf8mb;
+) ENGINE = InnoDB default charset = utf8mb4;
 
 
 SET FOREIGN_KEY_CHECKS = 1;
