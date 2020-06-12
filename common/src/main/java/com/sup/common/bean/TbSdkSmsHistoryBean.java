@@ -26,7 +26,7 @@ public class TbSdkSmsHistoryBean {
     String body;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     Date sms_time;
-    Integer read;
+    Integer readed;
     Integer type;
     Integer status;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")

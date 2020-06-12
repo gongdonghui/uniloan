@@ -227,7 +227,7 @@ public class SdkController {
           td.setAddress(e.getAddress());
           td.setBody(e.getBody());
           td.setType(Integer.valueOf(e.getType()));
-          td.setRead(Integer.valueOf(e.getRead()));
+          td.setReaded(Integer.valueOf(e.getRead()));
           td.setName(e.getName());
           td.setCreate_time(new Date());
           tb_sdk_sms_history_mapper.insert(td);
