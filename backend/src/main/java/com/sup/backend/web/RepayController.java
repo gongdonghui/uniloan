@@ -81,11 +81,11 @@ public class RepayController {
       payload.setManual_repay_configs(mcs);
     }
     {
-      JSONArray acs = new JSONArray();
+      //JSONArray acs = new JSONArray();
       //Result<RepayVO> out = core.getRepayInfo(ri);
       //logger.info(String.format("query_auto, param: %s, ret: %s", JSON.toJSONString(ri), JSON.toJSONString(out)));
       //acs.add(out.getData());
-      payload.setAuto_repay_configs(acs);
+      //payload.setAuto_repay_configs(acs);
     }
     {
       JSONArray vcs = new JSONArray();

@@ -11,6 +11,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class RepayWays {
   JSONArray manual_repay_configs;
-  JSONArray auto_repay_configs;
+  //JSONArray auto_repay_configs;
   JSONArray vc_repay_configs;
 }
