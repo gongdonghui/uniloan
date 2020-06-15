@@ -21,8 +21,9 @@ public class AfterLoanOverdueGetListParams {
     private String appName;
     /**
      * 类型
-     * 0 逾期记录(未还)
-     * 1 逾期已还记录
+     * 0 逾期 & 未还款
+     * 1 逾期 & 部分还款
+     * 2 逾期 & 已还清
      */
     @Min(0)
     private Integer type;
