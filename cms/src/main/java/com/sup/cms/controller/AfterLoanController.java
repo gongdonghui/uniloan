@@ -33,11 +33,11 @@ public class AfterLoanController {
     public String overdueGetList(@RequestBody @Valid AfterLoanOverdueGetListParams params) {
         StringBuilder sb = new StringBuilder();
         //逾期未还的 repay表就是状态是0  逾期已还的是repay表的状态就是1或者2
-        if (params.getType() == 0) {
-            sb.append(" and f.repay_status=0");
-        } else {
-            sb.append(" and (f.repay_status=1 or f.repay_status=2)");
-        }
+//        if (params.getType() == 0) {
+//            sb.append(" and f.repay_status=0");
+//        } else {
+//            sb.append(" and (f.repay_status=1 or f.repay_status=2)");
+//        }
         if (params.getApplyId() != null) {
             sb.append(" and a.id=" + params.getApplyId());
         }
