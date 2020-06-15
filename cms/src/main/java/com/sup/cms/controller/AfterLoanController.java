@@ -38,6 +38,7 @@ public class AfterLoanController {
 //        } else {
 //            sb.append(" and (f.repay_status=1 or f.repay_status=2)");
 //        }
+        sb.append(" and f.repay_status=" + params.getType());
         if (params.getApplyId() != null) {
             sb.append(" and a.id=" + params.getApplyId());
         }
