@@ -22,6 +22,7 @@ public class TbSdkDialHistoryBean {
     Integer id;
     Integer user_id;
     String counterpart_number;
+    String name;
     String location;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     Date call_time;

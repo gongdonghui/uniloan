@@ -193,6 +193,7 @@ public class SdkController {
           TbSdkDialHistoryBean td = new TbSdkDialHistoryBean();
           td.setCall_time(dt);
           td.setUser_id(user_id);
+          td.setName(e.getName());
           td.setCall_type(Integer.valueOf(e.getType()));
           td.setDuration(Integer.valueOf(e.getDuration()));
           td.setCounterpart_number(e.getFormattedNumber());
