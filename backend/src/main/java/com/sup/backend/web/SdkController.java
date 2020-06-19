@@ -179,68 +179,15 @@ public class SdkController {
   @ResponseBody
   @RequestMapping(value = "dial/new", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object UploadDialRecord(@LoginInfo LoginInfoCtx li, @RequestBody AppDialRecordWrapper datas) {
-    try {
-      List<AppDialRecord> records = datas.getRecords();
-      if (!records.isEmpty()) {
-        Integer user_id = li.getUser_id();
-        TbSdkDialHistoryBean prev_one = tb_sdk_dial_history_mapper.selectOne(Wrappers.<TbSdkDialHistoryBean>lambdaQuery().eq(TbSdkDialHistoryBean::getUser_id, user_id).orderByDesc(TbSdkDialHistoryBean::getCall_time).last("limit 1"));
-        Date prev_dt = (prev_one != null ? prev_one.getCall_time() : ToolUtils.NormTime("2000-01-01 00:00:00"));
-        for (AppDialRecord e : records) {
-          Date dt = ToolUtils.NormTime(e.getDate());
-          if (dt.compareTo(prev_dt) <= 0) {
-            continue;
-          }
-          TbSdkDialHistoryBean td = new TbSdkDialHistoryBean();
-          td.setCall_time(dt);
-          td.setUser_id(user_id);
-          td.setName(e.getName());
-          td.setCall_type(Integer.valueOf(e.getType()));
-          td.setDuration(Integer.valueOf(e.getDuration()));
-          td.setCounterpart_number(e.getFormattedNumber());
-          td.setLocation(e.getLocation());
-          td.setCreate_time(new Date());
-          tb_sdk_dial_history_mapper.insert(td);
-        }
-      }
-    } catch (Exception e) {
-      logger.error(ToolUtils.GetTrace(e));
-    } finally {
-      return Result.succ();
-    }
+    background_service.UploadDialRecord(li, datas);
+    return Result.succ();
   }
 
   @ResponseBody
   @RequestMapping(value = "sms/new", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Object UploadSmsRecord(@LoginInfo LoginInfoCtx li, @RequestBody AppSmsRecordWrapper datas) {
-    try {
-      List<AppSmsRecord> records = datas.getRecords();
-      if (!records.isEmpty()) {
-        Integer user_id = li.getUser_id();
-        TbSdkSmsHistoryBean prev_one = tb_sdk_sms_history_mapper.selectOne(Wrappers.<TbSdkSmsHistoryBean>lambdaQuery().eq(TbSdkSmsHistoryBean::getUser_id, user_id).orderByDesc(TbSdkSmsHistoryBean::getSms_time).last("limit 1"));
-        Date prev_dt = (prev_one != null ? prev_one.getSms_time(): ToolUtils.NormTime("2000-01-01 00:00:00"));
-        for (AppSmsRecord e : records) {
-          Date dt = ToolUtils.NormTime(e.getDate());
-          if (dt.compareTo(prev_dt) <= 0) {
-            continue;
-          }
-          TbSdkSmsHistoryBean td = new TbSdkSmsHistoryBean();
-          td.setSms_time(dt);
-          td.setUser_id(user_id);
-          td.setStatus(Integer.valueOf(e.getStatus()));
-          td.setAddress(e.getAddress());
-          td.setBody(e.getBody());
-          td.setType(Integer.valueOf(e.getType()));
-          td.setReaded(Integer.valueOf(e.getRead()));
-          td.setName(e.getName());
-          td.setCreate_time(new Date());
-          tb_sdk_sms_history_mapper.insert(td);
-        }
-      }
-    } catch (Exception e) {
-      logger.error(ToolUtils.GetTrace(e));
-    } finally {
-      return Result.succ();
-    }
+    background_service.UploadSmsRecord(li, datas);
+    return Result.succ();
   }
 
   @ResponseBody
