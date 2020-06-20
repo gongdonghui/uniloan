@@ -310,7 +310,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " case when f.is_overdue=1 then (f.need_total-f.act_total) else 0 end as overdueAmount," +
             " a.loan_time as loanDate," +
             " f.repay_end_date as endDate," +
-            " f.repay_time as shouldRepayDate," +
+            " f.repay_time as repayDate," +
             " f.seq_no as period" +
             " from tb_apply_info a " +
             " left join tb_apply_material_info b on a.id=b.apply_id " +
