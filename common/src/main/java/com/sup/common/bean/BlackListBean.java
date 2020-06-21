@@ -1,4 +1,4 @@
-package com.sup.core.bean;
+package com.sup.common.bean;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

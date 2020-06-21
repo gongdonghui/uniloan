@@ -45,6 +45,12 @@ public class DetailsController {
     @Autowired
     private CrazyJoinMapper crazyJoinMapper;
 
+    @Autowired
+    private TbBlackListBeanMapper blackListBeanMapper;
+
+    @Autowired
+    private  TbUserRegisterInfoMapper   userRegisterInfoMapper;
+
 
     @Autowired
     private SSDBClient ssdbClient;
@@ -245,6 +251,66 @@ public class DetailsController {
             contents.add(val);
         }
         return ResponseUtil.success(contents);
+    }
+
+
+    @GetMapping("/addBlackList")
+    public String addBlackList(@RequestParam("applyId") Integer applyId) {
+        List<TbApplyMaterialInfoBean> applyMaterialInfoBeans = this.applyMaterialInfoMapper.
+                selectList(new QueryWrapper<TbApplyMaterialInfoBean>().eq("apply_id", applyId ));
+        String basic_info_id = "", id_info_id = "";
+
+        //0|身份证信息  1|基本信息 2|紧急联系人 3|职业信息 4|银行卡信息
+        for (TbApplyMaterialInfoBean materialInfoBean : applyMaterialInfoBeans) {
+            int infoType = materialInfoBean.getInfo_type();
+            switch (infoType) {
+                case 0:
+                    id_info_id = materialInfoBean.getInfo_id();
+                    break;
+                case 1:
+                    basic_info_id = materialInfoBean.getInfo_id();
+                    break;
+
+            }
+        }
+        String cid = "";
+        String usermobile = "";
+
+        if (!id_info_id.isEmpty()) {
+            TbUserCitizenIdentityCardInfoBean userIdCardInfoBean = this.userCitizenIdentityCardInfoMapper.selectOne(new QueryWrapper<TbUserCitizenIdentityCardInfoBean>().eq("info_id", id_info_id));
+            if (userIdCardInfoBean != null) {
+                cid = userIdCardInfoBean.getCid_no();
+            }
+        }
+        if (!basic_info_id.isEmpty()) {
+            TbUserBasicInfoBean basicInfoBean = this.userBasicInfoMapper.selectOne(new QueryWrapper<TbUserBasicInfoBean>().eq("info_id", basic_info_id));
+            Integer userId = basicInfoBean.getUser_id();
+            TbUserRegistInfoBean userRegistInfoBean = this.userRegisterInfoMapper.selectById(userId);
+            if (userRegistInfoBean != null) {
+                usermobile = userRegistInfoBean.getMobile();
+            }
+
+        }
+        if (cid.isEmpty() && usermobile.isEmpty()) {
+            return ResponseUtil.failed("no cid or mobile");
+        }
+        BlackListBean blackListBean = new BlackListBean();
+        blackListBean.setStatus(2);   // 0:正常，1:灰名单, 2:黑名单
+
+
+        if (!cid.isEmpty()) {
+            blackListBean.setCid_no(cid);
+
+        }
+        if (!usermobile.isEmpty()) {
+            blackListBean.setMobile(usermobile);
+        }
+        blackListBean.setPlatform("inner");
+
+        this.blackListBeanMapper.insert(blackListBean);
+        return ResponseUtil.success();
+
+
     }
 
 

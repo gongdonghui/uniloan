@@ -1,4 +1,4 @@
-package com.sup.core.mapper;
+package com.sup.cms.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.sup.common.bean.BlackListBean;
@@ -6,7 +6,7 @@ import com.sup.common.bean.BlackListBean;
 /**
  * gongshuai
  * <p>
- * 2019/11/3
+ * 2020/6/21
  */
-public interface BlackListMapper extends BaseMapper<BlackListBean> {
+public interface TbBlackListBeanMapper extends BaseMapper<BlackListBean> {
 }
