@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -296,7 +297,7 @@ public class DetailsController {
         }
         BlackListBean blackListBean = new BlackListBean();
         blackListBean.setStatus(2);   // 0:正常，1:灰名单, 2:黑名单
-
+        blackListBean.setCreate_time(new Date());
 
         if (!cid.isEmpty()) {
             blackListBean.setCid_no(cid);
