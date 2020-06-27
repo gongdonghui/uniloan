@@ -111,23 +111,41 @@ public class ApplyController {
      */
     @PostMapping("/approval/allocation")
     public String allocation(@Valid @RequestBody ApplyApprovalAllocationParams params) {
+        boolean ret = true;
+        if (params.getId() != null) {
+            ret = allocatSingleTask(params.getId(), params);
+        } else if (params.getIds() != null && params.getIds().size() > 0) {
+            for (int i = 0; i < params.getIds().size(); ++i) {
+                ret &= allocatSingleTask(params.getIds().get(i), params);
+            }
+        } else {
+            log.error("Invalid param=" + GsonUtil.toJson(params));
+            ret = false;
+        }
+        return ret ? ResponseUtil.success() : ResponseUtil.failed();
+    }
+
+    private boolean allocatSingleTask(Integer taskId, ApplyApprovalAllocationParams params) {
         //先查询是否指派或认领过 如有指派或认领 直接返回失败
-        ApplyOperationTaskBean bean = applyOperationTaskMapper.selectById(params.getId());
+        ApplyOperationTaskBean bean = applyOperationTaskMapper.selectById(taskId);
         if (bean == null || (!bean.getTaskType().equals(0) && !bean.getTaskType().equals(2))) {
-            return ResponseUtil.failed("任务不存在或任务状态异常");
+            log.error("任务不存在或任务状态异常, task bean=" + GsonUtil.toJson(bean));
+            return false;
         }
         if (bean.getHasOwner().equals(1)) {
-            return ResponseUtil.failed("该任务已被认领，操作失败");
+            log.error("该任务已被认领，操作失败, task bean=" + GsonUtil.toJson(bean));
+            return false;
         }
         if (params.getType() == 1) {
             //如果是终审 查询一下和信审是否为同一个人 同一个人直接拒绝
             QueryWrapper<ApplyOperationTaskBean> wrapper = new QueryWrapper<>();
             wrapper.eq("operator_id", params.getOperatorId());
-            wrapper.eq("apply_id", params.getApplyId());
+            wrapper.eq("apply_id", bean.getApplyId());
             wrapper.eq("status", OperationTaskStatusEnum.TASK_STATUS_DONE.getCode());
             List<ApplyOperationTaskBean> beans = applyOperationTaskMapper.selectList(wrapper);
             if (beans != null && beans.size() > 0) {
-                return ResponseUtil.failed("终审和信审的审核人不能为同一人，操作失败");
+                log.error("终审和信审的审核人不能为同一人，操作失败, operator_id=" + params.getOperatorId());
+                return false;
             }
         }
         bean.setOperatorId(params.getOperatorId());
@@ -135,11 +153,8 @@ public class ApplyController {
             bean.setDistributorId(params.getDistributorId());
         }
         bean.setHasOwner(1);
-        if (applyOperationTaskMapper.updateById(bean) > 0) {
-            return ResponseUtil.success();
-        } else {
-            return ResponseUtil.failed();
-        }
+
+        return applyOperationTaskMapper.updateById(bean) > 0;
     }
 
     /**

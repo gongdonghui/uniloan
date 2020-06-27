@@ -3,6 +3,7 @@ package com.sup.cms.bean.vo;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @Author: kouichi
@@ -15,16 +16,23 @@ public class ApplyApprovalAllocationParams {
      */
     @NotNull
     private Integer type;
+
+
     /**
      * 任务id
      */
-    @NotNull
-    private Integer id;
+    private List<Integer> ids;
+
     /**
      *
      */
-    @NotNull
+    private Integer id;
+
+    /**
+     *
+     */
     private Integer applyId;
+
     /**
      * 领任务或者被指派任务 填这个参数
      */
