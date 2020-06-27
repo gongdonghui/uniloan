@@ -19,7 +19,7 @@ public class ApplyApprovalAllocationParams {
 
 
     /**
-     * 任务id
+     * 批量处理时的多个任务id
      */
     private List<Integer> ids;
 

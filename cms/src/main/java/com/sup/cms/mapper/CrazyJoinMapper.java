@@ -20,7 +20,8 @@ public interface CrazyJoinMapper extends BaseMapper {
     @Select("select " +
             "a.id as id, a.apply_id as applyId, a.create_time as createTime, a.task_type as taskType," +
             "a.status as status, a.operator_id as operatorId, a.update_time as updateTime," +
-            "b.credit_class as creditClass, b.apply_quota as applyQuota, b.create_time as applyCreateTime, b.expire_time as applyExpireTime," +
+            "b.channel_id as channelId, b.credit_class as creditClass, b.apply_quota as applyQuota, " +
+            "b.create_time as applyCreateTime, b.expire_time as applyExpireTime," +
             "c.name as productName, e.cid_no as cidNo, e.name as name, f.mobile" +
             " from tb_operation_task a" +
             " join tb_apply_info b on a.apply_id=b.id" +

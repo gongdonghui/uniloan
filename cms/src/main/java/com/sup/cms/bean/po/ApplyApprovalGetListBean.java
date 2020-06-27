@@ -20,6 +20,10 @@ public class ApplyApprovalGetListBean {
      */
     private Integer applyId;
     /**
+     * 渠道号
+     */
+    private Integer channelId;
+    /**
      * 任务名称
      * 我返回 数字 你mapping成中文
      * 0信审
