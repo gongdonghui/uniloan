@@ -28,6 +28,7 @@ import java.util.*;
 @Service
 public class ApplyService {
 
+
     @Autowired
     private ApplyInfoMapper applyInfoMapper;
     @Autowired
@@ -50,6 +51,8 @@ public class ApplyService {
 
     @Autowired
     private OperationTaskConfigBeanMapper taskConfigBeanMapper;
+
+    private HashMap<Integer, Integer> opertatorIds;
 
 
     public boolean addApplyInfo(TbApplyInfoBean bean) {
@@ -313,6 +316,10 @@ public class ApplyService {
 
     public synchronized void autoassignTask(Map<Integer, List<Integer>> needAssign) {
         int total = 0;
+        opertatorIds.put(60, 63);
+        opertatorIds.put(62, 63);
+        opertatorIds.put(61, 63);
+        opertatorIds.put(59, 54);
 
         for (Integer credit_level : needAssign.keySet()) {
             List<Integer> operators = taskConfigBeanMapper.getOperatorsByLevel(credit_level);
@@ -327,6 +334,12 @@ public class ApplyService {
 
                 while (!queue.isEmpty() && next < operators.size()) {
                     Integer operator = operators.get(next++);
+                    if (opertatorIds.containsKey(operator)) {
+                        Integer newOper = opertatorIds.get(operator);
+                        log.info("AutoTaskAssign  operator merge:" + operator + "," + newOper);
+                        operator = newOper;
+                    }
+
                     Integer applyId = queue.pop();
                     boolean ret = assignSingleTask(operator, applyId, -1000);
                     if (ret)
@@ -355,7 +368,7 @@ public class ApplyService {
             needUpdate = false;
         }
         if (taskBean.getOperator_id() != null) {
-            log.info("Change AutoTaskAssign for operation task has assigned, applyid:" + applyId+","+taskBean.getOperator_id());
+            log.info("Change AutoTaskAssign for operation task has assigned, applyid:" + applyId + "," + taskBean.getOperator_id());
         }
 
 
