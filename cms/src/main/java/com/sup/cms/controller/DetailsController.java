@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.*;
+import com.sup.cms.bean.vo.DialSMSParams;
 import com.sup.cms.mapper.*;
+import com.sup.common.util.DateUtil;
 import com.sup.common.util.ResponseUtil;
 import com.sup.cms.util.SSDBClient;
 import com.sup.common.bean.*;
@@ -13,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +54,10 @@ public class DetailsController {
 
     @Autowired
     private  TbUserRegisterInfoMapper   userRegisterInfoMapper;
+    @Autowired
+    private TbSdkSmsHistoryMapper sdkSmsHistoryMapper;
+    @Autowired
+    private TbSdkDialHistoryMapper sdkDialHistoryMapper;
 
 
     @Autowired
@@ -310,8 +317,45 @@ public class DetailsController {
 
         this.blackListBeanMapper.insert(blackListBean);
         return ResponseUtil.success();
+    }
 
+    /**
+     *
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/dialHistory")
+    public String getDialHistory(@Valid @RequestBody DialSMSParams param) {
+        log.info("getDialHistory param=" + GsonUtil.toJson(param));
+        QueryWrapper<TbSdkDialHistoryBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", param.getUserId());
+        if (param.getStartTime() != null) {
+            wrapper.ge("create_time", DateUtil.formatDateTime(param.getStartTime()));
+        }
+        wrapper.orderByDesc("id");
+        List<TbSdkDialHistoryBean> infos = sdkDialHistoryMapper.selectList(wrapper);
 
+        return ResponseUtil.success(infos);
+    }
+
+    /**
+     *
+     * @param param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/smsHistory")
+    public String getSMSHistory(@Valid @RequestBody DialSMSParams param) {
+        log.info("getSMSHistory param = " + GsonUtil.toJson(param));
+        QueryWrapper<TbSdkSmsHistoryBean> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", param.getUserId());
+        if (param.getStartTime() != null) {
+            wrapper.ge("create_time", DateUtil.formatDateTime(param.getStartTime()));
+        }
+        wrapper.orderByDesc("id");
+        List<TbSdkSmsHistoryBean> infos = sdkSmsHistoryMapper.selectList(wrapper);
+        return ResponseUtil.success(infos);
     }
 
 
