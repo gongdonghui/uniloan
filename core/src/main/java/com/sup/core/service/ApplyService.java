@@ -52,7 +52,7 @@ public class ApplyService {
     @Autowired
     private OperationTaskConfigBeanMapper taskConfigBeanMapper;
 
-    private HashMap<Integer, Integer> opertatorIds;
+    private HashMap<Integer, Integer> opertatorIds=new HashMap<Integer,Integer>();
 
 
     public boolean addApplyInfo(TbApplyInfoBean bean) {
