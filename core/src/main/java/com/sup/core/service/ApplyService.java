@@ -52,7 +52,7 @@ public class ApplyService {
     @Autowired
     private OperationTaskConfigBeanMapper taskConfigBeanMapper;
 
-    private HashMap<Integer, Integer> opertatorIds=new HashMap<Integer,Integer>();
+    private HashMap<Integer, Integer> opertatorIds = new HashMap<Integer, Integer>();
 
 
     public boolean addApplyInfo(TbApplyInfoBean bean) {
@@ -316,10 +316,12 @@ public class ApplyService {
 
     public synchronized void autoassignTask(Map<Integer, List<Integer>> needAssign) {
         int total = 0;
-        opertatorIds.put(60, 63);
-        opertatorIds.put(62, 63);
-        opertatorIds.put(61, 63);
-        opertatorIds.put(59, 54);
+        if (opertatorIds != null) {
+            opertatorIds.put(60, 63);
+            opertatorIds.put(62, 63);
+            opertatorIds.put(61, 63);
+            opertatorIds.put(59, 54);
+        }
 
         for (Integer credit_level : needAssign.keySet()) {
             List<Integer> operators = taskConfigBeanMapper.getOperatorsByLevel(credit_level);
@@ -334,7 +336,7 @@ public class ApplyService {
 
                 while (!queue.isEmpty() && next < operators.size()) {
                     Integer operator = operators.get(next++);
-                    if (opertatorIds.containsKey(operator)) {
+                    if (opertatorIds != null && opertatorIds.containsKey(operator)) {
                         Integer newOper = opertatorIds.get(operator);
                         log.info("AutoTaskAssign  operator merge:" + operator + "," + newOper);
                         operator = newOper;
