@@ -504,7 +504,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,ot.operator_id as operatorId" +
             "  ,cau.name as operatorName" +
             " from (" +
-            "  select distinct apply_id,status,task_type,operator_id,update_time from tb_operation_task where task_type=3 and has_owner=1 and status!=1" +
+            "  select distinct apply_id,status,task_type,operator_id,update_time from tb_operation_task where task_type=3 " +
             ") ot left join (" +
             "  select * from tb_apply_info where status in (12, 13,14, 15)" +
             ") ai on ot.apply_id=ai.id" +
@@ -533,7 +533,7 @@ public interface CrazyJoinMapper extends BaseMapper {
     //包含已还清订单， added  by gongshuai
     @Select("select count(ai.id)" +
             " from (" +
-            "  select distinct apply_id,status,task_type,operator_id,update_time from tb_operation_task where task_type=3 and has_owner=1 and status!=1" +
+            "  select distinct apply_id,status,task_type,operator_id,update_time from tb_operation_task where task_type=3 " +
             ") ot left join (" +
             "  select * from tb_apply_info where status in (12, 13, 14, 15)" +
             ") ai on ot.apply_id=ai.id" +

@@ -25,6 +25,11 @@ public class ApplyManagementGetListParams {
     private String mobile;
     private String appName;
     private Integer channelId;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
+    private Date loan_startTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
+    private Date loan_endTime;
     @Min(0)
     private Integer pageSize;
     @Min(0)

@@ -236,10 +236,12 @@ public class ApplyController {
         sb.append(null != params.getApplyId() ? " and a.id=" + params.getApplyId() : "");
         sb.append(null != params.getAppId() ? " and a.app_id=" + params.getAppId() : "");
         sb.append(null != params.getChannelId() ? " and a.channel_id=" + params.getChannelId() : "");
-        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and d.name='" + params.getName() + "'" : "");
+        sb.append(!Strings.isNullOrEmpty(params.getName()) ? " and d.name like '%" + params.getName() + "%'" : "");
         sb.append(!Strings.isNullOrEmpty(params.getCidNo()) ? " and d.cid_no='" + params.getCidNo() + "'" : "");
         sb.append(!Strings.isNullOrEmpty(params.getMobile()) ? " and f.mobile='" + params.getMobile() + "'" : "");
         sb.append(!Strings.isNullOrEmpty(params.getAppName()) ? " and e.app_name='" + params.getApplyId() + "'" : "");
+        sb.append(null != params.getLoan_startTime() ? " and a.loan_time>='" + DateUtil.startOf(params.getLoan_startTime()) + "'" : "");
+        sb.append(null != params.getLoan_endTime() ? " and a.loan_time<='" + DateUtil.endOf(params.getLoan_endTime()) + "'" : "");
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         log.info("apply management list, conditions=" + sb.toString());
