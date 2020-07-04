@@ -480,7 +480,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " where uri.type = 0" +
             " ${conditions}")
     Integer getPoolListCount(@Param(value = "conditions") String conditions);
-
+     //包含已还清订单， added  by gongshuai
     @Select("select" +
             "  ai.id as applyId" +
             "  ,rp.repay_end_date as shouldRepayDate" +
@@ -506,7 +506,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " from (" +
             "  select distinct apply_id,status,task_type,operator_id,update_time from tb_operation_task where task_type=3 and has_owner=1 and status!=1" +
             ") ot left join (" +
-            "  select * from tb_apply_info where status in (12, 13, 15)" +
+            "  select * from tb_apply_info where status in (12, 13,14, 15)" +
             ") ai on ot.apply_id=ai.id" +
             " left join (" +
             "  select apply_id, name, gender, cid_no from (" +
@@ -530,11 +530,12 @@ public interface CrazyJoinMapper extends BaseMapper {
             " limit #{offset},#{rows}")
     List<OverdueGetListBean> getTaskList(String conditions, Integer offset, Integer rows);
 
+    //包含已还清订单， added  by gongshuai
     @Select("select count(ai.id)" +
             " from (" +
             "  select distinct apply_id,status,task_type,operator_id,update_time from tb_operation_task where task_type=3 and has_owner=1 and status!=1" +
             ") ot left join (" +
-            "  select * from tb_apply_info where status in (12, 13, 15)" +
+            "  select * from tb_apply_info where status in (12, 13, 14, 15)" +
             ") ai on ot.apply_id=ai.id" +
             " left join (" +
             "  select apply_id, name, gender, cid_no from (" +

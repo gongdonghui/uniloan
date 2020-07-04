@@ -126,7 +126,7 @@ public class OverdueController {
             sb.append(" and pi.id=" + params.getProductId());
         }
         if (!Strings.isNullOrEmpty(params.getName())) {
-            sb.append(" and b.name='" + params.getName() + "'");
+            sb.append(" and b.name like '%" + params.getName().trim()+ "%'");
         }
         if (!Strings.isNullOrEmpty(params.getMobile())) {
             sb.append(" and uri.mobile='" + params.getMobile() + "'");
