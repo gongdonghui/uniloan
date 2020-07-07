@@ -272,6 +272,12 @@ public class OverdueController {
         if (params.getRepayStartDate() != null) {
             sb.append(" and rp.repay_time<='" + DateUtil.endOf(params.getRepayEndDate()) + "'");
         }
+        if (params.getLoanStartDate() != null) {
+            sb.append(" and ai.loan_time>='" + DateUtil.startOf(params.getRepayStartDate()) + "'");
+        }
+        if (params.getLoanStartDate() != null) {
+            sb.append(" and ai.loan_time <='" + DateUtil.endOf(params.getRepayEndDate()) + "'");
+        }
 
         if (params.getOperatorId() != null) {
             sb.append(" and rod.operator_id=" + params.getOperatorId());
