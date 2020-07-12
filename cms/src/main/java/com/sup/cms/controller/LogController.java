@@ -40,6 +40,7 @@ public class LogController {
             list = crazyJoinMapper.getOperationTaskHis(apply_id);
             log.info("get operation log for "+apply_id+",size:"+list.size());
         } catch (Exception e) {
+            log.error(e.getMessage());
             e.printStackTrace();
         }
         return ResponseUtil.success(list);
