@@ -5,6 +5,7 @@ import com.sup.cms.mapper.CrazyJoinMapper;
 import com.sup.cms.mapper.OperationLogMapper;
 import com.sup.common.util.ResponseUtil;
 import com.sup.common.bean.TbOperationLogBean;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,7 @@ import java.util.List;
  */
 @RequestMapping("/log")
 @RestController
+@Log4j
 public class LogController {
 
     @Autowired
@@ -32,9 +34,11 @@ public class LogController {
     @PostMapping("/get")
     public String getList(@Valid @RequestBody OperationLogParams params) {
         Integer apply_id = params.getApplyId();
+        log.info("get operation log for "+apply_id);
         List<TbOperationLogBean> list = new ArrayList<>();
         try {
             list = crazyJoinMapper.getOperationTaskHis(apply_id);
+            log.info("get operation log for "+apply_id+",size:"+list.size());
         } catch (Exception e) {
             e.printStackTrace();
         }
