@@ -884,6 +884,6 @@ public interface CrazyJoinMapper extends BaseMapper {
     @Select("select  a.id as applyId from tb_apply_info as a     left join  (select * from  tb_operation_task where   task_type = 3)   as b  on  b.apply_id = a.id  where  a.asset_level =${level};")
     List<Integer>   getOperationTaskByAssetLevel(Integer level );
 
-    @Select("select bb.*, user.name as  operator_name  from (select apply_id,operator_id,task_type as operation_type,comment ,create_time  from  (select id  from tb_apply_info  where user_id in(select user_id from tb_apply_info where id =${apply_id})) as base  left join  tb_operation_task_history as his on base.id =  his.apply_id) as bb left join tb_cms_auth_user  as  user on  bb.operator_id = user.id;")
-    List<TbOperationLogBean>  getOperationTaskHis(Integer apply_id);
+    @Select("select bb.*, user.name as  operator_name  from (select apply_id,operator_id,task_type as operation_type,comment ,create_time  from  (select id  from tb_apply_info  where user_id in(select user_id from tb_apply_info where id =${applyId})) as base  left join  tb_operation_task_history as his on base.id =  his.apply_id) as bb left join tb_cms_auth_user  as  user on  bb.operator_id = user.id;")
+    List<TbOperationLogBean>  getOperationTaskHis(Integer applyId);
 }
