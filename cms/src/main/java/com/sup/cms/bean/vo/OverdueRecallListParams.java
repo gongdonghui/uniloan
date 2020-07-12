@@ -23,6 +23,7 @@ public class OverdueRecallListParams {
 
     private Integer operatorId;     // 催收员id
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date    loanStartDate; // 放款开始时间
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date    loanEndDate;   // 放款结束时间

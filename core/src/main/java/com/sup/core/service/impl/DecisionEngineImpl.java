@@ -165,6 +165,7 @@ public class DecisionEngineImpl implements DecesionEngine {
         List<TbAppSdkAppListInfoBean> list =
                 this.sdkAppListMapper.selectList(new QueryWrapper<TbAppSdkAppListInfoBean>().eq("mobile", mobile));
         int appsize = list.size();
+        HashSet<String> set  = new HashSet();
         double fapp_size = 0;
         double ec = 0;
         double fc = 0;
@@ -174,6 +175,7 @@ public class DecisionEngineImpl implements DecesionEngine {
         double wm = 0;
         for (TbAppSdkAppListInfoBean appSdkAppListInfoBean : list) {
             String app = appSdkAppListInfoBean.getApk_name();
+            set.add(app);
             if (app.contains("lazada") || app.contains("jingdong") || app.contains("shopee")) {
                 ++ec;
             }
@@ -198,14 +200,14 @@ public class DecisionEngineImpl implements DecesionEngine {
         }
 
 
-        //ret.put("app1", appsize);
-        ret.put("app2", getRatio(fapp_size, appsize));
-        ret.put("app3", getRatio(ec, appsize));
-        ret.put("app4", getRatio(fc, appsize));
-        ret.put("app5", getRatio(wc, appsize));
-        ret.put("app6", getRatio(pay, appsize));
-        ret.put("app7", getRatio(wm, appsize));
-        ret.put("app8", getRatio(didi, appsize));
+        ret.put("app1", ((double)set.size()));
+        ret.put("app2", fapp_size );
+        ret.put("app3", ec );
+        ret.put("app4", fc );
+        ret.put("app5", wc );
+        ret.put("app6", pay);
+        ret.put("app7", wm );
+        ret.put("app8", didi);
         return ret;
     }
 
