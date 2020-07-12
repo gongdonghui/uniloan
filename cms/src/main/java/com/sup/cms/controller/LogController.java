@@ -1,7 +1,7 @@
 package com.sup.cms.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sup.cms.bean.vo.OperationLogParams;
+import com.sup.cms.mapper.CrazyJoinMapper;
 import com.sup.cms.mapper.OperationLogMapper;
 import com.sup.common.util.ResponseUtil;
 import com.sup.common.bean.TbOperationLogBean;
@@ -26,16 +26,17 @@ public class LogController {
     @Autowired
     private OperationLogMapper operationLogMapper;
 
+    @Autowired
+    private CrazyJoinMapper crazyJoinMapper;
+
     @PostMapping("/get")
     public String getList(@Valid @RequestBody OperationLogParams params) {
-        QueryWrapper<TbOperationLogBean> wrapper = new QueryWrapper<>();
-        wrapper.eq("apply_id", params.getApplyId());
-        if (params.getOperationType() != null) {
-            wrapper.eq("operation_type", params.getOperationType());
-        }
-        List<TbOperationLogBean> list = operationLogMapper.selectList(wrapper);
-        if (list == null) {
-            list = new ArrayList<>();
+        Integer apply_id = params.getApplyId();
+        List<TbOperationLogBean> list = new ArrayList<>();
+        try {
+            list = crazyJoinMapper.getOperationTaskHis(apply_id);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return ResponseUtil.success(list);
     }
