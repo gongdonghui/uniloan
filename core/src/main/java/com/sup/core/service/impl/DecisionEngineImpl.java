@@ -12,6 +12,7 @@ import com.sup.core.param.AutoDecisionParam;
 import com.sup.core.service.DecesionEngine;
 import com.sup.core.service.ModelManagentService;
 import com.sup.core.service.ThirdPartyService;
+import com.sup.core.util.MobileNormalizer;
 import com.sup.core.util.OverdueUtils;
 import com.sup.common.util.RiskVariableConstants;
 import lombok.extern.log4j.Log4j;
@@ -200,7 +201,7 @@ public class DecisionEngineImpl implements DecesionEngine {
         }
 
 
-        ret.put("app1", ((double)set.size()));
+        ret.put("app1", Double.valueOf(set.size()));
         ret.put("app2", fapp_size );
         ret.put("app3", ec );
         ret.put("app4", fc );
@@ -315,15 +316,17 @@ public class DecisionEngineImpl implements DecesionEngine {
 
 
         List<TbAppSdkContractInfoBean> contractInfoBeans = this.queryLatestContact(user_mobile);
-        int size_of_contract = contractInfoBeans.size();
-        riskBean.put(RiskVariableConstants.NUM_OF_CONTRACT, Double.valueOf(size_of_contract));
+        HashSet<String> set = new HashSet<String>();
+
         // log.info(">>>> prepareRiskVariables.contractInfoBeans...");
         if (!contractInfoBeans.isEmpty()) {
             // log.info(">>>> prepareRiskVariables.contractInfoBeans.size=" + contractInfoBeans.size());
             int max_overdue_times = 0;
             int max_apply_times = 0;
             for (TbAppSdkContractInfoBean appSdkContractInfoBean : contractInfoBeans) {
-                String mobile = appSdkContractInfoBean.getContract_info();
+                String mobile = MobileNormalizer.normalize(appSdkContractInfoBean.getContract_info());
+                set.add(mobile);
+
                 if (!mobile.isEmpty()) {
                     ContractInfo contractInfo = this.getContractInfo(mobile);
                     if (contractInfo != null) {
@@ -333,6 +336,7 @@ public class DecisionEngineImpl implements DecesionEngine {
                 }
 
             }
+            riskBean.put(RiskVariableConstants.NUM_OF_CONTRACT, Double.valueOf( set.size()));
             riskBean.put(RiskVariableConstants.NUM_OF_APPLY_IN_CONTRACT, Double.valueOf(max_apply_times));
             riskBean.put(RiskVariableConstants.NUM_OF_OVDUE_IN_CONTRACT, Double.valueOf(max_overdue_times));
         }
