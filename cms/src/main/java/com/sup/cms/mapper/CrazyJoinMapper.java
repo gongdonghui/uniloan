@@ -862,7 +862,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             " from  tb_apply_info_history as  a  left join tb_apply_info as b  on a.apply_id = b.id   " +
             " where   a.operator_id <> '' and (a.status =2 or  a.status =4 or  a.status =6 or  a.status =8)  " +
             "and a.create_time > '${start}'")
-    List<OperatorInfoBean> getOperatorInfo(String start);
+    List<OperatorInfoBean> getOperatorInfo(@Param(value = "start") String start);
 
 
     @Select(" select case when deny_code is  NULL  THEN 'r0001' else  deny_code end as deny_code, " +
@@ -881,9 +881,20 @@ public interface CrazyJoinMapper extends BaseMapper {
     List<OperationTaskJoinBean> getOperationTaskJoinByStatus(String start, String end, Integer pass, Integer deny);
 
 
-    @Select("select  a.id as applyId from tb_apply_info as a     left join  (select * from  tb_operation_task where   task_type = 3)   as b  on  b.apply_id = a.id  where  a.asset_level =${level};")
-    List<Integer>   getOperationTaskByAssetLevel(Integer level );
+    @Select("select  a.id as applyId " +
+            "from tb_apply_info as a " +
+            "left join  ( " +
+            "  select * from  tb_operation_task where   task_type = 3" +
+            ")   as b  on  b.apply_id = a.id  where  a.asset_level =#{level};")
+    List<Integer>   getOperationTaskByAssetLevel(@Param(value = "level") Integer level);
 
-    @Select("select bb.*, user.name as  operator_name  from (select apply_id,operator_id,task_type as operation_type,comment ,create_time  from  (select id  from tb_apply_info  where user_id in(select user_id from tb_apply_info where id =${applyId})) as base  left join  tb_operation_task_history as his on base.id =  his.apply_id) as bb left join tb_cms_auth_user  as  user on  bb.operator_id = user.id;")
-    List<TbOperationLogBean>  getOperationTaskHis(Integer applyId);
+    @Select("select bb.*, user.name as  operator_name " +
+            "from ( " +
+            "  select apply_id,operator_id,task_type as operation_type,comment ,create_time " +
+            "  from  ( " +
+            "    select id  from tb_apply_info  where user_id in(select user_id from tb_apply_info where id =#{applyId}) " +
+            "  ) as base  " +
+            "  left join  tb_operation_task_history as his on base.id =  his.apply_id " +
+            ") as bb left join tb_cms_auth_user  as  user on  bb.operator_id = user.id;")
+    List<TbOperationLogBean>  getOperationTaskHis(@Param(value = "applyId") Integer applyId);
 }
