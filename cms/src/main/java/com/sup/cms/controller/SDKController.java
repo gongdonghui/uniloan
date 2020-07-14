@@ -9,6 +9,7 @@ import com.sup.common.bean.TbAppSdkAppListInfoBean;
 import com.sup.common.bean.TbAppSdkContractInfoBean;
 import com.sup.common.bean.TbApplyMaterialInfoBean;
 import com.sup.common.loan.ApplyMaterialTypeEnum;
+import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -23,7 +24,7 @@ import java.util.List;
  * @Author: kouichi
  * @Date: 2019/10/13 17:41
  */
-@Slf4j
+@Log4j
 @RestController
 @RequestMapping("/sdk")
 public class SDKController {
