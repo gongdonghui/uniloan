@@ -15,6 +15,7 @@ import com.sup.cms.mapper.*;
 import com.sup.common.bean.AuthUserBean;
 import com.sup.common.util.ResponseUtil;
 import com.sup.common.util.GsonUtil;
+import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -35,7 +36,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RequestMapping("/auth")
 @RestController
-@Slf4j
+@Log4j
 public class AuthorityController {
 
     @Autowired
