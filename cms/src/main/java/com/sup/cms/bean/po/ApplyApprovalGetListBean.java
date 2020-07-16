@@ -20,6 +20,10 @@ public class ApplyApprovalGetListBean {
      */
     private Integer applyId;
     /**
+     * 用户id
+     */
+    private Integer userId;
+    /**
      * 渠道号
      */
     private Integer channelId;
