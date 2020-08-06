@@ -2,7 +2,7 @@
   "apply_status": {
     "id": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
     "en": ["APPLY_INIT", "APPLY_AUTO_PASS", "APPLY_FIRST_PASS", "APPLY_SECOND_PASS", "APPLY_FINAL_PASS", "APPLY_AUTO_DENY", "APPLY_FIRST_DENY", "APPLY_SECOND_DENY", "APPLY_FINAL_DENY", "APPLY_CANCEL", "APPLY_AUTO_LOANING", "APPLY_AUTO_LOAN_FAILED", "APPLY_LOAN_SUCC", "APPLY_REPAY_PART", "APPLY_REPAY_ALL", "APPLY_OVERDUE", "APPLY_WRITE_OFF"],
-    "zh": ["审核中", "审核中", "审核中", "审核中", "放款中", "审核不通过", "审核不通过", "审核不通过", "审核不通过", "其他", "放款中", "放款失败", "还款中", "还款中", "已还清", "已逾期", "取消"],
+    "zh": ["审核中", "审核中", "审核中", "审核中", "放款中", "审核不通过", "审核不通过", "审核不通过", "审核不通过", "已取消", "放款中", "放款失败", "还款中", "还款中", "已还清", "已逾期", "取消"],
     "vi": ["Đang xét duyệt", "Đang xét duyệt", "Đang xét duyệt", "Đang xét duyệt", "Đang giải ngân", "Xét duyệt không thông qua", "Xét duyệt không thông qua", "Xét duyệt không thông qua", "Xét duyệt không thông qua", "Khác", "Đang giải ngân", "Giải ngân thất bại", "Đang thanh toán", "Đang thanh toán", "Đã tất toán", "Đã quá hạn", "Huỷ"]
   },
   "general_gender": {
