@@ -364,6 +364,7 @@ public class ReportImplFacade implements ReportFacade {
         Integer rows = param.getPageSize();
         List<LoanStatBean> l = crazyJoinMapper.getOperationReport(headers.toString(), sb.toString(), offset, rows);
         Map m = Maps.newHashMap();
+
         m.put("total", crazyJoinMapper.getOperationReportCount(sb.toString()));
         m.put("list", l);
         return ResponseUtil.success(m);

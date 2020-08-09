@@ -1,6 +1,5 @@
 package com.sup.cms.bean.po;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -24,7 +23,7 @@ public class LoanStatBean {
     private Long    principal;              // 放款本金
     private Long    contractAmt;            // 合同金额
     private Long    normalRepayAmt;         // 正常还款金额
-    private Integer normalRepayNum;         // 正常还款次数
+    private Integer normalRepaynormalRepayNumNum;         // 正常还款次数
     private Integer firstOverdueNum;        // 首逾笔数
     private Long    firstOverdueAmt;        // 首逾金额
     private Long    overduedContractAmt;    // 逾期已还合同金额
@@ -35,5 +34,6 @@ public class LoanStatBean {
     private Integer overdueNum;             // 当前逾期笔数
     private Float   overdueRate;            // 当前逾期率
     private Float   principalRate;          // 本金回收率
+    private Integer  overdueRepayNum;       //逾期已还笔数
 
 }

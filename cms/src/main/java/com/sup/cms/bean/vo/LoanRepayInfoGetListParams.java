@@ -38,6 +38,8 @@ public class LoanRepayInfoGetListParams {
      */
     private Integer repayNeedConfirm;
 
+    private String name;
+
     @Min(0)
     private Integer page;
     @Min(0)

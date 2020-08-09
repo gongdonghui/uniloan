@@ -807,6 +807,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,sum(case when is_overdue=1 and status!=14 then 1 else 0 end) as overdueNum" +
             "  ,sum(case when is_overdue=1 and status!=14 then 1 else 0 end)/count(apply_id) as overdueRate" +
             "  ,sum(act_total)/sum(inhand_amount) as principalRate" +
+            "  ,sum(case when is_overdue=1 and status=14 then 1 else 0 end) as overdueRepayNum " +
             " from tb_loan_info" +
             " where 1=1 " +
             " ${conditions}" +

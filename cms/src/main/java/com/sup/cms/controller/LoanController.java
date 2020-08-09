@@ -67,6 +67,9 @@ public class LoanController {
         if (!Strings.isNullOrEmpty(params.getMobile())) {
             sb.append(" and d.mobile='" + params.getMobile() + "'");
         }
+        if (!Strings.isNullOrEmpty(params.getName())) {
+            sb.append(" and d.name like '%" + params.getName().trim()+ "%'");
+        }
         if (params.getStatus() != null) {
             if (params.getStatus() == 0) {  // 未核销
                 sb.append(" and a.status!=" + ApplyStatusEnum.APPLY_WRITE_OFF.getCode());
@@ -111,6 +114,10 @@ public class LoanController {
         if (!Strings.isNullOrEmpty(params.getMobile())) {
             sb.append(" and d.mobile='" + params.getMobile() + "'");
         }
+        if (!Strings.isNullOrEmpty(params.getName())) {
+            sb.append(" and d.name like '%" + params.getName().trim()+ "%'");
+        }
+
         log.info("unRepayInfoGetList conditions=" + sb.toString());
 
         Integer offset = (params.getPage() - 1) * params.getPageSize();

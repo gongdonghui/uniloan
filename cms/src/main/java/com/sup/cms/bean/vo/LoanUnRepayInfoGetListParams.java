@@ -21,6 +21,8 @@ public class LoanUnRepayInfoGetListParams {
     private String cidNo;
     private Integer applyId;
     private String mobile;
+
+    private  String name;
     @Min(0)
     private Integer page;
     @Min(0)
