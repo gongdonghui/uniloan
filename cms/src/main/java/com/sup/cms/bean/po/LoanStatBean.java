@@ -23,7 +23,7 @@ public class LoanStatBean {
     private Long    principal;              // 放款本金
     private Long    contractAmt;            // 合同金额
     private Long    normalRepayAmt;         // 正常还款金额
-    private Integer normalRepaynormalRepayNumNum;         // 正常还款次数
+    private Integer normalRepayNum;         // 正常还款次数
     private Integer firstOverdueNum;        // 首逾笔数
     private Long    firstOverdueAmt;        // 首逾金额
     private Long    overduedContractAmt;    // 逾期已还合同金额
