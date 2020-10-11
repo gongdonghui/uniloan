@@ -274,6 +274,7 @@ thirdparty:
 model:
     name: A001
     path:  /root/models/A001.pmml
+    path2:  /root/models/A002.pmml
 
 
 ---

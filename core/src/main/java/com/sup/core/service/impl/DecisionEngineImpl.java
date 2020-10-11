@@ -343,9 +343,11 @@ public class DecisionEngineImpl implements DecesionEngine {
 
         Map<String, Double> modelInput = this.prepareAppList(user_mobile);
         modelInput.put("no_of_contract", riskBean.get(RiskVariableConstants.NUM_OF_CONTRACT));
-        double a001_score = this.modelManagentService.predict(modelInput);
+        double a001_score = this.modelManagentService.predict(modelInput, RiskVariableConstants.A001NegProb);
         riskBean.put(RiskVariableConstants.A001NegProb, a001_score);
 
+        double a002_score = this.modelManagentService.predict(modelInput,RiskVariableConstants.A002NegProb);
+        riskBean.put(RiskVariableConstants.A002NegProb, a002_score);
 
         String content = GsonUtil.toJson(riskBean);
 

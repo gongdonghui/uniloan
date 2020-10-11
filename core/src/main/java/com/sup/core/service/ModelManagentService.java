@@ -1,5 +1,6 @@
 package com.sup.core.service;
 
+import com.sup.common.util.RiskVariableConstants;
 import lombok.extern.log4j.Log4j;
 import org.dmg.pmml.FieldName;
 import org.dmg.pmml.PMML;
@@ -19,7 +20,9 @@ import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.sup.common.util.GsonUtil;
+
 /**
  * gongshuai
  * <p>
@@ -33,21 +36,24 @@ public class ModelManagentService {
     @Value("${model.path}")
     private String modelPath;
 
-    private  Evaluator  evaluator;
+    @Value("${model.path2}")
+    private String modelPath_bscore;
 
-    private static final Double  DEFAULT_VALUE = -9999.0;
+    private Evaluator evaluator;
+    private Evaluator evaluator_bscore;
 
-    @PostConstruct
-    private void loadPmml() {
+    private static final Double DEFAULT_VALUE = -9999.0;
+
+    private Evaluator loadPmml(String modelpath) {
         PMML pmml = new PMML();
         InputStream inputStream = null;
         try {
-            inputStream = new FileInputStream(this.modelPath);
+            inputStream = new FileInputStream(modelPath);
         } catch (IOException e) {
             e.printStackTrace();
         }
         if (inputStream == null) {
-            return ;
+            return null;
         }
         InputStream is = inputStream;
         try {
@@ -65,13 +71,37 @@ public class ModelManagentService {
             }
         }
         ModelEvaluatorFactory modelEvaluatorFactory = ModelEvaluatorFactory.newInstance();
-        this.evaluator = modelEvaluatorFactory.newModelEvaluator(pmml);
+        Evaluator ret = modelEvaluatorFactory.newModelEvaluator(pmml);
         pmml = null;
+        return ret;
     }
 
-    public double predict( Map<String, Double> featuremap) {
-        if(this.evaluator ==null) {
-            return  DEFAULT_VALUE;
+    @PostConstruct
+    private void loadPmmlAll() {
+        this.evaluator = loadPmml(this.modelPath);
+        this.evaluator_bscore = loadPmml(this.modelPath_bscore);
+
+    }
+
+    public double predict(Map<String, Double> featuremap, String modelName) {
+        Evaluator evaluator = null;
+        if (modelName == null || modelName.isEmpty()) {
+            evaluator = this.evaluator;
+
+        } else {
+            switch (modelName) {
+                case RiskVariableConstants.A001NegProb:
+                    evaluator = this.evaluator;
+                    break;
+                case  RiskVariableConstants.A002NegProb:
+                    evaluator = this.evaluator_bscore;
+                    break;
+                default:
+                    evaluator = this.evaluator;
+            }
+        }
+        if (evaluator == null) {
+            return DEFAULT_VALUE;
         }
 
         List<InputField> inputFields = evaluator.getInputFields();
@@ -88,15 +118,15 @@ public class ModelManagentService {
         for (FieldName fieldName : results.keySet()) {
             if (fieldName.toString().equals("probability(1)")) {
                 Object ret = results.get(fieldName);
-                if (ret instanceof Float || ret instanceof   Double) {
-                    log.info("A001NegProb Score:"+ ret+",Input:"+ GsonUtil.toJson(featuremap));
+                if (ret instanceof Float || ret instanceof Double) {
+                    log.info(modelName + "NegProb Score:" + ret + ",Input:" + GsonUtil.toJson(featuremap));
                     return (Float) ret;
                 } else {
-                    return  DEFAULT_VALUE;
+                    return DEFAULT_VALUE;
                 }
             }
         }
-        return  DEFAULT_VALUE;
+        return DEFAULT_VALUE;
     }
 
 
