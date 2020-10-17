@@ -143,9 +143,10 @@ public class ScheduleTasks {
 
                 }
             }catch (Exception e) {
+                e.printStackTrace();
                 bean.setStatus(ApplyStatusEnum.APPLY_CANCEL.getCode());
-                log.error("DecisionEngine applyRules failed! param=" + GsonUtil.toJson(param));
-                log.error(" bean=" + GsonUtil.toJson(bean));
+                log.error(e.getMessage());
+                log.error("DecisionEngine applyRules failed! param=" + GsonUtil.toJson(param) + ", bean=" + GsonUtil.toJson(bean));
             }
             // 3. 更新进件状态
             applyService.updateApplyInfo(bean);
