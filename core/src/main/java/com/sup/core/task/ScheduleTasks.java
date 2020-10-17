@@ -121,25 +121,31 @@ public class ScheduleTasks {
             param.setApplyId(String.valueOf(bean.getId()));
             param.setProductId(String.valueOf(bean.getProduct_id()));
             param.setUserId(String.valueOf(bean.getUser_id()));
-            // 2. 自动审查
-            // log.info(">>>> start apply rules...");
-            RiskDecisionResultBean result = decisionEngine.applyRules(param);
-            // log.info(">>>> RiskDecisionResultBean = " + GsonUtil.toJson(result));
-            if (result == null) {
-                // Exception??
-                log.error("DecisionEngine return null for param = " + GsonUtil.toJson(param));
-                bean.setStatus(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
-            } else if (result.getRet() == DecisionEngineStatusEnum.APPLY_DE_AUTO_PASS.getCode()) {
-                bean.setStatus(ApplyStatusEnum.APPLY_AUTO_PASS.getCode());
-            } else {
-                bean.setStatus(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
-                bean.setDeny_code(result.getRefuse_code());
-            }
+            try {
+                // 2. 自动审查
+                // log.info(">>>> start apply rules...");
+                RiskDecisionResultBean result = decisionEngine.applyRules(param);
+                // log.info(">>>> RiskDecisionResultBean = " + GsonUtil.toJson(result));
+                if (result == null) {
+                    // Exception??
+                    log.error("DecisionEngine return null for param = " + GsonUtil.toJson(param));
+                    bean.setStatus(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
+                } else if (result.getRet() == DecisionEngineStatusEnum.APPLY_DE_AUTO_PASS.getCode()) {
+                    bean.setStatus(ApplyStatusEnum.APPLY_AUTO_PASS.getCode());
+                } else {
+                    bean.setStatus(ApplyStatusEnum.APPLY_AUTO_DENY.getCode());
+                    bean.setDeny_code(result.getRefuse_code());
+                }
 
-            if (bean.getStatus() == ApplyStatusEnum.APPLY_AUTO_PASS.getCode()) {
-                ApplyStatusEnum status = applyService.getQuickpassStatus(ApplyStatusEnum.APPLY_AUTO_PASS, bean.getUser_id());
-                bean.setStatus(status.getCode());
+                if (bean.getStatus() == ApplyStatusEnum.APPLY_AUTO_PASS.getCode()) {
+                    ApplyStatusEnum status = applyService.getQuickpassStatus(ApplyStatusEnum.APPLY_AUTO_PASS, bean.getUser_id());
+                    bean.setStatus(status.getCode());
 
+                }
+            }catch (Exception e) {
+                bean.setStatus(ApplyStatusEnum.APPLY_CANCEL.getCode());
+                log.error("DecisionEngine applyRules failed! param=" + GsonUtil.toJson(param));
+                log.error(" bean=" + GsonUtil.toJson(bean));
             }
             // 3. 更新进件状态
             applyService.updateApplyInfo(bean);
