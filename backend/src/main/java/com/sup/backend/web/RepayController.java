@@ -3,6 +3,7 @@ package com.sup.backend.web;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.ImmutableMap;
 import com.sup.backend.bean.AppApplyInfo;
 import com.sup.backend.bean.LoginInfoCtx;
@@ -126,11 +127,16 @@ public class RepayController {
   @RequestMapping(value = "manual_repay", produces = "application/json;charset=UTF-8")
   public Object ManualRepay(@RequestBody AppApplyInfo apply, @LoginInfo LoginInfoCtx li) {
     String manual_repay_flag = String.format("manual_repay|%d", li.getUser_id());
-    if (!rc.SetEx(manual_repay_flag, "ok", 3l, TimeUnit.SECONDS)) {
+    if (!rc.SetEx(manual_repay_flag, "ok", 10l, TimeUnit.SECONDS)) {
       return ToolUtils.fail(1, "duplicate_submit");
     }
 
     TbRepayPlanBean repay_plan_bean = tb_repay_plan_mapper.selectById(apply.getPlan_id());
+    TbManualRepayBean prev_mb = tb_manual_repay_mapper.selectOne(new QueryWrapper<TbManualRepayBean>().lambda().eq(TbManualRepayBean::getApply_id, repay_plan_bean.getApply_id()).eq(TbManualRepayBean::getRepay_image, apply.getRepay_img()).last("limit 1"));
+    if (prev_mb != null) {
+     return ToolUtils.fail("error");
+    }
+
     TbManualRepayBean mb = new TbManualRepayBean();
     mb.setPlan_id(repay_plan_bean.getId());
     mb.setUser_id(repay_plan_bean.getUser_id());
