@@ -20,7 +20,7 @@ sms:
     mock: false
     pattern: '^\+?(0|84|084)?(\d+)$'
     area-code: 84
-    uri: http://sms.skylinelabs.cc:20003/sendsmsV2
+    uri: http://sms.chinaskylinetel.net:20003/sendsmsV2
     account: cs_wmve6s
     password: 6RWTB71n
     vip-account: cs_3pofo7
@@ -116,7 +116,7 @@ sms:
     mock: false
     pattern: '^\+?(0|84|084)?(\d+)$'
     area-code: 84
-    uri: http://sms.skylinelabs.cc:20003/sendsmsV2
+    uri: http://sms.chinaskylinetel.net:20003/sendsmsV2
     account: cs_6gey4q
     password: b4myElNk
     vip-account: cs_jprt7v
@@ -167,7 +167,7 @@ sms:
     mock: true
     pattern: '^\+?(0|84|084)?(\d+)$'
     area-code: 84
-    uri: http://sms.skylinelabs.cc:20003/sendsmsV2
+    uri: http://sms.chinaskylinetel.net:20003/sendsmsV2
     account: aaa
     password: bbb
     vip-account: ccc
