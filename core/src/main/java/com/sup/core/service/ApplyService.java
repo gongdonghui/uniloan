@@ -324,6 +324,7 @@ public class ApplyService {
             opertatorIds.put(54, 57);
             opertatorIds.put(64, 63);
             opertatorIds.put(65, 63);
+            opertatorIds.put(67, 66);
         }
 
         for (Integer credit_level : needAssign.keySet()) {
