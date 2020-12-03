@@ -359,22 +359,45 @@ public class LoanService {
             return Result.succ();
         }
 
-        if (applyInfoBean.getStatus() == ApplyStatusEnum.APPLY_REPAY_PART.getCode()) {
-            if (!bean.getRepay_status().equals(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode())) {
-                // 该计划未还清，无需更新ApplyInfo
-                return Result.succ();
-            }
-        }
-
+        // 还款计划更新：逾期、还款
         if (statBean.getAct_total() + statBean.getReduction_fee() >= statBean.getNeed_total()) {
+            // 已还清
             applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
             mqMessenger.applyStatusChange(applyInfoBean);
         } else {
-            if (applyInfoBean.getStatus() != ApplyStatusEnum.APPLY_OVERDUE.getCode()) {
-                // 非逾期状态下，更新为未还清；逾期未还清仍为逾期状态
+            if (bean.getIs_overdue() == 0) {
+                if (applyInfoBean.getStatus() == ApplyStatusEnum.APPLY_REPAY_PART.getCode()) {
+                    // 未还清，无需更新ApplyInfo
+                    return Result.succ();
+                }
                 applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
+            } else {
+                // 逾期，或者逾期时部分还款
+                if (applyInfoBean.getStatus() == ApplyStatusEnum.APPLY_OVERDUE.getCode()) {
+                    // 已逾期、未还清，无需更新ApplyInfo
+                    return Result.succ();
+                }
+                applyInfoBean.setStatus(ApplyStatusEnum.APPLY_OVERDUE.getCode());
             }
         }
+
+//        if (applyInfoBean.getStatus() == ApplyStatusEnum.APPLY_REPAY_PART.getCode()) {
+//            if (!bean.getRepay_status().equals(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode())) {
+//                // 该计划未还清，无需更新ApplyInfo
+//                return Result.succ();
+//            }
+//        }
+//
+//        if (statBean.getAct_total() + statBean.getReduction_fee() >= statBean.getNeed_total()) {
+//            // 已还清
+//            applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
+//            mqMessenger.applyStatusChange(applyInfoBean);
+//        } else {
+//            if (applyInfoBean.getStatus() != ApplyStatusEnum.APPLY_OVERDUE.getCode()) {
+//                // 非逾期状态下，更新为未还清；逾期未还清仍为逾期状态
+//                applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
+//            }
+//        }
         applyInfoBean.setUpdate_time(new Date());
         return applyService.updateApplyInfo(applyInfoBean);
     }
