@@ -89,14 +89,11 @@ public class ModelManagentService {
             evaluator = this.evaluator;
 
         } else {
-            switch (modelName) {
-                case RiskVariableConstants.A001NegProb:
-                    evaluator = this.evaluator;
-                    break;
-                case  RiskVariableConstants.A002NegProb:
-                    evaluator = this.evaluator_bscore;
-                    break;
-                default:
+            if(modelName.equals(RiskVariableConstants.A001NegProb))  {
+                evaluator = this.evaluator;
+            } else  if( modelName.equals(RiskVariableConstants.A002NegProb)) {
+                evaluator     =this.evaluator_bscore;
+            } else {
                     evaluator = this.evaluator;
             }
         }

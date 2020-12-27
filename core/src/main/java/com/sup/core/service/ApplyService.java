@@ -319,8 +319,8 @@ public class ApplyService {
         if (opertatorIds != null) {
             opertatorIds.put(60, 54);
             opertatorIds.put(59, 54);
-            opertatorIds.put(62, 63);
-            opertatorIds.put(61, 63);
+//            opertatorIds.put(62, 63);
+//            opertatorIds.put(61, 63);
             opertatorIds.put(54, 57);
             opertatorIds.put(64, 63);
             opertatorIds.put(65, 63);
