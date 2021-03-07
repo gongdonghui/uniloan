@@ -353,4 +353,80 @@ model:
 
 
 
+---
+spring:
+  profiles: uniloan_21
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 7789
+    jedis:
+      pool:
+        max-active: 8
+    timeout: 60000
+    password: 13JPTmkZT5QmAV4s
+
+  datasource:
+    dynamic:
+      hikari:
+        connection-timeout: 3000
+
+      primary: online2
+      datasource:
+        online2:
+          username: dev2
+          password: Old57!@@^
+          url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan3?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          driver-class-name: com.mysql.jdbc.Driver
+          hikari:
+            max-lifetime: 300000
+
+server:
+  port: 20084
+  tomcat:
+    max-threads: 10
+  connection-timeout: 180000
+
+ssdb:
+  host: 127.0.0.1
+  port: 13288
+  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
+  timeout: 300000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:20087/eureka/
+
+rocket:
+  producer:
+    endpoint: 127.0.0.1:9976
+    group: user_state_group
+
+thirdparty:
+  max-retry: 3
+  jirong:
+    merchantID: 12345
+    blacklist:
+      url:
+        v1: "https://api.geerongcloud.com/credit/v2/blacklist"
+        v2: "http://harmony.as.geerong.com/credit/service/blackListCheck"
+    token: 123
+    secretKey: 456
+    countryCode: 84
+    region: VIETNAM
+  xingtan:
+    accessKey: 123
+    accessSecret: 456
+    token: 123456
+    blacklist:
+      url: "https://rest.star-detector.vn.starwin.tech/single-pre-rc-report/prc-blacklist"
+
+model:
+    name: A001
+    path:  /root/models/A001.pmml
+    path2:  /root/models/A002.pmml
+
+
+
 

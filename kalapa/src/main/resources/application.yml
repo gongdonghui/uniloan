@@ -130,3 +130,29 @@ eureka:
 kalapa:
   #收费
   token: abcdef
+
+
+---
+spring:
+  profiles: uniloan_21
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 7789
+    jedis:
+      pool:
+        max-active: 8
+    timeout: 60000
+    password: 13JPTmkZT5QmAV4s
+
+server:
+  port: 20086
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:20087/eureka/
+kalapa:
+  #收费
+  token: abcdef
+

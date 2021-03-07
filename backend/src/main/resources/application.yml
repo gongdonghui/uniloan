@@ -264,3 +264,58 @@ rocket:
     endpoint: 127.0.0.1:9976
     group: app_backend
 
+---
+login:
+  fake_verify_code: false
+
+spring:
+  profiles: uniloan_21
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 7789
+    jedis:
+      pool:
+        max-active: 8
+    timeout: 60000
+    password: 13JPTmkZT5QmAV4s
+
+  datasource:
+    dynamic:
+      hikari:
+        connection-timeout: 3000
+
+      primary: online2
+      datasource:
+        online2:
+          username: dev2
+          password: Old57!@@^
+          url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan3?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          driver-class-name: com.mysql.jdbc.Driver
+          hikari:
+            max-lifetime: 300000
+server:
+  port: 20081
+  tomcat:
+    max-threads: 10
+  connection-timeout: 180000
+
+ssdb:
+  host: 127.0.0.1
+  port: 13288
+  auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
+  timeout: 300000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:20087/eureka/
+
+rocket:
+  consumer:
+    endpoint: 127.0.0.1:9976
+    group: app_backend
+  producer:
+    endpoint: 127.0.0.1:9976
+    group: app_backend
+

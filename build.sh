@@ -45,12 +45,14 @@ SCP_AND_DEPLOY() {
     bash services_control.sh restart $_target $_proj_dir
 }
 
-target="online2"
-if [ $# == 1 ]; then
-    #echo "Usage: $0 [online|online2|all|test|test2]"
-    target=$1
-fi
 
+if [ $# != 1 ]; then
+    echo "Usage: $0 [online2|uniloan_21]"
+    echo "  online2     is for 47.241.13.144, using DB(uniloan2)"
+    echo "  uniloan_21  is for 47.241.91.21,  using DB(uniloan3)"
+    exit 1
+fi
+target=$1
 
 LOG "start to pull code from git..."
 git pull

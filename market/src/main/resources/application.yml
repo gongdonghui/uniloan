@@ -192,3 +192,56 @@ rocket:
   producer:
     endpoint: 127.0.0.1:9976
     group: market
+
+
+
+---
+spring:
+  profiles: uniloan_21
+  datasource:
+    dynamic:
+      hikari:
+        connection-timeout: 3000
+
+      primary: online2
+      datasource:
+        online2:
+          username: dev2
+          password: Old57!@@^
+          url: 'jdbc:mysql://rm-t4n37hf32058pbwmo.mysql.singapore.rds.aliyuncs.com/uniloan3?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&socketTimeout=60000'
+          driver-class-name: com.mysql.jdbc.Driver
+          hikari:
+            max-lifetime: 300000
+
+sms:
+  skyline:
+    retry: 3
+    mock: false
+    pattern: '^\+?(0|84|084)?(\d+)$'
+    area-code: 84
+    uri: http://sms.chinaskylinetel.net:20003/sendsmsV2
+    account: cs_6gey4q
+    password: b4myElNk
+    vip-account: cs_jprt7v
+    vip-password: srxkxMUg
+
+server:
+  port: 20083
+  tomcat:
+    max-threads: 4
+  connection-timeout: 180000
+
+ontime-delivery:
+  redisson:
+    host: 127.0.0.1
+    port: 6388
+    auth: 13JPTmkZT5QmAV4s
+
+rocket:
+  consumer:
+    endpoint: 127.0.0.1:9976
+    group: market
+  producer:
+    endpoint: 127.0.0.1:9976
+    group: market
+
