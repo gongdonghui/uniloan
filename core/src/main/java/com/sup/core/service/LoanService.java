@@ -1,6 +1,7 @@
 package com.sup.core.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.base.Strings;
 import com.sup.common.bean.*;
 import com.sup.common.bean.paycenter.CreateVCInfo;
 import com.sup.common.bean.paycenter.DestroyVCInfo;
@@ -16,6 +17,7 @@ import com.sup.common.util.DateUtil;
 import com.sup.common.util.FunpayOrderUtil;
 import com.sup.common.util.GsonUtil;
 import com.sup.common.util.Result;
+import com.sup.core.bean.CustomerInfoBean;
 import com.sup.core.bean.VCInfo;
 import com.sup.core.mapper.*;
 import com.sup.core.util.MqMessenger;
@@ -48,10 +50,6 @@ public class LoanService {
     @Autowired
     private RepayPlanMapper repayPlanMapper;
     @Autowired
-    private UserBankInfoMapper userBankInfoMapper;
-    @Autowired
-    private ApplyMaterialInfoMapper applyMaterialInfoMapper;
-    @Autowired
     private ApplyInfoMapper applyInfoMapper;
     @Autowired
     private ProductInfoMapper productInfoMapper;
@@ -74,8 +72,6 @@ public class LoanService {
     @Autowired
     private MqMessenger mqMessenger;
     @Autowired
-    private RuleConfigService ruleConfigService;
-    @Autowired
     private RepayStatMapper repayStatMapper;
 
     public Result retryLoan(ApplyRetryLoanParam param) {
@@ -91,8 +87,8 @@ public class LoanService {
     }
 
     public synchronized Result<TbApplyInfoBean> autoLoan(TbApplyInfoBean applyInfoBean, Integer operatorId) {
-        String userId = String.valueOf(applyInfoBean.getUser_id());
-        String applyId = String.valueOf(applyInfoBean.getId());
+        Integer userId = applyInfoBean.getUser_id();
+        Integer applyId = applyInfoBean.getId();
 
         ApplyStatusEnum status = ApplyStatusEnum.getStatusByCode(applyInfoBean.getStatus());
         if (status == null || (status != ApplyStatusEnum.APPLY_FINAL_PASS && status != ApplyStatusEnum.APPLY_AUTO_LOAN_FAILED)) {
@@ -105,7 +101,7 @@ public class LoanService {
         }
 
         // 2. get user bank info
-        QueryWrapper<TbApplyMaterialInfoBean> materialWrapper = new QueryWrapper<>();
+        /*QueryWrapper<TbApplyMaterialInfoBean> materialWrapper = new QueryWrapper<>();
         TbApplyMaterialInfoBean applyMaterialInfoBean = applyMaterialInfoMapper.selectOne(materialWrapper
                 .eq("apply_id", applyId)
                 .eq("info_type", ApplyMaterialTypeEnum.APPLY_MATERIAL_BANK.getCode()));
@@ -128,19 +124,54 @@ public class LoanService {
         log.info("autoLoan, bank info:" + GsonUtil.toJson(bankInfoBean));
         log.info("autoLoan, apply info(before loan):" + GsonUtil.toJson(applyInfoBean));
 
+        TbUserRegistInfoBean userRegistInfoBean = userRegisterInfoMapper.selectOne(
+                new QueryWrapper<TbUserRegistInfoBean>().eq("id", userId)
+        );
+        if (userRegistInfoBean == null) {
+            log.error("Invalid user id: " + userId);
+            return Result.fail("No user regist info!");
+        }
+        TbUserCitizenIdentityCardInfoBean idInfoBean = identityCardInfoMapper.selectOne(
+                new QueryWrapper<TbUserCitizenIdentityCardInfoBean>()
+                        .eq("info_id", infoId)
+                        .eq("user_id", userId)
+                        .orderByDesc("create_time")
+                        .last("limit 1")
+        );
+        if (idInfoBean == null || Strings.isNullOrEmpty(idInfoBean.getCid_no())) {
+            log.error("No ID info for user: " + userId + ", info id: " + infoId);
+            return Result.fail("No ID info!");
+        }*/
+
+        TbUserBankAccountInfoBean bankInfoBean = applyInfoMapper.getUserBankAccountInfo(applyId);
+        if (bankInfoBean == null) {
+            log.error("No bank info for user(" + userId + "), applyId=" + applyId);
+            return Result.fail("No bank info found!");
+        }
+        CustomerInfoBean customerInfoBean = applyInfoMapper.getCustomerInfo(userId, applyId);
+        if (customerInfoBean == null) {
+            log.error("No valid customer info for user(" + userId + "), applyId=" + applyId);
+            return Result.fail("No valid customer info!");
+        }
+
+
+
         // 3. loan using funpay(need thread safe)
         boolean loanSucc = false;
         {
             String token = ToolUtils.getToken();    // orderNo
             PayInfo payInfo = new PayInfo();
-            payInfo.setUserId(userId);
+            payInfo.setUserId("" + userId);
             payInfo.setOrderNo(token);
             payInfo.setAmount(applyInfoBean.getInhand_quota());
             payInfo.setBankNo(String.valueOf(bankInfoBean.getBank()));
             payInfo.setAccountNo(bankInfoBean.getAccount_id());
             payInfo.setAccountType(bankInfoBean.getAccount_type());
             payInfo.setAccountName(bankInfoBean.getName());
-            payInfo.setRemark(applyId);
+            payInfo.setRemark("" + applyId);
+            payInfo.setPhone(customerInfoBean.getMobile());
+            payInfo.setCidNo(customerInfoBean.getCidNo());
+
 
             applyInfoBean.setOrder_number(token);
 
@@ -226,10 +257,14 @@ public class LoanService {
         if (repayPlanBean.getRepay_status() == RepayPlanStatusEnum.PLAN_PAID_ALL.getCode()) {
             return Result.fail("Nothing to repay.");
         }
+        Integer userId = Integer.parseInt(repayInfo.getUserId());
+        Integer applyId = Integer.parseInt(repayInfo.getApplyId());
 
-        TbRepayHistoryBean repayHistoryBean = getOrNewRepayHistoryBean(Integer.valueOf(repayInfo.getUserId()),
-                Integer.valueOf(repayInfo.getApplyId()), repayInfo.getAmount(), repayPlanBean.getId());
-        if (repayHistoryBean == null) {
+        CustomerInfoBean customerInfoBean = applyInfoMapper.getCustomerInfo(userId, applyId);
+        TbRepayHistoryBean repayHistoryBean = getOrNewRepayHistoryBean(userId,
+                applyId, repayInfo.getAmount(), repayPlanBean.getId());
+        if (repayHistoryBean == null || customerInfoBean == null) {
+            log.error("No repay history or customer info for userId=" + userId + ", applyId=" + applyId);
             return Result.fail("");
         }
         Date expireDate = repayHistoryBean.getExpire_time();
@@ -245,10 +280,11 @@ public class LoanService {
         }
 
         repayInfo.setOrderNo(String.valueOf(repayHistoryBean.getId()));
+        repayInfo.setCidNo(customerInfoBean.getCidNo());
         try {
             Result<RepayVO> result = funpayService.repay(repayInfo);
             if (!result.isSucc()) {
-                log.error("Failed to get repay info for applyId = " + repayInfo.getApplyId() + ", msg = " + result.getMessage());
+                log.error("Failed to get repay info! param = " + GsonUtil.toJson(repayInfo) + ", msg = " + result.getMessage());
                 return Result.fail("Failed to get repay info!");
             }
             RepayVO r = result.getData();

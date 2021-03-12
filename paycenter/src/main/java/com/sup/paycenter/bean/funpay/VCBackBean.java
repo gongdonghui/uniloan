@@ -14,13 +14,15 @@ public class VCBackBean {
     private String orderNo;
     private String tradeNo;
     private String expireDate;
-    private Integer amount;
     private String currency;
+    private String userName;
     private String accountNo;
     private String accountName;
+    private Integer amount;
     private String bankName;
     private String branchBankName;
     private String bankLink;
+    private String cityName;
     private Integer purchaseAmount;
     private String purchaseCurrency;
     private String purchaseTime;
