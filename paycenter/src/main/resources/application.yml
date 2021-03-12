@@ -181,9 +181,9 @@ server:
   port: 20082
 
 paycenter:
-  payReturnUrl: "https://www.2w.pub/paycenter/payCallBack"
-  repayReturnUrl: "https://www.2w.pub/paycenter/repayCallBack"
-  vcReturnUrl: "https://www.2w.pub/paycenter/vcCallBack"
+  payReturnUrl: "https://www.2nk.wang/paycenter/payCallBack"
+  repayReturnUrl: "https://www.2nk.wang/paycenter/repayCallBack"
+  vcReturnUrl: "https://www.2nk.wang/paycenter/vcCallBack"
   secretKey: "pUoZtgB8mtG7mLPmh9RY4XtHJN1e4cN0092IPOPi"
   merchantId: "1758"
   businessId: "506"

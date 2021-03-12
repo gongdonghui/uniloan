@@ -325,6 +325,8 @@ public class FunPayController {
 
     @PostMapping(value = "createVC")
     public Result<CreateVCVO> createVC(@RequestBody CreateVCInfo info) {
+        DateTime expDate = new DateTime().plusDays(7);
+
         Map<String, String> m = Maps.newHashMap();
         m.put("merchantID", merchantId);
         m.put("businessID", businessId);
@@ -335,7 +337,8 @@ public class FunPayController {
         m.put("amount", info.getAmount() + "");
         m.put("currency", "VND");
         m.put("orderNo", info.getOrderNo());
-        m.put("expireDate", "");
+        m.put("expireDate", DateUtil.format(expDate.toDate(), DateUtil.NS_DAY_ALL_NUM_FORMAT));
+
         m.put("returnUrl", vcReturnUrl);
         m.put("bankType", bankType);
 
