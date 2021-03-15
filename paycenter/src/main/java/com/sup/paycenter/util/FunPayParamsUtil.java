@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import org.springframework.util.DigestUtils;
 
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -40,5 +41,22 @@ public class FunPayParamsUtil {
             sb.append(key).append("=").append(m.get(key)).append("&");
         }
         return sb.deleteCharAt(sb.length() - 1).toString();
+    }
+
+    public static void main(String[] args) {
+        Map<String, String> m = new HashMap<>();
+        String secretKey = "pUoZtgB8mtG7mLPmh9RY4XtHJN1e4cN0092IPOPi";
+        m.put("merchantID", "1758");
+        m.put("businessID", "506");
+        // m.put("feeID", "486");
+        m.put("timestamp", System.currentTimeMillis() + "");
+        // m.put("orderNo", "49305");
+        m.put("accountNo", "116002730866");
+        m.put("version", "1.3");
+        m.put("bankType", "VTB");
+        m.put("pageSize", "10");
+        String param = params4Get(m, secretKey);
+        System.out.print(param);
+
     }
 }
