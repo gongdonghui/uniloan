@@ -14,6 +14,7 @@ public class CreateVCBean {
     private String orderNo;
     private String expireDate;  // yyyyMMdd
     private Integer amount;
+    private String userName;
     private String currency;
     private String accountNo;
     private String accountName;

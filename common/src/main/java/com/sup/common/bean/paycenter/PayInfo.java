@@ -34,4 +34,8 @@ public class PayInfo {
     @NotBlank(message = "用户姓名不能为空")
     private String accountName;
 
+    @NotBlank(message = "手机号不能为空")
+    private String phone;
+    @NotBlank(message = "身份证号不能为空")
+    private String cidNo;
 }

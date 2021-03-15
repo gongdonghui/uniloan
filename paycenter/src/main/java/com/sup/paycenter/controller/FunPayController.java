@@ -50,6 +50,8 @@ public class FunPayController {
     private String repayReturnUrl;
     @Value("${paycenter.vcReturnUrl}")
     private String vcReturnUrl;
+    @Value("${paycenter.bankType}")
+    private String bankType;    // VTBreg
 
     @Value("${paycenter.url}")
     private String funPayUrl;
@@ -162,8 +164,9 @@ public class FunPayController {
         m.put("accountType", payInfo.getAccountType() + "");
         m.put("bankLocation", "vn");
         m.put("bankNo", payInfo.getBankNo());
-        m.put("bankBranchNo", "");
         m.put("remark", payInfo.getRemark());
+        m.put("phoneNumber", payInfo.getPhone());
+        m.put("IDNo", payInfo.getCidNo());
         m.put("transferTime", payInfo.getTransferTime());
         m.put("version", version);
         m.put("isAsync", "1");
@@ -185,24 +188,28 @@ public class FunPayController {
 
     @PostMapping(value = "repay")
     public Result<RepayVO> repay(@RequestBody @Valid RepayInfo repayInfo) {
+        DateTime dt = new DateTime();
+        dt = dt.plusDays(7);
+
         Map<String, String> m = Maps.newHashMap();
         m.put("merchantID", merchantId);
         m.put("businessID", businessId);
         m.put("feeID", feeId);
-        m.put("timestamp", System.currentTimeMillis() + "");
-        m.put("version", version);
         m.put("clientID", repayInfo.getUserId());
+        m.put("timestamp", System.currentTimeMillis() + "");
         m.put("amount", repayInfo.getAmount() + "");
+        m.put("currency", "VND");
         m.put("name", "testpay");
         m.put("orderNo", repayInfo.getOrderNo());
         //还款码有效期为T+7
-        DateTime dt = new DateTime();
-        dt = dt.plusDays(7);
         m.put("expireDate", DateUtil.format(dt.toDate(), DateUtil.NO_SPLIT_FORMAT));
         m.put("returnUrl", repayReturnUrl);
+        m.put("version", version);
         m.put("purchaseType", "2");
         m.put("phoneNumber", repayInfo.getPhone());
         m.put("userName", repayInfo.getName());
+        m.put("IDNo", repayInfo.getCidNo());
+
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_offlinePay + "?param=" + param);
         log.info("repay:::result=" + result + ", param=" + param);
@@ -318,24 +325,30 @@ public class FunPayController {
 
     @PostMapping(value = "createVC")
     public Result<CreateVCVO> createVC(@RequestBody CreateVCInfo info) {
+        DateTime expDate = new DateTime().plusDays(7);
+
         Map<String, String> m = Maps.newHashMap();
         m.put("merchantID", merchantId);
         m.put("businessID", businessId);
         m.put("feeID", feeId);
         m.put("clientID", info.getUserId());
         m.put("timestamp", System.currentTimeMillis() + "");
+        m.put("version", version);
         m.put("amount", info.getAmount() + "");
         m.put("currency", "VND");
         m.put("orderNo", info.getOrderNo());
-        m.put("expireDate", "");
+        m.put("expireDate", DateUtil.format(expDate.toDate(), DateUtil.NS_DAY_ALL_NUM_FORMAT));
+
         m.put("returnUrl", vcReturnUrl);
-        m.put("bankType", "STB");
-        m.put("accountNo", info.getMobile());
+        m.put("bankType", bankType);
+
+        m.put("accountBase", info.getMobile());
         m.put("userName", info.getUserName() + "");
-        m.put("version", version);
+        m.put("phoneNumber", info.getMobile());
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_createVC + "?param=" + param);
-        log.info("createVC:::result=" + result + ", param=" + param);
+        log.info("createVC:::result=" + result + ", param=" + GsonUtil.toJson(m)
+                + ", param(funpay)=" + param);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
@@ -383,7 +396,7 @@ public class FunPayController {
         m.put("amount", info.getAmount() + "");
         m.put("currency", "VND");
         m.put("orderNo", info.getOrderNo());
-        m.put("bankType", "STB");
+        m.put("bankType", bankType);
         m.put("accountNo", info.getAccountNo());
         m.put("version", version);
         String param = FunPayParamsUtil.params4Get(m, secretKey);
@@ -416,9 +429,8 @@ public class FunPayController {
         m.put("feeID", feeId);
         m.put("timestamp", System.currentTimeMillis() + "");
         m.put("orderNo", info.getOrderNo());
-        m.put("accountNo", info.getAccountNo());
+        m.put("bankType", bankType);
         m.put("version", version);
-        m.put("bankType", "STB");
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_destroyVC + "?param=" + param);
         log.info("destroyVC:::result=" + result + ", param=" + param);

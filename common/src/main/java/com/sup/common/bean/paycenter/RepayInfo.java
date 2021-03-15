@@ -24,4 +24,6 @@ public class RepayInfo {
 
     // @NotBlank(message = "回款时orderNo不能为空")
     private String orderNo;
+
+    private String cidNo;
 }
