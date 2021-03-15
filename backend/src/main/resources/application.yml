@@ -18,9 +18,9 @@ ssdb:
 
 
 repay:
-  accountno: '103871710595'
-  bankaccount: 'NGUYEN THI NHUNG'
-  bankbranch: 'Vietinbank(HAI PHONG)'
+  accountno: '105006822282'
+  bankaccount: 'Nguyễn Khánh Linh'
+  bankbranch: 'VietinBank'
 
 feign:
   hystrix:
