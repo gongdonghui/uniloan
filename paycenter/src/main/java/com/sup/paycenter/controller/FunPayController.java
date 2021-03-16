@@ -433,7 +433,7 @@ public class FunPayController {
         m.put("version", version);
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_destroyVC + "?param=" + param);
-        log.info("destroyVC:::result=" + result + ", param=" + param);
+        log.info("destroyVC:::result=" + result + ", param=" + GsonUtil.toJson(m) +  ", param(funpay)=" + param);
         if (Strings.isNullOrEmpty(result)) {
             return Result.fail(Result.kError, "外部服务异常");
         }
