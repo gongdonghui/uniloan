@@ -921,7 +921,11 @@ public class LoanService {
                     return Result.succ(obj);
                 }
                 // 订单号改变(如申请了虚拟卡，但是通过其他方式已还清)
-                destoryVirtualCard(vcInfo.getOrderNo(), vcInfo.getAccountNo());
+                Result ret = destoryVirtualCard(vcInfo.getOrderNo(), vcInfo.getAccountNo());
+                if (!ret.isSucc()) {
+                    log.error("destroy vc failed! vc info=" + GsonUtil.toJson(vcInfo));
+                    return Result.fail("Fail to destory VC!");
+                }
             }
         }
 

@@ -22,7 +22,7 @@ public interface VirtualCardInfoMapper extends BaseMapper<TbVirtualCardInfo> {
             "  vci.service_fee as serviceFee,\n" +
             "  vci.vc_no as accountNo,\n" +
             "  vci.apply_id as applyId,\n" +
-            "  vci.order_no as order_no,\n" +
+            "  vci.order_no as orderNo,\n" +
             "  vci.status as status,\n" +
             "  vci.expire_time as expireTime\n" +
             " from ( select * from tb_virtual_card_info where user_id=${userId}) vci\n" +
