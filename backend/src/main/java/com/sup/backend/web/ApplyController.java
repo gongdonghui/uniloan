@@ -225,7 +225,9 @@ public class ApplyController {
         if (plan.getRepay_status().equals(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode())) {
           continue;
         }
-
+	boolean s1 = (plan.getRepay_start_date().compareTo(new Date()) <= 0);
+        boolean s2 = (plan.getRepay_start_date().getTime() <= System.currentTimeMillis());
+        logger.info(String.format("apply_id: %d, s1: %s, s2: %s", bean.getId(), s1, s2));
         if (plan.getRepay_start_date().getTime() <= System.currentTimeMillis()) {
           AppApplyInfo ai = new AppApplyInfo();
           Long curr_need = plan.getNeed_total() - plan.getAct_total() - plan.getReduction_fee();

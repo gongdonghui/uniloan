@@ -18,8 +18,8 @@ ssdb:
 
 
 repay:
-  accountno: '105006822282'
-  bankaccount: 'Nguyễn Khánh Linh'
+  accountno: '103871710595'
+  bankaccount: 'NGUYEN THI NHUNG'
   bankbranch: 'VietinBank'
 
 feign:
