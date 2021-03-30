@@ -44,11 +44,11 @@ public class ModelManagentService {
 
     private static final Double DEFAULT_VALUE = -9999.0;
 
-    private Evaluator loadPmml(String modelpath) {
+    private Evaluator loadPmml(String path) {
         PMML pmml = new PMML();
         InputStream inputStream = null;
         try {
-            inputStream = new FileInputStream(modelPath);
+            inputStream = new FileInputStream(path);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -92,7 +92,7 @@ public class ModelManagentService {
             if(modelName.equals(RiskVariableConstants.A001NegProb))  {
                 evaluator = this.evaluator;
             } else  if( modelName.equals(RiskVariableConstants.A002NegProb)) {
-                evaluator     =this.evaluator_bscore;
+                evaluator = this.evaluator_bscore;
             } else {
                     evaluator = this.evaluator;
             }
