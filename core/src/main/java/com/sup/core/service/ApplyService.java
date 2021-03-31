@@ -317,7 +317,7 @@ public class ApplyService {
     public synchronized void autoassignTask(Map<Integer, List<Integer>> needAssign) {
         int total = 0;
         if (opertatorIds != null) {
-            opertatorIds.put(59, 66);
+            opertatorIds.put(59, 68);
         }
 
         for (Integer credit_level : needAssign.keySet()) {
