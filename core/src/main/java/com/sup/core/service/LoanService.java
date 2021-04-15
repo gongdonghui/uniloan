@@ -417,25 +417,25 @@ public class LoanService {
             }
         }
 
-//        if (applyInfoBean.getStatus() == ApplyStatusEnum.APPLY_REPAY_PART.getCode()) {
-//            if (!bean.getRepay_status().equals(RepayPlanStatusEnum.PLAN_PAID_ALL.getCode())) {
-//                // 该计划未还清，无需更新ApplyInfo
-//                return Result.succ();
-//            }
-//        }
-//
-//        if (statBean.getAct_total() + statBean.getReduction_fee() >= statBean.getNeed_total()) {
-//            // 已还清
-//            applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_ALL.getCode());
-//            mqMessenger.applyStatusChange(applyInfoBean);
-//        } else {
-//            if (applyInfoBean.getStatus() != ApplyStatusEnum.APPLY_OVERDUE.getCode()) {
-//                // 非逾期状态下，更新为未还清；逾期未还清仍为逾期状态
-//                applyInfoBean.setStatus(ApplyStatusEnum.APPLY_REPAY_PART.getCode());
-//            }
-//        }
+
         applyInfoBean.setUpdate_time(new Date());
-        return applyService.updateApplyInfo(applyInfoBean);
+        Result<TbApplyInfoBean> ret = applyService.updateApplyInfo(applyInfoBean);
+        if (ret.isSucc() && ret.getData() != null && ret.getData().getStatus() == ApplyStatusEnum.APPLY_REPAY_ALL.getCode()) {
+            assert(planBeans.size() == 1);
+            TbRepayPlanBean repayPlanBean = planBeans.get(0);
+            // 已还清，更新虚拟卡状态为不可用
+            TbVirtualCardInfo cardInfo = virtualCardInfoMapper.selectOne(
+                    new QueryWrapper<TbVirtualCardInfo>().eq("user_id", repayPlanBean.getUser_id())
+            );
+            if (cardInfo != null && cardInfo.getStatus() == VirtualCardStatusEnum.VC_STATUS_VALID.getCode()) {
+                if (destoryVirtualCard(String.valueOf(cardInfo.getOrder_no()), cardInfo.getVc_no()).isSucc()) {
+                    cardInfo.setStatus(VirtualCardStatusEnum.VC_STATUS_INVALID.getCode());
+                    cardInfo.setExpire_time(new Date());
+                    virtualCardInfoMapper.updateById(cardInfo);
+                }
+            }
+        }
+        return ret;
     }
 
     public Result getRepayPlan(String applyId) {
@@ -1045,21 +1045,7 @@ public class LoanService {
             mqMessenger.sendRepayMessage(repayHistoryBean);
             return Result.fail("Repay failed!");
         }
-        Result<TbApplyInfoBean> ret = repayAndUpdate(repayHistoryBean, Long.valueOf(param.getAmount()), param.getFinishTime(), false);
-        if (ret.isSucc() && ret.getData() != null && ret.getData().getStatus() == ApplyStatusEnum.APPLY_REPAY_ALL.getCode()) {
-            // 已还清，更新虚拟卡状态为不可用
-            TbVirtualCardInfo cardInfo = virtualCardInfoMapper.selectOne(
-                    new QueryWrapper<TbVirtualCardInfo>().eq("user_id", repayPlanBean.getUser_id())
-            );
-            if (cardInfo != null && cardInfo.getStatus() == VirtualCardStatusEnum.VC_STATUS_VALID.getCode()) {
-                if (destoryVirtualCard(String.valueOf(cardInfo.getOrder_no()), cardInfo.getVc_no()).isSucc()) {
-                    cardInfo.setStatus(VirtualCardStatusEnum.VC_STATUS_INVALID.getCode());
-                    cardInfo.setExpire_time(new Date());
-                    virtualCardInfoMapper.updateById(cardInfo);
-                }
-            }
-        }
-        return ret;
+        return repayAndUpdate(repayHistoryBean, Long.valueOf(param.getAmount()), param.getFinishTime(), false);
     }
 
     private Result destoryVirtualCard(String orderNo, String accountNo) {
