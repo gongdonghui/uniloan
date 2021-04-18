@@ -318,6 +318,8 @@ public class ApplyService {
         int total = 0;
         if (opertatorIds != null) {
             opertatorIds.put(59, 68);
+            opertatorIds.put(66, 68);
+            opertatorIds.put(54, 68);
         }
 
         for (Integer credit_level : needAssign.keySet()) {
