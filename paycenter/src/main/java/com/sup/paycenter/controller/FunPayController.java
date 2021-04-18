@@ -340,7 +340,9 @@ public class FunPayController {
         m.put("expireDate", DateUtil.format(expDate.toDate(), DateUtil.NS_DAY_ALL_NUM_FORMAT));
 
         m.put("returnUrl", vcReturnUrl);
-        m.put("bankType", bankType);
+        if (!Strings.isNullOrEmpty(bankType)) {
+            m.put("bankType", bankType);
+        }
 
         m.put("accountBase", info.getMobile());
         m.put("userName", info.getUserName() + "");
@@ -385,7 +387,8 @@ public class FunPayController {
         return "";
     }
 
-    @PostMapping(value = "updateVC")
+    /**
+     @PostMapping(value = "updateVC")
     public Result<CreateVCVO> updateVC(@RequestBody UpdateVCInfo info) {
         Map<String, String> m = Maps.newHashMap();
         m.put("merchantID", merchantId);
@@ -419,7 +422,7 @@ public class FunPayController {
         c.setServiceFee(resultBean.getResult().getServiceFee());
         c.setExpireDate(DateUtil.parse(resultBean.getResult().getExpireDate(), DateUtil.NS_DAY_ALL_NUM_FORMAT));
         return Result.succ(c);
-    }
+    } */
 
     @PostMapping(value = "destroyVC")
     public Result destroyVC(@RequestBody DestroyVCInfo info) {
@@ -429,7 +432,9 @@ public class FunPayController {
         m.put("feeID", feeId);
         m.put("timestamp", System.currentTimeMillis() + "");
         m.put("orderNo", info.getOrderNo());
-        m.put("bankType", bankType);
+        if (!Strings.isNullOrEmpty(bankType)) {
+            m.put("bankType", bankType);
+        }
         m.put("version", version);
         String param = FunPayParamsUtil.params4Get(m, secretKey);
         String result = OkBang.get(funPayUrl + method_destroyVC + "?param=" + param);
