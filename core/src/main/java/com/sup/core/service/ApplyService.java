@@ -316,11 +316,15 @@ public class ApplyService {
 
     public synchronized void autoassignTask(Map<Integer, List<Integer>> needAssign) {
         int total = 0;
-        if (opertatorIds != null) {
+//        if (opertatorIds != null) {
+          if( opertatorIds ==null) {
+              opertatorIds = new HashMap<>();
+          }
             opertatorIds.put(59, 68);
+
             opertatorIds.put(66, 68);
             opertatorIds.put(54, 68);
-        }
+//        }
 
         for (Integer credit_level : needAssign.keySet()) {
             List<Integer> operators = taskConfigBeanMapper.getOperatorsByLevel(credit_level);
@@ -369,7 +373,7 @@ public class ApplyService {
             needUpdate = false;
         }
         if (taskBean.getOperator_id() != null) {
-            log.info("Change AutoTaskAssign for operation task has assigned, applyid:" + applyId + "," + taskBean.getOperator_id());
+            log.info("Change AutoTaskAssign for operation task has assigned, applyid:" + applyId + ",from:" + taskBean.getOperator_id() +",to:"+operator_id );
         }
 
 
