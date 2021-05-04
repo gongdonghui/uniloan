@@ -502,7 +502,8 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,rs.overdue_days_max as overdueDays" +
             "  ,ot.status as taskStatus" +
             "  ,ai.loan_time as loanDate" +
-            "  ,ot.update_time as taskDate" +
+            "  ,ot.create_time  as taskDate" +
+            "  ,ot.update_time as update" +
             "  ,ot.operator_id as operatorId" +
             "  ,cau.name as operatorName" +
             " from (" +
