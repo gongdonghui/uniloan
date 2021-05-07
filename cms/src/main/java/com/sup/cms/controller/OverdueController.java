@@ -145,7 +145,9 @@ public class OverdueController {
         List<OverdueGetListBean> l = crazyJoinMapper.getTaskList(sb.toString(), offset, rows);
 
         Map m = Maps.newHashMap();
-        log.info("Task List Element str:"+ GsonUtil.toJson(l.get(0).toString()));
+        if(!l.isEmpty()) {
+            log.info("Task List Element str:" + GsonUtil.toJson(l.get(0).toString()));
+        }
         m.put("total", crazyJoinMapper.getTaskListCount(sb.toString()));
         m.put("list", l);
         return ResponseUtil.success(m);
