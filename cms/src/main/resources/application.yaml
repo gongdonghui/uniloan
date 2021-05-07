@@ -126,7 +126,7 @@ cache:
     key-pre: CMS-2-
 
 ssdb:
-  host: 127.0.0.1
+  host: 47.241.13.144
   port: 13288
   auth: zzzzzzzzzzzzzzzz13JPTmkZT5QmAV4s
   timeout: 300000
