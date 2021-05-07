@@ -30,10 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: kouichi
@@ -149,8 +146,13 @@ public class OverdueController {
             if (!l.isEmpty()) {
                 log.info("Task List Element str:" + GsonUtil.toJson(l.get(0).toString()));
             }
+            List<OverdueGetListBean> ret = new ArrayList<>();
+            for (OverdueGetListBean  overdueGetListBean:l) {
+                overdueGetListBean.setUpdate(overdueGetListBean.getLatestDate());
+                ret.add(overdueGetListBean);
+            }
             m.put("total", crazyJoinMapper.getTaskListCount(sb.toString()));
-            m.put("list", l);
+            m.put("list", ret);
             return ResponseUtil.success(m);
         }catch (Exception  e)  {
             log.error("query failed for task:"+e.getMessage());

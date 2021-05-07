@@ -1,6 +1,5 @@
 package com.sup.cms.bean.po;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.util.Date;
@@ -34,6 +33,7 @@ public class OverdueGetListBean {
     private Date taskDate;          // 催收时间
     private Integer operatorId;     // 催收员id
     private String  operatorName;   // 催收员姓名
-    @TableField(value ="latestDate")
+
+    private Date   latestDate;//最后催收时间
     private Date   update;//最后催收时间
 }
