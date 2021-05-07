@@ -1,6 +1,7 @@
 package com.sup.cms.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.sup.cms.bean.po.ApplyAssetJoinBean;
@@ -142,7 +143,11 @@ public class OverdueController {
         Integer offset = (params.getPage() - 1) * params.getPageSize();
         Integer rows = params.getPageSize();
         List<OverdueGetListBean> l = crazyJoinMapper.getTaskList(sb.toString(), offset, rows);
+
         Map m = Maps.newHashMap();
+        if(!l.isEmpty()) {
+            log.info("Task List Element str:" + GsonUtil.toJson(l.get(0).toString()));
+        }
         m.put("total", crazyJoinMapper.getTaskListCount(sb.toString()));
         m.put("list", l);
         return ResponseUtil.success(m);

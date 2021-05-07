@@ -502,7 +502,8 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,rs.overdue_days_max as overdueDays" +
             "  ,ot.status as taskStatus" +
             "  ,ai.loan_time as loanDate" +
-            "  ,ot.update_time as taskDate" +
+            "  ,ot.update_time  as taskDate" +
+            "  ,rec.latest_create as update" +
             "  ,ot.operator_id as operatorId" +
             "  ,cau.name as operatorName" +
             " from (" +
@@ -526,6 +527,8 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_repay_stat rs on ai.id=rs.apply_id" +
             " left join tb_repay_plan rp on ai.id=rp.apply_id" +
             " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
+            " left join  (select apply_id, operator_id, max(create_time) as latest_create  from tb_cms_collection_record  group by apply_id,operator_id)  as rec" +
+            "   on  task.apply_id = rec.apply_id   and  task.operator_id =rec.operator_id"+
             " where uri.type = 0" +
             " ${conditions}" +
             " order by ai.id desc" +
@@ -555,6 +558,8 @@ public interface CrazyJoinMapper extends BaseMapper {
             " left join tb_repay_stat rs on ai.id=rs.apply_id" +
             " left join tb_repay_plan rp on ai.id=rp.apply_id" +
             " left join tb_cms_auth_user cau on ot.operator_id=cau.id" +
+            " left join  (select apply_id, operator_id, max(create_time) as latest_create  from tb_cms_collection_record  group by apply_id,operator_id)  as rec" +
+            "   on  task.apply_id = rec.apply_id   and  task.operator_id =rec.operator_id"+
             " where uri.type = 0" +
             " ${conditions}" +
             " order by ai.id desc")
