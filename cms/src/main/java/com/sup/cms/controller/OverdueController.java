@@ -140,17 +140,23 @@ public class OverdueController {
         }
 
         log.info("getTaskList conditions=" + sb.toString());
-        Integer offset = (params.getPage() - 1) * params.getPageSize();
-        Integer rows = params.getPageSize();
-        List<OverdueGetListBean> l = crazyJoinMapper.getTaskList(sb.toString(), offset, rows);
+        try {
+            Integer offset = (params.getPage() - 1) * params.getPageSize();
+            Integer rows = params.getPageSize();
+            List<OverdueGetListBean> l = crazyJoinMapper.getTaskList(sb.toString(), offset, rows);
 
-        Map m = Maps.newHashMap();
-        if(!l.isEmpty()) {
-            log.info("Task List Element str:" + GsonUtil.toJson(l.get(0).toString()));
+            Map m = Maps.newHashMap();
+            if (!l.isEmpty()) {
+                log.info("Task List Element str:" + GsonUtil.toJson(l.get(0).toString()));
+            }
+            m.put("total", crazyJoinMapper.getTaskListCount(sb.toString()));
+            m.put("list", l);
+            return ResponseUtil.success(m);
+        }catch (Exception  e)  {
+            log.error("query failed for task:"+e.getMessage());
+            return  ResponseUtil.failed();
+
         }
-        m.put("total", crazyJoinMapper.getTaskListCount(sb.toString()));
-        m.put("list", l);
-        return ResponseUtil.success(m);
     }
 
     /**
