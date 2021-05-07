@@ -213,6 +213,13 @@ rocket:
 login:
   fake_verify_code: false
 
+
+repay:
+  accountno: '116002730866'
+  bankaccount: 'CTY GO STAR'
+  bankbranch: 'Vietinbank'
+
+
 spring:
   profiles: online2
   redis:
