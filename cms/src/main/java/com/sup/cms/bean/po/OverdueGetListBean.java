@@ -1,5 +1,6 @@
 package com.sup.cms.bean.po;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.util.Date;
@@ -28,9 +29,11 @@ public class OverdueGetListBean {
     private Integer penaltyInterest;    // 逾期罚息
     private Integer overdueDays;    // 逾期天数
     private Integer taskStatus;     // 催收状态
+
     private Date loanDate;          // 借款时间
     private Date taskDate;          // 催收时间
     private Integer operatorId;     // 催收员id
     private String  operatorName;   // 催收员姓名
-    private Date   latestDate;//最后催收时间
+    @TableField(value ="latestDate")
+    private Date   update;//最后催收时间
 }
