@@ -32,5 +32,5 @@ public class OverdueGetListBean {
     private Date taskDate;          // 催收时间
     private Integer operatorId;     // 催收员id
     private String  operatorName;   // 催收员姓名
-    private Date   update ;//最后催收时间
+    private Date   latestDate;//最后催收时间
 }
