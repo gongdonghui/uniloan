@@ -503,7 +503,7 @@ public interface CrazyJoinMapper extends BaseMapper {
             "  ,ot.status as taskStatus" +
             "  ,ai.loan_time as loanDate" +
             "  ,ot.update_time  as taskDate" +
-            "  ,rec.latest_create as latestDate" +
+            "  ,rec.latest_create as updateDate" +
             "  ,ot.operator_id as operatorId" +
             "  ,cau.name as operatorName" +
             " from (" +

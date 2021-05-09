@@ -146,13 +146,8 @@ public class OverdueController {
             if (!l.isEmpty()) {
                 log.info("Task List Element str:" + GsonUtil.toJson(l.get(0).toString()));
             }
-            List<OverdueGetListBean> ret = new ArrayList<>();
-            for (OverdueGetListBean  overdueGetListBean:l) {
-                overdueGetListBean.setUpdate(overdueGetListBean.getLatestDate());
-                ret.add(overdueGetListBean);
-            }
             m.put("total", crazyJoinMapper.getTaskListCount(sb.toString()));
-            m.put("list", ret);
+            m.put("list", l);
             return ResponseUtil.success(m);
         }catch (Exception  e)  {
             log.error("query failed for task:"+e.getMessage());
