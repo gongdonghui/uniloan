@@ -1,117 +1,104 @@
+This is a mico-service  based credit  loan  management system
+APP End Product Process:
+APP Launch
+-> User Registration/Login
+-> Browse Loan Products (loan amount, arrival amount, term, repayment method, etc.), go to borrow
 
-APP端产品流程：
+-> Information: ID Card Information (name, ID number, gender, front/back/hand-held photos)
+-> Information: Basic Information (education, marriage, children, residence, duration of residence, purpose, Zalo account, age)
+-> Information: Emergency Contact (relationship, name, phone)
+-> Information: Job Information (company name, location, detailed address, phone, profession, income, work certification photo)
+-> Information: Bank Account Information (name, ID number, account type, bank, bank account)
+-> Verification: Live Recognition
 
-APP启动
-->用户注册/登陆
-->浏览贷款产品（借款金额、到账金额、期限、还款方式等），去借款
+-> Loan Confirmation (submit application)
 
-->资料：身份证信息（姓名、身份证号、性别、正/反/手持照片）
-->资料：基本信息（学历、婚姻、子女、居住地、居住时长、用途、zalo账号、年龄）
-->资料：紧急联系人（关系、姓名、电话）
-->资料：职业信息（公司名称、所在地、详细地址、电话、职业、收入、工作证明照片）
-->资料：银行账号信息（姓名、身份证号、账户类型、银行、银行账号）
-->认证：活体识别
+-> Manual Repayment: Submit repayment proof + explanation in the app
+-> Automatic Repayment: ??
 
-->借款确认（提交进件）
+Backend Modules
+User Center
 
-->手动还款：在app中提交还款证明+说明
-->自动还款：？？
+Verification code login/registration;
+User information CRUD (ID information, basic information, contact information, social account, job information, bank information, etc.);
+Query all orders;
+Check application progress;
+Check repayment plan;
+Upload repayment voucher;
+Automatic repayment (?);
+Credit Review System
 
+Risk control rule service;
+Application distribution;
+Application information CRUD;
+Post-loan Management
 
+Loan information CRUD;
+Repayment information CRUD;
+Overdue Management
 
-# 后端模块划分
+Basic Services
 
-1.用户中心
-验证码登陆/注册；
-用户资料增删改查（身份证信息、基本信息、联系人信息、社交账号、职业信息、银行信息等）；
-查询所有订单；
-查询申请进度；
-查询还款计划；
-上传还款凭证；
-自动还款（？）；
+SMS service;
+Payment service;
+Configuration Center
 
+Product list configuration;
+Product process configuration (rate, required information, etc.);
+Reports
 
-2.信审系统
-风控规则服务；
-进件分配；
-进件信息增删改查；
+Module Interface
+User Center
 
+Credit Review System
+2.1 Rule Engine Service:
 
-3.贷后管理
-放款信息增删改查；
-还款信息增删改查；
+Add rules;
+Delete rules;
+Update rules;
+Automatic review based on rules;
 
+2.2 Application Service:
 
-4.逾期管理
+Application CRUD;
+Application information CRUD;
+Automatic assignment of orders;
+Manual assignment of orders;
+Order recovery;
 
+2.3 Loan Service:
 
+Automatic loan;
+Add/Update/Query loan order;
 
-5.基础服务
-短信服务；
-支付服务；
+Get automatic repayment link;
+Repayment success callback function;
+Add/Update/Query manual repayment information;
 
+Query overdue orders;
+Overdue assignment;
+Assignment recovery;
 
-6.配置中心
-产品列表配置；
-产品流程配置（费率、所需资料等）；
+Basic Services
+3.1 SMS Service
 
+Verification code;
+Send SMS;
+Query SMS send status;
 
-7.报表
+3.2 Payment Service
 
+Make payment;
+Get payment link;
 
-# 模块接口
-1.用户中心
+Configuration Center
+4.1 Product List Configuration
 
-2.信审系统
-2.1规则引擎服务：
->添加规则；
->删除规则；
->更新规则；
->根据规则，自动审核；
+Product addition
+Product update
 
+4.2 Product Process Configuration
 
-2.2进件服务：
->进件申请CRUD；
->进件资料CRUD；
->自动指派单子；
->手动指派单子；
->回收单子；
-
-2.3放款服务：
->自动放款；
->添加/更新/查询放款订单；
->
->获取自动还款链接；
->还款成功回调函数；
->添加/更新/查询手动还款资料；
->
->查询逾期订单；
->逾期指派；
->指派回收；
->
-
-
-3.基础服务
-3.1短信服务
->验证码；
->发送短信；
->查询短信发送状态；
-
-3.2支付服务
->打款；
->获取回款链接；
->
-
-
-4.配置中心
-4.1产品列表配置
->产品添加
->产品更新
->
-
-4.2产品流程配置
-
-
-5.报表(生成日报库表)
+Reports (Generate Daily Report Databases)
 
 
